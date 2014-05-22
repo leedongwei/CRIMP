@@ -2,6 +2,8 @@
 <resources>
 
     <string name="app_name">CRIMP</string>
+    <string name="str_username">Route Judge Name</string>
+    <string name="str_next">Next</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
