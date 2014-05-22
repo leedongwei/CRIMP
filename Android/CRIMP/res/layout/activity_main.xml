@@ -31,6 +31,7 @@
         android:id="@+id/button_next"
         android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-	    android:text="@string/str_next" />
+	    android:text="@string/str_next" 
+	    android:onClick="next"/>
     
 </LinearLayout>
