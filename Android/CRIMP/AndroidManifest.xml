@@ -23,6 +23,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.nusclimb.live.crimp.QRScanActivity"
+            android:label="@string/title_activity_qrscan"
+            android:parentActivityName="com.nusclimb.live.crimp.MainActivity" 
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.nusclimb.live.crimp.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

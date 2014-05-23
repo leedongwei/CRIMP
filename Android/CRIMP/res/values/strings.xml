@@ -2,9 +2,11 @@
 <resources>
 
     <string name="app_name">CRIMP</string>
+    <string name="package_name">com.nusclimb.live.crimp</string>
     <string name="str_username">Route Judge Name</string>
     <string name="str_next">Next</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_qrscan">QRScanActivity</string>
 
 </resources>
