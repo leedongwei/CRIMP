@@ -30,7 +30,7 @@
 
 		response:
 		{
-			"status" : "200" or "400"(bad syntax) or "401"(unauthorized)
+			"status" : "200" or "400" or "401"(unauthorized) or "404"
 		}
 
 #For client
