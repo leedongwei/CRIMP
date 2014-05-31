@@ -1,9 +1,10 @@
 {
   "name": "CRIMP-server",
-  "description": "",
+  "description": "Backend of CRIMP system",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express": "4.1"
+    "express": "4.x",
+    "body-parser": "1.x"
   }
 }

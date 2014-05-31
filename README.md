@@ -1,6 +1,6 @@
 # Comprehensive Realtime Index of Monkeys' Points (CRIMP)
-###A realtime Ranking System for Bouldering Competitions
-Made to for [NUS](http://www.nus.edu.sg) - Black Diamond Boulderactive 2014.
+###A realtime ranking system for [bouldering](http://http://en.wikipedia.org/wiki/Bouldering) competitions
+Developed by [DongWei](https://github.com/leedongwei) and [Weizhi](https://github.com/ecc-weizhi) for [NUS - Black Diamond Boulderactive 2014](http://boulderactive.nusclimb.com).
 
 ## System Components
 ###admin
@@ -16,4 +16,4 @@ Android/web app for judges to input scores. It uses QR code to identify climbers
 Generator for physical scoresheets with unique QR codes for every climber.
 
 ###server
-node.js server to take in scores, store into a database and push them to spectators
+node.js+express server to take in scores, store into a postgres database and push them to spectators
