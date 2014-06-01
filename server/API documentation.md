@@ -11,7 +11,7 @@
 
 		response:
 		{
-			"status" : "200"(ok) or "400"(bad syntax) or "404"(not found),
+			"http_code" : "200"(ok) or "400"(bad syntax) or "404"(not found),
 			"c_name" : "climber_name",
 			"c_score" : "magic_string"
 		}
@@ -28,10 +28,33 @@
 			"c_score" : "magic_string"
 		}
 
+		// it will INSERT to db, then SELECT and send the data from SELECT back to confirm that it is updated correctly
 		response:
 		{
-			"status" : "200" or "400" or "401"(unauthorized) or "404"
+			"http_code" : "200" or "400" or "401"(unauthorized) or "404"
+			"r_id" : "route_id",
+			"c_id" : "climber_id",
+			"c_score" : "magic_string"
 		}
 
+
+
 #For client
-In development
+
+	##GET ('/client/get/:round')
+
+	round [round expects 3 characters: NWQ NMF]
+		response:
+		{
+			"http_code":"200" or "404"
+			"climbers": {}
+		}
+
+		"climber":{
+			"name":
+			"c_id":
+			"tops":
+			"t_attempts":
+			"bonus":
+			"b_attempts":
+		}
