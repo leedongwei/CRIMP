@@ -4,10 +4,7 @@ module.exports = {
 		'host':'127.0.0.1',
 		'judge_port':'3000',
 		'client_port':'8080',
-		'db_url':'',
-		'db_name':'',
-		'db_user':'',
-		'db_pass':''
+		'db_conn':'postgres://crimp:123456@localhost/crimp-db'
 	},
 
 	'production': {

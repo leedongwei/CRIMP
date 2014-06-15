@@ -1,63 +1,108 @@
-var bodyParser = require('body-parser');
-var express = require('express');
-var pg = require('pg');
-var config = require('./config.js');
+var bodyParser = require('body-parser'),
+		express = require('express'),
+		pg = require('pg'),
+		config = require('./config.js');
 
 var app = express();
 app.use(bodyParser());
 
+var dbConn = process.env.DATABASE_URL || config.development.db_conn;
+console.log(dbConn);
+
 
 app.get('/judges/get/:round', function (req, res) {
-	var message = {'climbers':[
-									{"c_id":"NW001", "c_name":"Anna"},
-									{"c_id":"NW002", "c_name":"Brenda"},
-									{"c_id":"NW003", "c_name":"Cathy"},
-									{"c_id":"NW004", "c_name":"Dorothy"},
-									{"c_id":"NW005", "c_name":"Erica"},
-									{"c_id":"NW006", "c_name":"Felicia"}
-								]};
 
-	var round = req.params.round;
-
-	// Parameters checking
-	if (round.length != 3) {
+	if (req.params.round.length != 3) {
+		console.error('400: Parameter Error');
 		res.send(400);
-	} else {
-		//TODO: call to database
-
-		res.set('Content-Type', 'application/json');
-		res.send(200, JSON.stringify(message));
+		return;
 	}
+
+	var	message = {'climbers':[]},
+			queryConfig = {
+				'text': 'SELECT c_id, c_name FROM crimp_data ' +
+							'WHERE c_category = $1;',
+				'values': [req.params.round.substring(0,2)]
+			};
+
+	pg.connect(dbConn, function(err, client, done) {
+		if (err) {
+			console.error('500: Error fetching client from pool');
+			res.send(500);
+			return;
+		}
+
+		client.query(queryConfig, function(err, result) {
+			// IMPORTANT! Release client back to pool
+			done();
+
+			if (err) {
+				console.error('500: Error running query', err);
+				res.send(500);
+			} else if (!result) {
+				console.error('404: Data not found');
+				res.send(404);
+			} else {
+				result.rows.forEach(function(entry) {
+					message.climbers.push({
+						'c_id': entry.c_id, 'c_name:': entry.c_name
+					});
+				});
+
+				res.set('Content-Type', 'application/json');
+				res.send(200, JSON.stringify(message));
+			}
+		});
+	});
 });
 
 
 app.get('/judges/get/:c_id/:r_id', function (req, res) {
-	var message = {	'c_name': '',
-									'c_score': ''	};
+	var c_id = req.params.c_id,
+			r_id = req.params.r_id;
 
-	var c_id = req.params.c_id;
-	var r_id = req.params.r_id;
-
-	// Parameters checking
 	if (c_id.length != 5 ||
 			r_id.length != 5 ||
 			c_id.substring(0,2) != r_id.substring(0,2)) {
+		console.error('400: Parameter Error');
 		res.send(400);
-	} else {
-		var round = req.params.r_id.substring(0, 3); 	//First 3 char are round name
-		var route = req.params.r_id.substring(3, 5);	//Last 2 char are route number
-
-		//TODO: call to database
-		//message.c_name = c_id;
-		//message.c_score = route + round;
-		message.c_name = 'Anna';
-		message.c_score = '11111B11T';
-
-		res.set('Content-Type', 'application/json');
-		res.send(200, JSON.stringify(message));
+		return;
 	}
 
+	var route = req.params.r_id.substring(2, 5) + '_raw',
+			message = {	'c_name': '', 'c_score': ''	},
+			queryConfig = {
+				'text': 'SELECT ' + route +
+								', c_name FROM crimp_data ' +
+								'WHERE c_id = $1;',
+				'values': [c_id]
+			};
 
+	pg.connect(dbConn, function(err, client, done) {
+		if (err) {
+			console.error('500: Error fetching client from pool');
+			res.send(500);
+			return;
+		}
+
+		client.query(queryConfig, function(err, result) {
+			// IMPORTANT! Release client back to pool
+			done();
+
+			if (err) {
+				console.error('500: Error running query', err);
+				res.send(500);
+			} else if (!result) {
+				console.error('404: Data not found');
+				res.send(404);
+			} else {
+				message = result.rows[0];
+
+				res.set('Content-Type', 'application/json');
+				res.send(200, JSON.stringify(message));
+			}
+		});
+	});
 });
 
 
@@ -103,7 +148,7 @@ app.get('/client/get/:round', function (req, res) {
 
 
 
-var crimp_port = Number(process.env.PORT || config.development.judge_port);
-var server = app.listen(crimp_port, function() {
+var serverPort = Number (process.env.PORT || config.development.judge_port);
+var server = app.listen(serverPort, function() {
   console.log('Listening on port %d', server.address().port);
 });
