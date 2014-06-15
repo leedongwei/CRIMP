@@ -4,15 +4,9 @@ module.exports = {
 		'host':'127.0.0.1',
 		'judge_port':'3000',
 		'client_port':'8080',
+		'auth_code': 'crimpAUTH',
 		'db_conn':'postgres://crimp:123456@localhost/crimp-db'
 	},
 
-	'production': {
-		'host':'',
-		'judge_port':'',
-		'client_port':'',
-		'db_name':'',
-		'db_user':'',
-		'db_pass':''
-	}
+	// production uses Heroku's process.env
 }
