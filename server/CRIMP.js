@@ -1,36 +1,108 @@
-var bodyParser = require('body-parser');
-var express = require('express');
-/*var pg = require('pg');*/
-var config = require('./config.js');
+var bodyParser = require('body-parser'),
+		express = require('express'),
+		pg = require('pg'),
+		config = require('./config.js');
 
 var app = express();
 app.use(bodyParser());
 
+var dbConn = process.env.DATABASE_URL || config.development.db_conn;
+console.log(dbConn);
+
+
+app.get('/judges/get/:round', function (req, res) {
+
+	if (req.params.round.length != 3) {
+		console.error('400: Parameter Error');
+		res.send(400);
+		return;
+	}
+
+	var	message = {'climbers':[]},
+			queryConfig = {
+				'text': 'SELECT c_id, c_name FROM crimp_data ' +
+							'WHERE c_category = $1;',
+				'values': [req.params.round.substring(0,2)]
+			};
+
+	pg.connect(dbConn, function(err, client, done) {
+		if (err) {
+			console.error('500: Error fetching client from pool');
+			res.send(500);
+			return;
+		}
+
+		client.query(queryConfig, function(err, result) {
+			// IMPORTANT! Release client back to pool
+			done();
+
+			if (err) {
+				console.error('500: Error running query', err);
+				res.send(500);
+			} else if (!result) {
+				console.error('404: Data not found');
+				res.send(404);
+			} else {
+				result.rows.forEach(function(entry) {
+					message.climbers.push({
+						'c_id': entry.c_id, 'c_name:': entry.c_name
+					});
+				});
+
+				res.set('Content-Type', 'application/json');
+				res.send(200, JSON.stringify(message));
+			}
+		});
+	});
+});
+
 
 app.get('/judges/get/:c_id/:r_id', function (req, res) {
-	var message = {	'http_code': '200',
-									'c_name': '',
-									'c_score': ''	};
+	var c_id = req.params.c_id,
+			r_id = req.params.r_id;
 
-	var c_id = req.params.c_id;
-	var r_id = req.params.r_id;
-
-	// Parameters checking
 	if (c_id.length != 5 ||
 			r_id.length != 5 ||
 			c_id.substring(0,2) != r_id.substring(0,2)) {
-		message.http_code = '400';
-	} else {
-		var round = req.params.r_id.substring(0, 3); 	//First 3 char are round name
-		var route = req.params.r_id.substring(3, 5);	//Last 2 char are route number
-
-		//TODO: call to database
-		message.http_code = '200';
-		message.c_name = c_id;
-		message.c_score = route + round;
+		console.error('400: Parameter Error');
+		res.send(400);
+		return;
 	}
 
-	res.send(JSON.stringify(message));
+	var route = req.params.r_id.substring(2, 5) + '_raw',
+			message = {	'c_name': '', 'c_score': ''	},
+			queryConfig = {
+				'text': 'SELECT ' + route +
+								', c_name FROM crimp_data ' +
+								'WHERE c_id = $1;',
+				'values': [c_id]
+			};
+
+	pg.connect(dbConn, function(err, client, done) {
+		if (err) {
+			console.error('500: Error fetching client from pool');
+			res.send(500);
+			return;
+		}
+
+		client.query(queryConfig, function(err, result) {
+			// IMPORTANT! Release client back to pool
+			done();
+
+			if (err) {
+				console.error('500: Error running query', err);
+				res.send(500);
+			} else if (!result) {
+				console.error('404: Data not found');
+				res.send(404);
+			} else {
+				message = result.rows[0];
+
+				res.set('Content-Type', 'application/json');
+				res.send(200, JSON.stringify(message));
+			}
+		});
+	});
 });
 
 
@@ -38,7 +110,6 @@ app.get('/judges/get/:c_id/:r_id', function (req, res) {
 	curl -H "Content-Type: application/json" -d "{\"j_name\":\"DW\", \"auth_code\":\"\",\"r_id\":\"NMQ01\",\"c_id\":\"NM128\",\"c_score\":\"111BT\"}" http://127.0.0.1:3000/judges/set
 */
 app.post('/judges/set', function (req, res) {
-	var message = {'http_code':'200'};
 	var postBody = req.body;
 
 	// TODO: change to server logs
@@ -48,35 +119,36 @@ app.post('/judges/set', function (req, res) {
 	if (postBody.r_id.length != 5 ||
 			postBody.c_id.length != 5 ||
 			postBody.c_score.length > 64 ) {
-		message.http_code = '400';
+		res.send(400);
 	} else {
 		// TODO: call to server
 
+		res.send(200);
 	}
-
-	res.send(message);
 });
 
 
 app.get('/client/get/:round', function (req, res) {
-	var message = {	'http_code': '200',
-									'climbers':''	};
+	var message = {'climbers':[]};
 
 	var round = req.params.round;
 
 	// Parameters checking
 	if (c_id.length != 3) {
-		message.http_code = '404';
+		res.send(400);
 	} else {
 		//TODO: call to database
-		message.http_code = '200';
 		message.climbers = 'yo';
+
+		res.set('Content-Type', 'application/json');
+		res.send(200, JSON.stringify(message));
 	}
 
-	res.send(JSON.stringify(message));
 });
 
 
-var server = app.listen(config.development.judge_port, function() {
+
+var serverPort = Number (process.env.PORT || config.development.judge_port);
+var server = app.listen(serverPort, function() {
   console.log('Listening on port %d', server.address().port);
 });
