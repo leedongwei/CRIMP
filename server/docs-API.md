@@ -56,7 +56,7 @@
 		"climbers": [
 			{
 				"c_id":
-				"tops":
+				"top":
 				"t_att":
 				"bonus":
 				"b_att":
