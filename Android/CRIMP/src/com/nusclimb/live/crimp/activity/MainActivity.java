@@ -1,10 +1,10 @@
-package com.nusclimb.live.crimp;
+package com.nusclimb.live.crimp.activity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import android.content.Intent;
+import com.nusclimb.live.crimp.R;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -65,6 +65,12 @@ public class MainActivity extends ActionBarActivity {
 	protected void onStop(){
 		Log.d(TAG, "MainActivity onStop.");
 		super.onStop();
+	}
+	
+	@Override
+	protected void onDestroy(){
+		Log.d(TAG, "MainActivity onDestroy.");
+		super.onDestroy();
 	}
 	
 	
