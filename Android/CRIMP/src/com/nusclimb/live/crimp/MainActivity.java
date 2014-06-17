@@ -4,32 +4,34 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
-import android.os.Build;
 
+/**
+ * First activity of CRIMP
+ * 
+ * @author Lin Weizhi (ecc.weizhi@gmail.com)
+ *
+ */
 public class MainActivity extends ActionBarActivity {
-
-	private List<Integer> routeList = new ArrayList<Integer>();
-	private ArrayAdapter<Integer> routeAdapter;
-	private String selectedRound;
-	private int selectedRoute;
+	private final String TAG = MainActivity.class.getSimpleName();
 	
+	private List<String> routeList = new ArrayList<String>();
+	private ArrayAdapter<String> routeAdapter;
+	private String selectedRound;
+	
+	/*=========================================================================
+	 * Activity lifecycle methods.
+	 *========================================================================*/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -37,8 +39,35 @@ public class MainActivity extends ActionBarActivity {
 		
 		addListenerToRoundSpinner();
 		setRouteSpinnerAdapter();
-		addListenerToRouteSpinner();
+		
+		Log.d(TAG, "MainActivity onCreate.");
 	}
+	
+	@Override
+	protected void onStart(){
+		super.onStart();
+		Log.d(TAG, "MainActivity onStart");
+	}
+	
+	@Override
+	protected void onResume(){
+		super.onResume();
+		Log.d(TAG, "MainActivity onResume.");
+	}
+	
+	@Override
+	protected void onPause(){
+		Log.d(TAG, "MainActivity onPause.");
+		super.onPause();
+	}
+	
+	@Override
+	protected void onStop(){
+		Log.d(TAG, "MainActivity onStop.");
+		super.onStop();
+	}
+	
+	
 	
 	/**
 	 * Add a listener to round selection spinner. The item selected will determine the list
@@ -54,18 +83,56 @@ public class MainActivity extends ActionBarActivity {
 				Resources res = getResources();
 				selectedRound = parent.getItemAtPosition(pos).toString();
 				
-				// Currently there are only 2 route list for Qualifier and Final. A round must be either one.
-				if(selectedRound.toLowerCase().contains("qualifier")){
-					int[] route_primitive = res.getIntArray(R.array.route_qualifier);
+				// Currently there are only 3 route list for Qualifier and Final. 
+				// TODO I hardcoded this segment. Might want to improve this.
+				switch(pos){
+				case 0:
+				case 2:
+				case 4:
+				case 6:
+				{
+					// 6 routes
+					String[] route_array = res.getStringArray(R.array.route_qualifier_novice);
 					routeList.clear();
-					List<Integer> routeTemp = Helper.primitiveToList(route_primitive);
-					routeList.addAll(routeTemp);
+					routeList.addAll(Arrays.asList(route_array));
+					break;
 				}
-				else{
-					int[] route_primitive = res.getIntArray(R.array.route_final);
+					
+				case 8:
+				case 10:
+				case 12:
+				case 14:
+				{
+					// 5 routes
+					String[] route_array = res.getStringArray(R.array.route_qualifier);
 					routeList.clear();
-					List<Integer> routeTemp = Helper.primitiveToList(route_primitive);
-					routeList.addAll(routeTemp);
+					routeList.addAll(Arrays.asList(route_array));
+					break;
+				}
+				
+				case 1:
+				case 3:
+				case 5:
+				case 7:
+				case 9:
+				case 11:
+				{
+					// 3 routes
+					String[] route_array = res.getStringArray(R.array.route_final);
+					routeList.clear();
+					routeList.addAll(Arrays.asList(route_array));
+					break;
+				}
+				
+				case 13:
+				case 15:
+				{
+					// TODO 3+1 routes. Implementation to be determined
+					break;
+				}
+				
+				default:
+					Log.e(TAG, "Unknown round selected in spinner.");
 				}
 				
 				routeAdapter.notifyDataSetChanged();
@@ -73,8 +140,7 @@ public class MainActivity extends ActionBarActivity {
 
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
-				// TODO Auto-generated method stub
-				
+				// We are not doing anything here.
 			}
 		});
 	}
@@ -82,34 +148,12 @@ public class MainActivity extends ActionBarActivity {
 	/**
 	 * Create and set an ArrayAdapter for route spinner so that we can modify the item list.
 	 */
-	public void setRouteSpinnerAdapter(){		
+	public void setRouteSpinnerAdapter(){
 		Spinner spinner = (Spinner) findViewById(R.id.route_spinner);
 		
-		routeAdapter = new ArrayAdapter<Integer>(this, android.R.layout.simple_spinner_item, routeList);
+		routeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, routeList);
 		routeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(routeAdapter);
-	}
-	
-	/**
-	 * Add a listener to route selection spinner. On receiving a route selection, the selection
-	 * will be stored in global variable selectedRoute.
-	 */
-	public void addListenerToRouteSpinner(){
-		Spinner route_spinner = (Spinner) findViewById(R.id.route_spinner);
-		route_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-				Resources res = getResources();
-				selectedRoute = (Integer) parent.getItemAtPosition(pos);
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
 	}
 	
 	/**
@@ -117,12 +161,22 @@ public class MainActivity extends ActionBarActivity {
 	 * the QRScan activity.
 	 */
 	public void next(View view){
-		EditText username = (EditText) findViewById(R.id.username);
+		Log.d(TAG, "Next button clicked.");
 		
+		EditText username = (EditText) findViewById(R.id.username);
+		Spinner routeSpinner = (Spinner) findViewById(R.id.route_spinner);
+		String selectedRoute = (String) routeSpinner.getSelectedItem();
+		
+		String packageName = getString(R.string.package_name);
+		
+		/*
+		// Preparing to start QRScanActivity
 		Intent intent = new Intent(this, QRScanActivity.class);
-		intent.putExtra(getResources().getText(R.string.package_name) + ".username", username.getText().toString());
-		intent.putExtra(getResources().getText(R.string.package_name) + ".round", selectedRound);
-		intent.putExtra(getResources().getText(R.string.package_name) + ".route", selectedRoute);
+		intent.putExtra(packageName + getString(R.string.intent_username) , username.getText().toString());
+		intent.putExtra(packageName + getString(R.string.intent_round), selectedRound);
+		intent.putExtra(packageName + getString(R.string.intent_route), selectedRoute);
+		
 		startActivity(intent);
+		*/
 	}
 }
