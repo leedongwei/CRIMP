@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.nusclimb.live.crimp.R;
+
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -46,7 +48,7 @@ public class MainActivity extends ActionBarActivity {
 	@Override
 	protected void onStart(){
 		super.onStart();
-		Log.d(TAG, "MainActivity onStart");
+		Log.d(TAG, "MainActivity onStart.");
 	}
 	
 	@Override
@@ -75,12 +77,42 @@ public class MainActivity extends ActionBarActivity {
 	
 	
 	
+	/*=========================================================================
+	 * Public methods
+	 *=======================================================================*/
+	/**
+	 * Method to call when Next button is clicked. Perform creation of intention and calling 
+	 * the QRScan activity.
+	 */
+	public void next(View view){
+		Log.d(TAG, "Next button clicked.");
+		
+		EditText username = (EditText) findViewById(R.id.username);
+		Spinner routeSpinner = (Spinner) findViewById(R.id.route_spinner);
+		String selectedRoute = (String) routeSpinner.getSelectedItem();
+		
+		String packageName = getString(R.string.package_name);
+		
+		// Preparing to start QRScanActivity
+		Intent intent = new Intent(this, QRScanActivity.class);
+		intent.putExtra(packageName + getString(R.string.intent_username) , username.getText().toString());
+		intent.putExtra(packageName + getString(R.string.intent_round), selectedRound);
+		intent.putExtra(packageName + getString(R.string.intent_route), selectedRoute);
+		
+		startActivity(intent);
+	}
+	
+	
+	
+	/*=========================================================================
+	 * Private methods
+	 *=======================================================================*/
 	/**
 	 * Add a listener to round selection spinner. The item selected will determine the list
 	 * for route selection spinner. On receiving item selected events, we modify route selection
 	 * spinner, notify routeAdapter and store the selection in global variable selectedRound.
 	 */
-	public void addListenerToRoundSpinner(){
+	private void addListenerToRoundSpinner(){
 		Spinner round_spinner = (Spinner) findViewById(R.id.round_spinner);
 		round_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 
@@ -154,7 +186,7 @@ public class MainActivity extends ActionBarActivity {
 	/**
 	 * Create and set an ArrayAdapter for route spinner so that we can modify the item list.
 	 */
-	public void setRouteSpinnerAdapter(){
+	private void setRouteSpinnerAdapter(){
 		Spinner spinner = (Spinner) findViewById(R.id.route_spinner);
 		
 		routeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, routeList);
@@ -162,27 +194,4 @@ public class MainActivity extends ActionBarActivity {
 		spinner.setAdapter(routeAdapter);
 	}
 	
-	/**
-	 * Method to call when Next button is clicked. Perform creation of intention and calling 
-	 * the QRScan activity.
-	 */
-	public void next(View view){
-		Log.d(TAG, "Next button clicked.");
-		
-		EditText username = (EditText) findViewById(R.id.username);
-		Spinner routeSpinner = (Spinner) findViewById(R.id.route_spinner);
-		String selectedRoute = (String) routeSpinner.getSelectedItem();
-		
-		String packageName = getString(R.string.package_name);
-		
-		/*
-		// Preparing to start QRScanActivity
-		Intent intent = new Intent(this, QRScanActivity.class);
-		intent.putExtra(packageName + getString(R.string.intent_username) , username.getText().toString());
-		intent.putExtra(packageName + getString(R.string.intent_round), selectedRound);
-		intent.putExtra(packageName + getString(R.string.intent_route), selectedRoute);
-		
-		startActivity(intent);
-		*/
-	}
 }
