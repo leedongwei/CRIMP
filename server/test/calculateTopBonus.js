@@ -1,9 +1,9 @@
 var scores = ['1', 'B', 'T',
-							'111B', '111B111', 'B111',
-							'111T', '111T111', 'T111',
-							'111B11T', '111T11B',
-							'B111T','T111B',
-							'BT111', 'TB111'];
+							'11B', '11B11', 'B11',
+							'11T', '11T11', 'T11',
+							'11BT', '11TB',
+							'B11T', 'T11B',
+							'BT11', 'TB11', ''];
 
 scores.forEach(function(entry) {
 	console.log(calculateTop(entry) + '/' + calculateBonus(entry));

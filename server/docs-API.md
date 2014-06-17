@@ -1,7 +1,7 @@
 #For judge
 
 ##GET ('/judge/get/:round')
-:round [:round expects 3 characters: NMQ/NWF]
+:round [round expects 3 characters: NMQ/NWF]
 
 	response (header: 200):
 	{
@@ -17,10 +17,12 @@
 ##GET ('/judge/get/:c_id/:r_id')
 
 :c_id [climber_id expect 5 characters: NW001/NM001]
-	first 2 char to be category, last 3 char to be climber number
+ * first 2 char to be category, last 3 char to be climber number
+
 :r_id [route_id expect 5 characters: NWQ01/NMF01]
-	first 3 char to be round name, last 2 char to be route number
-	**The first 2 character of c_id and r_id must match**
+ * first 3 char to be round name, last 2 char to be route number
+ * **The first 2 character of c_id and r_id must match**
+
 
 	response (header: 200):
 	{
