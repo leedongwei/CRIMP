@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.util.List;
 
 import com.google.zxing.PlanarYUVLuminanceSource;
+import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.activity.QRScanActivity;
 
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.os.Message;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
@@ -118,7 +120,7 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
 				camera.setPreviewDisplay(holder);
 				camera.startPreview();
 				_isPreviewing = true;
-				Log.i(TAG, "previewView went live!");				
+				Log.i(TAG, "start previewing.");				
 			} catch (IOException e) {
 				Log.e(TAG, "IOE when attempting to setPreviewDisplay().");
 			}
@@ -136,7 +138,7 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
 	 * and/or 2) not previewing. 
 	 */
 	public void stopPreview(){
-		if(hasCamera()){
+		if(_isPreviewing && hasCamera() ){
 			camera.stopPreview();
 			_isPreviewing = false;
 			Log.i(TAG, "Camera preview stopped.");
@@ -148,7 +150,6 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
 	 */
 	public void startScan(){
 		if(_isPreviewing){
-			Log.i(TAG, "Scan started.");
 			camera.setOneShotPreviewCallback(this);
 			_isScanning = true;
 		}
@@ -263,7 +264,6 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
 	 *=======================================================================*/
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
-		/*
 		// Got preview data. Need to send over to QRScanHandler.
 		DecodeHandler handler = activity.getDecodeHandler();
 		if (handler != null) {
@@ -273,7 +273,6 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
 		else {
 	    	Log.w(TAG, "Got preview callback, but no handler available");
 	    }
-		*/
 		
 		// We only send 1 frame to decode. Stop scanning and wait for decode result.
 		_isScanning = false;
@@ -309,16 +308,15 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
         }
 
         // Stop camera preview, make changes, start camera preview again. 
-        // We need to check if camera exist.
-        if(hasCamera()){
-        	 // stop preview before making changes
-            if(isPreviewing()){
-            	stopPreview();
-            	
-            	// set preview size and make any resize, rotate or
-                // reformatting changes here
-            }
-            
+        if(isPreviewing() && hasCamera()){
+        	stopPreview();
+        }
+ 
+        // set preview size and make any resize, rotate or
+        // reformatting changes here
+        
+        // Only start scanning if activity state is "decode"
+        if(activity.getState() == R.id.decode && hasCamera()){
             startPreview(holder);
         	startScan();
         }

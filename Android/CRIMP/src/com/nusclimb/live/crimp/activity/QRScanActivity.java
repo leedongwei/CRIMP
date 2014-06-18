@@ -3,6 +3,7 @@ package com.nusclimb.live.crimp.activity;
 import com.nusclimb.live.crimp.Helper;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.scanner.CameraManager;
+import com.nusclimb.live.crimp.scanner.DecodeHandler;
 import com.nusclimb.live.crimp.view.PreviewView;
 
 import android.annotation.SuppressLint;
@@ -47,8 +48,7 @@ public class QRScanActivity extends Activity {
 	private Point previewResolution;	// Size of the previewView
 	private PreviewView previewView;
 	private CameraManager cameraManager;
-	//TODO
-	// private QRScanHandler handler;
+	private QRScanHandler handler;
 	private int activityState;			// R.id.decode: previewView showing camera input. preview send
 										// 		to DecodeThread to be decoded. Default entry state.
 										// R.id.decode_failed: Transitive state. Happens when DecodeThread
@@ -120,9 +120,8 @@ public class QRScanActivity extends Activity {
 		super.onResume();
 		Log.d(TAG, "QRScanActivity onResume."); 
 		
-		//TODO
-		//handler = new QRScanHandler(this);
-		//handler.setRunning(true);
+		handler = new QRScanHandler(this);
+		handler.setRunning(true);
 		
 		// We need camera resource. We will acquire camera in onResume and release in onPause.
 		// Check if we have camera resource first.
@@ -145,8 +144,7 @@ public class QRScanActivity extends Activity {
 	
 	@Override
 	protected void onPause(){
-		//TODO
-		//handler.setRunning(false);
+		handler.setRunning(false);
 	
 		// Stop previewing and release camera. We will acquire camera in onResume.
 		if(cameraManager != null){
@@ -155,8 +153,7 @@ public class QRScanActivity extends Activity {
 		}
 		
 		// TODO We will also need to kill DecodeThread.
-		//TODO
-		//handler.onPause();
+		handler.onPause();
 
 		Log.d(TAG, "QRScanActivity onPause.");
 		super.onPause();
@@ -187,8 +184,6 @@ public class QRScanActivity extends Activity {
 		activityState = state;
 	}
 	
-	//TODO
-	/*
 	public QRScanHandler getHandler(){
 		return handler;
 	}
@@ -196,7 +191,6 @@ public class QRScanActivity extends Activity {
 	public DecodeHandler getDecodeHandler(){
 		return handler.getDecodeHandler();
 	}
-	*/
 	
 	public CameraManager getCameraManager(){
 		return cameraManager;
@@ -260,6 +254,14 @@ public class QRScanActivity extends Activity {
 	 * @param view Reference to the button that was clicked.
 	 */
 	public void rescan(View view){
+		climberId = "";
+		climberName = "";
+		
+		EditText idEdit = (EditText) findViewById(R.id.QRScan_climber_id_edit);
+		EditText nameEdit = (EditText) findViewById(R.id.QRScan_climber_name_edit);
+		idEdit.setText(climberId, TextView.BufferType.EDITABLE);
+		nameEdit.setText(climberName, TextView.BufferType.EDITABLE);
+		
 		if(cameraManager.isSurfaceReady()){
 			setState(R.id.decode);
 			cameraManager.startPreview(previewView.getHolder());
