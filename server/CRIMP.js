@@ -35,9 +35,9 @@ app.get('/judge/get/:round', function (req, res) {
 			done();
 
 			if (err) {
-				console.error('500: Error running query', err);
-				res.send(500);
-			} else if (!result) {
+				console.error('400: Error running query', err);
+				res.send(400);;
+			} else if (result.rowCount === 0) {
 				console.error('404: Data not found');
 				res.send(404);
 			} else {
@@ -88,9 +88,9 @@ app.get('/judge/get/:c_id/:r_id', function (req, res) {
 			done();
 
 			if (err) {
-				console.error('500: Error running query', err);
-				res.send(500);
-			} else if (!result) {
+				console.error('400: Error running query', err);
+				res.send(400);
+			} else if (result.rowCount === 0) {
 				console.error('404: Data not found');
 				res.send(404);
 			} else {
@@ -124,8 +124,7 @@ app.post('/judge/set', function (req, res) {
 	}
 
 	if (postBody.r_id.length !== 5 ||
-			postBody.c_id.length !== 5 ||
-			postBody.c_score.length > 64 ) {
+			postBody.c_id.length !== 5) {
 		console.error('400: Parameter Error');
 		res.send(400);
 		return;
@@ -158,16 +157,16 @@ app.post('/judge/set', function (req, res) {
 			done();
 
 			if (err) {
-				console.error('500: Error running query', err);
-				res.send(500);
-			} else if (!result) {
+				console.error('400: Error running query', err);
+				res.send(400);
+			} else if (result.rowCount === 0) {
 				console.error('404: Data not found');
 				res.send(404);
 			} else {
 				if (result.rowCount === 1 &&
 						result.rows[0][route + '_raw'] === postBody.c_score) {
-					console.log('Updated score: ' + postBody.c_id +
-											' by ' + postBody.j_name );
+					console.log('Updated score: ' + postBody.c_id + '/' +
+											postBody.c_score + ' by ' + postBody.j_name );
 					res.send(200);
 				}
 			}
@@ -190,7 +189,7 @@ app.get('/client/get/:round', function (req, res) {
 			resultsBonus;
 
 	if (req.params.round.substring(2,3) === 'Q') {
-		console.log('Q');
+		//console.log('Q');
 		queryConfigTop = {
 			'text': 'SELECT c_id, ' +
 							'q01_top, q02_top, q03_top, q04_top, q05_top, q06_top ' +
@@ -207,7 +206,7 @@ app.get('/client/get/:round', function (req, res) {
 			'values': [req.params.round]
 		};
 	} else if (req.params.round.substring(2,3) === 'F') {
-		console.log('F');
+		//console.log('F');
 		queryConfigTop = {
 			'text': 'SELECT c_id, ' +
 							'f01_top, f02_top, f03_top, f04_top ' +
@@ -238,12 +237,14 @@ app.get('/client/get/:round', function (req, res) {
 			done();
 
 			if (err) {
-				console.error('500: Error running query (Top)', err);
-				res.send(500);
+				console.error('400: Error running query', err);
+				res.send(400);
+				console.log('1');
 				return;
-			} else if (!result) {
+			} else if (result.rowCount === 0) {
 				console.error('404: Data not found');
 				res.send(404);
+				console.log('2');
 				return;
 			} else {
 				resultsTop = result.rows;
@@ -261,12 +262,14 @@ app.get('/client/get/:round', function (req, res) {
 			done();
 
 			if (err) {
-				console.error('500: Error running query', err);
-				res.send(500);
+				console.error('400: Error running query', err);
+				res.send(400);
+				console.log('3');
 				return;
-			} else if (!result) {
+			} else if (result.rowCount === 0) {
 				console.error('404: Data not found');
 				res.send(404);
+				console.log('4');
 				return;
 			} else {
 				resultsBonus = result.rows;
