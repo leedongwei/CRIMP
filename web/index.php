@@ -28,7 +28,8 @@
 		<div class="navbar navbar-default navbar-fixed-top">
 			<div class="container">
 				<div class="navbar-header">
-			    <a class="navbar-brand" href="#">NUS-BD Boulderactive</a>
+			    <a class="navbar-brand visible-xs" href="#">NUS-BD Boulderactive</a>
+			    <a class="navbar-brand hidden-xs" href="#">NUS - Black Diamond Boulderactive</a>
 			    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 			      <span class="icon-bar"></span>
 			      <span class="icon-bar"></span>
@@ -37,29 +38,37 @@
 			  </div>
 			  <div class="navbar-collapse collapse">
 			    <ul class="nav navbar-nav">
+			    	<li>U17 Men <span class="nav-links">
+							<a href="U17MQ.php">Qualifying</a> |
+							<a href="N17MF.php">Finals</a>
+						</span></li>
+						<li>U17 Women <span class="nav-links">
+							<a href="U17WQ.php">Qualifying</a> |
+							<a href="U17WF.php">Finals</a>
+						</span></li>
 						<li>Novice Men <span class="nav-links">
-							<a href=".php">Qualifying</a> |
-							<a href=".php">Finals</a>
+							<a href="NMQ.php">Qualifying</a> |
+							<a href="NMF.php">Finals</a>
 						</span></li>
 						<li>Novice Women <span class="nav-links">
-							<a href=".php">Qualifying</a> |
-							<a href=".php">Finals</a>
+							<a href="NWQ.php">Qualifying</a> |
+							<a href="NWF.php">Finals</a>
 						</span></li>
 						<li>Intermediate Men <span class="nav-links">
-							<a href=".php">Qualifying</a> |
-							<a href=".php">Finals</a>
+							<a href="IMQ.php">Qualifying</a> |
+							<a href="IMF.php">Finals</a>
 						</span></li>
 						<li>Intermediate Women <span class="nav-links">
-							<a href=".php">Qualifying</a> |
-							<a href=".php">Finals</a>
+							<a href="IWQ.php">Qualifying</a> |
+							<a href="IWF.php">Finals</a>
 						</span></li>
 						<li>Open Men <span class="nav-links">
-							<a href=".php">Qualifying</a> |
-							<a href=".php">Finals</a>
+							<a href="OMQ.php">Qualifying</a> |
+							<a href="OMF.php">Finals</a>
 						</span></li>
 						<li>Open Women <span class="nav-links">
-							<a href=".php">Qualifying</a> |
-							<a href=".php">Finals</a>
+							<a href="OWQ.php">Qualifying</a> |
+							<a href="OWF.php">Finals</a>
 						</span></li>
 			    </ul>
 			  </div>
@@ -69,12 +78,38 @@
 
 
 
-<section class="c_scores">
-	<div class="climber" id="NW001" data-top="" data-topA="" data-bonus="" data-bonusA="">
-		<h3 class="c_name">Anna</h3>
-		<div class="c_score"></div>
+<section class="climberScores container">
+	<div class="scoreHeader clearfix" id="NW001" data-top="" data-topA="" data-bonus="" data-bonusA="">
+		<h1 class="c_id">Intermediate Women
+			<span class="hidden-xs"> Qualifying</span>
+		</h1>
+		<h2 class="visible-xs">Qualifying</h2>
+		<span class="c_top pull-right">Top</span>
+		<span class="c_bonus pull-right">Bonus</span>
 	</div>
 
+
+
+	<div class="climber clearfix" id="NW001" data-top="" data-topA="" data-bonus="" data-bonusA="">
+		<span class="c_id">NW001</span>
+		<h3 class="c_name">Benjamin Woong Hoong Kwang</h3>
+		<span class="c_top badge pull-right">5/32</span>
+		<span class="c_bonus badge pull-right">4/16</span>
+	</div>
+
+	<div class="climber clearfix" id="NW002" data-top="" data-topA="" data-bonus="" data-bonusA="">
+		<span class="c_id">NW002</span>
+		<h3 class="c_name">Muhammad Faishal Ibrahim</h3>
+		<span class="c_top badge pull-right">1/5</span>
+		<span class="c_bonus badge pull-right">3/7</span>
+	</div>
+
+	<div class="climber clearfix" id="NW003" data-top="" data-topA="" data-bonus="" data-bonusA="">
+		<span class="c_id">NW003</span>
+		<h3 class="c_name">Robert Baratheon, First of His Name</h3>
+		<span class="c_top badge pull-right">1/50</span>
+		<span class="c_bonus badge pull-right">3/70</span>
+	</div>
 </section>
 
 
@@ -82,6 +117,10 @@
 		<footer class="container">
 			<p class="pull-right"><a href="#">Back to top</a></p>
 			<div class="footer-border container">
+			</div>
+
+			<div>
+				<p>This is the footer</p>
 			</div>
 		</footer>
 

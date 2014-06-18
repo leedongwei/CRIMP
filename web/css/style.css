@@ -1,15 +1,39 @@
+@font-face {
+  font-family: 'LeagueGothic';
+  src: url('../fonts/leaguegothic-regular-webfont.eot');
+  src: url('../fonts/leaguegothic-regular-webfont.eot?#iefix') format('embedded-opentype'),
+		   url('../fonts/leaguegothic-regular-webfont.woff') format('woff'),
+		   url('../fonts/leaguegothic-regular-webfont.ttf') format('truetype'),
+		   url('../fonts/leaguegothic-regular-webfont.svg#league_gothicregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Bebas';
+  src: url('../fonts/bebasneue-webfont.eot');
+  src: url('../fonts/bebasneue-webfont.eot?#iefix') format('embedded-opentype'),
+       url('../fonts/bebasneue-webfont.woff') format('woff'),
+       url('../fonts/bebasneue-webfont.ttf') format('truetype'),
+       url('../fonts/bebasneue-webfont.svg#bebas_neueregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
-	padding-top:70px;
+	padding-top: 70px;
+	min-width: 310px;
 }
 
 .container {
 	width: 90%;
-	max-width: 768px;
+	max-width: 692px;
 }
 
-/**
- * START: Prevent navbar-toggle from collapsing
- */
+/**********
+ * NAV BAR
+ **********/
+/* START: Prevent navbar-toggle from collapsing */
 .navbar-header {
   float: none;
 }
@@ -55,15 +79,138 @@ body {
 .collapse.in {
 	display:block !important;
 }
-/**
- * END: Prevent navbar-toggle from collapsing
- */
-
+/* END: Prevent navbar-toggle from collapsing */
+.navbar-brand {
+	font-family: 'Bebas', sans-serif;
+	font-size: 1.8em;
+}
 .nav-links {
 	margin-left: 1em;
 }
 
 @media (min-width: 360px) {
-.navbar-nav > li {
-  font-size: 1em;
+	.navbar-nav > li {
+	  font-size: 1em;
+	}
+	.navbar-brand {
+		font-size: 2.2em;
+	}
+}
+
+@media (min-width: 768px) {
+  .navbar > .container .navbar-brand,
+  .navbar > .container-fluid .navbar-brand {
+    margin-left: 0px;
+  }
+}
+
+/**
+ * C_SCORE
+ */
+.scoreHeader {
+	position: relative;
+	width: 100%;
+	height: 2.5em;
+	overflow: hidden;
+	margin: 0;
+	font-size: 1.4em;
+	font-family: 'Bebas', sans-serif;
+	background-color: green;
+}
+
+.scoreHeader > .c_top {
+	right: 65px;
+}
+
+.scoreHeader > .c_top,
+.scoreHeader > .c_bonus {
+	top: 1em;
+}
+
+.scoreHeader > h2 {
+	display: block;
+	position: absolute;
+	bottom: 0px;
+	margin: 0;
+	font-size: 1.0em;
+	padding: 5px 0px 0px 10px;
+	font-family: 'Bebas', sans-serif;
+}
+
+.climber {
+	position: relative;
+	width: 100%;
+	height: 4em;
+	overflow: hidden;
+	margin: 0.1em 0;
+}
+
+.c_id {
+	display: inline;
+	font-size: 1.6em;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	margin: 0;
+	padding: 0 10px;
+	font-family: 'Bebas', sans-serif;
+}
+
+.c_name {
+	display: block;
+	position: absolute;
+	bottom: 0px;
+	margin: 0;
+	font-size: 1.6em;
+	padding: 5px 0px 3px 10px;
+	font-family: 'LeagueGothic', sans-serif;
+}
+
+.c_top {
+	position: absolute;
+	right: 60px;
+	margin: 5px;
+}
+
+.c_bonus {
+	position: absolute;
+	right: 5px;
+	margin: 5px;
+}
+@media (min-width: 480px) {
+	.c_name {
+		font-size: 1.7em;
+	}
+}
+
+@media (min-width: 768px) {
+	.scoreHeader {
+		height: 2.0em;
+	}
+	.climber {
+		height: 2.5em;
+	}
+	.scoreHeader > .c_top,
+	.scoreHeader > .c_bonus {
+		top: 0;
+	}
+	.c_id {
+		position: relative;
+		font-size: 1.8em;
+		padding: 0px 10px 0px 5px;
+		/*border-right: 1px #000 solid;*/
+	}
+	.c_name {
+		position: relative;
+		display: inline;
+		font-size: 1.8em;
+	}
+}
+
+
+
+
+.footer-border {
+	border-bottom: 1px #777 dotted;
+	margin-bottom: 1em;
 }
