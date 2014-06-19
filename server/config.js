@@ -8,5 +8,8 @@ module.exports = {
 		'db_conn':'postgres://crimp:123456@localhost/crimp-db'
 	},
 
-	// production uses Heroku's process.env
+	// production: use Heroku's process.env
+	'production': {
+		'auth_code': ''
+	}
 }

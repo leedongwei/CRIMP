@@ -132,7 +132,8 @@ app.post('/judge/set', function (req, res) {
 		return;
 	}
 
-	if (postBody.r_id.length !== 5 ||
+	if (!postBody.j_name ||
+			postBody.r_id.length !== 5 ||
 			postBody.c_id.length !== 5) {
 		//console.error('400: Parameter Error');
 		res.send(400);
@@ -259,7 +260,7 @@ app.get('/client/get/:round', function (req, res) {
 				res.status(404);
 			} else {
 				resultsTop = result.rows;
-				//console.log('TOP');
+				//console.log('TOP: ');
 				//console.log(resultsTop);
 			}
 
@@ -283,7 +284,7 @@ app.get('/client/get/:round', function (req, res) {
 				res.status(404);
 			} else {
 				resultsBonus = result.rows;
-				//console.log('BONUS');
+				//console.log('BONUS: ');
 				//console.log(resultsBonus);
 			}
 
