@@ -40,6 +40,9 @@
     <!-- QR Code prefix -->
     <string name="qr_prefix">&lt;BA2014&gt;</string>
     
+    <!-- Menu -->
+    <string name="menu_refresh">refresh</string>
+    
     <!-- Broadcast -->
     <string name="broadcast_crimp_msg">crimp_msg</string>
     <string name="broadcast_msg_type">broadcast_msg_type</string>
