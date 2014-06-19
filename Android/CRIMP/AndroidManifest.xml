@@ -20,6 +20,10 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         
+        <service
+            android:name="com.octo.android.robospice.JacksonSpringAndroidSpiceService"
+            android:exported="false" />
+        
         <activity
             android:name="com.nusclimb.live.crimp.activity.MainActivity"
             android:label="@string/app_name"
@@ -40,6 +44,17 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.nusclimb.live.crimp.activity.MainActivity" />
+        </activity>
+        
+        <activity
+            android:name="com.nusclimb.live.crimp.activity.ScoringActivity"
+            android:label="@string/app_name"
+            android:parentActivityName="com.nusclimb.live.crimp.activity.QRScanActivity" 
+            android:screenOrientation="portrait" 
+            android:launchMode="singleTop" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.nusclimb.live.crimp.activity.QRScanActivity" />
         </activity>
         
     </application>

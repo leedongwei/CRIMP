@@ -296,8 +296,6 @@ public class QRScanActivity extends Activity {
 			String packageName = getString(R.string.package_name);
 			
 			// Preparing to start ScoringActivity.
-			//TODO
-			/*
 			Intent intent = new Intent(this, ScoringActivity.class);
 			intent.putExtra(packageName + getString(R.string.intent_username) , routeJudge);
 			intent.putExtra(packageName + getString(R.string.intent_round), round);
@@ -308,7 +306,6 @@ public class QRScanActivity extends Activity {
 			}
 			
 			startActivity(intent);
-			*/
 		}
 	}
 	
