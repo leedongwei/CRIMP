@@ -1,15 +1,15 @@
 package com.nusclimb.live.crimp.activity;
 
+import com.nusclimb.live.crimp.Helper;
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.json.RoundInfo;
 import com.nusclimb.live.crimp.json.RoundInfoMap;
 import com.nusclimb.live.crimp.json.Score;
+import com.nusclimb.live.crimp.json.SessionUpload;
 import com.nusclimb.live.crimp.request.ClimberInfoRequest;
 import com.nusclimb.live.crimp.request.ScoreRequest;
+import com.nusclimb.live.crimp.request.UploadRequest;
 import com.octo.android.robospice.JacksonSpringAndroidSpiceService;
 import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.UncachedSpiceService;
-import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -25,8 +25,13 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.Toast;
 
+/**
+ * Third activity of CRIMP.
+ * 
+ * @author Lin Weizhi (ecc.weizhi@gmail.com)
+ *
+ */
 public class ScoringActivity extends Activity{
 	private static final String TAG = ScoringActivity.class.getSimpleName();
 	
@@ -41,8 +46,10 @@ public class ScoringActivity extends Activity{
 	private class ClimberInfoRequestListener implements RequestListener<RoundInfoMap> {
 		@Override
 		public void onRequestFailure(SpiceException e) {
+			//Update UI
 			EditText nameEdit = (EditText) findViewById(R.id.scoring_climber_name_edit);
 			nameEdit.setText(getText(R.string.UI_unavailable));
+			
 			ScoringActivity.this.setProgressBarIndeterminateVisibility(false);
 		}
 
@@ -50,8 +57,8 @@ public class ScoringActivity extends Activity{
 	     public void onRequestSuccess(RoundInfoMap result) {
 	    	 climberName = result.get(climberId);
 	    	 
+	    	 // Update UI.
 	    	 EditText nameEdit = (EditText) findViewById(R.id.scoring_climber_name_edit);
-	    	 
 	    	 if(climberName == null){
 	    		 Log.w(TAG, "Climber name request returns null.");
 	    		 nameEdit.setText(getText(R.string.UI_unavailable));
@@ -60,8 +67,6 @@ public class ScoringActivity extends Activity{
 	    		 Log.i(TAG, "Climber name is "+climberName);
 	    		 nameEdit.setText(climberName);
 	    	 }
-	         
-	         ScoringActivity.this.setProgressBarIndeterminateVisibility(false);
 	     }
 	}
 	
@@ -77,18 +82,30 @@ public class ScoringActivity extends Activity{
 	     public void onRequestSuccess(Score result) {
 	    	 String score = result.getC_score();
 	    	 
+	    	 //Update UI
 	    	 EditText scoreHistoryEdit = (EditText) findViewById(R.id.scoring_score_history_edit);
-	    	 
 	    	 if(score == null){
 	    		 Log.w(TAG, "Climber score request returns null.");
 	    		 scoreHistoryEdit.setText(getText(R.string.UI_unavailable));
 	    	 }
 	    	 else{
-	    		 Log.i(TAG, "Climber score is "+score);
+	    		 Log.i(TAG, "Climber score request returns "+score);
 	    		 scoreHistoryEdit.setText(score);
 	    	 }
 	         
 	         ScoringActivity.this.setProgressBarIndeterminateVisibility(false);
+	     }
+	}
+	
+	private class UploadRequestListener implements RequestListener<Object> {
+		@Override
+		public void onRequestFailure(SpiceException e) {
+			Log.e(TAG, "Upload failed.");
+		}
+
+	     @Override
+	     public void onRequestSuccess(Object result) {
+	    	 Log.i(TAG, "Upload succeed.");
 	     }
 	}
 	
@@ -150,7 +167,6 @@ public class ScoringActivity extends Activity{
 			refreshName();
 		}
 		refreshScore();
-		
 	}
 	
 	@Override
@@ -205,6 +221,7 @@ public class ScoringActivity extends Activity{
 	}
 	
 	
+	
 	/*=========================================================================
 	 * Button on click methods
 	 *=======================================================================*/
@@ -215,8 +232,9 @@ public class ScoringActivity extends Activity{
         
         String lastRequestCacheKey = request.createCacheKey();
         
-        spiceManager.execute(request, lastRequestCacheKey, 
-        		DurationInMillis.ALWAYS_EXPIRED, 
+        //TODO Maybe should use cache?
+        spiceManager.execute(request, /*lastRequestCacheKey, 
+        		DurationInMillis.ALWAYS_EXPIRED,*/ 
         		new ScoreRequestListener());
 	}
 	
@@ -227,8 +245,9 @@ public class ScoringActivity extends Activity{
         
         String lastRequestCacheKey = request.createCacheKey();
         
-        spiceManager.execute(request, lastRequestCacheKey, 
-        		DurationInMillis.ALWAYS_EXPIRED, 
+        //TODO Maybe should use cache?
+        spiceManager.execute(request, /*lastRequestCacheKey, 
+        		DurationInMillis.ALWAYS_EXPIRED,*/ 
         		new ClimberInfoRequestListener());
 	}
 	
@@ -263,6 +282,38 @@ public class ScoringActivity extends Activity{
 	}
 	
 	public void submit(View view){
+		// Convert to server alias.
+		String serverAliasRound = Helper.toServerRound(round);
+		String serverAliasRoute = Helper.parseRoute(route);
+		String r_id = serverAliasRound + serverAliasRoute;
 		
+		// Get old score.
+		EditText scoreHistoryEdit = (EditText) findViewById(R.id.scoring_score_history_edit);
+		String oldScore = scoreHistoryEdit.getText().toString();
+		
+		// Prepare POJO
+		SessionUpload uploadPOJO = new SessionUpload();
+		if(oldScore.length() == 0){
+			uploadPOJO.setAll_current(routeJudge, getString(R.string.net_password_debug), 
+					r_id, climberId, scoreEdit.getText().toString());
+		}
+		else{
+			uploadPOJO.setAll_old_current(routeJudge, getString(R.string.net_password_debug), 
+					r_id, climberId, oldScore, scoreEdit.getText().toString());
+		}
+		
+		Log.v(TAG, "Upload json: "+uploadPOJO.toString());
+		
+		UploadRequest request = new UploadRequest(uploadPOJO);
+		
+		String lastRequestCacheKey = request.createCacheKey();
+		
+		//TODO Maybe should use cache?
+		spiceManager.execute(request, /*lastRequestCacheKey, 
+        		DurationInMillis.ALWAYS_EXPIRED,*/ 
+        		new UploadRequestListener());
+		
+		// Quit this activity.
+		NavUtils.navigateUpFromSameTask(this);
 	}
 }
