@@ -42,12 +42,12 @@ public class ClimberInfoRequest extends SpringAndroidSpiceRequest<RoundInfoMap> 
 		}
 		
 		// Craft URL.
-		String address = BASE_URL + serverAliasRound;
+		String address = BASE_URL + serverAliasRound + "?q=" + Helper.nextAlphaNumeric(6);
 		
 		// Actual network calls.
 		RoundInfo content = getRestTemplate().getForObject(address, RoundInfo.class);
 		
-		Log.v(TAG, content.toString());
+		Log.v(TAG, "Address=" + address + "\ncontent=" + content.toString());
 		
 		// Convert to map.
 		RoundInfoMap map = new RoundInfoMap();

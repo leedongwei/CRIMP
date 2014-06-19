@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -28,6 +29,9 @@ public class Helper {
 		}
 	}
 	
+	/*=========================================================================
+	 * String mapping in CRIMP
+	 *=======================================================================*/
 	// Map containing alias of names for each round.
 	private static final Map<String, StringPair> roundMap;
     static {
@@ -103,6 +107,68 @@ public class Helper {
 		}
 	}
 	
+	
+	
+	/*=========================================================================
+	 * String/int generation
+	 *=======================================================================*/
+	/**
+	 *  Variable for generateViewId()
+	 */
+	private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
+
+	/**
+	 * Generate a value suitable for use in {@link #setId(int)}.
+	 * This value will not collide with ID values generated at build time by aapt for R.id.
+	 *
+	 * @return a generated ID value
+	 */
+	public static int generateViewId() {
+	    for (;;) {
+	        final int result = sNextGeneratedId.get();
+	        // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
+	        int newValue = result + 1;
+	        if (newValue > 0x00FFFFFF) newValue = 1; // Roll over to 1, not 0.
+	        if (sNextGeneratedId.compareAndSet(result, newValue)) {
+	            return result;
+	        }
+	    }
+	}
+	
+	/**
+	 * Allowed char for generating random strings.
+	 */
+	private static char[] symbols;
+	static {
+		StringBuilder tmp = new StringBuilder();
+		for (char ch = '0'; ch <= '9'; ch++)
+			tmp.append(ch);
+		for (char ch = 'a'; ch <= 'z'; ch++)
+			tmp.append(ch);
+		symbols = tmp.toString().toCharArray();
+	}   
+
+	private final static Random random = new Random();
+	
+	/**
+	 * Returns a random alpha numeric String of length n.
+	 * @param n Length of string to generate.
+	 * @return Random alpha numeric String.
+	 */
+	public static String nextAlphaNumeric(int n) {
+		StringBuilder sb = new StringBuilder();
+		
+		for (int idx = 0; idx < n; idx++) 
+			sb.append(symbols[random.nextInt(symbols.length)]);
+	    
+		return sb.toString();
+	}
+	
+	
+	
+	/*=========================================================================
+	 * Other helper methods
+	 *=======================================================================*/
 	/**
 	 * Helper method to convert int[] to List.
 	 * 
@@ -146,26 +212,4 @@ public class Helper {
 	    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
 	    return s.hasNext() ? s.next() : "";
 	}
-	
-	// Variable for generateViewId()
-	private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
-
-	/**
-	 * Generate a value suitable for use in {@link #setId(int)}.
-	 * This value will not collide with ID values generated at build time by aapt for R.id.
-	 *
-	 * @return a generated ID value
-	 */
-	public static int generateViewId() {
-	    for (;;) {
-	        final int result = sNextGeneratedId.get();
-	        // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
-	        int newValue = result + 1;
-	        if (newValue > 0x00FFFFFF) newValue = 1; // Roll over to 1, not 0.
-	        if (sNextGeneratedId.compareAndSet(result, newValue)) {
-	            return result;
-	        }
-	    }
-	}
-
 }

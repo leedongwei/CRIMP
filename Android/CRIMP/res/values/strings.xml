@@ -34,6 +34,7 @@
     
     <!-- Network -->
     <string name="net_password">rustamGELMANOV</string>
+    <string name="net_password_debug">crimpAUTH</string>
     <string name="net_base_url">http://crimp-stage.herokuapp.com</string>
     <string name="net_download_url">/judge/get/</string>
     

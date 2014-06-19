@@ -47,12 +47,13 @@ public class ScoreRequest extends SpringAndroidSpiceRequest<Score> {
 		}
 		
 		// Craft URL.
-		String address = BASE_URL + climberId + "/" + serverAliasRound + serverAliasRoute;
+		String address = BASE_URL + climberId + "/" + serverAliasRound + serverAliasRoute + 
+				"?q=" + Helper.nextAlphaNumeric(6);
 		
 		// Actual network calls.
 		Score content = getRestTemplate().getForObject(address, Score.class);
 		
-		Log.v(TAG, content.toString());
+		Log.v(TAG, "Address=" + address + "\ncontent=" + content.toString());
 		
 		return content;
     }
