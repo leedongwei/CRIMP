@@ -5,6 +5,12 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+/**
+ * A subclass of SurfaceView for displaying of camera preview.
+ * 
+ * @author Lin Weizhi (ecc.weizhi@gmail.com)
+ *
+ */
 public class PreviewView extends SurfaceView {
 	private static final String TAG = PreviewView.class.getSimpleName();
 	

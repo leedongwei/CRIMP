@@ -3,7 +3,9 @@ package com.nusclimb.live.crimp.activity;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.json.RoundInfo;
 import com.nusclimb.live.crimp.json.RoundInfoMap;
+import com.nusclimb.live.crimp.json.Score;
 import com.nusclimb.live.crimp.request.ClimberInfoRequest;
+import com.nusclimb.live.crimp.request.ScoreRequest;
 import com.octo.android.robospice.JacksonSpringAndroidSpiceService;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.UncachedSpiceService;
@@ -30,33 +32,65 @@ public class ScoringActivity extends Activity{
 	
 	private EditText scoreEdit;
 	private String routeJudge, round, route, climberId, climberName;
-	private boolean waitingName;
 	private SpiceManager spiceManager = new SpiceManager(
 			JacksonSpringAndroidSpiceService.class);
 	
+	/*=========================================================================
+	 * Inner class
+	 *=======================================================================*/
 	private class ClimberInfoRequestListener implements RequestListener<RoundInfoMap> {
 		@Override
 		public void onRequestFailure(SpiceException e) {
-			Toast.makeText(ScoringActivity.this,
-					"Error during request: " + e.getLocalizedMessage(), 
-					Toast.LENGTH_LONG).show();
+			EditText nameEdit = (EditText) findViewById(R.id.scoring_climber_name_edit);
+			nameEdit.setText(getText(R.string.UI_unavailable));
 			ScoringActivity.this.setProgressBarIndeterminateVisibility(false);
-     }
+		}
 
-     @Override
-     public void onRequestSuccess(RoundInfoMap result) {
-    	 climberName = result.get(climberId);
-    	 
-    	 if(climberName == null){
-    		 Log.w(TAG, "Climber name request returns null.");
-    	 }
-    	 else{
-    		 Log.i(TAG, "Climber name is "+climberName);
-    	 }
-         
-         ScoringActivity.this.setProgressBarIndeterminateVisibility(false);
-     }
- }
+	     @Override
+	     public void onRequestSuccess(RoundInfoMap result) {
+	    	 climberName = result.get(climberId);
+	    	 
+	    	 EditText nameEdit = (EditText) findViewById(R.id.scoring_climber_name_edit);
+	    	 
+	    	 if(climberName == null){
+	    		 Log.w(TAG, "Climber name request returns null.");
+	    		 nameEdit.setText(getText(R.string.UI_unavailable));
+	    	 }
+	    	 else{
+	    		 Log.i(TAG, "Climber name is "+climberName);
+	    		 nameEdit.setText(climberName);
+	    	 }
+	         
+	         ScoringActivity.this.setProgressBarIndeterminateVisibility(false);
+	     }
+	}
+	
+	private class ScoreRequestListener implements RequestListener<Score> {
+		@Override
+		public void onRequestFailure(SpiceException e) {
+			EditText scoreHistoryEdit = (EditText) findViewById(R.id.scoring_score_history_edit);
+			scoreHistoryEdit.setText(getText(R.string.UI_unavailable));
+			ScoringActivity.this.setProgressBarIndeterminateVisibility(false);
+		}
+
+	     @Override
+	     public void onRequestSuccess(Score result) {
+	    	 String score = result.getC_score();
+	    	 
+	    	 EditText scoreHistoryEdit = (EditText) findViewById(R.id.scoring_score_history_edit);
+	    	 
+	    	 if(score == null){
+	    		 Log.w(TAG, "Climber score request returns null.");
+	    		 scoreHistoryEdit.setText(getText(R.string.UI_unavailable));
+	    	 }
+	    	 else{
+	    		 Log.i(TAG, "Climber score is "+score);
+	    		 scoreHistoryEdit.setText(score);
+	    	 }
+	         
+	         ScoringActivity.this.setProgressBarIndeterminateVisibility(false);
+	     }
+	}
 	
 	
 	
@@ -95,8 +129,6 @@ public class ScoringActivity extends Activity{
 		}
 		else{
 			Log.d(TAG, "Climber name was not send along in intent.");
-			
-			//TODO
 		}
 	}
 	
@@ -111,7 +143,14 @@ public class ScoringActivity extends Activity{
 	@Override
 	protected void onResume(){
 		super.onResume();
-		Log.d(TAG, "ScoringActivity onResume."); 
+		Log.d(TAG, "ScoringActivity onResume.");
+		
+		// Check UI
+		if(climberName == null){
+			refreshName();
+		}
+		refreshScore();
+		
 	}
 	
 	@Override
@@ -148,7 +187,9 @@ public class ScoringActivity extends Activity{
 	    		NavUtils.navigateUpFromSameTask(this);
 		        return true;
 	    	case R.id.refresh:
-	    		refreshName();
+	    		if(climberName == null){
+	    			refreshName();
+	    		}
 	    		refreshScore();
 		        return true;
 	        default:
@@ -168,7 +209,15 @@ public class ScoringActivity extends Activity{
 	 * Button on click methods
 	 *=======================================================================*/
 	public void refreshScore(){
-		
+		setProgressBarIndeterminateVisibility(true);
+
+        ScoreRequest request = new ScoreRequest(climberId, round, route);
+        
+        String lastRequestCacheKey = request.createCacheKey();
+        
+        spiceManager.execute(request, lastRequestCacheKey, 
+        		DurationInMillis.ALWAYS_EXPIRED, 
+        		new ScoreRequestListener());
 	}
 	
 	public void refreshName(){
