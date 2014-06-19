@@ -292,6 +292,9 @@ public class ScoringActivity extends Activity{
 		String oldScore = scoreHistoryEdit.getText().toString();
 		
 		// Prepare POJO
+		if(scoreEdit == null){
+			scoreEdit = (EditText) findViewById(R.id.scoring_score_current_edit);
+		}
 		SessionUpload uploadPOJO = new SessionUpload();
 		if(oldScore.length() == 0){
 			uploadPOJO.setAll_current(routeJudge, getString(R.string.net_password_debug), 
