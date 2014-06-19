@@ -50,6 +50,9 @@ app.get('/judge/get/:round', function (req, res) {
 				});
 
 				res.send(200, JSON.stringify(message));
+
+				// Simulating latency
+				//setTimeout(function(){res.send(200, JSON.stringify(message))}, 10000);
 			}
 		});
 	});
@@ -105,6 +108,9 @@ app.get('/judge/get/:c_id/:r_id', function (req, res) {
 				}
 
 				res.send(200, JSON.stringify(message));
+
+				// Simulating latency
+				//setTimeout(function(){res.send(200, JSON.stringify(message))}, 10000);
 			}
 		});
 	});
@@ -171,7 +177,11 @@ app.post('/judge/set', function (req, res) {
 						result.rows[0][route + '_raw'] === postBody.c_score) {
 					console.log('Updated score: ' + postBody.c_id + '/' +
 											postBody.c_score + ' by ' + postBody.j_name );
+
 					res.send(200, {});
+
+					// Simulating latency
+					//setTimeout(function(){res.send(200, {})}, 10000);
 				}
 			}
 		});
@@ -180,6 +190,7 @@ app.post('/judge/set', function (req, res) {
 
 
 app.get('/client/get/:round', function (req, res) {
+	res.set('Content-Type', 'application/json');
 
 	if (req.params.round.length !== 3) {
 		//console.error('400: Parameter Error');
@@ -189,6 +200,7 @@ app.get('/client/get/:round', function (req, res) {
 
 	var	queryConfigTop = {},
 			queryConfigBonus = {},
+			queryState = {'qTop': false, 'qBonus': false},
 			resultsTop,
 			resultsBonus;
 
@@ -240,43 +252,42 @@ app.get('/client/get/:round', function (req, res) {
 		client.query(queryConfigTop, function(err, result) {
 			// IMPORTANT! Release client back to pool
 			done();
+			queryState.qTop = true;
 
 			if (err) {
 				console.error('400: Error running query', err);
 				res.status(400);
 				console.log('1');
-				return;
 			} else if (result.rowCount === 0) {
 				console.error('404: Data not found');
 				res.status(404);
 				console.log('2');
-				return;
 			} else {
 				resultsTop = result.rows;
-				console.log('TOP');
-				console.log(resultsTop);
+				//console.log('TOP');
+				//console.log(resultsTop);
 			}
 
 			if (resultsTop && resultsBonus) {
 				calculateClimberScore(resultsTop, resultsBonus, res);
+			} else if (queryState.qTop && queryState.qBonus) {
+				res.send(res.statusCode);
 			}
-
 		});
 
 		client.query(queryConfigBonus, function(err, result) {
 			// IMPORTANT! Release client back to pool
 			done();
+			queryState.qBonus = true;
 
 			if (err) {
 				console.error('400: Error running query', err);
 				res.status(400);
 				console.log('3');
-				return;
 			} else if (result.rowCount === 0) {
 				console.error('404: Data not found');
 				res.status(404);
 				console.log('4');
-				return;
 			} else {
 				resultsBonus = result.rows;
 				//console.log('BONUS');
@@ -285,6 +296,8 @@ app.get('/client/get/:round', function (req, res) {
 
 			if (resultsTop && resultsBonus) {
 				calculateClimberScore(resultsTop, resultsBonus, res);
+			} else if (queryState.qTop && queryState.qBonus) {
+				res.send(res.statusCode);
 			}
 		});
 	});
@@ -347,6 +360,5 @@ function calculateClimberScore (resultsTop, resultsBonus, res) {
 	}
 
 	console.log(message);
-	res.set('Content-Type', 'application/json');
 	res.send(200, JSON.stringify(message));
 }
