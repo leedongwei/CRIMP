@@ -24,14 +24,14 @@ app.get('/judge/get/:round', function (req, res) {
 				'values': [req.params.round]
 			};
 
-	pg.connect(dbConn, function(err, client, done) {
+	pg.connect(dbConn, function (err, client, done) {
 		if (err) {
 			console.error('500: Error fetching client from pool', err);
 			res.send(500);
 			return;
 		}
 
-		client.query(queryConfig, function(err, result) {
+		client.query(queryConfig, function (err, result) {
 			// IMPORTANT! Release client back to pool
 			done();
 
@@ -42,7 +42,7 @@ app.get('/judge/get/:round', function (req, res) {
 				//console.error('404: Data not found');
 				res.send(404);
 			} else {
-				result.rows.forEach(function(entry) {
+				result.rows.forEach(function (entry) {
 					message.climbers.push({
 						'c_id': entry.c_id, 'c_name': entry.c_name
 					});
@@ -66,7 +66,8 @@ app.get('/judge/get/:c_id/:r_id', function (req, res) {
 
 	if (c_id.length !== 5 ||
 			r_id.length !== 5 ||
-			c_id.substring(0,2) != r_id.substring(0,2)) {
+			c_id.substring(0,2) !== r_id.substring(0,2) ||
+			!(/^[a-z]+$/i.test(r_id.substring(2,3))) ){
 		//console.error('400: Parameter Error');
 		res.send(400);
 		return;
@@ -81,14 +82,14 @@ app.get('/judge/get/:c_id/:r_id', function (req, res) {
 				'values': [c_id]
 			};
 
-	pg.connect(dbConn, function(err, client, done) {
+	pg.connect(dbConn, function (err, client, done) {
 		if (err) {
 			console.error('500: Error fetching client from pool', err);
 			res.send(500);
 			return;
 		}
 
-		client.query(queryConfig, function(err, result) {
+		client.query(queryConfig, function (err, result) {
 			// IMPORTANT! Release client back to pool
 			done();
 
@@ -127,14 +128,18 @@ app.post('/judge/set', function (req, res) {
 	// TODO: server log judge's name
 
 	if (postBody.auth_code !== config.development.auth_code) {
-		console.error('401 Unauthorized');
-		res.send(401)
+		console.error('401 Unauthorized: ' + postBody.j_name);
+		res.send(401);
 		return;
 	}
 
 	if (!postBody.j_name ||
+			postBody.c_id === undefined ||
+			postBody.r_id === undefined ||
+			postBody.c_score === undefined ||
+			postBody.c_id.length !== 5 ||
 			postBody.r_id.length !== 5 ||
-			postBody.c_id.length !== 5) {
+			!(/^[a-z]+$/i.test(postBody.r_id.substring(2,3))) ) {
 		//console.error('400: Parameter Error');
 		res.send(400);
 		return;
@@ -155,14 +160,14 @@ app.post('/judge/set', function (req, res) {
 									 scoreTop, scoreBonus, postBody.c_id]
 			};
 
-	pg.connect(dbConn, function(err, client, done) {
+	pg.connect(dbConn, function (err, client, done) {
 		if (err) {
 			console.error('500: Error fetching client from pool', err);
 			res.send(500);
 			return;
 		}
 
-		client.query(queryConfig, function(err, result) {
+		client.query(queryConfig, function (err, result) {
 			// IMPORTANT! Release client back to pool
 			done();
 
@@ -240,14 +245,14 @@ app.get('/client/get/:round', function (req, res) {
 		return;
 	}
 
-	pg.connect(dbConn, function(err, client, done) {
+	pg.connect(dbConn, function (err, client, done) {
 		if (err) {
 			console.error('500: Error fetching client from pool', err);
 			res.send(500);
 			return;
 		}
 
-		client.query(queryConfigTop, function(err, result) {
+		client.query(queryConfigTop, function (err, result) {
 			// IMPORTANT! Release client back to pool
 			done();
 			queryState.qTop = true;
@@ -271,7 +276,7 @@ app.get('/client/get/:round', function (req, res) {
 			}
 		});
 
-		client.query(queryConfigBonus, function(err, result) {
+		client.query(queryConfigBonus, function (err, result) {
 			// IMPORTANT! Release client back to pool
 			done();
 			queryState.qBonus = true;

@@ -11,6 +11,6 @@
     "pg": "2.x"
   },
   "scripts": {
-		"start": "node CRIMP.js"
+		"start": "node CRIMP-server.js"
 	}
 }
