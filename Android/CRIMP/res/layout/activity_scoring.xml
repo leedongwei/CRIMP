@@ -5,6 +5,8 @@
     android:id="@+id/scoring_root">
     
     <TableLayout android:id="@+id/scoring_climber_info" 
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:stretchColumns="1"
@@ -18,7 +20,6 @@
     
 		    <EditText 
 	            android:id="@+id/scoring_climber_id_edit"
-	            android:hint="@string/UI_loading"
 	        	android:clickable="false" 
 		        android:cursorVisible="false" 
 		        android:focusable="false" 
@@ -44,6 +45,23 @@
         
     </TableLayout>
     
+    <View
+        android:id="@+id/scoring_divider"
+    	android:layout_width="fill_parent"
+    	android:layout_height="1dp"
+    	android:layout_marginTop="8dp"
+    	android:layout_marginBottom="8dp"
+    	android:background="@android:color/darker_gray"
+    	android:layout_below="@id/scoring_climber_info" />
+    
+    <TextView 
+	    android:id="@+id/scoring_old_score_text"
+	    android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="10dp"
+	    android:text="@string/UI_total_score_heading"
+	    android:layout_below="@id/scoring_divider" />
+    
     <EditText 
 		android:id="@+id/scoring_score_history_edit"
 		android:layout_width="fill_parent"
@@ -52,7 +70,7 @@
 		android:cursorVisible="false" 
 		android:focusable="false" 
 		android:focusableInTouchMode="false" 
-		android:layout_below="@id/scoring_climber_info" />
+		android:layout_below="@id/scoring_old_score_text" />
     
     <EditText 
 		android:id="@+id/scoring_score_current_edit"
@@ -102,47 +120,13 @@
         
     </LinearLayout>
     
-    <Button 
-       	android:id="@+id/scoring_submit_button"
-       	android:layout_width="wrap_content" 
-       	android:layout_height="wrap_content"
-       	android:text="@string/UI_submit" 
-       	android:layout_below="@id/scoring_button_row"
-       	android:layout_alignRight="@id/scoring_button_row"
-       	android:onClick="submit" />
-    
-    <!-- 
-    <Button 
-        android:id="@+id/test1_button"
-       	android:layout_width="wrap_content" 
-       	android:layout_height="wrap_content"
-       	android:text="test1" 
-       	android:layout_below="@id/scoring_submit_button"
-       	android:onClick="test1" />
-    
-    <Button 
-        android:id="@+id/test2_button"
-       	android:layout_width="wrap_content" 
-       	android:layout_height="wrap_content"
-       	android:text="test2" 
-       	android:layout_below="@id/test1_button"
-       	android:onClick="test2" />
-    
-    <Button 
-        android:id="@+id/test3_button"
-       	android:layout_width="wrap_content" 
-       	android:layout_height="wrap_content"
-       	android:text="test3" 
-       	android:layout_below="@id/test2_button"
-       	android:onClick="test3" />
-    
-    <Button 
-        android:id="@+id/test4_button"
-       	android:layout_width="wrap_content" 
-       	android:layout_height="wrap_content"
-       	android:text="test4" 
-       	android:layout_below="@id/test3_button"
-       	android:onClick="test4" />
-       	 -->
+    <Button
+        android:id="@+id/scoring_submit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@id/scoring_button_row"
+        android:onClick="submit"
+        android:text="@string/UI_submit" />
     
 </RelativeLayout>

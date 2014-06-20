@@ -11,6 +11,7 @@
     <string name="UI_climber_name">Climber name</string>
     <string name="UI_climber_id_heading">Climber ID: </string>
     <string name="UI_climber_name_heading">Climber name: </string>
+    <string name="UI_total_score_heading">Total score:</string>
     <string name="UI_rescan">Rescan</string>
     <string name="UI_loading">&lt;loading&gt;</string>
     <string name="UI_unavailable">&lt;unavailable&gt;</string>

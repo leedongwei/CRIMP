@@ -30,8 +30,6 @@ public class UploadRequest extends SpringAndroidSpiceRequest<Object>{
 	@Override
 	public Object loadDataFromNetwork() throws Exception {
 		if(uploadContent.getC_score() == null){
-			Log.w(TAG, "c_score is null.");
-			
 			// Get old score request
 			// Craft URL.
 			String address = BASE_URL_GET + uploadContent.getC_id() + "/" + 
@@ -47,13 +45,9 @@ public class UploadRequest extends SpringAndroidSpiceRequest<Object>{
 			}
 			else{
 				Log.i(TAG, "Address=" + address + "\ncontent="+content.toString());
+				uploadContent.updateScoreWithOld(oldScore);
 			}
-			
-			uploadContent.updateScoreWithOld(oldScore);
 		}
-		
-		//TODO wipe score.
-		//uploadContent.setC_score("");
 		
 		Log.i(TAG, "Doing post: "+uploadContent.toString());
 		
@@ -61,7 +55,7 @@ public class UploadRequest extends SpringAndroidSpiceRequest<Object>{
     }
 	
 	public String createCacheKey() {
-		return id + uploadContent.toString();
+		return "["+id+"]-" + uploadContent.toString();
 	}
 	
 }
