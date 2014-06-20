@@ -94,6 +94,8 @@ public class SessionUpload {
 		sb.append(",r_id="+r_id);
 		sb.append(",c_id="+c_id);
 		sb.append(",c_score="+c_score);
+		sb.append(",oldScore="+oldScore);
+		sb.append(",currentScore="+currentScore);
 		sb.append(" }");
 		return sb.toString();
 	}

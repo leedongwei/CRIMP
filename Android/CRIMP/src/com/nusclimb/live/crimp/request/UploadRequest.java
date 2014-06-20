@@ -19,9 +19,11 @@ public class UploadRequest extends SpringAndroidSpiceRequest<Object>{
 	private static final String BASE_URL_POST = "http://crimp-stage.herokuapp.com/judge/set";
 	
 	private SessionUpload uploadContent;
+	private int id;
 	
-	public UploadRequest(SessionUpload uploadContent){
+	public UploadRequest(SessionUpload uploadContent, int requestId){
 		super(Object.class);
+		id = requestId;
 		this.uploadContent = uploadContent;
 	}
 	
@@ -50,11 +52,16 @@ public class UploadRequest extends SpringAndroidSpiceRequest<Object>{
 			uploadContent.updateScoreWithOld(oldScore);
 		}
 		
+		//TODO wipe score.
+		//uploadContent.setC_score("");
+		
+		Log.i(TAG, "Doing post: "+uploadContent.toString());
+		
 		return getRestTemplate().postForObject(BASE_URL_POST, uploadContent, Object.class);
     }
 	
 	public String createCacheKey() {
-		return uploadContent.toString();
+		return id + uploadContent.toString();
 	}
 	
 }

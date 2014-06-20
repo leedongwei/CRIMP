@@ -111,4 +111,38 @@
        	android:layout_alignRight="@id/scoring_button_row"
        	android:onClick="submit" />
     
+    <!-- 
+    <Button 
+        android:id="@+id/test1_button"
+       	android:layout_width="wrap_content" 
+       	android:layout_height="wrap_content"
+       	android:text="test1" 
+       	android:layout_below="@id/scoring_submit_button"
+       	android:onClick="test1" />
+    
+    <Button 
+        android:id="@+id/test2_button"
+       	android:layout_width="wrap_content" 
+       	android:layout_height="wrap_content"
+       	android:text="test2" 
+       	android:layout_below="@id/test1_button"
+       	android:onClick="test2" />
+    
+    <Button 
+        android:id="@+id/test3_button"
+       	android:layout_width="wrap_content" 
+       	android:layout_height="wrap_content"
+       	android:text="test3" 
+       	android:layout_below="@id/test2_button"
+       	android:onClick="test3" />
+    
+    <Button 
+        android:id="@+id/test4_button"
+       	android:layout_width="wrap_content" 
+       	android:layout_height="wrap_content"
+       	android:text="test4" 
+       	android:layout_below="@id/test3_button"
+       	android:onClick="test4" />
+       	 -->
+    
 </RelativeLayout>
