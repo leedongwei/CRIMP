@@ -216,6 +216,18 @@ frisby.create('No j_name')
     .expectHeaderContains('Content-Type', 'json')
 .toss();
 
+frisby.create('No auth_code')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		r_id: 'NWQ01',
+		c_id: 'NW001',
+		c_score: '111BT'
+  }, {json: true})
+  	.expectStatus(401)
+    .expectHeaderContains('Content-Type', 'json')
+.toss();
+
+
 frisby.create('Wrong auth_code')
   .post(URL + '/judge/set', {
     j_name: 'DongWei',
@@ -227,6 +239,89 @@ frisby.create('Wrong auth_code')
   	.expectStatus(401)
     .expectHeaderContains('Content-Type', 'json')
 .toss();
+
+frisby.create('No c_score')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		auth_code: authCode,
+		r_id: 'NWQ01',
+		c_id: 'NW001'
+  }, {json: true})
+  	.expectStatus(400)
+    .expectHeaderContains('Content-Type', 'json')
+.toss();
+
+frisby.create('c_score is an empty string')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		auth_code: authCode,
+		r_id: 'NWQ01',
+		c_id: 'NW001',
+		c_score: ''
+  }, {json: true})
+  	.expectStatus(400)
+    .expectHeaderContains('Content-Type', 'json')
+.toss();
+
+frisby.create('No r_id')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		auth_code: authCode,
+		c_id: 'NW001',
+		c_score: '111BT'
+  }, {json: true})
+  	.expectStatus(400)
+    .expectHeaderContains('Content-Type', 'json')
+.toss();
+
+frisby.create('Short r_id')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		auth_code: authCode,
+		r_id: 'NWQ1',
+		c_id: 'NW001',
+		c_score: '111BT'
+  }, {json: true})
+  	.expectStatus(400)
+    .expectHeaderContains('Content-Type', 'json')
+.toss();
+
+frisby.create('Long r_id')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		auth_code: authCode,
+		r_id: 'NWQ001',
+		c_id: 'NW001',
+		c_score: '111BT'
+  }, {json: true})
+  	.expectStatus(400)
+    .expectHeaderContains('Content-Type', 'json')
+.toss();
+
+frisby.create('r_id category is non-existent')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		auth_code: authCode,
+		r_id: 'xxQ01',
+		c_id: 'NW001',
+		c_score: '111BT'
+  }, {json: true})
+  	.expectStatus(400)
+    .expectHeaderContains('Content-Type', 'json')
+.toss();
+
+/*frisby.create('')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		auth_code: authCode,
+		r_id: ''
+		c_id: 'NW001',
+		c_score: '111BT'
+  }, {json: true})
+  	.expectStatus()
+    .expectHeaderContains('Content-Type', 'json')
+.toss();*/
+
 
 
 

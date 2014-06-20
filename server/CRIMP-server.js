@@ -48,10 +48,10 @@ app.get('/judge/get/:round', function (req, res) {
 					});
 				});
 
-				res.send(200, JSON.stringify(message));
+				//res.send(200, JSON.stringify(message));
 
 				// Simulating latency
-				//setTimeout(function(){res.send(200, JSON.stringify(message))}, 10000);
+				setTimeout(function(){res.send(200, JSON.stringify(message))}, 5000);
 			}
 		});
 	});
@@ -107,10 +107,10 @@ app.get('/judge/get/:c_id/:r_id', function (req, res) {
 					message.c_score = result.rows[0][route];
 				}
 
-				res.send(200, JSON.stringify(message));
+				//res.send(200, JSON.stringify(message));
 
 				// Simulating latency
-				//setTimeout(function(){res.send(200, JSON.stringify(message))}, 10000);
+				setTimeout(function(){res.send(200, JSON.stringify(message))}, 5000);
 			}
 		});
 	});
@@ -183,10 +183,10 @@ app.post('/judge/set', function (req, res) {
 					console.log('Updated score: ' + postBody.c_id + '/' +
 											postBody.c_score + ' by ' + postBody.j_name );
 
-					res.send(200, {});
+					//res.send(200, {});
 
 					// Simulating latency
-					//setTimeout(function(){res.send(200, {})}, 10000);
+					setTimeout(function(){res.send(200, {})}, 5000);
 				}
 			}
 		});
@@ -333,29 +333,31 @@ function calculateClimberScore (resultsTop, resultsBonus, res) {
 	var i = 0,
 			message = {'climbers':[]};
 	for (; i < resultsTop.length; i++) {
-		var climber = {'c_id': '',
-								   'top': 0,
-									 't_att': 0,
-									 'bonus': 0,
-									 'b_att': 0 };
+		if (resultsTop[i].c_id === resultsBonus[i].c_id) {
+			var climber = {'c_id': '',
+									   'top': 0,
+										 't_att': 0,
+										 'bonus': 0,
+										 'b_att': 0 };
 
-		climber.c_id = resultsTop[i].c_id;
-		delete resultsTop[i].c_id;
-		delete resultsBonus[i].c_id;
+			climber.c_id = resultsTop[i].c_id;
+			delete resultsTop[i].c_id;
+			delete resultsBonus[i].c_id;
 
-		for (var prop in resultsTop[i]) {
-			if (resultsTop[i][prop]) {
-				climber.top++;
-				climber.t_att += resultsTop[i][prop];
+			for (var prop in resultsTop[i]) {
+				if (resultsTop[i][prop]) {
+					climber.top++;
+					climber.t_att += resultsTop[i][prop];
+				}
 			}
-		}
-		for (var prop in resultsBonus[i]) {
-			if (resultsBonus[i][prop]) {
-				climber.bonus++;
-				climber.b_att += resultsBonus[i][prop];
+			for (var prop in resultsBonus[i]) {
+				if (resultsBonus[i][prop]) {
+					climber.bonus++;
+					climber.b_att += resultsBonus[i][prop];
+				}
 			}
+			message.climbers.push(climber);
 		}
-		message.climbers.push(climber);
 	}
 
 	//console.log(message);
