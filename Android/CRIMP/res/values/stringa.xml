@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="round">
+        <item>U17M Qualifier</item>
+        <item>U17M Final</item>
+        <item>U17W Qualifier</item>
+        <item>U17W Final</item>
+        
+        <item>NM Qualifier</item>
+        <item>NM Final</item>
+        <item>NW Qualifier</item>
+        <item>NW Final</item>
+        
+        <item>IM Qualifier</item>
+        <item>IM Final</item>
+        <item>IW Qualifier</item>
+        <item>IW Final</item>
+        
+        <item>OM Qualifier</item>
+        <item>OM Final</item>
+        <item>OW Qualifier</item>
+        <item>OW Final</item>
+    </string-array>
+    
+    <!-- Novice/U17 qualifier = 6 routes
+    	 Inter/Open qualifier = 5 routes
+    	 U17/Novice/Inter final = 3 routes
+    	 Open final = 3+1 routes -->
+    <string-array name="route_qualifier_novice">
+        <item>Route 1</item>
+        <item>Route 2</item>
+        <item>Route 3</item>
+        <item>Route 4</item>
+        <item>Route 5</item>
+        <item>Route 6</item>
+    </string-array>
+    
+    <string-array name="route_qualifier">
+        <item>Route 1</item>
+        <item>Route 2</item>
+        <item>Route 3</item>
+        <item>Route 4</item>
+        <item>Route 5</item>
+    </string-array>
+    
+    <string-array name="route_final">
+        <item>Route 1</item>
+        <item>Route 2</item>
+        <item>Route 3</item>
+    </string-array>
+</resources>

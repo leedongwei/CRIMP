@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CRIMP</string>
+    <string name="package_name">com.nusclimb.live.crimp</string>
+    
+    <!-- Activity UI Components -->
+    <string name="UI_username">Route Judge Name</string>
+    <string name="UI_next">Next</string>
+    <string name="UI_climber_id">Climber ID</string>
+    <string name="UI_climber_name">Climber name</string>
+    <string name="UI_climber_id_heading">Climber ID: </string>
+    <string name="UI_climber_name_heading">Climber name: </string>
+    <string name="UI_total_score_heading">Total score:</string>
+    <string name="UI_rescan">Rescan</string>
+    <string name="UI_loading">&lt;loading&gt;</string>
+    <string name="UI_unavailable">&lt;unavailable&gt;</string>
+    <string name="UI_current_score">Current Session Score</string>
+    <string name="UI_plus_one">+1</string>
+    <string name="UI_b">Bonus</string>
+    <string name="UI_t">Top</string>
+    <string name="UI_backspace">Backspace</string>
+    <string name="UI_submit">Submit</string>
+    
+    <!-- Intent Key -->
+    <string name="intent_username">.username</string>
+    <string name="intent_round">.round</string>
+    <string name="intent_route">.route</string>
+    <string name="intent_climber_id">.climber_id</string>
+    <string name="intent_climber_name">.climber_name</string>
+    
+    <!-- Persistent Storage Keys -->
+    <string name="store_queue_count">queue_count</string>
+    <string name="store_upload_task">upload_task</string>
+    
+    <!-- Network -->
+    <string name="net_password">rustamGELMANOV</string>
+    <string name="net_password_debug">crimpAUTH</string>
+    <string name="net_base_url">http://crimp-stage.herokuapp.com</string>
+    <string name="net_download_url">/judge/get/</string>
+    
+    <!-- QR Code prefix -->
+    <string name="qr_prefix">&lt;BA2014&gt;</string>
+    
+    <!-- Menu -->
+    <string name="menu_refresh">refresh</string>
+    
+    <!-- Broadcast -->
+    <string name="broadcast_crimp_msg">crimp_msg</string>
+    <string name="broadcast_msg_type">broadcast_msg_type</string>
+    
+    <string name="receiver_action">com.nusclimb.live.crimp.receiver_action</string>
+
+</resources>
