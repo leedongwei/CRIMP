@@ -8,10 +8,10 @@ app.use(bodyParser());
 
 var dbConn = process.env.DATABASE_URL || config.development.db_conn;
 
-app.get('/judge/get/:round', function (req, res) {
+app.get('/judge/get/:c_category', function (req, res) {
 	res.set('Content-Type', 'application/json');
 
-	if (req.params.round.length !== 3) {
+	if (req.params.c_category.length !== 3) {
 		//console.error('400: Parameter Error');
 		res.send(400);
 		return;
@@ -21,7 +21,7 @@ app.get('/judge/get/:round', function (req, res) {
 			queryConfig = {
 				'text': 'SELECT c_id, c_name FROM crimp_data ' +
 								'WHERE c_category = $1;',
-				'values': [req.params.round]
+				'values': [req.params.c_category]
 			};
 
 	pg.connect(dbConn, function (err, client, done) {
@@ -48,10 +48,10 @@ app.get('/judge/get/:round', function (req, res) {
 					});
 				});
 
-				//res.send(200, JSON.stringify(message));
+				res.send(200, JSON.stringify(message));
 
 				// Simulating latency
-				setTimeout(function(){res.send(200, JSON.stringify(message))}, 5000);
+				//setTimeout(function(){res.send(200, JSON.stringify(message))}, 5000);
 			}
 		});
 	});
@@ -107,10 +107,10 @@ app.get('/judge/get/:c_id/:r_id', function (req, res) {
 					message.c_score = result.rows[0][route];
 				}
 
-				//res.send(200, JSON.stringify(message));
+				res.send(200, JSON.stringify(message));
 
 				// Simulating latency
-				setTimeout(function(){res.send(200, JSON.stringify(message))}, 5000);
+				//setTimeout(function(){res.send(200, JSON.stringify(message))}, 5000);
 			}
 		});
 	});
@@ -183,10 +183,10 @@ app.post('/judge/set', function (req, res) {
 					console.log('Updated score: ' + postBody.c_id + '/' +
 											postBody.c_score + ' by ' + postBody.j_name );
 
-					//res.send(200, {});
+					res.send(200, {});
 
 					// Simulating latency
-					setTimeout(function(){res.send(200, {})}, 5000);
+					//setTimeout(function(){res.send(200, {})}, 5000);
 				}
 			}
 		});
@@ -194,10 +194,10 @@ app.post('/judge/set', function (req, res) {
 });
 
 
-app.get('/client/get/:round', function (req, res) {
+app.get('/client/get/:c_category', function (req, res) {
 	res.set('Content-Type', 'application/json');
 
-	if (req.params.round.length !== 3) {
+	if (req.params.c_category.length !== 3) {
 		//console.error('400: Parameter Error');
 		res.send(400);
 		return;
@@ -209,13 +209,13 @@ app.get('/client/get/:round', function (req, res) {
 			resultsTop,
 			resultsBonus;
 
-	if (req.params.round.substring(2,3) === 'Q') {
+	if (req.params.c_category.substring(2,3) === 'Q') {
 		queryConfigTop = {
 			'text': 'SELECT c_id, ' +
 							'q01_top, q02_top, q03_top, q04_top, q05_top, q06_top ' +
 							'FROM crimp_data ' +
 							'WHERE c_category = $1;',
-			'values': [req.params.round]
+			'values': [req.params.c_category]
 		};
 		queryConfigBonus = {
 			'text': 'SELECT c_id, ' +
@@ -223,22 +223,22 @@ app.get('/client/get/:round', function (req, res) {
 							'q05_bonus, q06_bonus ' +
 							'FROM crimp_data ' +
 							'WHERE c_category = $1;',
-			'values': [req.params.round]
+			'values': [req.params.c_category]
 		};
-	} else if (req.params.round.substring(2,3) === 'F') {
+	} else if (req.params.c_category.substring(2,3) === 'F') {
 		queryConfigTop = {
 			'text': 'SELECT c_id, ' +
 							'f01_top, f02_top, f03_top, f04_top ' +
 							'FROM crimp_data ' +
 							'WHERE c_category = $1;',
-			'values': [req.params.round]
+			'values': [req.params.c_category]
 		};
 		queryConfigBonus = {
 			'text': 'SELECT c_id, ' +
 							'f01_bonus, f02_bonus, f03_bonus, f04_bonus ' +
 							'FROM crimp_data ' +
 							'WHERE c_category = $1;',
-			'values': [req.params.round]
+			'values': [req.params.c_category]
 		};
 	} else {
 		res.send(400);
@@ -302,6 +302,62 @@ app.get('/client/get/:round', function (req, res) {
 	});
 });
 
+
+/*
+app.get('/admin/get/:r_id', function (req, res) {
+	res.set('Content-Type', 'application/json');
+
+	if (r_id.length !== 5 ||
+			!(/^[a-z]+$/i.test(r_id.substring(2,3))) ){
+		//console.error('400: Parameter Error');
+		res.send(400);
+		return;
+	}
+
+	var r_id = req.params.r_id;
+			c_category = r_id.substring(0,3),
+			route = r_id.substring(2, 5).toLowerCase() + '_raw',
+			judge = r_id.substring(2, 5).toLowerCase() + '_judge',
+			message = {	'climbers': []},
+			queryConfig = {
+				'text': 'SELECT c_id, ' + judge + ', c_name, ' + route +
+								' FROM crimp_data ' +
+								'WHERE c_category = $1;',
+				'values': [c_category]
+			};
+
+	pg.connect(dbConn, function (err, client, done) {
+		if (err) {
+			console.error('500: Error fetching client from pool', err);
+			res.send(500);
+			return;
+		}
+
+		client.query(queryConfig, function (err, result) {
+			// IMPORTANT! Release client back to pool
+			done();
+
+			if (err) {
+				//console.error('400: Error running query', err);
+				res.send(400);
+			} else if (result.rowCount === 0) {
+				//console.error('404: Data not found');
+				res.send(404);
+			} else {
+
+				result.rows.forEach(function (entry) {
+					message.climbers.push(entry);
+				});
+
+				res.send(200, JSON.stringify(message));
+
+				// Simulating latency
+				//setTimeout(function(){res.send(200, JSON.stringify(message))}, 5000);
+			}
+		});
+	});
+});
+*/
 
 
 var serverPort = Number (process.env.PORT || config.development.judge_port);
