@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -107,6 +109,12 @@ public class QRScanActivity extends Activity {
 		this.setTitle(round + " " + route);
 		TextView climberRoundId =  (TextView) findViewById(R.id.QRScan_round_text);
 		climberRoundId.setText(Helper.toIdRound(round));
+		
+		// Update buttons.
+		if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)){
+			Button flashButton = (Button) findViewById(R.id.QRScan_flash_button);
+			flashButton.setEnabled(false);
+		}
 	}
 	
 	@Override
@@ -309,11 +317,17 @@ public class QRScanActivity extends Activity {
 		}
 	}
 	
-	
-	
+	/**
+	 * Method to toggle the camera flash.
+	 * 
+	 * @param view Reference to the button that was clicked.
+	 */
 	public void toggleFlash(View view){
-		
+		getCameraManager().setFlash(!getCameraManager().isTorchOn());
 	}
+	
+	
+	
 	/*=========================================================================
 	 * Private methods
 	 *=======================================================================*/

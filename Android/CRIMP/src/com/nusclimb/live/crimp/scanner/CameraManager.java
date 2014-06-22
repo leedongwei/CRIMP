@@ -32,6 +32,7 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
 	private boolean _isScanning;			// Whether we are sending new camera input to decode.
 	private Camera.Size bestPreviewSize;
 	private Point previewViewResolution;
+	private boolean _isTorchOn;
 	
 	public CameraManager(QRScanActivity activity){
 		this.activity = activity;
@@ -67,6 +68,10 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
 	
 	public boolean isSurfaceReady(){
 		return _isSurfaceReady;
+	}
+	
+	public boolean isTorchOn(){
+		return _isTorchOn;
 	}
 	
 	
@@ -155,6 +160,40 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
 		}
 		else{
 			Log.w(TAG, "Attempt to start scan fail due to preview not started yet.");
+		}
+	}
+	
+	/**
+	 * Set the camera flash.
+	 * 
+	 * @param on Boolean flag to indicate whether to on flash.
+	 */
+	public void setFlash(boolean on){
+		if(hasCamera()){
+			Camera.Parameters params = camera.getParameters();
+			List<String> flashMode = params.getSupportedFlashModes();
+			
+			if(on){
+				if(flashMode.contains(Camera.Parameters.FLASH_MODE_TORCH)){
+					params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+					camera.setParameters(params);
+					_isTorchOn = true;
+				}
+				else{
+					if(flashMode.contains(Camera.Parameters.FLASH_MODE_ON)){
+						params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
+						camera.setParameters(params);
+						_isTorchOn = true;
+					}
+				}
+			}
+			else{
+				if(flashMode.contains(Camera.Parameters.FLASH_MODE_OFF)){
+					params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+					camera.setParameters(params);
+					_isTorchOn = false;
+				}
+			}
 		}
 	}
 	
