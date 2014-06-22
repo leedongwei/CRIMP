@@ -111,7 +111,7 @@ public class QRScanActivity extends Activity {
 		climberRoundId.setText(Helper.toIdRound(round));
 		
 		// Update buttons.
-		if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)){
+		if(!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)){
 			Button flashButton = (Button) findViewById(R.id.QRScan_flash_button);
 			flashButton.setEnabled(false);
 		}
