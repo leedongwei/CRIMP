@@ -21,6 +21,7 @@
     <string name="UI_t">Top</string>
     <string name="UI_backspace">Backspace</string>
     <string name="UI_submit">Submit</string>
+    <string name="UI_flash">Flash</string>
     
     <!-- Intent Key -->
     <string name="intent_username">.username</string>

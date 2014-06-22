@@ -311,6 +311,9 @@ public class QRScanActivity extends Activity {
 	
 	
 	
+	public void toggleFlash(View view){
+		
+	}
 	/*=========================================================================
 	 * Private methods
 	 *=======================================================================*/
