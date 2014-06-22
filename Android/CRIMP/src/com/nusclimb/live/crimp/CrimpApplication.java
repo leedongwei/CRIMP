@@ -12,6 +12,7 @@ import com.octo.android.robospice.request.listener.RequestListener;
 
 import android.app.Application;
 import android.app.NotificationManager;
+import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -26,12 +27,14 @@ public class CrimpApplication extends Application {
 	private static final int NOTIFICATION_ID = 001;
 	
 	private SpiceManager spiceManager;
-	
 	private Queue<UploadRequest> uploadQueue;
 	private boolean isUploading;
+	private boolean isSpiceManagerStarted;
+	private int spiceManagerToken = 1;
 	private int uploadSuccessCount, uploadTotalCount;
+	private final Handler handler = new Handler();
 	NotificationCompat.Builder mBuilder;
-
+	Runnable checkSpiceManagerRunnable;
 	
 	/*=========================================================================
 	 * Inner class
@@ -56,12 +59,21 @@ public class CrimpApplication extends Application {
 	    	 
 	    	 if(uploadSuccessCount == uploadTotalCount){
 	    		 // Update notification
-		    	 mBuilder.setContentText("Upload complete: "+uploadSuccessCount+"/"+uploadTotalCount)
+	    		 getNotificationBuilder().setContentText("Upload complete: "+uploadSuccessCount+"/"+uploadTotalCount)
 		    	 .setProgress(0, 0, false);
+		    	 
+		    	 // Stop spiceManager.
+		    	 if(isSpiceManagerStarted && spiceManagerToken == 0){
+		    		 Log.d(TAG, "spiceManager should stop...");
+		    		 spiceManager.shouldStop();
+		    		 spiceManagerToken++;
+		 		
+		    		 handler.postDelayed(getCheckSpiceManagerRunnable(), 100);
+		    	 }
 	    	 }
 	    	 else{
 		    	 // Update notification
-		    	 mBuilder.setContentText("Upload in progress: "+uploadSuccessCount+"/"+uploadTotalCount)
+	    		 getNotificationBuilder().setContentText("Upload in progress: "+uploadSuccessCount+"/"+uploadTotalCount)
 		    	 .setProgress(uploadTotalCount, uploadSuccessCount, false);
 	    	 }
 	    	 
@@ -69,7 +81,7 @@ public class CrimpApplication extends Application {
 			 NotificationManager mNotifyMgr =
 					 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 			 // Builds the notification and issues it.
-			 mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
+			 mNotifyMgr.notify(NOTIFICATION_ID, getNotificationBuilder().build());
 	    	 
 	    	 tryProcessRequest();
 	     }
@@ -88,9 +100,6 @@ public class CrimpApplication extends Application {
 		uploadTotalCount = 0;
 		
 		spiceManager = new SpiceManager(CrimpService.class);
-		spiceManager.start(this);
-		 
-		buildInitialNotificationAndFire();
 	}
 	
 	/**
@@ -99,11 +108,19 @@ public class CrimpApplication extends Application {
 	 * @param request Request to be added.
 	 */
 	public void addRequest(UploadRequest request){
+		if(!isSpiceManagerStarted && spiceManagerToken > 0){
+			Log.d(TAG, "spiceManager starting...");
+			spiceManagerToken--;
+			spiceManager.start(this);
+
+			handler.postDelayed(getCheckSpiceManagerRunnable(), 100);
+		}
+		
 		getQueue().offer(request);
 		uploadTotalCount++;
 		
 		// Update notification
-		mBuilder.setContentTitle("CRIMP Score upload")
+		getNotificationBuilder().setContentTitle("CRIMP Score upload")
 		.setContentText("Upload in progress: "+uploadSuccessCount+"/"+uploadTotalCount)
 		.setProgress(uploadTotalCount, uploadSuccessCount, false);
 		
@@ -111,7 +128,7 @@ public class CrimpApplication extends Application {
 		NotificationManager mNotifyMgr = 
 				(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		// Builds the notification and issues it.
-		mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
+		mNotifyMgr.notify(NOTIFICATION_ID, getNotificationBuilder().build());
 		
 		tryProcessRequest();
 	}
@@ -122,21 +139,26 @@ public class CrimpApplication extends Application {
 	 * Private methods
 	 *=======================================================================*/
 	/**
-	 * Build initial notification and issue it.
+	 * Get the notification builder. Create one if it does not exist.
+	 * 
+	 * @return Notification builder used for displaying upload status.
 	 */
-	private void buildInitialNotificationAndFire(){
-		mBuilder = new NotificationCompat.Builder(this)
-			        .setSmallIcon(R.drawable.ic_launcher)
+	private NotificationCompat.Builder getNotificationBuilder(){
+		if(mBuilder == null){
+			mBuilder = new NotificationCompat.Builder(this)
+					.setSmallIcon(R.drawable.ic_launcher)
 			        .setContentTitle("CRIMP")
 			        .setContentText("CRIMP service is running!");
-		 
-		// Gets an instance of the NotificationManager service
-		NotificationManager mNotifyMgr =
-				(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		// Builds the notification and issues it.
-		mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
+		}
+		
+		return mBuilder;
 	}
 	
+	/**
+	 * Get upload request queue. Create one if it does not exist.
+	 * 
+	 * @return Upload request queue.
+	 */
 	private Queue<UploadRequest> getQueue(){
 		if(uploadQueue == null){
 			uploadQueue = new LinkedList<UploadRequest>();
@@ -147,15 +169,57 @@ public class CrimpApplication extends Application {
 	
 	/**
 	 * Test and process request if possible. No-op if 1) already uploading
-	 * and/or 2) queue is empty.
+	 * and/or 2) queue is empty and/or 3) spiceManager not started.
 	 */
 	private void tryProcessRequest(){
-		if(!isUploading && !getQueue().isEmpty()){
+		if(!isUploading && !getQueue().isEmpty() && isSpiceManagerStarted){
 			UploadRequest nextRequest = getQueue().peek();
 			
 			isUploading = true;
 			spiceManager.execute(nextRequest, nextRequest.createCacheKey(),
 					DurationInMillis.ALWAYS_EXPIRED, new AppUploadRequestListener());
+		}
+	}
+	
+	/**
+	 * Get the runnable object for checking spiceManager. Create one if it 
+	 * does not exist.
+	 * 
+	 * @return A runnable object that checks spiceManager for state change.
+	 */
+	private Runnable getCheckSpiceManagerRunnable(){
+		if(checkSpiceManagerRunnable == null){
+			checkSpiceManagerRunnable = new Runnable() {
+				@Override 
+			    public void run() {
+					if(isSpiceManagerStateChange()){
+						// State changed. Try process queue.
+						Log.d(TAG, "spiceManager change: "+isSpiceManagerStarted);
+						tryProcessRequest();
+					}
+					else{
+						handler.postDelayed(getCheckSpiceManagerRunnable(), 100);
+					}
+			    }
+			};
+		}
+		
+		return checkSpiceManagerRunnable;
+	}
+	
+	/**
+	 * Check for spiceManager toggle between start and not started.
+	 * 
+	 * @return True if spiceManager state change.
+	 */
+	private boolean isSpiceManagerStateChange(){
+		boolean state = spiceManager.isStarted();
+		if(state != isSpiceManagerStarted){
+			isSpiceManagerStarted = state;
+			return true;
+		}
+		else{
+			return false;
 		}
 	}
 	
