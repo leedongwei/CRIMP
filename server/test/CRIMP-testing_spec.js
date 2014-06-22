@@ -259,7 +259,7 @@ frisby.create('c_score is an empty string')
 		c_id: 'NW001',
 		c_score: ''
   }, {json: true})
-  	.expectStatus(400)
+  	.expectStatus(200)
     .expectHeaderContains('Content-Type', 'json')
 .toss();
 
@@ -298,7 +298,7 @@ frisby.create('Long r_id')
     .expectHeaderContains('Content-Type', 'json')
 .toss();
 
-frisby.create('r_id category is non-existent')
+frisby.create('r_id category does not exist, correct c_id')
   .post(URL + '/judge/set', {
     j_name: 'DongWei',
 		auth_code: authCode,
@@ -310,21 +310,77 @@ frisby.create('r_id category is non-existent')
     .expectHeaderContains('Content-Type', 'json')
 .toss();
 
-/*frisby.create('')
+frisby.create('r_id category does not exist, wrong c_id')
   .post(URL + '/judge/set', {
     j_name: 'DongWei',
 		auth_code: authCode,
-		r_id: ''
+		r_id: 'xxQ01',
+		c_id: 'xx001',
+		c_score: '111BT'
+  }, {json: true})
+  	.expectStatus(404)
+    .expectHeaderContains('Content-Type', 'json')
+.toss();
+
+frisby.create('route does not exist, correct c_id')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		auth_code: authCode,
+		r_id: 'NWQ99',
 		c_id: 'NW001',
 		c_score: '111BT'
   }, {json: true})
-  	.expectStatus()
+  	.expectStatus(400)
     .expectHeaderContains('Content-Type', 'json')
-.toss();*/
+.toss();
 
+frisby.create('Short c_id')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		auth_code: authCode,
+		r_id: 'NMQ01',
+		c_id: 'NM01',
+		c_score: '111BT'
+  }, {json: true})
+  	.expectStatus(400)
+    .expectHeaderContains('Content-Type', 'json')
+.toss();
 
+frisby.create('Long c_id')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		auth_code: authCode,
+		r_id: 'NMQ01',
+		c_id: 'NM0001',
+		c_score: '111BT'
+  }, {json: true})
+  	.expectStatus(400)
+    .expectHeaderContains('Content-Type', 'json')
+.toss();
 
+frisby.create('Climber does not exist')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		auth_code: authCode,
+		r_id: 'NMQ01',
+		c_id: 'NM999',
+		c_score: '111BT'
+  }, {json: true})
+  	.expectStatus(404)
+    .expectHeaderContains('Content-Type', 'json')
+.toss();
 
+frisby.create('Climber category does not exist')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		auth_code: authCode,
+		r_id: 'NMQ01',
+		c_id: 'xx001',
+		c_score: '111BT'
+  }, {json: true})
+  	.expectStatus(400)
+    .expectHeaderContains('Content-Type', 'json')
+.toss();
 
 
 /*

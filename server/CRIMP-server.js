@@ -8,6 +8,7 @@ app.use(bodyParser());
 
 var dbConn = process.env.DATABASE_URL || config.development.db_conn;
 
+
 app.get('/judge/get/:c_category', function (req, res) {
 	res.set('Content-Type', 'application/json');
 
@@ -139,6 +140,7 @@ app.post('/judge/set', function (req, res) {
 			postBody.c_score === undefined ||
 			postBody.c_id.length !== 5 ||
 			postBody.r_id.length !== 5 ||
+			postBody.c_id.substring(0,2) !== postBody.r_id.substring(0,2) ||
 			!(/^[a-z]+$/i.test(postBody.r_id.substring(2,3))) ) {
 		//console.error('400: Parameter Error');
 		res.send(400);
@@ -366,6 +368,7 @@ var server = app.listen(serverPort, function() {
 });
 
 
+//app.post('/judge/set')
 function calculateTop (rawScore) {
 	var i = 0;
 	for (i; i < rawScore.length; i++) {
@@ -376,6 +379,7 @@ function calculateTop (rawScore) {
 }
 
 
+//app.post('/judge/set')
 function calculateBonus (rawScore) {
 	var i = 0;
 	for (i; i < rawScore.length; i++) {
@@ -385,6 +389,7 @@ function calculateBonus (rawScore) {
 	return 0;
 }
 
+//app.get('/client/get/:c_category')
 function calculateClimberScore (resultsTop, resultsBonus, res) {
 	var i = 0,
 			message = {'climbers':[]};
