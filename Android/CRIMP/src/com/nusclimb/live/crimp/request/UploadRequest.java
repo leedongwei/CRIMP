@@ -54,6 +54,10 @@ public class UploadRequest extends SpringAndroidSpiceRequest<Object>{
 		return getRestTemplate().postForObject(BASE_URL_POST, uploadContent, Object.class);
     }
 	
+	public SessionUpload getUploadContent(){
+		return uploadContent;
+	}
+	
 	public String createCacheKey() {
 		return "["+id+"]-" + uploadContent.toString();
 	}
