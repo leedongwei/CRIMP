@@ -17,8 +17,19 @@ public class ScoreRequest extends SpringAndroidSpiceRequest<Score> {
 	private static final String BASE_URL = "http://crimp-stage.herokuapp.com/judge/get/";
 	
 	private String climberId;
-	private String round;
-	private String route;
+	private String r_id;
+	
+	/**
+	 * Construct a request for score.
+	 * 
+	 * @param climberId Id of climber that we are requesting scores of.
+	 * @param r_id Route id. Contains both round and route number.
+	 */
+	public ScoreRequest(String climberId, String r_id) {
+		super(Score.class);
+		this.climberId = climberId;
+		this.r_id = r_id;
+	}
 	
 	/**
 	 * Construct a request for score.
@@ -30,24 +41,17 @@ public class ScoreRequest extends SpringAndroidSpiceRequest<Score> {
 	public ScoreRequest(String climberId, String round, String route) {
 		super(Score.class);
 		this.climberId = climberId;
-		this.round = round;
-		this.route = route;
+		
+		// Convert to server alias.
+		String serverAliasRound = Helper.toServerRound(round);
+		String serverAliasRoute = Helper.parseRoute(route);
+		this.r_id = serverAliasRound + serverAliasRoute;
 	}
 
 	@Override
 	public Score loadDataFromNetwork() throws Exception {
-		// Convert to server alias.
-		String serverAliasRound = Helper.toServerRound(round);
-		String serverAliasRoute = Helper.parseRoute(route);
-		
-		if(serverAliasRound == null){
-			// Wrong round name. Quit early.
-			Log.w(TAG, round + " is not a valid round full name.");
-			throw new Exception("Invalid round name");
-		}
-		
 		// Craft URL.
-		String address = BASE_URL + climberId + "/" + serverAliasRound + serverAliasRoute + 
+		String address = BASE_URL + climberId + "/" + r_id + 
 				"?q=" + Helper.nextAlphaNumeric(6);
 		
 		// Actual network calls.
@@ -58,7 +62,15 @@ public class ScoreRequest extends SpringAndroidSpiceRequest<Score> {
 		return content;
     }
 	
+	public String getClimberId(){
+		return climberId;
+	}
+	
+	public String getR_id(){
+		return r_id;
+	}
+	
 	public String createCacheKey() {
-		return climberId + round + route;
+		return climberId + r_id;
 	}
 }
