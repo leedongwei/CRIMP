@@ -201,7 +201,7 @@ public class ScoringActivity extends Activity{
 		
 		if(scoreRequestCacheKey != null){
 			Log.d(TAG, "onPause. Cancelling score request: "+scoreRequestCacheKey);
-			spiceManager.cancel(RoundInfoMap.class, scoreRequestCacheKey);
+			spiceManager.cancel(Score.class, scoreRequestCacheKey);
 			scoreRequestCacheKey = null;
 		}
 		
@@ -246,7 +246,7 @@ public class ScoringActivity extends Activity{
 	    		
 	    		if(scoreRequestCacheKey != null){
 	    			Log.d(TAG, "Refresh clicked. Cancelling score request: "+scoreRequestCacheKey);
-	    			spiceManager.cancel(RoundInfoMap.class, scoreRequestCacheKey);
+	    			spiceManager.cancel(Score.class, scoreRequestCacheKey);
 	    			scoreRequestCacheKey = null;
 	    		}
 	    		
