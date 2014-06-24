@@ -20,9 +20,10 @@
 		android:gravity="center"
 		android:text="@string/UI_no_pending_uploads"/>
     
-	<Button android:id="@+id/uploadlist_pause_button"
+	<Button android:id="@+id/uploadlist_resume_button"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-	    android:text="@string/UI_pause" />
+	    android:text="@string/UI_pause"
+	    android:onClick="resume" />
 
 </LinearLayout>

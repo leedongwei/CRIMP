@@ -25,7 +25,7 @@
     <string name="UI_climber">Climber: </string>
     <string name="UI_route">Route: </string>
     <string name="UI_status">Status: </string>
-    <string name="UI_pause">Pause uploads</string>
+    <string name="UI_pause">Resume uploads</string>
     <string name="UI_no_pending_uploads">No pending uploads</string>
     <string name="UI_pending_uploads">CRIMP pending uploads</string>
     
