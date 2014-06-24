@@ -9,7 +9,7 @@ import com.octo.android.robospice.retry.DefaultRetryPolicy;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  *
  */
-public class CrimpRetryPolicy extends DefaultRetryPolicy {
+public class UploadRetryPolicy extends DefaultRetryPolicy {
 	@Override
     public int getRetryCount() {
         return 1;

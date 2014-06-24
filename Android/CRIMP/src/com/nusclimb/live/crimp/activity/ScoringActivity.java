@@ -9,7 +9,7 @@ import com.nusclimb.live.crimp.json.SessionUpload;
 import com.nusclimb.live.crimp.request.ClimberInfoRequest;
 import com.nusclimb.live.crimp.request.ScoreRequest;
 import com.nusclimb.live.crimp.request.UploadRequest;
-import com.nusclimb.live.crimp.retry.CrimpRetryPolicy;
+import com.nusclimb.live.crimp.retry.UploadRetryPolicy;
 import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.DurationInMillis;
@@ -347,7 +347,7 @@ public class ScoringActivity extends Activity{
 		
 		// Prepare request.
 		UploadRequest request = new UploadRequest(uploadPOJO, CrimpService.nextRequestId());
-		request.setRetryPolicy(new CrimpRetryPolicy());
+		request.setRetryPolicy(new UploadRetryPolicy());
 		
 		// Add to a queue of upload request.
 		((CrimpApplication)getApplicationContext()).addRequest(request);
