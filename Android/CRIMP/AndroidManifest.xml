@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-feature android:name="android.hardware.camera" />
 	<uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 	<uses-feature android:name="android.hardware.camera.flash" android:required="false" />
@@ -56,6 +57,15 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.nusclimb.live.crimp.activity.QRScanActivity" />
+        </activity>
+        
+        <activity
+            android:name="com.nusclimb.live.crimp.activity.UploadListActivity"
+            android:label="@string/UI_pending_uploads"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:screenOrientation="portrait" 
+            android:launchMode="singleTask" >
         </activity>
         
     </application>

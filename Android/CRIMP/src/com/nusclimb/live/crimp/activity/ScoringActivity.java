@@ -2,14 +2,12 @@ package com.nusclimb.live.crimp.activity;
 
 import com.nusclimb.live.crimp.CrimpApplication;
 import com.nusclimb.live.crimp.Helper;
+import com.nusclimb.live.crimp.QueueObject;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.json.RoundInfoMap;
 import com.nusclimb.live.crimp.json.Score;
-import com.nusclimb.live.crimp.json.SessionUpload;
 import com.nusclimb.live.crimp.request.ClimberInfoRequest;
 import com.nusclimb.live.crimp.request.ScoreRequest;
-import com.nusclimb.live.crimp.request.UploadRequest;
-import com.nusclimb.live.crimp.retry.UploadRetryPolicy;
 import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.DurationInMillis;
@@ -336,21 +334,18 @@ public class ScoringActivity extends Activity{
 		String serverAliasRoute = Helper.parseRoute(route);
 		String r_id = serverAliasRound + serverAliasRoute;
 		
-		// Prepare POJO.
-		SessionUpload uploadPOJO = new SessionUpload();
+		// Find the view for current score
 		if(scoreEdit == null){
 			scoreEdit = (EditText) findViewById(R.id.scoring_score_current_edit);
 		}
 		
-		uploadPOJO.setAll_current(routeJudge, getString(R.string.net_password_debug), 
-				r_id, climberId, scoreEdit.getText().toString());
+		// Make QueueObject
+		QueueObject mQueueObject = new QueueObject(routeJudge, getString(R.string.net_password_debug), 
+				r_id, climberId, scoreEdit.getText().toString(), CrimpService.nextRequestId());
 		
-		// Prepare request.
-		UploadRequest request = new UploadRequest(uploadPOJO, CrimpService.nextRequestId());
-		request.setRetryPolicy(new UploadRetryPolicy());
 		
-		// Add to a queue of upload request.
-		((CrimpApplication)getApplicationContext()).addRequest(request);
+		// Add to a queue of QueueObject request.
+		((CrimpApplication)getApplicationContext()).addRequest(mQueueObject);
 		
 		// Navigate up from this activity.
 		NavUtils.navigateUpFromSameTask(this);
