@@ -1,10 +1,13 @@
 var bodyParser = require('body-parser'),
 		express = require('express'),
 		pg = require('pg'),
-		config = require('./config.js');
+		config = require('./config.js'),
+		http = require('http');
 
 var app = express();
 app.use(bodyParser());
+
+
 
 var dbConn = process.env.DATABASE_URL || config.development.db_conn;
 
@@ -186,16 +189,21 @@ app.post('/judge/set', function (req, res) {
 											postBody.c_score + ' by ' + postBody.j_name );
 
 					res.send(200, {});
+					sendToSocket(postBody);
 
 					// Simulating latency
 					//setTimeout(function(){res.send(200, {})}, 5000);
+
 				}
 			}
 		});
 	});
+
+
 });
 
 
+/*
 app.get('/client/get/:c_category', function (req, res) {
 	res.set('Content-Type', 'application/json');
 
@@ -303,10 +311,12 @@ app.get('/client/get/:c_category', function (req, res) {
 		});
 	});
 });
+*/
 
 
-/*
+
 app.get('/admin/get/:r_id', function (req, res) {
+	var r_id = req.params.r_id;
 	res.set('Content-Type', 'application/json');
 
 	if (r_id.length !== 5 ||
@@ -359,10 +369,10 @@ app.get('/admin/get/:r_id', function (req, res) {
 		});
 	});
 });
-*/
 
 
-var serverPort = Number (process.env.PORT || config.development.judge_port);
+
+var serverPort = Number (process.env.PORT || config.development.port);
 var server = app.listen(serverPort, function() {
   console.log('Listening on port %d', server.address().port);
 });
@@ -389,7 +399,42 @@ function calculateBonus (rawScore) {
 	return 0;
 }
 
+//app.post('/judge/set')
+function sendToSocket (postBody) {
+	var postData = {
+		'c_id': postBody.c_id,
+		'r_id': postBody.r_id,
+		'top': calculateTop(postBody.c_score),
+		'bonus': calculateBonus(postBody.c_score)
+	};
+	postData = JSON.stringify(postData);
+
+	var postOptions = {
+		'hostname': config.production.socketserver ||
+								config.development.socketserver,
+		'path': '/server/push',
+		'method': 'POST',
+		'headers': {'Content-Type': 'application/json',
+          			'Content-Length': postData.length}
+	};
+
+	// Set up request
+	var postRequest = http.request(postOptions, function (res) {
+      res.setEncoding('utf8');
+      res.on('data', function (chunk) {
+          console.log('Response: ' + chunk);
+      });
+  });
+
+  // Post the data
+  postRequest.write(postData);
+  postRequest.end();
+
+
+}
+
 //app.get('/client/get/:c_category')
+/*
 function calculateClimberScore (resultsTop, resultsBonus, res) {
 	var i = 0,
 			message = {'climbers':[]};
@@ -424,3 +469,4 @@ function calculateClimberScore (resultsTop, resultsBonus, res) {
 	//console.log(message);
 	res.send(200, JSON.stringify(message));
 }
+*/
