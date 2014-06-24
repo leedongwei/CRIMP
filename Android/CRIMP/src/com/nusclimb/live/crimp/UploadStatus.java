@@ -7,8 +7,8 @@ public enum UploadStatus {
 	UPLOAD("Uploading score."), 
 	UPLOAD_WAITING("U/L failed. Waiting to retry."), 
 	FINISHED("Finished."),
-	ERROR_DOWNLOAD("Download error."),
-	ERROR_UPLOAD("Upload error."),
+	ERROR_DOWNLOAD("Download error. Click to remedy."),
+	ERROR_UPLOAD("Upload error. Click to remedy."),
 	ERROR_NO_NETWORK("No Network.");
 	
 	private String string;

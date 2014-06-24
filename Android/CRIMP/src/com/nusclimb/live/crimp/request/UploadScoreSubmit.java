@@ -13,7 +13,7 @@ import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceReques
  */
 public class UploadScoreSubmit extends SpringAndroidSpiceRequest<Object>{
 	private static final String TAG = UploadScoreSubmit.class.getSimpleName();
-	private static final String BASE_URL_POST = "http://crimp-stage.herokuapp.com/judge/set";
+	private String baseUrl = "http://crimp-stage.herokuapp.com/judge/set";
 	
 	private SessionUpload uploadContent;
 	private int id;
@@ -34,11 +34,19 @@ public class UploadScoreSubmit extends SpringAndroidSpiceRequest<Object>{
 	public Object loadDataFromNetwork() throws Exception {
 		Log.i(TAG, "Doing post: "+uploadContent.toString());
 		
-		return getRestTemplate().postForObject(BASE_URL_POST, uploadContent, Object.class);
+		return getRestTemplate().postForObject(baseUrl, uploadContent, Object.class);
     }
 	
 	public void updateScoreWithOld(String oldScore){
 		uploadContent.updateScoreWithOld(oldScore);
+	}
+	
+	public String getBaseUrl(){
+		return baseUrl;
+	}
+	
+	public void setBaseUrl(String url){
+		baseUrl = url;
 	}
 	
 	public String createCacheKey() {

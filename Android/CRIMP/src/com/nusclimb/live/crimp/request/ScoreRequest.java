@@ -14,7 +14,7 @@ import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceReques
  */
 public class ScoreRequest extends SpringAndroidSpiceRequest<Score> {
 	private static final String TAG = ScoreRequest.class.getSimpleName();
-	private static final String BASE_URL = "http://crimp-stage.herokuapp.com/judge/get/";
+	private String baseUrl = "http://crimp-stage.herokuapp.com/judge/get/";
 	
 	private String climberId;
 	private String r_id;
@@ -51,7 +51,7 @@ public class ScoreRequest extends SpringAndroidSpiceRequest<Score> {
 	@Override
 	public Score loadDataFromNetwork() throws Exception {
 		// Craft URL.
-		String address = BASE_URL + climberId + "/" + r_id + 
+		String address = baseUrl + climberId + "/" + r_id + 
 				"?q=" + Helper.nextAlphaNumeric(6);
 		
 		// Actual network calls.
@@ -72,5 +72,13 @@ public class ScoreRequest extends SpringAndroidSpiceRequest<Score> {
 	
 	public String createCacheKey() {
 		return climberId + r_id;
+	}
+	
+	public String getBaseUrl(){
+		return baseUrl;
+	}
+	
+	public void setBaseUrl(String url){
+		baseUrl = url;
 	}
 }

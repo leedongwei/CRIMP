@@ -204,12 +204,13 @@ public class Helper {
 	}
 	
 	/**
-	 * Helper method to convert InputStream to String. Does not close stream.
+	 * Helper method to convert InputStream to String. Does *NOT* close stream.
 	 * Credit goes to http://stackoverflow.com/a/5445161/3733616
 	 * 
 	 * @param is InputStream to convert
 	 * @return String of stream content.
 	 */
+	@SuppressWarnings("resource")
 	public static String convertStreamToString(java.io.InputStream is) {
 	    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
 	    return s.hasNext() ? s.next() : "";

@@ -10,11 +10,15 @@ import com.nusclimb.live.crimp.UploadTaskAdapter;
 
 import android.app.ListActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 
 public class UploadListActivity extends ListActivity {
+	private static final String TAG = UploadListActivity.class.getSimpleName();
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -58,5 +62,10 @@ public class UploadListActivity extends ListActivity {
 	
 	public void resume(View view){
 		((CrimpApplication)getApplicationContext()).resumeUpload();
+	}
+	
+	@Override
+	protected void onListItemClick (ListView l, View v, int position, long id){
+		
 	}
 }
