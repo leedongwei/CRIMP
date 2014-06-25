@@ -17,6 +17,7 @@ import com.octo.android.robospice.request.listener.RequestListener;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -257,6 +258,11 @@ public class ScoringActivity extends Activity{
 	    		refreshScore();
 	    		
 		        return true;
+	    	case R.id.preferences:
+	    		// Launch settings activity
+	    	    Intent i = new Intent(this, SettingsActivity.class);
+	    	    startActivity(i);
+		        return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
@@ -339,8 +345,11 @@ public class ScoringActivity extends Activity{
 			scoreEdit = (EditText) findViewById(R.id.scoring_score_current_edit);
 		}
 		
+		String auth_code = PreferenceManager
+				.getDefaultSharedPreferences(this).getString("auth_code", "");
+		
 		// Make QueueObject
-		QueueObject mQueueObject = new QueueObject(routeJudge, getString(R.string.net_password_debug), 
+		QueueObject mQueueObject = new QueueObject(routeJudge, auth_code, 
 				r_id, climberId, scoreEdit.getText().toString(), CrimpService.nextRequestId());
 		
 		

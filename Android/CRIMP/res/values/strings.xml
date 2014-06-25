@@ -37,6 +37,8 @@
     <string name="UI_c_id">c_id</string>
     <string name="UI_r_id">r_id</string>
     <string name="UI_score_append">Score to append</string>
+    <string name="UI_server_password">Server password</string>
+    <string name="UI_server_password_summary">Authentication code to upload score to server.</string>
     
     <!-- Dialog -->
     <string name="dialog_cancel_task">Cancel task</string>
@@ -72,7 +74,8 @@
     <string name="qr_prefix">&lt;BA2014&gt;</string>
     
     <!-- Menu -->
-    <string name="menu_refresh">refresh</string>
+    <string name="menu_refresh">Refresh</string>
+    <string name="menu_settings">Settings</string>
     
     <!-- Broadcast -->
     <string name="broadcast_crimp_msg">crimp_msg</string>

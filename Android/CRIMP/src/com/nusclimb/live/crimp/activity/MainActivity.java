@@ -5,13 +5,20 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.nusclimb.live.crimp.R;
+import com.nusclimb.live.crimp.json.RoundInfoMap;
+import com.nusclimb.live.crimp.json.Score;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -43,6 +50,8 @@ public class MainActivity extends ActionBarActivity {
 		
 		addListenerToRoundSpinner();
 		setRouteSpinnerAdapter();
+	
+		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 		
 		Log.d(TAG, "MainActivity onCreate.");
 	}
@@ -75,6 +84,32 @@ public class MainActivity extends ActionBarActivity {
 	protected void onDestroy(){
 		Log.d(TAG, "MainActivity onDestroy.");
 		super.onDestroy();
+	}
+	
+	
+	
+	/*=========================================================================
+	 * Override methods
+	 *=======================================================================*/
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.main, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle presses on the action bar items
+	    switch (item.getItemId()) {
+	    	case R.id.preferences:
+	    		// Launch settings activity
+	    	    Intent i = new Intent(this, SettingsActivity.class);
+	    	    startActivity(i);
+		        return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
 	}
 	
 	
