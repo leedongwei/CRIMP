@@ -9,6 +9,7 @@ import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.UploadTaskAdapter;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -66,6 +67,30 @@ public class UploadListActivity extends ListActivity {
 	
 	@Override
 	protected void onListItemClick (ListView l, View v, int position, long id){
-		
+		// Only react to first item.
+		if(position == 0){
+			QueueObject element = (QueueObject) getListAdapter().getItem(position);
+			
+			String packageName = getString(R.string.package_name);
+			
+			// Preparing to start QRScanActivity
+			Intent intent = new Intent(this, UploadEditActivity.class);
+			intent.putExtra(packageName + getString(R.string.intent_dl_url),
+					element.getRequest().getBaseUrl());
+			intent.putExtra(packageName + getString(R.string.intent_ul_url), 
+					element.getSubmit().getBaseUrl());
+			intent.putExtra(packageName + getString(R.string.intent_j_name), 
+					element.getSubmit().getUploadContent().getJ_name());
+			intent.putExtra(packageName + getString(R.string.intent_auth_code),
+					element.getSubmit().getUploadContent().getAuth_code());
+			intent.putExtra(packageName + getString(R.string.intent_r_id), 
+					element.getSubmit().getUploadContent().getR_id());
+			intent.putExtra(packageName + getString(R.string.intent_c_id), 
+					element.getSubmit().getUploadContent().getC_id());
+			intent.putExtra(packageName + getString(R.string.intent_score_append), 
+					element.getSubmit().getUploadContent().getCurrentScore());
+			
+			startActivity(intent);
+		}
 	}
 }
