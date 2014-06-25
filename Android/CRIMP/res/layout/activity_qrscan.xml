@@ -14,8 +14,8 @@
     <LinearLayout android:id="@+id/QRScan_status"
         android:layout_width="match_parent"
         android:layout_height="fill_parent" 
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp" 
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin" 
         android:orientation="vertical" >
         
         <LinearLayout android:id="@+id/QRScan_status_row1"
@@ -61,7 +61,8 @@
         	android:clickable="false" 
 	        android:cursorVisible="false" 
 	        android:focusable="false" 
-	        android:focusableInTouchMode="false" />
+	        android:focusableInTouchMode="false"
+	        android:inputType="textMultiLine|text" />"
         
         <Button
             android:id="@+id/QRScan_next_button"

@@ -45,6 +45,8 @@
     <string name="dialog_no_cancel_task">Don\'t cancel task</string>
     <string name="dialog_save">Save changes</string>
     <string name="dialog_no_save">Don\'t save changes</string>
+    <string name="dialog_submit">Submit</string>
+    <string name="dialog_no_submit">Don\'t submit</string>
     
     <!-- Intent Key -->
     <string name="intent_username">.username</string>

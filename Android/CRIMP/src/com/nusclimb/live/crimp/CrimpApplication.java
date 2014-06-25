@@ -44,7 +44,7 @@ public class CrimpApplication extends Application {
 	private boolean isPause;					// True: Block task from entering robospice service
 	private boolean isUploading;				// True: An upload task is in robospice service
 	private boolean isSpiceManagerStarted;
-	private int spiceManagerToken = 1;
+	private int spiceManagerToken = 1;			// Used to limit the number of time we start spiceManager.
 	private int uploadSuccessCount, uploadTotalCount;
 	private UploadListActivity uploadListActivity;
 	private final Handler handler = new Handler();
@@ -55,6 +55,13 @@ public class CrimpApplication extends Application {
 	/*=========================================================================
 	 * Inner class
 	 *=======================================================================*/
+	/**
+	 * Subclass of BroadcastReceiver to listen for network state change.
+	 * Resumes uploading when network is available.
+	 * 
+	 * @author Lin Weizhi (ecc.weizhi@gmail.com)
+	 *
+	 */
 	public class NetworkStateReceiver extends BroadcastReceiver {
 		@Override
 	    public void onReceive(final Context context, final Intent intent) {
@@ -85,8 +92,6 @@ public class CrimpApplication extends Application {
 	private class UploadScoreSubmitListener implements RequestListener<Object> {
 		@Override
 		public void onRequestFailure(SpiceException e) {
-			Log.w(TAG, "UploadScoreSubmitListener: "+e);
-			
 			if(e instanceof NoNetworkException){
 				// Update status
 				getQueue().peek().setStatus(UploadStatus.ERROR_NO_NETWORK);
@@ -112,6 +117,9 @@ public class CrimpApplication extends Application {
 					queueAdapter.notifyDataSetChanged();
 				}
 			}
+			
+			Log.w(TAG, "[UploadScoreSubmitListener fails:"+e+"]\n[Pending uploads:"+
+					uploadQueue.size()+"] [isUploading:"+isUploading+"] [isPause:"+isPause+"]");
 		}
 
 		@Override
@@ -122,7 +130,11 @@ public class CrimpApplication extends Application {
 			if(queueAdapter != null){
 				queueAdapter.notifyDataSetChanged();
 	 		}
-	    	 
+			
+			Log.i(TAG, "[UploadScoreSubmitListener succeed]\n[Pending uploads:"+
+					uploadQueue.size()+"] [isUploading:"+isUploading+"] [isPause:"+isPause+"]");
+	    	
+			// Chain up next request.
 			tryProcessRequest();
 		}
 	}
@@ -137,8 +149,6 @@ public class CrimpApplication extends Application {
 	private class UploadScoreRequestListener implements RequestListener<Score> {
 		@Override
 		public void onRequestFailure(SpiceException e) {
-			Log.w(TAG, "UploadScoreRequestListener: "+e);
-			
 			if(e instanceof NoNetworkException){
 				// Update status
 				getQueue().peek().setStatus(UploadStatus.ERROR_NO_NETWORK);
@@ -163,6 +173,9 @@ public class CrimpApplication extends Application {
 					queueAdapter.notifyDataSetChanged();
 				}
 			}
+			
+			Log.w(TAG, "[UploadScoreRequestListener fails:"+e+"]\n[Pending uploads:"+
+					uploadQueue.size()+"] [isUploading:"+isUploading+"] [isPause:"+isPause+"]");
 		}
 
 		@Override
@@ -176,9 +189,11 @@ public class CrimpApplication extends Application {
 			// Update score
 			getQueue().peek().getSubmit().updateScoreWithOld(result.getC_score());
 			
+			Log.i(TAG, "[UploadScoreRequestListener succeed]\n[Pending uploads:"+
+					uploadQueue.size()+"] [isUploading:"+isUploading+"] [isPause:"+isPause+"]");
+			
 			// Execute upload new score.
 			UploadScoreSubmit newScoreSubmit = getQueue().peek().getSubmit();
-			
 			spiceManager.execute(newScoreSubmit, newScoreSubmit.createCacheKey(),
 					DurationInMillis.ALWAYS_EXPIRED, new UploadScoreSubmitListener());
 		}
@@ -221,6 +236,9 @@ public class CrimpApplication extends Application {
 			queueAdapter.notifyDataSetChanged();
 		}
 		
+		Log.i(TAG, "Request added.\n[Pending uploads:"+
+					uploadQueue.size()+"] [isUploading:"+isUploading+"] [isPause:"+isPause+"]");
+		
 		tryProcessRequest();
 	}
 	
@@ -250,7 +268,7 @@ public class CrimpApplication extends Application {
 	}
 	
 	public void resumeUpload(){
-		Log.d(TAG, "Attempt to resume uploads.");
+		Log.d(TAG, "Resume");
 		this.isPause = false;
 		isUploading = false;
 		
@@ -321,6 +339,8 @@ public class CrimpApplication extends Application {
 		mNotifyMgr.notify(NOTIFICATION_ID, getNotificationBuilder().build());
 	}
 	
+	
+	
 	/*=========================================================================
 	 * Private methods
 	 *=======================================================================*/
@@ -373,6 +393,9 @@ public class CrimpApplication extends Application {
 			isUploading = true;
 			spiceManager.execute(oldScoreRequest, oldScoreRequest.createCacheKey(),
 					DurationInMillis.ALWAYS_EXPIRED, new UploadScoreRequestListener());
+			
+			Log.d(TAG, "Execute request.\n[Pending uploads:"+
+					uploadQueue.size()+"] [isUploading:"+isUploading+"] [isPause:"+isPause+"]");
 		}
 	}
 	
@@ -430,35 +453,4 @@ public class CrimpApplication extends Application {
 		
 		return receiver;
 	}
-	
-	/*
-	private void appendLog(String text){       
-	    //to create a Text file name "log.txt" in SDCard  
-	    File sdCard = Environment.getExternalStorageDirectory();  
-	    File dir = new File (sdCard.getAbsolutePath() + "/CRIMP");  
-	    dir.mkdirs();  
-	    File logFile = new File(dir, "log.txt");  
-		
-		if (!logFile.exists()){
-			try {
-				logFile.createNewFile();
-			} 
-			catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		try {
-			//BufferedWriter for performance, true to set append to file flag
-			BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true)); 
-			buf.append(text);
-			buf.newLine();
-			buf.close();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	*/
 }

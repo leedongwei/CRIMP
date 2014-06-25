@@ -8,7 +8,7 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true"
-		android:layout_marginTop="16dp"
+		android:layout_marginTop="@dimen/activity_vertical_margin"
 		android:onClick="submit"
 		android:text="@string/UI_submit" />
 	
@@ -60,8 +60,8 @@
 			android:orientation="vertical" >
 			
 			<TableLayout android:id="@+id/scoring_climber_info" 
-				android:paddingLeft="10dp"
-				android:paddingRight="10dp"
+				android:paddingLeft="@dimen/activity_horizontal_margin"
+				android:paddingRight="@dimen/activity_horizontal_margin"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:stretchColumns="1"
@@ -112,13 +112,14 @@
 				android:id="@+id/scoring_old_score_text"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginLeft="10dp"
+				android:paddingLeft="@dimen/activity_horizontal_margin"
 				android:text="@string/UI_total_score_heading" />
 			
 			<EditText 
 				android:id="@+id/scoring_score_history_edit"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
+				android:paddingLeft="@dimen/activity_horizontal_margin"
 				android:clickable="false" 
 				android:cursorVisible="false" 
 				android:focusable="false" 

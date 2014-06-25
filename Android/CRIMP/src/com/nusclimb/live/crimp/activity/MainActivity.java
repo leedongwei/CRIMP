@@ -5,15 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.json.RoundInfoMap;
-import com.nusclimb.live.crimp.json.Score;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;

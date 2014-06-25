@@ -15,6 +15,8 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -27,6 +29,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
 /**
  * Third activity of CRIMP.
@@ -335,28 +338,52 @@ public class ScoringActivity extends Activity{
 	}
 	
 	public void submit(View view){
-		// Convert to server alias.
-		String serverAliasRound = Helper.toServerRound(round);
-		String serverAliasRoute = Helper.parseRoute(route);
-		String r_id = serverAliasRound + serverAliasRoute;
-		
 		// Find the view for current score
 		if(scoreEdit == null){
 			scoreEdit = (EditText) findViewById(R.id.scoring_score_current_edit);
 		}
 		
-		String auth_code = PreferenceManager
-				.getDefaultSharedPreferences(this).getString("auth_code", "");
-		
-		// Make QueueObject
-		QueueObject mQueueObject = new QueueObject(routeJudge, auth_code, 
-				r_id, climberId, scoreEdit.getText().toString(), CrimpService.nextRequestId());
-		
-		
-		// Add to a queue of QueueObject request.
-		((CrimpApplication)getApplicationContext()).addRequest(mQueueObject);
-		
-		// Navigate up from this activity.
-		NavUtils.navigateUpFromSameTask(this);
+		// Empty current score
+		if(scoreEdit.getText().length() == 0){
+			CharSequence text = "Current Session Score is required!";
+			int duration = Toast.LENGTH_SHORT;
+
+			Toast toast = Toast.makeText(this, text, duration);
+			toast.show();
+		}
+		else{	// Non empty current score
+			new AlertDialog.Builder(this)
+		    .setTitle("Submit score")
+		    .setMessage("Are you sure you want to submit score?")
+		    .setPositiveButton(R.string.dialog_submit, new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int which) { 
+		            // continue with submit
+		        	// Convert to server alias.
+		    		String serverAliasRound = Helper.toServerRound(round);
+		    		String serverAliasRoute = Helper.parseRoute(route);
+		    		String r_id = serverAliasRound + serverAliasRoute;
+		    		
+		    		String auth_code = PreferenceManager
+		    				.getDefaultSharedPreferences(ScoringActivity.this).getString("auth_code", "");
+		    		
+		    		// Make QueueObject
+		    		QueueObject mQueueObject = new QueueObject(routeJudge, auth_code, 
+		    				r_id, climberId, scoreEdit.getText().toString(), CrimpService.nextRequestId());
+		    		
+		    		// Add to a queue of QueueObject request.
+		    		((CrimpApplication)getApplicationContext()).addRequest(mQueueObject);
+		    		
+		    		// Navigate up from this activity.
+		    		NavUtils.navigateUpFromSameTask(ScoringActivity.this);
+		        }
+		     })
+		    .setNegativeButton(R.string.dialog_no_submit, new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int which) { 
+		            // do nothing
+		        }
+		     })
+		    .setIcon(android.R.drawable.ic_dialog_alert)
+		    .show();
+		}
 	}
 }

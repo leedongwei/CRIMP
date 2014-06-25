@@ -1,14 +1,17 @@
 package com.nusclimb.live.crimp.activity;
 
-import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.fragment.SettingsFragment;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
+/**
+ * Setting activity of CRIMP.
+ * 
+ * @author Lin Weizhi (ecc.weizhi@gmail.com)
+ *
+ */
 public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
