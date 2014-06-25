@@ -6,20 +6,17 @@ import java.util.Queue;
 import com.nusclimb.live.crimp.CrimpApplication;
 import com.nusclimb.live.crimp.QueueObject;
 import com.nusclimb.live.crimp.R;
+import com.nusclimb.live.crimp.UploadStatus;
 import com.nusclimb.live.crimp.UploadTaskAdapter;
 
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
-public class UploadListActivity extends ListActivity {
-	private static final String TAG = UploadListActivity.class.getSimpleName();
-	
+public class UploadListActivity extends ListActivity {	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -48,6 +45,8 @@ public class UploadListActivity extends ListActivity {
 		else{
 			setButtonState(true);
 		}
+		
+		((UploadTaskAdapter)getListAdapter()).notifyDataSetChanged();
 	}
 	
 	@Override
@@ -71,26 +70,30 @@ public class UploadListActivity extends ListActivity {
 		if(position == 0){
 			QueueObject element = (QueueObject) getListAdapter().getItem(position);
 			
-			String packageName = getString(R.string.package_name);
-			
-			// Preparing to start QRScanActivity
-			Intent intent = new Intent(this, UploadEditActivity.class);
-			intent.putExtra(packageName + getString(R.string.intent_dl_url),
-					element.getRequest().getBaseUrl());
-			intent.putExtra(packageName + getString(R.string.intent_ul_url), 
-					element.getSubmit().getBaseUrl());
-			intent.putExtra(packageName + getString(R.string.intent_j_name), 
-					element.getSubmit().getUploadContent().getJ_name());
-			intent.putExtra(packageName + getString(R.string.intent_auth_code),
-					element.getSubmit().getUploadContent().getAuth_code());
-			intent.putExtra(packageName + getString(R.string.intent_r_id), 
-					element.getSubmit().getUploadContent().getR_id());
-			intent.putExtra(packageName + getString(R.string.intent_c_id), 
-					element.getSubmit().getUploadContent().getC_id());
-			intent.putExtra(packageName + getString(R.string.intent_score_append), 
-					element.getSubmit().getUploadContent().getCurrentScore());
-			
-			startActivity(intent);
+			// Only react if error occurs.
+			if( (element.getStatus() == UploadStatus.ERROR_DOWNLOAD) || 
+					(element.getStatus() == UploadStatus.ERROR_UPLOAD) ){
+				String packageName = getString(R.string.package_name);
+				
+				// Preparing to start QRScanActivity
+				Intent intent = new Intent(this, UploadEditActivity.class);
+				intent.putExtra(packageName + getString(R.string.intent_dl_url),
+						element.getRequest().getBaseUrl());
+				intent.putExtra(packageName + getString(R.string.intent_ul_url), 
+						element.getSubmit().getBaseUrl());
+				intent.putExtra(packageName + getString(R.string.intent_j_name), 
+						element.getSubmit().getUploadContent().getJ_name());
+				intent.putExtra(packageName + getString(R.string.intent_auth_code),
+						element.getSubmit().getUploadContent().getAuth_code());
+				intent.putExtra(packageName + getString(R.string.intent_r_id), 
+						element.getSubmit().getUploadContent().getR_id());
+				intent.putExtra(packageName + getString(R.string.intent_c_id), 
+						element.getSubmit().getUploadContent().getC_id());
+				intent.putExtra(packageName + getString(R.string.intent_score_append), 
+						element.getSubmit().getUploadContent().getCurrentScore());
+				
+				startActivity(intent);
+			}
 		}
 	}
 }

@@ -70,6 +70,14 @@ public class ScoreRequest extends SpringAndroidSpiceRequest<Score> {
 		return r_id;
 	}
 	
+	public void setClimberId(String climberId){
+		this.climberId = climberId;
+	}
+	
+	public void setR_id(String r_id){
+		this.r_id = r_id;
+	}
+	
 	public String createCacheKey() {
 		return climberId + r_id;
 	}

@@ -38,6 +38,12 @@
     <string name="UI_r_id">r_id</string>
     <string name="UI_score_append">Score to append</string>
     
+    <!-- Dialog -->
+    <string name="dialog_cancel_task">Cancel task</string>
+    <string name="dialog_no_cancel_task">Don\'t cancel task</string>
+    <string name="dialog_save">Save changes</string>
+    <string name="dialog_no_save">Don\'t save changes</string>
+    
     <!-- Intent Key -->
     <string name="intent_username">.username</string>
     <string name="intent_round">.round</string>

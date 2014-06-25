@@ -74,7 +74,8 @@
             android:parentActivityName="com.nusclimb.live.crimp.activity.UploadListActivity" 
             android:screenOrientation="portrait"
             android:excludeFromRecents="true"
-            android:launchMode="singleTop" >
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="stateHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.nusclimb.live.crimp.activity.UploadListActivity" />

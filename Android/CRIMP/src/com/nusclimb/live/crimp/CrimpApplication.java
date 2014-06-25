@@ -118,36 +118,10 @@ public class CrimpApplication extends Application {
 		public void onRequestSuccess(Object result) {
 			isUploading = false;
 			getQueue().poll().setStatus(UploadStatus.FINISHED);
-			uploadSuccessCount++;
+			modifyUploadSuccessCount(1);
 			if(queueAdapter != null){
 				queueAdapter.notifyDataSetChanged();
 	 		}
-	    	 
-			if(uploadSuccessCount == uploadTotalCount){
-				// Update notification
-				getNotificationBuilder().setContentText("Upload complete: "+uploadSuccessCount+"/"+uploadTotalCount)
-				.setProgress(0, 0, false);
-		    	 
-				// Stop spiceManager.
-				if(isSpiceManagerStarted && spiceManagerToken == 0){
-					Log.d(TAG, "spiceManager should stop...");
-					spiceManager.shouldStop();
-					spiceManagerToken++;
-		 		
-					handler.postDelayed(getCheckSpiceManagerRunnable(), 100);
-				}
-			}
-			else{
-				// Update notification
-				getNotificationBuilder().setContentText("Upload in progress: "+uploadSuccessCount+"/"+uploadTotalCount)
-				.setProgress(uploadTotalCount, uploadSuccessCount, false);
-			}
-	    	 
-			// Gets an instance of the NotificationManager service
-			NotificationManager mNotifyMgr = 
-					(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-			// Builds the notification and issues it.
-			mNotifyMgr.notify(NOTIFICATION_ID, getNotificationBuilder().build());
 	    	 
 			tryProcessRequest();
 		}
@@ -242,20 +216,10 @@ public class CrimpApplication extends Application {
 		
 		// Add QueueObject to queue. 
 		getQueue().offer(request);
-		uploadTotalCount++;
+		modifyUploadTotalCount(1);
 		if(queueAdapter != null){
 			queueAdapter.notifyDataSetChanged();
 		}
-		
-		// Update notification
-		getNotificationBuilder().setContentText("Upload in progress: "+uploadSuccessCount+"/"+uploadTotalCount)
-		.setProgress(uploadTotalCount, uploadSuccessCount, false);
-		
-		// Gets an instance of the NotificationManager service
-		NotificationManager mNotifyMgr = 
-				(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		// Builds the notification and issues it.
-		mNotifyMgr.notify(NOTIFICATION_ID, getNotificationBuilder().build());
 		
 		tryProcessRequest();
 	}
@@ -295,6 +259,66 @@ public class CrimpApplication extends Application {
 		}
 		
 		tryProcessRequest();
+	}
+	
+	public void modifyUploadTotalCount(int i){
+		uploadTotalCount += i;
+		
+		if(uploadSuccessCount == uploadTotalCount){
+			// Update notification
+			getNotificationBuilder().setContentText("Upload complete: "+uploadSuccessCount+"/"+uploadTotalCount)
+			.setProgress(0, 0, false);
+	    	 
+			// Stop spiceManager.
+			if(isSpiceManagerStarted && spiceManagerToken == 0){
+				Log.d(TAG, "spiceManager should stop...");
+				spiceManager.shouldStop();
+				spiceManagerToken++;
+	 		
+				handler.postDelayed(getCheckSpiceManagerRunnable(), 100);
+			}
+		}
+		else{
+			// Update notification
+			getNotificationBuilder().setContentText("Upload in progress: "+uploadSuccessCount+"/"+uploadTotalCount)
+			.setProgress(uploadTotalCount, uploadSuccessCount, false);
+		}
+		
+		// Gets an instance of the NotificationManager service
+		NotificationManager mNotifyMgr = 
+				(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		// Builds the notification and issues it.
+		mNotifyMgr.notify(NOTIFICATION_ID, getNotificationBuilder().build());
+	}
+	
+	public void modifyUploadSuccessCount(int i){
+		uploadSuccessCount += i;
+		
+		if(uploadSuccessCount == uploadTotalCount){
+			// Update notification
+			getNotificationBuilder().setContentText("Upload complete: "+uploadSuccessCount+"/"+uploadTotalCount)
+			.setProgress(0, 0, false);
+	    	 
+			// Stop spiceManager.
+			if(isSpiceManagerStarted && spiceManagerToken == 0){
+				Log.d(TAG, "spiceManager should stop...");
+				spiceManager.shouldStop();
+				spiceManagerToken++;
+	 		
+				handler.postDelayed(getCheckSpiceManagerRunnable(), 100);
+			}
+		}
+		else{
+			// Update notification
+			getNotificationBuilder().setContentText("Upload in progress: "+uploadSuccessCount+"/"+uploadTotalCount)
+			.setProgress(uploadTotalCount, uploadSuccessCount, false);
+		}
+		
+		// Gets an instance of the NotificationManager service
+		NotificationManager mNotifyMgr = 
+				(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		// Builds the notification and issues it.
+		mNotifyMgr.notify(NOTIFICATION_ID, getNotificationBuilder().build());
 	}
 	
 	/*=========================================================================
