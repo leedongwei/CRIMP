@@ -1,7 +1,9 @@
 package com.nusclimb.live.crimp;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -202,14 +204,34 @@ public class Helper {
 	}
 	
 	/**
-	 * Helper method to convert InputStream to String. Does not close stream.
+	 * Helper method to convert InputStream to String. Does *NOT* close stream.
 	 * Credit goes to http://stackoverflow.com/a/5445161/3733616
 	 * 
 	 * @param is InputStream to convert
 	 * @return String of stream content.
 	 */
+	@SuppressWarnings("resource")
 	public static String convertStreamToString(java.io.InputStream is) {
 	    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
 	    return s.hasNext() ? s.next() : "";
+	}
+	
+	/**
+	 * Get current time in dd MMM, HH:mm:ss format.
+	 * 
+	 * @return Current time as string.
+	 */
+	public static String getCurrentTimeStamp(){
+	    try {
+
+	    	SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM, HH:mm:ss");
+	        String currentTimeStamp = dateFormat.format(new Date()); // Find todays date
+
+	        return currentTimeStamp;
+	    } 
+	    catch (Exception e) {
+	    	e.printStackTrace();
+	        return null;
+	    }
 	}
 }

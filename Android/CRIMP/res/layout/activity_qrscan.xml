@@ -45,11 +45,11 @@
 		        android:onClick="rescan"/>
             
             <Button
-	            android:id="@+id/QRScan_next_button"
+	            android:id="@+id/QRScan_flash_button"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
-		        android:text="@string/UI_next" 
-		        android:onClick="next"/>
+		        android:text="@string/UI_flash" 
+		        android:onClick="toggleFlash"/>
             
         </LinearLayout>    
             
@@ -62,6 +62,13 @@
 	        android:cursorVisible="false" 
 	        android:focusable="false" 
 	        android:focusableInTouchMode="false" />
+        
+        <Button
+            android:id="@+id/QRScan_next_button"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:text="@string/UI_next" 
+	        android:onClick="next"/>
         
     </LinearLayout>
     

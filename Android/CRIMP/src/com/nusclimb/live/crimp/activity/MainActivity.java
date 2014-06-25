@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.nusclimb.live.crimp.R;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 /**
  * First activity of CRIMP
@@ -88,18 +90,31 @@ public class MainActivity extends ActionBarActivity {
 		Log.d(TAG, "Next button clicked.");
 		
 		EditText username = (EditText) findViewById(R.id.username);
-		Spinner routeSpinner = (Spinner) findViewById(R.id.route_spinner);
-		String selectedRoute = (String) routeSpinner.getSelectedItem();
 		
-		String packageName = getString(R.string.package_name);
-		
-		// Preparing to start QRScanActivity
-		Intent intent = new Intent(this, QRScanActivity.class);
-		intent.putExtra(packageName + getString(R.string.intent_username) , username.getText().toString());
-		intent.putExtra(packageName + getString(R.string.intent_round), selectedRound);
-		intent.putExtra(packageName + getString(R.string.intent_route), selectedRoute);
-		
-		startActivity(intent);
+		if(username.getText().length() == 0){
+			// Do not allow user to get past this activity if
+			// judge name is not entered.
+			Context context = getApplicationContext();
+			CharSequence text = "Route judge name is required!";
+			int duration = Toast.LENGTH_SHORT;
+
+			Toast toast = Toast.makeText(context, text, duration);
+			toast.show();
+		}
+		else{
+			Spinner routeSpinner = (Spinner) findViewById(R.id.route_spinner);
+			String selectedRoute = (String) routeSpinner.getSelectedItem();
+			
+			String packageName = getString(R.string.package_name);
+			
+			// Preparing to start QRScanActivity
+			Intent intent = new Intent(this, QRScanActivity.class);
+			intent.putExtra(packageName + getString(R.string.intent_username) , username.getText().toString());
+			intent.putExtra(packageName + getString(R.string.intent_round), selectedRound);
+			intent.putExtra(packageName + getString(R.string.intent_route), selectedRoute);
+			
+			startActivity(intent);
+		}
 	}
 	
 	

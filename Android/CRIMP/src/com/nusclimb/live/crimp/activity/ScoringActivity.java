@@ -2,14 +2,12 @@ package com.nusclimb.live.crimp.activity;
 
 import com.nusclimb.live.crimp.CrimpApplication;
 import com.nusclimb.live.crimp.Helper;
+import com.nusclimb.live.crimp.QueueObject;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.json.RoundInfoMap;
 import com.nusclimb.live.crimp.json.Score;
-import com.nusclimb.live.crimp.json.SessionUpload;
 import com.nusclimb.live.crimp.request.ClimberInfoRequest;
 import com.nusclimb.live.crimp.request.ScoreRequest;
-import com.nusclimb.live.crimp.request.UploadRequest;
-import com.nusclimb.live.crimp.retry.CrimpRetryPolicy;
 import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.DurationInMillis;
@@ -38,11 +36,15 @@ import android.widget.EditText;
 public class ScoringActivity extends Activity{
 	private static final String TAG = ScoringActivity.class.getSimpleName();
 	
-	private String infoRequestCacheKey;
-	private String scoreRequestCacheKey;
+	private String infoRequestCacheKey;		// CacheKey for request. Double as 
+											// a flag to indicate requesting
+											// for info.
+	private String scoreRequestCacheKey;	// CacheKey for request. Double as
+											// a flag to indicate requesting
+											// for score.
 	
 	private EditText scoreEdit;
-	private String routeJudge, round, route, climberId, climberName;
+	private String routeJudge, round, route, climberId, climberName, oldScore;
 	private SpiceManager spiceManager = new SpiceManager(
 			CrimpService.class);
 	
@@ -61,25 +63,19 @@ public class ScoringActivity extends Activity{
 		public void onRequestFailure(SpiceException e) {
 			infoRequestCacheKey = null;
 			
-			// We delay updating UI until score request is complete.
+			updateInfoAndScoreUI();
 			
 			Log.w(TAG, "ClimberInfoRequestListener request fail.");
 		}
 
-	     @Override
-	     public void onRequestSuccess(RoundInfoMap result) {
-	    	 infoRequestCacheKey = null;
+		@Override
+		public void onRequestSuccess(RoundInfoMap result) {
+			infoRequestCacheKey = null;
 	    	 
-	    	 climberName = result.get(climberId);
+			climberName = result.get(climberId);
 	    	 
-	    	 // We delay updating UI until score request is complete.
-	    	 if(climberName == null){
-	    		 Log.w(TAG, "ClimberInfoRequestListener request succeed. Name is null.");
-	    	 }
-	    	 else{
-	    		 Log.i(TAG, "ClimberInfoRequestListener request succeed. Name is "+climberName);
-	    	 }
-	     }
+			updateInfoAndScoreUI();
+		}
 	}
 	
 	/**
@@ -94,54 +90,48 @@ public class ScoringActivity extends Activity{
 		public void onRequestFailure(SpiceException e) {
 			scoreRequestCacheKey = null;
 			
-			// Update score UI.
-			EditText scoreHistoryEdit = (EditText) findViewById(R.id.scoring_score_history_edit);
-			scoreHistoryEdit.setText(getText(R.string.UI_unavailable));
+			oldScore = null;
 			
-			// We update the climber name UI here.
-			EditText nameEdit = (EditText) findViewById(R.id.scoring_climber_name_edit);
-			if(climberName == null){
-	    		 nameEdit.setText(getText(R.string.UI_unavailable));
-	    	 }
-	    	 else{
-	    		 nameEdit.setText(climberName);
-	    	 }
-			
+			updateInfoAndScoreUI();
+						
 			Log.w(TAG, "ScoreRequestListener request fail.");
-			ScoringActivity.this.setProgressBarIndeterminateVisibility(false);
 		}
 
 		@Override
 		public void onRequestSuccess(Score result) {
 			scoreRequestCacheKey = null;
 	    	 
-			String score = result.getC_score();
-	    	 
-			// Update score UI.
-			EditText scoreHistoryEdit = (EditText) findViewById(R.id.scoring_score_history_edit);
-			if(score == null){
-				Log.w(TAG, "ScoreRequestListener request succeed. Score is null.");
-				scoreHistoryEdit.setText(getText(R.string.UI_unavailable));
-	    	 }
-	    	 else{
-	    		 Log.i(TAG, "ScoreRequestListener request succeed. Score is "+score);
-	    		 scoreHistoryEdit.setText(score);
-	    	 }
-	    	 
-	    	// We update the climber name UI here.
-			EditText nameEdit = (EditText) findViewById(R.id.scoring_climber_name_edit);
-			if(climberName == null){
-	    		 nameEdit.setText(getText(R.string.UI_unavailable));
-			}
-			else{
-	    		 nameEdit.setText(climberName);
-	    	 }
-	    	 
-	         ScoringActivity.this.setProgressBarIndeterminateVisibility(false);
+			oldScore = result.getC_score();
+	    	
+			updateInfoAndScoreUI();
 		}
 	}
-
 	
+	/**
+	 * Update info and score UI only if downloads are completed.
+	 */
+	private void updateInfoAndScoreUI(){
+		// Download for both info and score completed. Stop progress bar, update UI.
+		if( (infoRequestCacheKey == null) && (scoreRequestCacheKey == null) ){
+			ScoringActivity.this.setProgressBarIndeterminateVisibility(false);
+						
+			EditText nameEdit = (EditText) findViewById(R.id.scoring_climber_name_edit);
+			if(climberName == null){
+				nameEdit.setText(getText(R.string.UI_unavailable));
+			}
+			else{
+				nameEdit.setText(climberName);
+			}
+						
+			EditText scoreHistoryEdit = (EditText) findViewById(R.id.scoring_score_history_edit);
+			if(oldScore == null){
+				scoreHistoryEdit.setText(getText(R.string.UI_unavailable));
+			}
+			else{
+				scoreHistoryEdit.setText(oldScore);
+			}
+		}
+	}
 	
 	/*=========================================================================
 	 * Activity lifecycle methods
@@ -211,7 +201,7 @@ public class ScoringActivity extends Activity{
 		
 		if(scoreRequestCacheKey != null){
 			Log.d(TAG, "onPause. Cancelling score request: "+scoreRequestCacheKey);
-			spiceManager.cancel(RoundInfoMap.class, scoreRequestCacheKey);
+			spiceManager.cancel(Score.class, scoreRequestCacheKey);
 			scoreRequestCacheKey = null;
 		}
 		
@@ -256,7 +246,7 @@ public class ScoringActivity extends Activity{
 	    		
 	    		if(scoreRequestCacheKey != null){
 	    			Log.d(TAG, "Refresh clicked. Cancelling score request: "+scoreRequestCacheKey);
-	    			spiceManager.cancel(RoundInfoMap.class, scoreRequestCacheKey);
+	    			spiceManager.cancel(Score.class, scoreRequestCacheKey);
 	    			scoreRequestCacheKey = null;
 	    		}
 	    		
@@ -284,7 +274,7 @@ public class ScoringActivity extends Activity{
 	/*=========================================================================
 	 * Button on click methods
 	 *=======================================================================*/
-	public void refreshScore(){
+	private void refreshScore(){
 		setProgressBarIndeterminateVisibility(true);
 
         ScoreRequest request = new ScoreRequest(climberId, round, route);
@@ -296,14 +286,13 @@ public class ScoringActivity extends Activity{
         		new ScoreRequestListener());
 	}
 	
-	public void refreshName(){
+	private void refreshName(){
 		setProgressBarIndeterminateVisibility(true);
 
         ClimberInfoRequest request = new ClimberInfoRequest(round);
         
         infoRequestCacheKey = request.createCacheKey();
         
-        //TODO Maybe should use cache?
         spiceManager.execute(request, infoRequestCacheKey, 
         		DurationInMillis.ALWAYS_EXPIRED, 
         		new ClimberInfoRequestListener());
@@ -345,32 +334,18 @@ public class ScoringActivity extends Activity{
 		String serverAliasRoute = Helper.parseRoute(route);
 		String r_id = serverAliasRound + serverAliasRoute;
 		
-		// Get old score.
-		EditText scoreHistoryEdit = (EditText) findViewById(R.id.scoring_score_history_edit);
-		String oldScore = scoreHistoryEdit.getText().toString();
-		
-		// Prepare POJO.
+		// Find the view for current score
 		if(scoreEdit == null){
 			scoreEdit = (EditText) findViewById(R.id.scoring_score_current_edit);
 		}
-		SessionUpload uploadPOJO = new SessionUpload();
 		
-		//TODO This part is dangerous. A stale old score will affect score.
-		if(oldScore.length() == 0){
-			uploadPOJO.setAll_current(routeJudge, getString(R.string.net_password_debug), 
-					r_id, climberId, scoreEdit.getText().toString());
-		}
-		else{
-			uploadPOJO.setAll_old_current(routeJudge, getString(R.string.net_password_debug), 
-					r_id, climberId, oldScore, scoreEdit.getText().toString());
-		}
+		// Make QueueObject
+		QueueObject mQueueObject = new QueueObject(routeJudge, getString(R.string.net_password_debug), 
+				r_id, climberId, scoreEdit.getText().toString(), CrimpService.nextRequestId());
 		
-		// Prepare request.
-		UploadRequest request = new UploadRequest(uploadPOJO, CrimpService.nextRequestId());
-		request.setRetryPolicy(new CrimpRetryPolicy());
 		
-		// Add to a queue of upload request.
-		((CrimpApplication)getApplicationContext()).addRequest(request);
+		// Add to a queue of QueueObject request.
+		((CrimpApplication)getApplicationContext()).addRequest(mQueueObject);
 		
 		// Navigate up from this activity.
 		NavUtils.navigateUpFromSameTask(this);

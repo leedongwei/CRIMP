@@ -13,7 +13,6 @@ public class SessionUpload {
 	private String c_id;
 	private String c_score;
 	
-	private String oldScore;
 	private String currentScore;
 	
 	public String getJ_name(){
@@ -34,10 +33,6 @@ public class SessionUpload {
 	
 	public String getC_score(){
 		return c_score;
-	}
-	
-	public String getOldScore(){
-		return oldScore;
 	}
 	
 	public void setJ_name(String j_name){
@@ -61,20 +56,7 @@ public class SessionUpload {
 	}
 	
 	public void updateScoreWithOld(String oldScore){
-		this.oldScore = oldScore;
-		this.c_score = this.oldScore + this.currentScore;
-	}
-	
-	public void setAll_old_current(String j_name, String auth_code, 
-			String r_id, String c_id, String oldScore, String currentScore){
-		this.j_name = j_name;
-		this.auth_code = auth_code;
-		this.r_id = r_id;
-		this.c_id = c_id;
-		this.c_score = oldScore + currentScore;
-		
-		this.oldScore = oldScore;
-		this.currentScore = currentScore;
+		this.c_score = oldScore + this.currentScore;
 	}
 	
 	public void setAll_current(String j_name, String auth_code, 
@@ -87,6 +69,10 @@ public class SessionUpload {
 		this.currentScore = currentScore;
 	}
 	
+	public String getCurrentScore(){
+		return currentScore;
+	}
+	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append("{ j_name="+j_name);
@@ -94,7 +80,6 @@ public class SessionUpload {
 		sb.append(",r_id="+r_id);
 		sb.append(",c_id="+c_id);
 		sb.append(",c_score="+c_score);
-		sb.append(",oldScore="+oldScore);
 		sb.append(",currentScore="+currentScore);
 		sb.append(" }");
 		return sb.toString();

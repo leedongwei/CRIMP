@@ -21,6 +21,28 @@
     <string name="UI_t">Top</string>
     <string name="UI_backspace">Backspace</string>
     <string name="UI_submit">Submit</string>
+    <string name="UI_flash">Flash</string>
+    <string name="UI_climber">Climber: </string>
+    <string name="UI_route">Route: </string>
+    <string name="UI_status">Status: </string>
+    <string name="UI_pause">Resume uploads</string>
+    <string name="UI_no_pending_uploads">No pending uploads</string>
+    <string name="UI_pending_uploads">CRIMP pending uploads</string>
+    <string name="UI_cancel_task">Cancel task</string>
+    <string name="UI_save">Save</string>
+    <string name="UI_dl_url">D/L URL</string>
+    <string name="UI_ul_url">U/L URL</string>
+    <string name="UI_j_name">j_name</string>
+    <string name="UI_auth_code">auth_code</string>
+    <string name="UI_c_id">c_id</string>
+    <string name="UI_r_id">r_id</string>
+    <string name="UI_score_append">Score to append</string>
+    
+    <!-- Dialog -->
+    <string name="dialog_cancel_task">Cancel task</string>
+    <string name="dialog_no_cancel_task">Don\'t cancel task</string>
+    <string name="dialog_save">Save changes</string>
+    <string name="dialog_no_save">Don\'t save changes</string>
     
     <!-- Intent Key -->
     <string name="intent_username">.username</string>
@@ -28,6 +50,13 @@
     <string name="intent_route">.route</string>
     <string name="intent_climber_id">.climber_id</string>
     <string name="intent_climber_name">.climber_name</string>
+    <string name="intent_dl_url">.downloadUrl</string>
+    <string name="intent_ul_url">.uploadUrl</string>
+    <string name="intent_j_name">.jName</string>
+    <string name="intent_auth_code">.authCode</string>
+    <string name="intent_r_id">.rId</string>
+    <string name="intent_c_id">.cId</string>
+    <string name="intent_score_append">.appendScore</string>
     
     <!-- Persistent Storage Keys -->
     <string name="store_queue_count">queue_count</string>
