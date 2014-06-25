@@ -293,11 +293,19 @@ public class QRScanActivity extends Activity {
 		if(climberId.length() == 0){
 			// Do not allow user to get past this activity if
 			// climber id is not entered.
-			Context context = getApplicationContext();
 			CharSequence text = "Climber ID is required!";
 			int duration = Toast.LENGTH_SHORT;
 
-			Toast toast = Toast.makeText(context, text, duration);
+			Toast toast = Toast.makeText(this, text, duration);
+			toast.show();
+		}
+		else if(climberId.length() != 3){
+			// Do not allow user to get past this activity if
+			// climber id is not 3 digits.
+			CharSequence text = "Climber ID must be 3 digit.";
+			int duration = Toast.LENGTH_SHORT;
+
+			Toast toast = Toast.makeText(this, text, duration);
 			toast.show();
 		}
 		else{			
