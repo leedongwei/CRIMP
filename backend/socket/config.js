@@ -3,7 +3,6 @@ module.exports = {
 	'development': {
 		'host':'127.0.0.1',
 		'port':'8080',
-		//'auth_code': 'crimpAUTH',
 		'db_conn':'postgres://crimp:123456@localhost/crimp-db'
 	},
 

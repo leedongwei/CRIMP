@@ -263,6 +263,18 @@ frisby.create('c_score is an empty string')
     .expectHeaderContains('Content-Type', 'json')
 .toss();
 
+frisby.create('c_score is null')
+  .post(URL + '/judge/set', {
+    j_name: 'DongWei',
+		auth_code: authCode,
+		r_id: 'NWQ01',
+		c_id: 'NW001',
+		c_score: null
+  }, {json: true})
+  	.expectStatus(400)
+    .expectHeaderContains('Content-Type', 'json')
+.toss();
+
 frisby.create('No r_id')
   .post(URL + '/judge/set', {
     j_name: 'DongWei',

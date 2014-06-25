@@ -1,15 +1,16 @@
 var bodyParser = require('body-parser'),
 		express = require('express'),
 		pg = require('pg'),
-		config = require('./config.js'),
-		http = require('http');
+		http = require('http'),
+		config = require('./config.js');
 
 var app = express();
 app.use(bodyParser());
 
 
-
-var dbConn = process.env.DATABASE_URL || config.development.db_conn;
+var dbConn = process.env.DATABASE_URL || config.development.db_conn,
+		serverPort = Number (process.env.PORT || config.development.port),
+		socketHost = config.production.socketserver || config.development.socketserver;
 
 
 app.get('/judge/get/:c_category', function (req, res) {
@@ -193,13 +194,10 @@ app.post('/judge/set', function (req, res) {
 
 					// Simulating latency
 					//setTimeout(function(){res.send(200, {})}, 5000);
-
 				}
 			}
 		});
 	});
-
-
 });
 
 
@@ -314,7 +312,6 @@ app.get('/client/get/:c_category', function (req, res) {
 */
 
 
-
 app.get('/admin/get/:r_id', function (req, res) {
 	var r_id = req.params.r_id;
 	res.set('Content-Type', 'application/json');
@@ -371,8 +368,6 @@ app.get('/admin/get/:r_id', function (req, res) {
 });
 
 
-
-var serverPort = Number (process.env.PORT || config.development.port);
 var server = app.listen(serverPort, function() {
   console.log('Listening on port %d', server.address().port);
 });
@@ -410,8 +405,7 @@ function sendToSocket (postBody) {
 	postData = JSON.stringify(postData);
 
 	var postOptions = {
-		'hostname': config.production.socketserver ||
-								config.development.socketserver,
+		'hostname': socketHost,
 		'path': '/server/push',
 		'method': 'POST',
 		'headers': {'Content-Type': 'application/json',
@@ -429,8 +423,6 @@ function sendToSocket (postBody) {
   // Post the data
   postRequest.write(postData);
   postRequest.end();
-
-
 }
 
 //app.get('/client/get/:c_category')

@@ -1,4 +1,4 @@
-#For judge
+#CRIMP-server
 
 ##GET ('/judge/get/:round')
 :round [round expects 3 characters: NMQ/NWF]
@@ -24,7 +24,7 @@ response (header: 200):
 :r_id [route_id expect 5 characters: NWQ01/NMF01]
 * first 3 char to be round name, last 2 char to be route number
 * The first 2 character of c_id and r_id must match
-* 3 char of :r_id must be an alphabet
+* 3rd char of :r_id must be an alphabet
 
 <pre><code>
 response (header: 200):
@@ -54,7 +54,27 @@ response (header: 200 / 401 Unauthorized):
 
 
 
-#For client
+##GET ('/admin/get/:r_id')
+
+:r_id [route_id expect 5 characters: NWQ01/NMF01]
+* first 3 char to be round name, last 2 char to be route number
+* 3rd char of :r_id must be an alphabet
+
+<pre><code>
+response (header: 200):
+{
+	"climbers": {
+		"c_id":
+		"j_name":
+		"c_name":
+		"c_score":
+	}
+}
+</code></pre>
+
+
+
+#CRIMP-socket
 
 ##GET ('/client/get/:round')
 :round [round expects 3 characters: NWQ NMF]
@@ -62,14 +82,24 @@ response (header: 200 / 401 Unauthorized):
 <pre><code>
 response (header: 200):
 {
-	"climbers": [
-		{
-			"c_id":
-			"top":
-			"t_att":
-			"bonus":
-			"b_att":
+	"climbers": [{
+		"c_id":
+		"top": {
+			'0':
+			'1':
+			'2':
+			'3':
+			'4':
+			'5':
+		},
+		"bonus": {
+			'0':
+			'1':
+			'2':
+			'3':
+			'4':
+			'5':
 		}
-	]
+	}]
 }
 </code></pre>
