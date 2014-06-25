@@ -83,7 +83,7 @@
 		            android:text="@string/UI_score_append"/>
 		        <EditText android:id="@+id/edit_current_score"
 		            android:layout_height="wrap_content"
-		            android:inputType="textMultiLine|text" />"
+		            android:inputType="textMultiLine|text" />
 		    </TableRow>
 		    
 		</TableLayout>

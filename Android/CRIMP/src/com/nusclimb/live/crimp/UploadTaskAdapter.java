@@ -50,6 +50,15 @@ public class UploadTaskAdapter extends ArrayAdapter<QueueObject>{
 	    if(position != 0){
 	    	progressBar.setVisibility(View.GONE);
 	    }
+	    else if(dataList.get(position).getStatus() != UploadStatus.DOWNLOAD &&
+	    		dataList.get(position).getStatus() != UploadStatus.DOWNLOAD_WAITING &&
+	    		dataList.get(position).getStatus() != UploadStatus.UPLOAD &&
+	    		dataList.get(position).getStatus() != UploadStatus.UPLOAD_WAITING ){
+	    	progressBar.setVisibility(View.INVISIBLE);
+	    }
+	    else{
+	    	progressBar.setVisibility(View.VISIBLE);
+	    }
 	    
 	    return rowView;
 	}
