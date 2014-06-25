@@ -49,6 +49,10 @@ public class UploadScoreSubmit extends SpringAndroidSpiceRequest<Object>{
 		baseUrl = url;
 	}
 	
+	public SessionUpload getUploadContent(){
+		return uploadContent;
+	}
+	
 	public String createCacheKey() {
 		return "["+id+"]" + uploadContent.toString();
 	}

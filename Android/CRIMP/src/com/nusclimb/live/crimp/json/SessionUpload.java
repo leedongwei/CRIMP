@@ -69,6 +69,10 @@ public class SessionUpload {
 		this.currentScore = currentScore;
 	}
 	
+	public String getCurrentScore(){
+		return currentScore;
+	}
+	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append("{ j_name="+j_name);
