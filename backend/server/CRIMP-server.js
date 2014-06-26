@@ -190,7 +190,7 @@ app.post('/judge/set', function (req, res) {
 											postBody.c_score + ' by ' + postBody.j_name );
 
 					res.send(200, {});
-					sendToSocket(postBody);
+					sendToSocketServer(postBody);
 
 					// Simulating latency
 					//setTimeout(function(){res.send(200, {})}, 5000);
@@ -358,10 +358,7 @@ app.get('/admin/get/:r_id', function (req, res) {
 					message.climbers.push(entry);
 				});
 
-				res.send(200, JSON.stringify(message));
-
-				// Simulating latency
-				//setTimeout(function(){res.send(200, JSON.stringify(message))}, 5000);
+				res.send(200, JSON.stringify(message, null, 2));
 			}
 		});
 	});
@@ -395,7 +392,7 @@ function calculateBonus (rawScore) {
 }
 
 //app.post('/judge/set')
-function sendToSocket (postBody) {
+function sendToSocketServer (postBody) {
 	var postData = {
 		'c_id': postBody.c_id,
 		'r_id': postBody.r_id,
