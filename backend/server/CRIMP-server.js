@@ -12,6 +12,7 @@ var dbConn = process.env.DATABASE_URL || config.development.db_conn,
 		socketAuth = config.production.socket_auth || config.development.socket_auth,
 		socketHost = config.production.socketserver || config.development.socketserver;
 
+
 var app = express(),
 		server = app.listen(serverPort, function() {
  			console.log('Listening on port %d', server.address().port);
@@ -206,7 +207,7 @@ app.post('/judge/set', function (req, res) {
 						'top': scoreTop,
 						'bonus': scoreBonus
 					};
-					sendToCrimpSocket('POST', JSON.stringify(postData));
+					sendToCrimpSocket('POST', postData);
 
 
 					// Simulating latency
@@ -288,6 +289,7 @@ app.get('/admin/get/:r_id', function (req, res) {
 // TODO: Reopen ws to CRIMP-socket
 app.get('/admin/open', function (req, res) {
 	res.send(200);
+	//restartWebsocket();
 });
 
 
@@ -336,6 +338,10 @@ function calculateBonus(rawScore) {
 	return 0;
 }
 
+function restartWebsocket() {
+	ws = new websocket('ws://' + socketHost);
+}
+
 //app.get('/judge/push/' & '/judge/pop/')
 function setClimberOnWall(action, data) {
 	var c_id = data.c_id,
@@ -346,29 +352,23 @@ function setClimberOnWall(action, data) {
 			r_id.length !== 5 ||
 			c_id.substring(0,2) !== r_id.substring(0,2) ||
 			!(/^[a-z]+$/i.test(r_id.substring(2,3))) ){
-		//console.error('400: Parameter Error');
-		// do not send
+		// parameter error, do not send to socket
 		return;
 	} else {
-		sendToCrimpSocket(action, JSON.stringify(data));
+		sendToCrimpSocket(action, data);
 	}
 }
 
-function restartWebsocket() {
-	ws = new websocket('ws://' + socketHost);
-}
-
-function sendToCrimpSocket(action, dataString) {
+function sendToCrimpSocket(action, data) {
 	// actions recognized by CRIMP-socket: POST, PUSH, POP
 	var message = {
 		'action': action,
 		'auth_code': socketAuth,
-		'data': dataString
+		'data': data
 	};
 
-	console.log(JSON.stringify(message, null, 2));
-
-	ws.send(message, function (error) {
+	//console.log(JSON.stringify(message, null, 2));
+	ws.send(JSON.stringify(message), function (error) {
 		if (error) console.log(error);
 	});
 }

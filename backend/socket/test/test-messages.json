@@ -1,0 +1,13 @@
+wscat -c ws://127.0.0.1:8080
+
+{"action":"GET", "data":{"c_category":"abc"}}
+
+{"action":"GET", "data":{"c_category":"xxQ"}}
+
+{"action":"GET", "data":{"c_category":"NWQ"}}
+
+{"action":"GET", "data":{"c_category":"NWF"}}
+
+{"action":"POST", "auth_code":"lol", "data": {"c_id":"NW001", "r_id":"NWQ01", "top": 3, "bonus": 4}}
+
+{"action":"POST", "auth_code":"socketAUTH", "data": {"c_id":"NW001", "r_id":"NWQ01", "top": 3, "bonus": 4}}
