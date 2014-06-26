@@ -346,7 +346,7 @@ function restartWebsocket() {
 function setClimberOnWall(action, data) {
 	var c_id = data.c_id,
 			r_id = data.r_id;
-	console.log('OnWall ' + action + ': '+ c_id + '    ' + r_id);
+	console.log('activeClimber ' + action + ': '+ c_id + '    ' + r_id);
 
 	if (c_id.length !== 5 ||
 			r_id.length !== 5 ||

@@ -12,12 +12,12 @@ wss._server._maxListeners = 0;
 console.log('Listening on port %d', wss.options.port);
 
 var activeClimbers = {
-	'1':{},
-	'2':{},
-	'3':{},
-	'4':{},
-	'5':{},
-	'6':{}
+	'1':'',
+	'2':'',
+	'3':'',
+	'4':'',
+	'5':'',
+	'6':'',
 }
 
 
@@ -48,8 +48,9 @@ wss.on('error', function() {
 
 
 wss.broadcast = function(ws, message) {
-	console.log('Broadcasting to all');
-    for(var i in this.clients){
+	//console.log('Broadcasting a message...');
+	message = JSON.stringify(message);
+  for (var i in this.clients) {
 		if (this.clients[i] != ws)
 			this.clients[i].send(message);
 	}
@@ -71,7 +72,7 @@ function parseMessage(ws, message) {
 				removeActiveClimber(ws, message.data);
 				break;
 			default:
-				console.log('Error: Action \'' + message.action +
+				console.error('Error: Action \'' + message.action +
 					'\' is not recognized');
 				break;
 		}
@@ -128,7 +129,7 @@ function getLatestState(ws, message) {
 			'values': [message.c_category]
 		};
 	} else {
-		console.log('Error: c_category = ' + message.c_category + '. Request dropped');
+		console.error('Error: c_category = ' + message.c_category + '. Request dropped');
 		return;
 	}
 
@@ -144,14 +145,13 @@ function getLatestState(ws, message) {
 			queryState.qTop = true;
 
 			if (err) {
-				console.error('400: Error running query', err);
+				//console.error('400: Error running query', err);
 				return;
 			} else if (result.rowCount === 0) {
-				console.error('404: Data not found');
+				//console.error('404: Data not found');
 				return;
 			} else {
 				resultsTop = result.rows;
-				//console.log('Top: ');
 				//console.log(resultsTop);
 			}
 
@@ -168,14 +168,13 @@ function getLatestState(ws, message) {
 			queryState.qBonus = true;
 
 			if (err) {
-				console.error('400: Error running query', err);
+				//console.error('400: Error running query', err);
 				return;
 			} else if (result.rowCount === 0) {
-				console.error('404: Data not found');
+				//console.error('404: Data not found');
 				return;
 			} else {
 				resultsBonus = result.rows;
-				//console.log('Bonus: ');
 				//console.log(resultsBonus);
 			}
 
@@ -208,7 +207,7 @@ function broadcastNewScore(ws, message) {
 	climber.top[route] = message.top;
 	climber.bonus[route] = message.bonus;
 
-	wss.broadcast(ws ,JSON.stringify(climber));
+	wss.broadcast(ws, climber);
 }
 
 
@@ -219,7 +218,46 @@ function broadcastNewScore(ws, message) {
  *	}
  */
 function setActiveClimber(ws, message) {
+	if (message.c_id.length !== 5 ||
+			message.r_id.length !== 5 ||
+			message.c_id.substring(0,2) !== message.r_id.substring(0,2) ||
+			!(/^[a-z]+$/i.test(message.r_id.substring(2,3))) ){
+		return;
+	}
 
+	var route = message.r_id.substring(2, 5).toLowerCase() + '_raw',
+			queryConfig = {
+				'text': 'SELECT c_name, ' + route +
+								' FROM crimp_data ' +
+								'WHERE c_id = $1;',
+				'values': [message.c_id]
+			};
+
+	pg.connect(dbConn, function (err, client, done) {
+		if (err) {
+			console.error('500: Error fetching client from pool', err);
+			res.send(500);
+			return;
+		}
+
+		client.query(queryConfig, function (err, result) {
+			// IMPORTANT! Release client back to pool
+			done();
+
+			if (err) {
+				//console.error('400: Error running query', err);
+			} else if (result.rowCount !== 1) {
+				console.error('PUSH error: ' + message.c_id + ' does not exists in database');
+			} else if (result.rowCount === 1) {
+				// Confirmed that climber exists in database
+				activeClimbers[message.r_id.substring(4, 5)] = message.c_id;
+				wss.broadcast(ws, activeClimbers);
+
+				console.log('activeClimbers: ');
+				console.log(JSON.stringify(activeClimbers, null, 2));
+			}
+		});
+	});
 }
 
 
@@ -230,7 +268,16 @@ function setActiveClimber(ws, message) {
  *	}
  */
 function removeActiveClimber(ws, message) {
+	if (activeClimbers[message.r_id.substring(4, 5)] == message.c_id) {
+		activeClimbers[message.r_id.substring(4, 5)] = '';
+		wss.broadcast(ws, activeClimbers);
 
+		console.log('activeClimbers: ');
+		console.log(JSON.stringify(activeClimbers, null, 2));
+	} else {
+		console.error('Error: ' + message.c_id +
+			' is not an active climber on ' + message.r_id)
+	}
 }
 
 
@@ -278,7 +325,6 @@ function tabulateAndSendScores (resultsTop, resultsBonus, ws) {
 		}
 	}
 
-	//console.log(outgoingData);
 	console.log(JSON.stringify(outgoingData, null, 2));
 	ws.send(JSON.stringify(outgoingData));
 }
