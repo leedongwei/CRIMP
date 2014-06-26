@@ -58,6 +58,12 @@ wss.broadcast = function(ws, message) {
 
 
 function parseMessage(ws, message) {
+	if (message.action === 'PING' &&
+			message.source === 'CRIMP-server') {
+		console.log('CRIMP-server ping!')
+		return;
+	}
+
 	if (message.action === 'GET') {
 		getLatestState(ws, message.data);
 	} else if (message.auth_code === socketAuth) {
@@ -236,7 +242,6 @@ function setActiveClimber(ws, message) {
 	pg.connect(dbConn, function (err, client, done) {
 		if (err) {
 			console.error('500: Error fetching client from pool', err);
-			res.send(500);
 			return;
 		}
 

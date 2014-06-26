@@ -1,6 +1,6 @@
 var frisby = require('frisby');
 
-var URL = 'http://localhost:3000',
+var URL = 'http://crimp-stage.herokuapp.com',
 		authCode = 'crimpAUTH';
 
 /**

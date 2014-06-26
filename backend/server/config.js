@@ -3,9 +3,9 @@ module.exports = {
 	'development': {
 		'host':'127.0.0.1',
 		'port':'3000',
-		'auth_code': 'crimpAUTH',
+		'auth_code':'crimpAUTH',
 		'db_conn':'postgres://crimp:123456@localhost/crimp-db',
-		'socketserver':'127.0.0.1:8080',
+		'socketserver':'ws://127.0.0.1:8080',
 		'socket_auth':'socketAUTH'
 	},
 

@@ -17,7 +17,14 @@ var app = express(),
 		server = app.listen(serverPort, function() {
  			console.log('Listening on port %d', server.address().port);
 		}),
-		ws = new websocket('ws://' + socketHost);
+		ws = new websocket(socketHost),
+		pingWS = function() {
+			console.log('Pinging CRIMP-socket');
+			ws.send(JSON.stringify({'action':'PING', 'source':'CRIMP-server'}), function (error) {
+					if (error) console.log('ws.send error: ' + error);
+			});
+			setTimeout(pingWS, 30000);
+		};
 app.use(bodyParser());
 
 
@@ -286,35 +293,37 @@ app.get('/admin/get/:r_id', function (req, res) {
 });
 
 
-// TODO: Reopen ws to CRIMP-socket
-app.get('/admin/open', function (req, res) {
-	res.send(200);
-	//restartWebsocket();
+// IMPORTANT! Ensure that CRIMP-socket is working!
+// Will cause server to crash if CRIMP-socket is down
+app.get('/admin/open/:auth_code', function (req, res) {
+	if (req.params.auth_code === serverAuth) {
+		res.send(200);
+		restartWebsocket();
+	}
 });
 
 
 ws.on('open', function() {
-  console.log('Opened connection to ws://' + socketHost);
+  console.log('Opened connection to ' + socketHost);
+  pingWS();
 });
 
 
 ws.on('close', function() {
-  console.log('Closed connection to ws://' + socketHost);
-  //restartWebsocket();
+  console.log('Closed connection to ' + socketHost);
 });
 
 
 ws.on('message', function(data, flags) {
 	// CRIMP-server should never receive any messages from CRIMP-socket!
-	console.log('Message received from ws://' + socketHost +':');
+	console.log('Message received from ' + socketHost +':');
 	console.log(data);
 });
 
 
-ws.on('error', function() {
-	console.log('Error on ws://' + socketHost);
+ws.on('error', function(err) {
+	console.log('Error on ' + socketHost, err);
 	console.log(JSON.stringify(ws, null, 2));
-	//restartWebsocket();
 });
 
 
@@ -339,7 +348,31 @@ function calculateBonus(rawScore) {
 }
 
 function restartWebsocket() {
-	ws = new websocket('ws://' + socketHost);
+	ws.close();
+	ws = new websocket(socketHost);
+
+	ws.on('open', function() {
+	  console.log('Opened connection to ' + socketHost);
+	  pingWS();
+	});
+
+
+	ws.on('close', function() {
+	  console.log('Closed connection to ' + socketHost);
+	});
+
+
+	ws.on('message', function(data, flags) {
+		// CRIMP-server should never receive any messages from CRIMP-socket!
+		console.log('Message received from ' + socketHost +':');
+		console.log(data);
+	});
+
+
+	ws.on('error', function(err) {
+		console.log('Error on ' + socketHost, err);
+		console.log(JSON.stringify(ws, null, 2));
+	});
 }
 
 //app.get('/judge/push/' & '/judge/pop/')
@@ -369,6 +402,6 @@ function sendToCrimpSocket(action, data) {
 
 	//console.log(JSON.stringify(message, null, 2));
 	ws.send(JSON.stringify(message), function (error) {
-		if (error) console.log(error);
+		if (error) console.log('ws.send error: ' + error);
 	});
 }
