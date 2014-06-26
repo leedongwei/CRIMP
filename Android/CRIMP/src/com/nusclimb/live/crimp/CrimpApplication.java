@@ -285,7 +285,8 @@ public class CrimpApplication extends Application {
 		if(uploadSuccessCount == uploadTotalCount){
 			// Update notification
 			getNotificationBuilder().setContentText("Upload complete: "+uploadSuccessCount+"/"+uploadTotalCount)
-			.setProgress(0, 0, false);
+			.setProgress(0, 0, false)
+			.setOngoing(false);
 	    	 
 			// Stop spiceManager.
 			if(isSpiceManagerStarted && spiceManagerToken == 0){
@@ -299,7 +300,8 @@ public class CrimpApplication extends Application {
 		else{
 			// Update notification
 			getNotificationBuilder().setContentText("Upload in progress: "+uploadSuccessCount+"/"+uploadTotalCount)
-			.setProgress(uploadTotalCount, uploadSuccessCount, false);
+			.setProgress(uploadTotalCount, uploadSuccessCount, false)
+			.setOngoing(true);
 		}
 		
 		// Gets an instance of the NotificationManager service
@@ -315,7 +317,8 @@ public class CrimpApplication extends Application {
 		if(uploadSuccessCount == uploadTotalCount){
 			// Update notification
 			getNotificationBuilder().setContentText("Upload complete: "+uploadSuccessCount+"/"+uploadTotalCount)
-			.setProgress(0, 0, false);
+			.setProgress(0, 0, false)
+			.setOngoing(false);
 	    	 
 			// Stop spiceManager.
 			if(isSpiceManagerStarted && spiceManagerToken == 0){
@@ -329,7 +332,8 @@ public class CrimpApplication extends Application {
 		else{
 			// Update notification
 			getNotificationBuilder().setContentText("Upload in progress: "+uploadSuccessCount+"/"+uploadTotalCount)
-			.setProgress(uploadTotalCount, uploadSuccessCount, false);
+			.setProgress(uploadTotalCount, uploadSuccessCount, false)
+			.setOngoing(true);
 		}
 		
 		// Gets an instance of the NotificationManager service
@@ -369,7 +373,8 @@ public class CrimpApplication extends Application {
 					.setSmallIcon(R.drawable.ic_launcher)
 			        .setContentTitle("CRIMP Score upload")
 			        .setContentText("CRIMP service is running!")
-			        .setContentIntent(notifyIntent);
+			        .setContentIntent(notifyIntent)
+			        .setOngoing(true);
 		}
 		
 		return mBuilder;
