@@ -3,11 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    android:background="@color/grey_light" >
     
     <FrameLayout android:id="@+id/QRScan_frame_viewgroup"
     	android:layout_width="match_parent"
-    	android:layout_height="wrap_content" >
+    	android:layout_height="wrap_content"
+    	android:layout_marginBottom="@dimen/view_between_margin" >
         
     </FrameLayout>
     
@@ -20,27 +22,44 @@
         
         <LinearLayout android:id="@+id/QRScan_status_row1"
 	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content" 
-	        android:orientation="horizontal" >
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal"
+	        android:layout_marginBottom="@dimen/view_between_margin" >
         
-            <TextView 
+            <EditText 
                 android:id="@+id/QRScan_round_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold" />
+                android:paddingLeft="@dimen/view_padding"
+                android:paddingTop="@dimen/view_padding"
+                android:paddingBottom="@dimen/view_padding"
+                android:textStyle="bold"
+                android:background="@color/white"
+                android:clickable="false" 
+	        	android:cursorVisible="false" 
+	        	android:focusable="false" 
+	        	android:focusableInTouchMode="false" />
             
             <EditText
 		        android:id="@+id/QRScan_climber_id_edit"
 		        android:layout_width="0dp"
 		        android:layout_height="wrap_content"
 		        android:layout_weight="1"
-		        android:hint="@string/UI_climber_id" 
+		        android:hint="@string/UI_climber_id"
+		        android:background="@color/white"
+		        android:paddingTop="@dimen/view_padding"
+		        android:paddingBottom="@dimen/view_padding"
+		        android:paddingRight="@dimen/view_padding"
+		        android:layout_marginRight="@dimen/view_between_margin"
 		        android:inputType="number"/>
             
             <Button
 	            android:id="@+id/QRScan_rescan_button"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
+		        android:background="@color/grey_dark"
+		        android:layout_marginRight="@dimen/view_between_margin"
+		        android:textColor="@color/white"
 		        android:text="@string/UI_rescan" 
 		        android:onClick="rescan"/>
             
@@ -48,6 +67,8 @@
 	            android:id="@+id/QRScan_flash_button"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
+		        android:background="@color/grey_dark"
+		        android:textColor="@color/white"
 		        android:text="@string/UI_flash" 
 		        android:onClick="toggleFlash"/>
             
@@ -57,17 +78,22 @@
             android:id="@+id/QRScan_climber_name_edit"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:padding="@dimen/view_padding"
+            android:layout_marginBottom="@dimen/view_between_margin"
         	android:hint="@string/UI_climber_name"
         	android:clickable="false" 
 	        android:cursorVisible="false" 
 	        android:focusable="false" 
 	        android:focusableInTouchMode="false"
-	        android:inputType="textMultiLine|text" />"
+	        android:inputType="textMultiLine|text" />
         
         <Button
             android:id="@+id/QRScan_next_button"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
+	        android:background="@color/grey_dark"
+	        android:textColor="@color/white"
 	        android:text="@string/UI_next" 
 	        android:onClick="next"/>
         

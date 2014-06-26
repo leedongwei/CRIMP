@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@color/grey_light" >
 	
 	<Button
 		android:id="@+id/scoring_submit_button"
@@ -9,6 +10,8 @@
 		android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true"
 		android:layout_marginTop="@dimen/activity_vertical_margin"
+		android:background="@color/grey_dark"
+		android:textColor="@color/white"
 		android:onClick="submit"
 		android:text="@string/UI_submit" />
 	
@@ -22,6 +25,9 @@
 			android:id="@+id/scoring_plus_one_button"
 			android:layout_width="wrap_content" 
 			android:layout_height="wrap_content"
+			android:layout_marginRight="@dimen/view_between_margin"
+			android:background="@color/grey_dark"
+			android:textColor="@color/white"
 			android:text="@string/UI_plus_one" 
 			android:onClick="plusOne" />
 		
@@ -29,6 +35,9 @@
 			android:id="@+id/scoring_b_button"
 			android:layout_width="wrap_content" 
 			android:layout_height="wrap_content"
+			android:layout_marginRight="@dimen/view_between_margin"
+			android:background="@color/grey_dark"
+			android:textColor="@color/white"
 			android:text="@string/UI_b" 
 			android:onClick="bonus" />
 		
@@ -36,6 +45,9 @@
 			android:id="@+id/scoring_t_button"
 			android:layout_width="wrap_content" 
 			android:layout_height="wrap_content"
+			android:layout_marginRight="@dimen/view_between_margin"
+			android:background="@color/grey_dark"
+			android:textColor="@color/white"
 			android:text="@string/UI_t" 
 			android:onClick="top" />
 		
@@ -44,14 +56,75 @@
 			android:layout_width="0dp" 
 			android:layout_height="wrap_content"
 			android:layout_weight="1" 
+			android:background="@color/grey_dark"
+			android:textColor="@color/white"
 			android:text="@string/UI_backspace"
 			android:onClick="backspace" />
 		
 	</LinearLayout>
 	
+	<TableLayout android:id="@+id/scoring_climber_info" 
+		android:paddingLeft="@dimen/activity_horizontal_margin"
+		android:paddingRight="@dimen/activity_horizontal_margin"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+		android:stretchColumns="1"
+		android:shrinkColumns="1" >
+		
+		<TableRow >
+			
+			<TextView 
+				android:id="@+id/scoring_climber_id_text"
+				android:textColor="@color/white"
+				android:text="@string/UI_climber_id_heading" />
+	
+			<EditText 
+				android:id="@+id/scoring_climber_id_edit"
+				android:textColor="@color/white"
+				android:clickable="false" 
+				android:cursorVisible="false" 
+				android:focusable="false" 
+				android:focusableInTouchMode="false" />
+				
+		</TableRow>
+		
+		<TableRow >
+			
+			<TextView 
+				android:id="@+id/scoring_climber_name_text"
+				android:textColor="@color/white"
+				android:text="@string/UI_climber_name_heading" />
+	
+			<EditText 
+				android:id="@+id/scoring_climber_name_edit"
+				android:layout_height="wrap_content"
+				android:textColor="@color/white"
+				android:clickable="false" 
+				android:cursorVisible="false" 
+				android:focusable="false" 
+				android:focusableInTouchMode="false" />
+			
+		</TableRow>
+		
+	</TableLayout>
+	
+	<View
+		android:id="@+id/scoring_divider"
+		android:layout_width="fill_parent"
+		android:layout_height="1dp"
+		android:layout_marginTop="8dp"
+		android:layout_marginBottom="8dp"
+		android:background="@color/white" 
+		android:layout_below="@id/scoring_climber_info"/>
+	
 	<ScrollView android:id="@+id/scoring_scroll"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
+		android:paddingLeft="@dimen/view_padding"
+		android:paddingRight="@dimen/view_padding"
+		android:paddingBottom="@dimen/view_padding"
+		android:layout_below="@id/scoring_divider"
 		android:layout_above="@id/scoring_button_row">
 
 		<LinearLayout android:id="@+id/scoring_root" 
@@ -59,67 +132,18 @@
 			android:layout_height="wrap_content" 
 			android:orientation="vertical" >
 			
-			<TableLayout android:id="@+id/scoring_climber_info" 
-				android:paddingLeft="@dimen/activity_horizontal_margin"
-				android:paddingRight="@dimen/activity_horizontal_margin"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:stretchColumns="1"
-				android:shrinkColumns="1" >
-				
-				<TableRow >
-					
-					<TextView 
-						android:id="@+id/scoring_climber_id_text"
-						android:text="@string/UI_climber_id_heading" />
-			
-					<EditText 
-						android:id="@+id/scoring_climber_id_edit"
-						android:clickable="false" 
-						android:cursorVisible="false" 
-						android:focusable="false" 
-						android:focusableInTouchMode="false" />
-						
-				</TableRow>
-				
-				<TableRow >
-					
-					<TextView 
-						android:id="@+id/scoring_climber_name_text"
-						android:text="@string/UI_climber_name_heading" />
-			
-					<EditText 
-						android:id="@+id/scoring_climber_name_edit"
-						android:layout_height="wrap_content"
-						android:clickable="false" 
-						android:cursorVisible="false" 
-						android:focusable="false" 
-						android:focusableInTouchMode="false" />
-					
-				</TableRow>
-				
-			</TableLayout>
-			
-			<View
-				android:id="@+id/scoring_divider"
-				android:layout_width="fill_parent"
-				android:layout_height="1dp"
-				android:layout_marginTop="8dp"
-				android:layout_marginBottom="8dp"
-				android:background="@android:color/darker_gray" />
-			
 			<TextView 
 				android:id="@+id/scoring_old_score_text"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:paddingLeft="@dimen/activity_horizontal_margin"
+				android:textColor="@color/white"
 				android:text="@string/UI_total_score_heading" />
 			
 			<EditText 
 				android:id="@+id/scoring_score_history_edit"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:paddingLeft="@dimen/activity_horizontal_margin"
+				android:textColor="@color/white"
 				android:clickable="false" 
 				android:cursorVisible="false" 
 				android:focusable="false" 
@@ -129,6 +153,8 @@
 				android:id="@+id/scoring_score_current_edit"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
+				android:padding="@dimen/view_padding"
+				android:background="@color/white"
 				android:hint="@string/UI_current_score"
 				android:clickable="false" 
 				android:cursorVisible="false" 

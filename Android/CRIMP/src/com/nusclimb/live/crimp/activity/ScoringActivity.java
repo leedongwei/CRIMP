@@ -238,7 +238,22 @@ public class ScoringActivity extends Activity{
 	    switch (item.getItemId()) {
 			// Respond to the action bar's Up/Home button
 	    	case android.R.id.home:
-	    		NavUtils.navigateUpFromSameTask(this);
+	    		new AlertDialog.Builder(this)
+	    	    .setTitle("Back")
+	    	    .setMessage("Back without submitting?")
+	    	    .setPositiveButton(R.string.dialog_back, new DialogInterface.OnClickListener() {
+	    	        public void onClick(DialogInterface dialog, int which) { 
+	    	            // continue with back
+	    	        	NavUtils.navigateUpFromSameTask(ScoringActivity.this);
+	    	        }
+	    	     })
+	    	    .setNegativeButton(R.string.dialog_no_back, new DialogInterface.OnClickListener() {
+	    	        public void onClick(DialogInterface dialog, int which) { 
+	    	            // do nothing
+	    	        }
+	    	     })
+	    	    .setIcon(android.R.drawable.ic_dialog_alert)
+	    	    .show();
 		        return true;
 	    	case R.id.refresh:
 	    		// Cancel previous download...
@@ -276,6 +291,26 @@ public class ScoringActivity extends Activity{
 	    MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.scoring, menu);
 	    return true;
+	}
+	
+	@Override
+	public void onBackPressed(){
+		new AlertDialog.Builder(this)
+	    .setTitle("Back")
+	    .setMessage("Back without submitting?")
+	    .setPositiveButton(R.string.dialog_back, new DialogInterface.OnClickListener() {
+	        public void onClick(DialogInterface dialog, int which) { 
+	            // continue with back
+	        	finish();
+	        }
+	     })
+	    .setNegativeButton(R.string.dialog_no_back, new DialogInterface.OnClickListener() {
+	        public void onClick(DialogInterface dialog, int which) { 
+	            // do nothing
+	        }
+	     })
+	    .setIcon(android.R.drawable.ic_dialog_alert)
+	    .show();
 	}
 	
 	

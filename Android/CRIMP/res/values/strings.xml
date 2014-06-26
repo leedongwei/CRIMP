@@ -47,6 +47,8 @@
     <string name="dialog_no_save">Don\'t save changes</string>
     <string name="dialog_submit">Submit</string>
     <string name="dialog_no_submit">Don\'t submit</string>
+    <string name="dialog_back">Back</string>
+    <string name="dialog_no_back">Cancel</string>
     
     <!-- Intent Key -->
     <string name="intent_username">.username</string>
