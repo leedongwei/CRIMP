@@ -42,7 +42,7 @@
 	    android:layout_height="wrap_content"
 	    android:text="@string/UI_next"
 	    android:textColor="@color/white"
-	    android:background="@color/grey_dark" 
+	    android:background="@drawable/crimp_button" 
 	    android:onClick="next"/>
     
 </LinearLayout>

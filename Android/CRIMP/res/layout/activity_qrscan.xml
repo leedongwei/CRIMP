@@ -57,7 +57,7 @@
 	            android:id="@+id/QRScan_rescan_button"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
-		        android:background="@color/grey_dark"
+		        android:background="@drawable/crimp_button"
 		        android:layout_marginRight="@dimen/view_between_margin"
 		        android:textColor="@color/white"
 		        android:text="@string/UI_rescan" 
@@ -67,7 +67,7 @@
 	            android:id="@+id/QRScan_flash_button"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
-		        android:background="@color/grey_dark"
+		        android:background="@drawable/crimp_button"
 		        android:textColor="@color/white"
 		        android:text="@string/UI_flash" 
 		        android:onClick="toggleFlash"/>
@@ -92,7 +92,7 @@
             android:id="@+id/QRScan_next_button"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:background="@color/grey_dark"
+	        android:background="@drawable/crimp_button"
 	        android:textColor="@color/white"
 	        android:text="@string/UI_next" 
 	        android:onClick="next"/>
