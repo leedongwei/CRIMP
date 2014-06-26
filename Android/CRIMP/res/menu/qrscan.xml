@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.nusclimb.live.crimp.activity.QRScanActivity" >
+    
+    <item android:id="@+id/preferences"
+          android:title="@string/menu_settings"
+          android:showAsAction="never"/>
+</menu>

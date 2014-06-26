@@ -7,7 +7,7 @@ import com.nusclimb.live.crimp.CrimpApplication;
 import com.nusclimb.live.crimp.QueueObject;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.UploadStatus;
-import com.nusclimb.live.crimp.UploadTaskAdapter;
+import com.nusclimb.live.crimp.adapter.UploadTaskAdapter;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -16,6 +16,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
+/**
+ * Activity to view list of pending upload tasks.
+ * 
+ * @author Lin Weizhi (ecc.weizhi@gmail.com)
+ *
+ */
 public class UploadListActivity extends ListActivity {	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){

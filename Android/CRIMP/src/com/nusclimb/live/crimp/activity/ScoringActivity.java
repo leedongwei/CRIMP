@@ -7,6 +7,7 @@ import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.json.RoundInfoMap;
 import com.nusclimb.live.crimp.json.Score;
 import com.nusclimb.live.crimp.request.ClimberInfoRequest;
+import com.nusclimb.live.crimp.request.ClimberTrackingRequest;
 import com.nusclimb.live.crimp.request.ScoreRequest;
 import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
@@ -15,8 +16,11 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -26,6 +30,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
 /**
  * Third activity of CRIMP.
@@ -104,6 +109,20 @@ public class ScoringActivity extends Activity{
 			oldScore = result.getC_score();
 	    	
 			updateInfoAndScoreUI();
+		}
+	}
+	
+	private class ClimberTrackingRequestListener implements RequestListener<String> {
+		@Override
+		public void onRequestFailure(SpiceException e) {
+			// It failed. Too bad, but we are not doing anything.
+			Log.w(TAG, "Tracking failed.");
+		}
+
+		@Override
+		public void onRequestSuccess(String result) {
+			// It succeed. Too bad, but we are not doing anything.
+			Log.i(TAG, "Tracking succeed.");
 		}
 	}
 	
@@ -189,6 +208,15 @@ public class ScoringActivity extends Activity{
 			refreshName();
 		}
 		refreshScore();
+		
+		// Fire climber tracking request.
+		ClimberTrackingRequest request = 
+				new ClimberTrackingRequest(climberId, round, route, ClimberTrackingRequest.State.PUSH);
+        String trackingCacheKey = request.createCacheKey();
+        spiceManager.cancel(String.class, trackingCacheKey);
+        spiceManager.execute(request, trackingCacheKey, 
+        		DurationInMillis.ALWAYS_EXPIRED, 
+        		new ClimberTrackingRequestListener());
 	}
 	
 	@Override
@@ -204,6 +232,15 @@ public class ScoringActivity extends Activity{
 			spiceManager.cancel(Score.class, scoreRequestCacheKey);
 			scoreRequestCacheKey = null;
 		}
+		
+		// Fire climber tracking request.
+		ClimberTrackingRequest request = 
+				new ClimberTrackingRequest(climberId, round, route, ClimberTrackingRequest.State.POP);
+        String trackingCacheKey = request.createCacheKey();
+        spiceManager.cancel(String.class, trackingCacheKey);
+        spiceManager.execute(request, trackingCacheKey, 
+        		DurationInMillis.ALWAYS_EXPIRED, 
+        		new ClimberTrackingRequestListener());
 		
 		Log.d(TAG, "ScoringActivity onPause.");
 		super.onPause();
@@ -234,7 +271,22 @@ public class ScoringActivity extends Activity{
 	    switch (item.getItemId()) {
 			// Respond to the action bar's Up/Home button
 	    	case android.R.id.home:
-	    		NavUtils.navigateUpFromSameTask(this);
+	    		new AlertDialog.Builder(this)
+	    	    .setTitle("Back")
+	    	    .setMessage("Back without submitting?")
+	    	    .setPositiveButton(R.string.dialog_back, new DialogInterface.OnClickListener() {
+	    	        public void onClick(DialogInterface dialog, int which) { 
+	    	            // continue with back
+	    	        	NavUtils.navigateUpFromSameTask(ScoringActivity.this);
+	    	        }
+	    	     })
+	    	    .setNegativeButton(R.string.dialog_no_back, new DialogInterface.OnClickListener() {
+	    	        public void onClick(DialogInterface dialog, int which) { 
+	    	            // do nothing
+	    	        }
+	    	     })
+	    	    .setIcon(android.R.drawable.ic_dialog_alert)
+	    	    .show();
 		        return true;
 	    	case R.id.refresh:
 	    		// Cancel previous download...
@@ -257,6 +309,11 @@ public class ScoringActivity extends Activity{
 	    		refreshScore();
 	    		
 		        return true;
+	    	case R.id.preferences:
+	    		// Launch settings activity
+	    	    Intent i = new Intent(this, SettingsActivity.class);
+	    	    startActivity(i);
+		        return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
@@ -267,6 +324,26 @@ public class ScoringActivity extends Activity{
 	    MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.scoring, menu);
 	    return true;
+	}
+	
+	@Override
+	public void onBackPressed(){
+		new AlertDialog.Builder(this)
+	    .setTitle("Back")
+	    .setMessage("Back without submitting?")
+	    .setPositiveButton(R.string.dialog_back, new DialogInterface.OnClickListener() {
+	        public void onClick(DialogInterface dialog, int which) { 
+	            // continue with back
+	        	finish();
+	        }
+	     })
+	    .setNegativeButton(R.string.dialog_no_back, new DialogInterface.OnClickListener() {
+	        public void onClick(DialogInterface dialog, int which) { 
+	            // do nothing
+	        }
+	     })
+	    .setIcon(android.R.drawable.ic_dialog_alert)
+	    .show();
 	}
 	
 	
@@ -329,25 +406,52 @@ public class ScoringActivity extends Activity{
 	}
 	
 	public void submit(View view){
-		// Convert to server alias.
-		String serverAliasRound = Helper.toServerRound(round);
-		String serverAliasRoute = Helper.parseRoute(route);
-		String r_id = serverAliasRound + serverAliasRoute;
-		
 		// Find the view for current score
 		if(scoreEdit == null){
 			scoreEdit = (EditText) findViewById(R.id.scoring_score_current_edit);
 		}
 		
-		// Make QueueObject
-		QueueObject mQueueObject = new QueueObject(routeJudge, getString(R.string.net_password_debug), 
-				r_id, climberId, scoreEdit.getText().toString(), CrimpService.nextRequestId());
-		
-		
-		// Add to a queue of QueueObject request.
-		((CrimpApplication)getApplicationContext()).addRequest(mQueueObject);
-		
-		// Navigate up from this activity.
-		NavUtils.navigateUpFromSameTask(this);
+		// Empty current score
+		if(scoreEdit.getText().length() == 0){
+			CharSequence text = "Current Session Score is required!";
+			int duration = Toast.LENGTH_SHORT;
+
+			Toast toast = Toast.makeText(this, text, duration);
+			toast.show();
+		}
+		else{	// Non empty current score
+			new AlertDialog.Builder(this)
+		    .setTitle("Submit score")
+		    .setMessage("Are you sure you want to submit score?")
+		    .setPositiveButton(R.string.dialog_submit, new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int which) { 
+		            // continue with submit
+		        	// Convert to server alias.
+		    		String serverAliasRound = Helper.toServerRound(round);
+		    		String serverAliasRoute = Helper.parseRoute(route);
+		    		String r_id = serverAliasRound + serverAliasRoute;
+		    		
+		    		String auth_code = PreferenceManager
+		    				.getDefaultSharedPreferences(ScoringActivity.this).getString("auth_code", "");
+		    		
+		    		// Make QueueObject
+		    		QueueObject mQueueObject = new QueueObject(routeJudge, auth_code, 
+		    				r_id, climberId, scoreEdit.getText().toString(), CrimpService.nextRequestId());
+		    		
+		    		// Add to a queue of QueueObject request.
+		    		((CrimpApplication)getApplicationContext()).addRequest(mQueueObject);
+		    		
+		    		// Navigate up from this activity.
+		    		NavUtils.navigateUpFromSameTask(ScoringActivity.this);
+		        }
+		     })
+		    .setNegativeButton(R.string.dialog_no_submit, new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int which) { 
+		            // do nothing
+		        }
+		     })
+		    .setIcon(android.R.drawable.ic_dialog_alert)
+		    .show();
+		}
 	}
 }

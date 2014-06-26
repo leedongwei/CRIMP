@@ -13,6 +13,12 @@ import android.support.v4.app.NavUtils;
 import android.view.View;
 import android.widget.EditText;
 
+/**
+ * Activity to edit upload tasks.
+ * 
+ * @author Lin Weizhi (ecc.weizhi@gmail.com)
+ *
+ */
 public class UploadEditActivity extends Activity{
 	private String downloadUrl, uploadUrl, j_name, auth_code, r_id, c_id, appendScore;
 	
@@ -102,6 +108,6 @@ public class UploadEditActivity extends Activity{
 	        }
 	     })
 	    .setIcon(android.R.drawable.ic_dialog_alert)
-	     .show();
+	    .show();
 	}
 }

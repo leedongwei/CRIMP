@@ -18,6 +18,8 @@ import android.support.v4.app.NavUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -148,6 +150,14 @@ public class QRScanActivity extends Activity {
 		if(cameraManager.hasCamera()){
 			createPreviewAndArrange();
 		}
+		
+		if(getState() == R.id.decode){
+			if(cameraManager.isSurfaceReady()){
+				setState(R.id.decode);
+				cameraManager.startPreview(previewView.getHolder());
+				cameraManager.startScan();
+			}
+		}
 	}
 	
 	@Override
@@ -221,12 +231,24 @@ public class QRScanActivity extends Activity {
 	}
 	
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.qrscan, menu);
+	    return true;
+	}
+	
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle presses on the action bar items
 	    switch (item.getItemId()) {
 			// Respond to the action bar's Up/Home button
 	    	case android.R.id.home:
 	    		NavUtils.navigateUpFromSameTask(this);
+		        return true;
+	    	case R.id.preferences:
+	    		// Launch settings activity
+	    	    Intent i = new Intent(this, SettingsActivity.class);
+	    	    startActivity(i);
 		        return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
@@ -293,11 +315,19 @@ public class QRScanActivity extends Activity {
 		if(climberId.length() == 0){
 			// Do not allow user to get past this activity if
 			// climber id is not entered.
-			Context context = getApplicationContext();
 			CharSequence text = "Climber ID is required!";
 			int duration = Toast.LENGTH_SHORT;
 
-			Toast toast = Toast.makeText(context, text, duration);
+			Toast toast = Toast.makeText(this, text, duration);
+			toast.show();
+		}
+		else if(climberId.length() != 3){
+			// Do not allow user to get past this activity if
+			// climber id is not 3 digits.
+			CharSequence text = "Climber ID must be 3 digit.";
+			int duration = Toast.LENGTH_SHORT;
+
+			Toast toast = Toast.makeText(this, text, duration);
 			toast.show();
 		}
 		else{			
@@ -312,6 +342,8 @@ public class QRScanActivity extends Activity {
 			if(climberName != null){
 				intent.putExtra(packageName + getString(R.string.intent_climber_name), climberName);
 			}
+			
+			setState(R.id.decode);
 			
 			startActivity(intent);
 		}

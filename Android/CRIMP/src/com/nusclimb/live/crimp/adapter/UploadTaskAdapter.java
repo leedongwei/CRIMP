@@ -1,7 +1,10 @@
-package com.nusclimb.live.crimp;
+package com.nusclimb.live.crimp.adapter;
 
 import java.util.List;
 
+import com.nusclimb.live.crimp.QueueObject;
+import com.nusclimb.live.crimp.R;
+import com.nusclimb.live.crimp.UploadStatus;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
