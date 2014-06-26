@@ -150,6 +150,14 @@ public class QRScanActivity extends Activity {
 		if(cameraManager.hasCamera()){
 			createPreviewAndArrange();
 		}
+		
+		if(getState() == R.id.decode){
+			if(cameraManager.isSurfaceReady()){
+				setState(R.id.decode);
+				cameraManager.startPreview(previewView.getHolder());
+				cameraManager.startScan();
+			}
+		}
 	}
 	
 	@Override
@@ -334,6 +342,8 @@ public class QRScanActivity extends Activity {
 			if(climberName != null){
 				intent.putExtra(packageName + getString(R.string.intent_climber_name), climberName);
 			}
+			
+			setState(R.id.decode);
 			
 			startActivity(intent);
 		}

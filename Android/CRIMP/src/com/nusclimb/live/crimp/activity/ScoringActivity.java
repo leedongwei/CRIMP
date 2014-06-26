@@ -7,6 +7,7 @@ import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.json.RoundInfoMap;
 import com.nusclimb.live.crimp.json.Score;
 import com.nusclimb.live.crimp.request.ClimberInfoRequest;
+import com.nusclimb.live.crimp.request.ClimberTrackingRequest;
 import com.nusclimb.live.crimp.request.ScoreRequest;
 import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
@@ -111,6 +112,20 @@ public class ScoringActivity extends Activity{
 		}
 	}
 	
+	private class ClimberTrackingRequestListener implements RequestListener<String> {
+		@Override
+		public void onRequestFailure(SpiceException e) {
+			// It failed. Too bad, but we are not doing anything.
+			Log.w(TAG, "Tracking failed.");
+		}
+
+		@Override
+		public void onRequestSuccess(String result) {
+			// It succeed. Too bad, but we are not doing anything.
+			Log.i(TAG, "Tracking succeed.");
+		}
+	}
+	
 	/**
 	 * Update info and score UI only if downloads are completed.
 	 */
@@ -193,6 +208,15 @@ public class ScoringActivity extends Activity{
 			refreshName();
 		}
 		refreshScore();
+		
+		// Fire climber tracking request.
+		ClimberTrackingRequest request = 
+				new ClimberTrackingRequest(climberId, round, route, ClimberTrackingRequest.State.PUSH);
+        String trackingCacheKey = request.createCacheKey();
+        spiceManager.cancel(String.class, trackingCacheKey);
+        spiceManager.execute(request, trackingCacheKey, 
+        		DurationInMillis.ALWAYS_EXPIRED, 
+        		new ClimberTrackingRequestListener());
 	}
 	
 	@Override
@@ -208,6 +232,15 @@ public class ScoringActivity extends Activity{
 			spiceManager.cancel(Score.class, scoreRequestCacheKey);
 			scoreRequestCacheKey = null;
 		}
+		
+		// Fire climber tracking request.
+		ClimberTrackingRequest request = 
+				new ClimberTrackingRequest(climberId, round, route, ClimberTrackingRequest.State.POP);
+        String trackingCacheKey = request.createCacheKey();
+        spiceManager.cancel(String.class, trackingCacheKey);
+        spiceManager.execute(request, trackingCacheKey, 
+        		DurationInMillis.ALWAYS_EXPIRED, 
+        		new ClimberTrackingRequestListener());
 		
 		Log.d(TAG, "ScoringActivity onPause.");
 		super.onPause();
