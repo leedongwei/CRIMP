@@ -2,15 +2,22 @@ var bodyParser = require('body-parser'),
 		express = require('express'),
 		pg = require('pg'),
 		http = require('http'),
+		websocket = require('ws');
 		config = require('./config.js');
 
-var app = express();
-app.use(bodyParser());
-
-
+// Setting development and production variables
 var dbConn = process.env.DATABASE_URL || config.development.db_conn,
 		serverPort = Number (process.env.PORT || config.development.port),
+		serverAuth = config.production.auth_code || config.development.auth_code,
+		socketAuth = config.production.socket_auth || config.development.socket_auth,
 		socketHost = config.production.socketserver || config.development.socketserver;
+
+var app = express(),
+		server = app.listen(serverPort, function() {
+ 			console.log('Listening on port %d', server.address().port);
+		}),
+		ws = new websocket('ws://' + socketHost);
+app.use(bodyParser());
 
 
 app.get('/judge/get/:c_category', function (req, res) {
@@ -132,16 +139,17 @@ app.post('/judge/set', function (req, res) {
 
 	// TODO: server log judge's name
 
-	if (postBody.auth_code !== config.development.auth_code) {
+	if (postBody.auth_code !== serverAuth) {
 		console.error('401 Unauthorized: ' + postBody.j_name);
 		res.send(401);
 		return;
 	}
 
 	if (!postBody.j_name ||
-			postBody.c_id === undefined ||
-			postBody.r_id === undefined ||
+			!postBody.c_id ||
+			!postBody.r_id ||
 			postBody.c_score === undefined ||
+			postBody.c_score === null ||
 			postBody.c_id.length !== 5 ||
 			postBody.r_id.length !== 5 ||
 			postBody.c_id.substring(0,2) !== postBody.r_id.substring(0,2) ||
@@ -190,7 +198,16 @@ app.post('/judge/set', function (req, res) {
 											postBody.c_score + ' by ' + postBody.j_name );
 
 					res.send(200, {});
-					sendToSocketServer(postBody);
+
+					// Send to CRIMP-socket to update web
+					var postData = {
+						'c_id': postBody.c_id,
+						'r_id': postBody.r_id,
+						'top': scoreTop,
+						'bonus': scoreBonus
+					};
+					sendToCrimpSocket('POST', JSON.stringify(postData));
+
 
 					// Simulating latency
 					//setTimeout(function(){res.send(200, {})}, 5000);
@@ -201,115 +218,18 @@ app.post('/judge/set', function (req, res) {
 });
 
 
-/*
-app.get('/client/get/:c_category', function (req, res) {
-	res.set('Content-Type', 'application/json');
-
-	if (req.params.c_category.length !== 3) {
-		//console.error('400: Parameter Error');
-		res.send(400);
-		return;
-	}
-
-	var	queryConfigTop = {},
-			queryConfigBonus = {},
-			queryState = {'qTop': false, 'qBonus': false},
-			resultsTop,
-			resultsBonus;
-
-	if (req.params.c_category.substring(2,3) === 'Q') {
-		queryConfigTop = {
-			'text': 'SELECT c_id, ' +
-							'q01_top, q02_top, q03_top, q04_top, q05_top, q06_top ' +
-							'FROM crimp_data ' +
-							'WHERE c_category = $1;',
-			'values': [req.params.c_category]
-		};
-		queryConfigBonus = {
-			'text': 'SELECT c_id, ' +
-							'q01_bonus, q02_bonus, q03_bonus, q04_bonus, ' +
-							'q05_bonus, q06_bonus ' +
-							'FROM crimp_data ' +
-							'WHERE c_category = $1;',
-			'values': [req.params.c_category]
-		};
-	} else if (req.params.c_category.substring(2,3) === 'F') {
-		queryConfigTop = {
-			'text': 'SELECT c_id, ' +
-							'f01_top, f02_top, f03_top, f04_top ' +
-							'FROM crimp_data ' +
-							'WHERE c_category = $1;',
-			'values': [req.params.c_category]
-		};
-		queryConfigBonus = {
-			'text': 'SELECT c_id, ' +
-							'f01_bonus, f02_bonus, f03_bonus, f04_bonus ' +
-							'FROM crimp_data ' +
-							'WHERE c_category = $1;',
-			'values': [req.params.c_category]
-		};
-	} else {
-		res.send(400);
-		return;
-	}
-
-	pg.connect(dbConn, function (err, client, done) {
-		if (err) {
-			console.error('500: Error fetching client from pool', err);
-			res.send(500);
-			return;
-		}
-
-		client.query(queryConfigTop, function (err, result) {
-			// IMPORTANT! Release client back to pool
-			done();
-			queryState.qTop = true;
-
-			if (err) {
-				//console.error('400: Error running query', err);
-				res.status(400);
-			} else if (result.rowCount === 0) {
-				//console.error('404: Data not found');
-				res.status(404);
-			} else {
-				resultsTop = result.rows;
-				//console.log('TOP: ');
-				//console.log(resultsTop);
-			}
-
-			if (resultsTop && resultsBonus) {
-				calculateClimberScore(resultsTop, resultsBonus, res);
-			} else if (queryState.qTop && queryState.qBonus) {
-				res.send(res.statusCode);
-			}
-		});
-
-		client.query(queryConfigBonus, function (err, result) {
-			// IMPORTANT! Release client back to pool
-			done();
-			queryState.qBonus = true;
-
-			if (err) {
-				//console.error('400: Error running query', err);
-				res.status(400);
-			} else if (result.rowCount === 0) {
-				//console.error('404: Data not found');
-				res.status(404);
-			} else {
-				resultsBonus = result.rows;
-				//console.log('BONUS: ');
-				//console.log(resultsBonus);
-			}
-
-			if (resultsTop && resultsBonus) {
-				calculateClimberScore(resultsTop, resultsBonus, res);
-			} else if (queryState.qTop && queryState.qBonus) {
-				res.send(res.statusCode);
-			}
-		});
-	});
+app.get('/judge/push/:c_id/:r_id', function (req, res) {
+	// Respond to android app immediately
+	res.send(200);
+	setClimberOnWall('PUSH', req.params);
 });
-*/
+
+
+app.get('/judge/pop/:c_id/:r_id', function (req, res) {
+	// Respond to android app immediately
+	res.send(200);
+	setClimberOnWall('POP', req.params);
+});
 
 
 app.get('/admin/get/:r_id', function (req, res) {
@@ -365,13 +285,39 @@ app.get('/admin/get/:r_id', function (req, res) {
 });
 
 
-var server = app.listen(serverPort, function() {
-  console.log('Listening on port %d', server.address().port);
+// TODO: Reopen ws to CRIMP-socket
+app.get('/admin/open', function (req, res) {
+	res.send(200);
+});
+
+
+ws.on('open', function() {
+  console.log('Opened connection to ws://' + socketHost);
+});
+
+
+ws.on('close', function() {
+  console.log('Closed connection to ws://' + socketHost);
+  //restartWebsocket();
+});
+
+
+ws.on('message', function(data, flags) {
+	// CRIMP-server should never receive any messages from CRIMP-socket!
+	console.log('Message received from ws://' + socketHost +':');
+	console.log(data);
+});
+
+
+ws.on('error', function() {
+	console.log('Error on ws://' + socketHost);
+	console.log(JSON.stringify(ws, null, 2));
+	//restartWebsocket();
 });
 
 
 //app.post('/judge/set')
-function calculateTop (rawScore) {
+function calculateTop(rawScore) {
 	var i = 0;
 	for (i; i < rawScore.length; i++) {
 		if (rawScore[i] === 'T')
@@ -380,9 +326,8 @@ function calculateTop (rawScore) {
 	return 0;
 }
 
-
 //app.post('/judge/set')
-function calculateBonus (rawScore) {
+function calculateBonus(rawScore) {
 	var i = 0;
 	for (i; i < rawScore.length; i++) {
 		if (rawScore[i] === 'T' || rawScore[i] === 'B')
@@ -391,71 +336,39 @@ function calculateBonus (rawScore) {
 	return 0;
 }
 
-//app.post('/judge/set')
-function sendToSocketServer (postBody) {
-	var postData = {
-		'c_id': postBody.c_id,
-		'r_id': postBody.r_id,
-		'top': calculateTop(postBody.c_score),
-		'bonus': calculateBonus(postBody.c_score)
-	};
-	postData = JSON.stringify(postData);
+//app.get('/judge/push/' & '/judge/pop/')
+function setClimberOnWall(action, data) {
+	var c_id = data.c_id,
+			r_id = data.r_id;
+	console.log('OnWall ' + action + ': '+ c_id + '    ' + r_id);
 
-	var postOptions = {
-		'hostname': socketHost,
-		'path': '/server/push',
-		'method': 'POST',
-		'headers': {'Content-Type': 'application/json',
-          			'Content-Length': postData.length}
-	};
-
-	// Set up request
-	var postRequest = http.request(postOptions, function (res) {
-      res.setEncoding('utf8');
-      res.on('data', function (chunk) {
-          console.log('Response: ' + chunk);
-      });
-  });
-
-  // Post the data
-  postRequest.write(postData);
-  postRequest.end();
-}
-
-//app.get('/client/get/:c_category')
-/*
-function calculateClimberScore (resultsTop, resultsBonus, res) {
-	var i = 0,
-			message = {'climbers':[]};
-	for (; i < resultsTop.length; i++) {
-		if (resultsTop[i].c_id === resultsBonus[i].c_id) {
-			var climber = {'c_id': '',
-									   'top': 0,
-										 't_att': 0,
-										 'bonus': 0,
-										 'b_att': 0 };
-
-			climber.c_id = resultsTop[i].c_id;
-			delete resultsTop[i].c_id;
-			delete resultsBonus[i].c_id;
-
-			for (var prop in resultsTop[i]) {
-				if (resultsTop[i][prop]) {
-					climber.top++;
-					climber.t_att += resultsTop[i][prop];
-				}
-			}
-			for (var prop in resultsBonus[i]) {
-				if (resultsBonus[i][prop]) {
-					climber.bonus++;
-					climber.b_att += resultsBonus[i][prop];
-				}
-			}
-			message.climbers.push(climber);
-		}
+	if (c_id.length !== 5 ||
+			r_id.length !== 5 ||
+			c_id.substring(0,2) !== r_id.substring(0,2) ||
+			!(/^[a-z]+$/i.test(r_id.substring(2,3))) ){
+		//console.error('400: Parameter Error');
+		// do not send
+		return;
+	} else {
+		sendToCrimpSocket(action, JSON.stringify(data));
 	}
-
-	//console.log(message);
-	res.send(200, JSON.stringify(message));
 }
-*/
+
+function restartWebsocket() {
+	ws = new websocket('ws://' + socketHost);
+}
+
+function sendToCrimpSocket(action, dataString) {
+	// actions recognized by CRIMP-socket: POST, PUSH, POP
+	var message = {
+		'action': action,
+		'auth_code': socketAuth,
+		'data': dataString
+	};
+
+	console.log(JSON.stringify(message, null, 2));
+
+	ws.send(message, function (error) {
+		if (error) console.log(error);
+	});
+}
