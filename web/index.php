@@ -75,6 +75,9 @@
 			</div>
 		</div><!-- /.navbar -->
 
+<section id="dump">
+
+</section>
 
 
 
@@ -127,6 +130,8 @@
 		<!-- Bootstrap core JavaScript-->
 		<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
+		<script src="js/config.js"></script>
+		<script src="js/model.js"></script>
 
 
 	</body>
