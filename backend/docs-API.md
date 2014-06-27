@@ -74,32 +74,15 @@ response (header: 200):
 
 
 
-#CRIMP-socket
+##GET ('/admin/open/:auth_code')
+Attempts to reopen websocket connection to CRIMP-socket
 
-##GET ('/client/get/:round')
-:round [round expects 3 characters: NWQ NMF]
+Look at logs for confirmation of successful connection
 
 <pre><code>
-response (header: 200):
-{
-	"climbers": [{
-		"c_id":
-		"top": {
-			'0':
-			'1':
-			'2':
-			'3':
-			'4':
-			'5':
-		},
-		"bonus": {
-			'0':
-			'1':
-			'2':
-			'3':
-			'4':
-			'5':
-		}
-	}]
-}
+response (header: 200 or 400)
 </code></pre>
+
+
+
+#CRIMP-socket

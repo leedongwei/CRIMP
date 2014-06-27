@@ -12,6 +12,6 @@ module.exports = {
 		//'host': Heroku
 		//'port': Heroku
 		'socket_auth':null,
-		'db_conn':null
+		//'db_conn': Heroku
 	}
 }

@@ -58,9 +58,10 @@ wss.broadcast = function(ws, message) {
 
 
 function parseMessage(ws, message) {
-	if (message.action === 'PING' &&
-			message.source === 'CRIMP-server') {
-		console.log('CRIMP-server ping!')
+	if (message.action === 'PING') {
+		if (message.source === 'CRIMP-server') {
+			console.log('CRIMP-server ping!')
+		}
 		return;
 	}
 
@@ -154,7 +155,8 @@ function getLatestState(ws, message) {
 				//console.error('400: Error running query', err);
 				return;
 			} else if (result.rowCount === 0) {
-				//console.error('404: Data not found');
+				console.error('GET 404: \'' + message.c_category +
+					' Top\' data not found');
 				return;
 			} else {
 				resultsTop = result.rows;
@@ -177,7 +179,8 @@ function getLatestState(ws, message) {
 				//console.error('400: Error running query', err);
 				return;
 			} else if (result.rowCount === 0) {
-				//console.error('404: Data not found');
+				console.error('GET 404: \'' + message.c_category +
+					' Bonus\' data not found');
 				return;
 			} else {
 				resultsBonus = result.rows;
@@ -224,7 +227,10 @@ function broadcastNewScore(ws, message) {
  *	}
  */
 function setActiveClimber(ws, message) {
-	if (message.c_id.length !== 5 ||
+	if (!message ||
+			!message.c_id ||
+			!message.r_id ||
+			message.c_id.length !== 5 ||
 			message.r_id.length !== 5 ||
 			message.c_id.substring(0,2) !== message.r_id.substring(0,2) ||
 			!(/^[a-z]+$/i.test(message.r_id.substring(2,3))) ){
@@ -252,14 +258,16 @@ function setActiveClimber(ws, message) {
 			if (err) {
 				//console.error('400: Error running query', err);
 			} else if (result.rowCount !== 1) {
-				console.error('PUSH error: ' + message.c_id + ' does not exists in database');
+				console.error('Error activeClimber: ' + message.c_id + ' does not exists in database');
 			} else if (result.rowCount === 1) {
 				// Confirmed that climber exists in database
 				activeClimbers[message.r_id.substring(4, 5)] = message.c_id;
 				wss.broadcast(ws, activeClimbers);
 
-				console.log('activeClimbers: ');
-				console.log(JSON.stringify(activeClimbers, null, 2));
+				console.log(JSON.stringify(activeClimbers));
+				setTimeout(function() {
+					removeActiveClimber(null, message);
+				}, 5000);
 			}
 		});
 	});
@@ -273,15 +281,15 @@ function setActiveClimber(ws, message) {
  *	}
  */
 function removeActiveClimber(ws, message) {
-	if (activeClimbers[message.r_id.substring(4, 5)] == message.c_id) {
+	if (!message || !message.c_id || !message.r_id) return;
+
+	if (activeClimbers[message.r_id.substring(4, 5)] === message.c_id) {
 		activeClimbers[message.r_id.substring(4, 5)] = '';
 		wss.broadcast(ws, activeClimbers);
-
-		console.log('activeClimbers: ');
-		console.log(JSON.stringify(activeClimbers, null, 2));
+		console.log(JSON.stringify(activeClimbers));
 	} else {
-		console.error('Error: ' + message.c_id +
-			' is not an active climber on ' + message.r_id)
+		console.error('Error activeClimber: ' + message.c_id +
+			' is not active on ' + message.r_id)
 	}
 }
 
@@ -330,6 +338,6 @@ function tabulateAndSendScores (resultsTop, resultsBonus, ws) {
 		}
 	}
 
-	console.log(JSON.stringify(outgoingData, null, 2));
+	//console.log(JSON.stringify(outgoingData, null, 2));
 	ws.send(JSON.stringify(outgoingData));
 }
