@@ -22,12 +22,13 @@
 
 body {
 	padding-top: 70px;
-	min-width: 310px;
+	min-width: 320px;
 }
 
 .container {
-	width: 90%;
-	max-width: 692px;
+	width: 100%;
+	max-width: 600px;
+	padding: 0px;
 }
 
 /**********
@@ -80,13 +81,23 @@ body {
 	display:block !important;
 }
 /* END: Prevent navbar-toggle from collapsing */
+.navbar {
+	padding: 0 5%;
+}
 .navbar-brand {
 	font-family: 'Bebas', sans-serif;
 	font-size: 1.8em;
 }
+.navbar-inverse .navbar-toggle .icon-bar {
+  background-color: #aaa;
+}
+.navbar-nav {
+	color: #ccc;
+}
 .nav-links {
 	margin-left: 1em;
 }
+
 
 @media (min-width: 360px) {
 	.navbar-nav > li {
@@ -107,6 +118,9 @@ body {
 /**
  * C_SCORE
  */
+.climberScores {
+	max-width: 500px;
+}
 .scoreHeader {
 	position: relative;
 	width: 100%;
@@ -118,12 +132,23 @@ body {
 }
 
 .scoreHeader > .c_top {
-	right: 65px;
+	right: 60px;
 }
 
 .scoreHeader > .c_top,
 .scoreHeader > .c_bonus {
 	top: 1em;
+}
+
+.scoreHeader > h1 {
+	display: block;
+	font-size: 1.6em;
+	position: absolute;
+	top: 0px;
+	left: 10px;
+	margin: 0;
+	padding: 0;
+	font-family: 'Bebas', sans-serif;
 }
 
 .scoreHeader > h2 {
@@ -139,35 +164,44 @@ body {
 .climber {
 	position: relative;
 	width: 100%;
-	height: 4em;
+	height: 60px;
 	overflow: hidden;
-	margin: 0.1em 0;
+	margin: 0.3em 0;
+	background-color: none;
+}
+
+.c_rank {
+	display: block;
+	position: absolute;
+	width: 25px;
+	top: 2px;
+	left: 6px;
+	margin: 0;
+	padding: 0;
+	font-size: 1.25em;
+	font-weight: 700;
+	font-family: 'Open Sans Condensed', sans-serif;
+	text-align: center;
 }
 
 .c_id {
-	display: inline;
-	font-size: 1.6em;
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	margin: 0;
-	padding: 0 10px;
-	font-family: 'Bebas', sans-serif;
+	display: none;
 }
 
 .c_name {
 	display: block;
 	position: absolute;
-	bottom: 0px;
+	top: 5px;
+	left: 35px;
 	margin: 0;
-	font-size: 1.6em;
-	padding: 5px 0px 3px 10px;
-	font-family: 'LeagueGothic', sans-serif;
+	padding: 0;
+	font-size: 1.25em;
+	font-family: 'Open Sans Condensed', sans-serif;
 }
 
 .c_top {
 	position: absolute;
-	right: 60px;
+	right: 53px;
 	margin: 5px;
 }
 
@@ -176,9 +210,83 @@ body {
 	right: 5px;
 	margin: 5px;
 }
+.c_score {
+	display: block;
+	position: absolute;
+	width: 100%;
+	bottom: 10px;
+	text-align: center;
+}
+.c_score > .c_score-col {
+	width: 15%;
+	display: inline-block;
+	padding: 0;
+	margin: 0;
+	border-left: 1px solid #333;
+	text-align: center;
+	background-color: none;
+}
+.c_score > #route1 {
+	border: 0;
+}
+@media (min-width: 360px) {
+	.c_rank {
+		left: 10px;
+	}
+	.c_id {
+		display: inline-block;
+		position: absolute;
+		width: 15%;
+		left: 10px;
+		bottom: 6px;
+		margin: 0;
+		padding: 0;
+		font-size: 1.4em;
+		font-family: 'Bebas', sans-serif;
+	}
+	.c_name {
+		left: 40px;
+
+	}
+	.c_score {
+		display: inline-block;
+		width: 85%;
+		right: 0;
+	}
+	.c_score > .c_score-col {
+		width: 16%;
+	}
+}
+@media (min-width: 420px) {
+	.scoreHeader > .c_top {
+		right: 75px;
+	}
+	.c_top {
+		right: 68px;
+	}
+
+	.c_bonus {
+		right: 20px;
+	}
+}
 @media (min-width: 480px) {
+	.climber {
+		height: 70px;
+	}
+	.c_top {
+		top: 7px;
+	}
+
+	.c_bonus {
+		top: 7px;
+	}
+	.c_rank {
+		top: 3px;
+		font-size: 1.6em;
+	}
 	.c_name {
 		font-size: 1.7em;
+		left: 50px;
 	}
 }
 
@@ -186,25 +294,10 @@ body {
 	.scoreHeader {
 		height: 2.0em;
 	}
-	.climber {
-		height: 2.5em;
-	}
 	.scoreHeader > .c_top,
 	.scoreHeader > .c_bonus {
 		top: 0;
 	}
-	.c_id {
-		position: relative;
-		font-size: 1.8em;
-		padding: 0px 10px 0px 5px;
-		/*border-right: 1px #000 solid;*/
-	}
-	.c_name {
-		position: relative;
-		display: inline;
-		font-size: 1.8em;
-	}
-}
 
 
 

@@ -14,10 +14,13 @@
 		</title>
 
 		<!-- Bootstrap core CSS -->
+		<link href='//fonts.googleapis.com/css?family=Open+Sans+Condensed:300,300italic,700' rel='stylesheet' type='text/css'>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
-
-		<!-- Custom styles for this template -->
 		<link href="css/style.css" rel="stylesheet">
+
+		<!-- Modenizr -->
+
+
 
 	</head>
 
@@ -25,7 +28,7 @@
 
 
 
-		<div class="navbar navbar-default navbar-fixed-top">
+		<div class="navbar navbar-inverse navbar-fixed-top">
 			<div class="container">
 				<div class="navbar-header">
 			    <a class="navbar-brand visible-xs" href="#">NUS-BD Boulderactive</a>
@@ -75,15 +78,10 @@
 			</div>
 		</div><!-- /.navbar -->
 
-<section id="dump">
-
-</section>
-
-
 
 <section class="climberScores container">
 	<div class="scoreHeader clearfix" id="NW001" data-top="" data-topA="" data-bonus="" data-bonusA="">
-		<h1 class="c_id">Intermediate Women
+		<h1>Novice Women
 			<span class="hidden-xs"> Qualifying</span>
 		</h1>
 		<h2 class="visible-xs">Qualifying</h2>
@@ -94,24 +92,115 @@
 
 
 	<div class="climber clearfix" id="NW001" data-top="" data-topA="" data-bonus="" data-bonusA="">
-		<span class="c_id">NW001</span>
-		<h3 class="c_name">Benjamin Woong Hoong Kwang</h3>
-		<span class="c_top badge pull-right">5/32</span>
-		<span class="c_bonus badge pull-right">4/16</span>
+		<span class="c_rank">1</span>
+		<h3 class="c_name">Anna Woong Hoong Faang</h3>
+		<span class="c_top badge pull-right"><span class="top">0</span>t<span class="topAttempts">77</span></span>
+		<span class="c_bonus badge pull-right"><span class="bonus">0</span>b<span class="bonusAttempts">77</span></span>
+		<div class="c_id">NW001</div>
+		<div class="c_score">
+			<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route3">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route4">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route5">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route6">t<span class="top">0</span> b<span class="bonus">0</span></div>
+		</div>
 	</div>
 
 	<div class="climber clearfix" id="NW002" data-top="" data-topA="" data-bonus="" data-bonusA="">
+		<span class="c_rank">999</span>
 		<span class="c_id">NW002</span>
-		<h3 class="c_name">Muhammad Faishal Ibrahim</h3>
-		<span class="c_top badge pull-right">1/5</span>
-		<span class="c_bonus badge pull-right">3/7</span>
+		<h3 class="c_name">Fatimah, Daughter of Faishal Ibrahim</h3>
+				<span class="c_top badge pull-right"><span class="top">0</span>t<span class="topAttempts">77</span></span>
+		<span class="c_bonus badge pull-right"><span class="bonus">0</span>b<span class="bonusAttempts">77</span></span>
+		<div class="c_score">
+			<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route3">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route4">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route5">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route6">t<span class="top">0</span> b<span class="bonus">0</span></div>
+		</div>
 	</div>
 
 	<div class="climber clearfix" id="NW003" data-top="" data-topA="" data-bonus="" data-bonusA="">
+		<span class="c_rank">999</span>
 		<span class="c_id">NW003</span>
-		<h3 class="c_name">Robert Baratheon, First of His Name</h3>
-		<span class="c_top badge pull-right">1/50</span>
-		<span class="c_bonus badge pull-right">3/70</span>
+		<h3 class="c_name">Cathy Baratheon, First of Her Name</h3>
+		<span class="c_top badge pull-right"><span class="top">0</span>t<span class="topAttempts">77</span></span>
+		<span class="c_bonus badge pull-right"><span class="bonus">0</span>b<span class="bonusAttempts">77</span></span>
+		<div class="c_score">
+			<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route3">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route4">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route5">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route6">t<span class="top">0</span> b<span class="bonus">0</span></div>
+		</div>
+	</div>
+
+	<div class="climber clearfix" id="NW004" data-top="" data-topA="" data-bonus="" data-bonusA="">
+		<span class="c_rank">999</span>
+		<span class="c_id">NW004</span>
+		<h3 class="c_name">Dorothy Oberyn Martell</h3>
+		<span class="c_top badge pull-right"><span class="top">0</span>t<span class="topAttempts">77</span></span>
+		<span class="c_bonus badge pull-right"><span class="bonus">0</span>b<span class="bonusAttempts">77</span></span>
+		<div class="c_score">
+			<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route3">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route4">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route5">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route6">t<span class="top">0</span> b<span class="bonus">0</span></div>
+		</div>
+	</div>
+
+	<div class="climber clearfix" id="NW005" data-top="" data-topA="" data-bonus="" data-bonusA="">
+		<span class="c_rank">999</span>
+		<span class="c_id">NW005</span>
+		<h3 class="c_name">Eric the Gym Leader</h3>
+		<span class="c_top badge pull-right"><span class="top">0</span>t<span class="topAttempts">77</span></span>
+		<span class="c_bonus badge pull-right"><span class="bonus">0</span>b<span class="bonusAttempts">77</span></span>
+		<div class="c_score">
+			<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route3">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route4">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route5">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route6">t<span class="top">0</span> b<span class="bonus">0</span></div>
+		</div>
+	</div>
+
+	<div class="climber clearfix" id="NW006" data-top="" data-topA="" data-bonus="" data-bonusA="">
+		<span class="c_rank">999</span>
+		<span class="c_id">NW006</span>
+		<h3 class="c_name">Felicia Blackfyre the Ursuper</h3>
+		<span class="c_top badge pull-right"><span class="top">0</span>t<span class="topAttempts">77</span></span>
+		<span class="c_bonus badge pull-right"><span class="bonus">0</span>b<span class="bonusAttempts">77</span></span>
+		<div class="c_score">
+			<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route3">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route4">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route5">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route6">t<span class="top">0</span> b<span class="bonus">0</span></div>
+		</div>
+	</div>
+
+	<div class="climber clearfix" id="NW007" data-top="" data-topA="" data-bonus="" data-bonusA="">
+		<span class="c_rank">999</span>
+		<span class="c_id">NW007</span>
+		<h3 class="c_name">Ginny Targaryan</h3>
+		<span class="c_top badge pull-right"><span class="top">0</span>t<span class="topAttempts">77</span></span>
+		<span class="c_bonus badge pull-right"><span class="bonus">0</span>b<span class="bonusAttempts">77</span></span>
+		<div class="c_score">
+			<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route3">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route4">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route5">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+			--><div class="c_score-col" id="route6">t<span class="top">0</span> b<span class="bonus">0</span></div>
+		</div>
 	</div>
 </section>
 
@@ -127,12 +216,10 @@
 			</div>
 		</footer>
 
-		<!-- Bootstrap core JavaScript-->
-		<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+		<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"> </script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
-		<script src="js/config.js"></script>
-		<script src="js/model.js"></script>
-
-
+		<!--<script src="js/model.js"></script>-->
 	</body>
 </html>
