@@ -353,8 +353,8 @@ function tabulateAndSendScores (resultsTop, resultsBonus, ws) {
 
 			j = 1;
 			for (var prop in resultsBonus[i]) {
-				if (resultsTop[i][prop]) {
-					climber.bonus[j] = resultsTop[i][prop];
+				if (resultsBonus[i][prop]) {
+					climber.bonus[j] = resultsBonus[i][prop];
 				} else {
 					// turns 'undefined' and 'null' to 0
 					climber.bonus[j] = 0;
