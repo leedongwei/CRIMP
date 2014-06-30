@@ -213,13 +213,13 @@ function broadcastNewScore(ws, message) {
 		'type': 'POST',
 		'data': {
 			'c_id': message.c_id,
-			'top': {},
+			'tops': {},
 			'bonus': {}
 		}
 	},
 	route = message.r_id.substring(4,5);
 
-	outgoingMessage.data.top[route] = message.top;
+	outgoingMessage.data.tops[route] = message.tops;
 	outgoingMessage.data.bonus[route] = message.bonus;
 
 	wss.broadcast(ws, outgoingMessage);
@@ -331,7 +331,7 @@ function tabulateAndSendScores (resultsTop, resultsBonus, ws) {
 		if (resultsTop[i].c_id === resultsBonus[i].c_id) {
 			var climber = {
 				'c_id': '',
-			 	'top': {},
+			 	'tops': {},
 			 	'bonus': {}
 			};
 
@@ -342,10 +342,10 @@ function tabulateAndSendScores (resultsTop, resultsBonus, ws) {
 			var j = 1;
 			for (var prop in resultsTop[i]) {
 				if (resultsTop[i][prop]) {
-					climber.top[j] = resultsTop[i][prop];
+					climber.tops[j] = resultsTop[i][prop];
 				} else {
 					// turns 'undefined' and 'null' to 0
-					climber.top[j] = 0;
+					climber.tops[j] = 0;
 				}
 				j++;
 			}
