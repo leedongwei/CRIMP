@@ -83,6 +83,7 @@ body {
 /* END: Prevent navbar-toggle from collapsing */
 .navbar {
 	padding: 0 5%;
+	min-width: 320px;
 }
 .navbar-brand {
 	font-family: 'Bebas', sans-serif;
@@ -115,13 +116,17 @@ body {
   }
 }
 
+
 /**
  * C_SCORE
  */
-.climberScores {
+.climberScores,
+.activeClimber {
 	max-width: 500px;
 }
-.scoreHeader {
+
+.scoreHeader,
+.activeHeader {
 	position: relative;
 	width: 100%;
 	height: 2.5em;
@@ -140,7 +145,8 @@ body {
 	top: 1em;
 }
 
-.scoreHeader > h1 {
+.scoreHeader > h1,
+.activeHeader > h1 {
 	display: block;
 	font-size: 1.6em;
 	position: absolute;
@@ -151,7 +157,8 @@ body {
 	font-family: 'Bebas', sans-serif;
 }
 
-.scoreHeader > h2 {
+.scoreHeader > h2,
+.activeHeader > h2 {
 	display: block;
 	position: absolute;
 	bottom: 0px;
@@ -168,7 +175,12 @@ body {
 	overflow: hidden;
 	margin: 0.3em 0;
 	background-color: none;
+	cursor: pointer;
 }
+
+/*.climber:hover {
+	background-color: #ddd;
+}*/
 
 .c_rank {
 	display: block;
@@ -210,6 +222,7 @@ body {
 	right: 5px;
 	margin: 5px;
 }
+
 .c_score {
 	display: block;
 	position: absolute;
@@ -217,6 +230,7 @@ body {
 	bottom: 10px;
 	text-align: center;
 }
+
 .c_score > .c_score-col {
 	width: 15%;
 	display: inline-block;
@@ -224,11 +238,14 @@ body {
 	margin: 0;
 	border-left: 1px solid #333;
 	text-align: center;
-	background-color: none;
+	font-family: 'Open Sans Condensed', sans-serif;
+	font-size: 1.15em;
 }
+
 .c_score > #route1 {
 	border: 0;
 }
+
 @media (min-width: 360px) {
 	.c_rank {
 		left: 10px;
@@ -236,9 +253,8 @@ body {
 	.c_id {
 		display: inline-block;
 		position: absolute;
-		width: 15%;
 		left: 10px;
-		bottom: 6px;
+		bottom: 7px;
 		margin: 0;
 		padding: 0;
 		font-size: 1.4em;
@@ -246,7 +262,6 @@ body {
 	}
 	.c_name {
 		left: 40px;
-
 	}
 	.c_score {
 		display: inline-block;
@@ -257,28 +272,37 @@ body {
 		width: 16%;
 	}
 }
+
 @media (min-width: 420px) {
 	.scoreHeader > .c_top {
 		right: 75px;
 	}
+	.c_rank {
+		left: 20px;
+	}
+	.c_id {
+		left: 20px;
+	}
+	.c_name {
+		left: 50px;
+	}
 	.c_top {
 		right: 68px;
 	}
-
 	.c_bonus {
 		right: 20px;
 	}
 }
+
 @media (min-width: 480px) {
 	.climber {
 		height: 70px;
 	}
 	.c_top {
-		top: 7px;
+		top: 5px;
 	}
-
 	.c_bonus {
-		top: 7px;
+		top: 5px;
 	}
 	.c_rank {
 		top: 3px;
@@ -286,21 +310,71 @@ body {
 	}
 	.c_name {
 		font-size: 1.7em;
-		left: 50px;
+		left: 60px;
+	}
+	.c_score > .c_score-col {
+		font-size: 1.3em;
 	}
 }
 
-@media (min-width: 768px) {
-	.scoreHeader {
-		height: 2.0em;
+
+.activeClimber {
+	margin-bottom: 40px;
+}
+
+.activeCell {
+	height: 40px;
+	margin-top: 2px;
+}
+
+.activeCell > .c_top,
+.activeCell > .c_bonus {
+	position: absolute;
+	display: block;
+	right: 10px;
+}
+
+.activeCell > * {
+	display: inline-block;
+	vertical-align: middle;
+	padding: 0 5px;
+	line-height: 30px;
+	font-size: 1.1em;
+	font-weight: 700;
+	font-family: 'Open Sans Condensed', sans-serif;
+}
+
+.activeRoute {
+	padding: 0 10px 0 10px;
+	border-right: 1px solid #333;
+}
+
+.activeId {
+}
+
+.activeName {
+	padding-left: 0px;
+	font-weight: 400;
+	font-family: 'Open Sans Condensed', sans-serif;
+}
+
+@media (min-width: 360px) {
+	.activeCell > * {
+		padding: 0 5px;
+		line-height: 30px;
+		font-size: 1.2em;
 	}
-	.scoreHeader > .c_top,
-	.scoreHeader > .c_bonus {
-		top: 0;
+	.activeRoute {
+		padding: 0 15px 0 20px;
+		border-right: 1px solid #333;
 	}
+}
 
-
-
+@media (min-width: 480px) {
+	.activeName {
+		font-size: 1.4em;
+	}
+}
 
 .footer-border {
 	border-bottom: 1px #777 dotted;
