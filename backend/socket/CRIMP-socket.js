@@ -12,12 +12,12 @@ wss._server._maxListeners = 0;
 console.log('Listening on port %d', wss.options.port);
 
 var activeClimbers = {
-	'1':'',
-	'2':'',
-	'3':'',
-	'4':'',
-	'5':'',
-	'6':'',
+	'1': {'c_id':'', 'c_name':''},
+	'2': {'c_id':'', 'c_name':''},
+	'3': {'c_id':'', 'c_name':''},
+	'4': {'c_id':'', 'c_name':''},
+	'5': {'c_id':'', 'c_name':''},
+	'6': {'c_id':'', 'c_name':''}
 }
 
 
@@ -210,7 +210,7 @@ function getLatestState(ws, message) {
  */
 function broadcastNewScore(ws, message) {
 	var outgoingMessage = {
-		'action': 'POST',
+		'type': 'POST',
 		'data': {
 			'c_id': message.c_id,
 			'top': {},
@@ -252,7 +252,7 @@ function setActiveClimber(ws, message) {
 				'values': [message.c_id]
 			},
 			outgoingMessage = {
-				'action': 'UPDATE',
+				'type': 'UPDATE',
 				'data': null
 			};
 
@@ -272,12 +272,13 @@ function setActiveClimber(ws, message) {
 				console.error('Error activeClimber: ' + message.c_id + ' does not exists in database');
 			} else if (result.rowCount === 1) {
 				// Confirmed that climber exists in database
-				activeClimbers[message.r_id.substring(4, 5)] = message.c_id;
+				activeClimbers[message.r_id.substring(4, 5)].c_id = message.c_id;
+				activeClimbers[message.r_id.substring(4, 5)].c_name = result.rows[0].c_name;
+
 				outgoingMessage.data = activeClimbers;
 				wss.broadcast(ws, outgoingMessage);
-				console.log(JSON.stringify(activeClimbers));
 
-				// Remove activeClimber after 3mins
+				console.log(JSON.stringify(activeClimbers));
 				setTimeout(function() {
 					removeActiveClimber(null, message);
 				}, 180000);
@@ -297,17 +298,20 @@ function removeActiveClimber(ws, message) {
 	if (!message || !message.c_id || !message.r_id) return;
 
 	var outgoingMessage = {
-		'action': 'UPDATE',
+		'type': 'UPDATE',
 		'data': null
 	};
 
-	if (activeClimbers[message.r_id.substring(4, 5)] === message.c_id) {
+	if (activeClimbers[message.r_id.substring(4, 5)].c_id === message.c_id) {
 		activeClimbers[message.r_id.substring(4, 5)] = '';
+		activeClimbers[message.r_id.substring(4, 5)].c_name = '';
+
 		outgoingMessage.data = activeClimbers;
 		wss.broadcast(ws, outgoingMessage);
+
 		console.log(JSON.stringify(activeClimbers));
 	} else {
-		console.error('Error activeClimber: ' + message.c_id +
+		console.log('Error activeClimber: ' + message.c_id +
 			' is not active on ' + message.r_id)
 	}
 }
