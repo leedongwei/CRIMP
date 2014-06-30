@@ -219,7 +219,8 @@ function broadcastNewScore(ws, message) {
 	},
 	route = message.r_id.substring(4,5);
 
-	outgoingMessage.data.tops[route] = message.tops;
+	// message.top comes from CRIMP-server, do not change to message.tops
+	outgoingMessage.data.tops[route] = message.top;
 	outgoingMessage.data.bonus[route] = message.bonus;
 
 	wss.broadcast(ws, outgoingMessage);
@@ -303,7 +304,7 @@ function removeActiveClimber(ws, message) {
 	};
 
 	if (activeClimbers[message.r_id.substring(4, 5)].c_id === message.c_id) {
-		activeClimbers[message.r_id.substring(4, 5)] = '';
+		activeClimbers[message.r_id.substring(4, 5)].c_id = '';
 		activeClimbers[message.r_id.substring(4, 5)].c_name = '';
 
 		outgoingMessage.data = activeClimbers;
@@ -364,6 +365,6 @@ function tabulateAndSendScores (resultsTop, resultsBonus, ws) {
 		}
 	}
 
-	console.log(JSON.stringify(outgoingMessage, null, 2));
+	//console.log(JSON.stringify(outgoingMessage, null, 2));
 	ws.send(JSON.stringify(outgoingMessage));
 }
