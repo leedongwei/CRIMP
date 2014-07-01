@@ -92,38 +92,38 @@
 
 	<div id="active1" class="activeCell">
 		<div class="activeRoute">Route 1</div>
-		<div class="activeId">NW001</div>
-		<div class="activeName">Fatimah, Daughter of Faishal Ibra</div>
+		<div class="activeId">Empty Lane!</div>
+		<div class="activeName"></div>
 	</div>
 
 	<div id="active2" class="activeCell">
 		<div class="activeRoute">Route 2</div>
-		<div class="activeId">NW002</div>
-		<div class="activeName">Rustam Gelmanov</div>
+		<div class="activeId">Empty Lane!</div>
+		<div class="activeName"></div>
 	</div>
 
 	<div id="active3" class="activeCell">
 		<div class="activeRoute">Route 3</div>
-		<div class="activeId">NW001</div>
-		<div class="activeName">Tan Lim Peh</div>
+		<div class="activeId">Empty Lane!</div>
+		<div class="activeName"></div>
 	</div>
 
 	<div id="active4" class="activeCell">
 		<div class="activeRoute">Route 4</div>
-		<div class="activeId">NW001</div>
-		<div class="activeName">Fatimah, Daughter of Faishal Ibrahim</div>
+		<div class="activeId">Empty Lane!</div>
+		<div class="activeName"></div>
 	</div>
 
 	<div id="active5" class="activeCell">
 		<div class="activeRoute">Route 5</div>
-		<div class="activeId">NW001</div>
-		<div class="activeName">Fatimah, Daughter of Faishal Ibrahim</div>
+		<div class="activeId">Empty Lane!</div>
+		<div class="activeName"></div>
 	</div>
 
 	<div id="active6" class="activeCell">
 		<div class="activeRoute">Route 6</div>
-		<div class="activeId">NW001</div>
-		<div class="activeName">Fatimah, Daughter of Faishal Ibrahim</div>
+		<div class="activeId">Empty Lane!</div>
+		<div class="activeName"></div>
 	</div>
 </section>
 
@@ -140,29 +140,29 @@
 
 	<div class="climber clearfix" id="rank1">
 		<div id="NW001" class="c_box">
-			<span class="c_rank">1</span>
-			<h3 class="c_name">Anna Woong Hoong Faang</h3>
-			<span class="c_top badge"><span class="top">6</span>t<span class="topAttempts">77</span></span>
-			<span class="c_bonus badge"><span class="bonus">6</span>b<span class="bonusAttempts">77</span></span>
+			<span class="c_rank">0</span>
+			<h3 class="c_name">-</h3>
+			<span class="c_top badge"><span class="top">6</span>t<span class="topAttempts">0</span></span>
+			<span class="c_bonus badge"><span class="bonus">6</span>b<span class="bonusAttempts">0</span></span>
 			<div class="c_id">NW001</div>
 			<div class="c_score">
-				<div class="c_score-col" id="route1">t<span class="top">88</span> b<span class="bonus">88</span></div><!--
-				--><div class="c_score-col" id="route2">t<span class="top">88</span> b<span class="bonus">88</span></div><!--
-				--><div class="c_score-col" id="route3">t<span class="top">88</span> b<span class="bonus">88</span></div><!--
-				--><div class="c_score-col" id="route4">t<span class="top">88</span> b<span class="bonus">88</span></div><!--
-				--><div class="c_score-col" id="route5">t<span class="top">88</span> b<span class="bonus">88</span></div><!--
-				--><div class="c_score-col" id="route6">t<span class="top">88</span> b<span class="bonus">88</span></div>
+				<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+				--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+				--><div class="c_score-col" id="route3">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+				--><div class="c_score-col" id="route4">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+				--><div class="c_score-col" id="route5">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
+				--><div class="c_score-col" id="route6">t<span class="top">0</span> b<span class="bonus">0</span></div>
 			</div>
 		</div>
 	</div>
 
 	<div class="climber clearfix" id="rank2">
 		<div id="NW002">
-			<span class="c_rank">999</span>
+			<span class="c_rank">0</span>
 			<span class="c_id">NW002</span>
-			<h3 class="c_name">Fatimah, Daughter of Faishal Ibrahim</h3>
-			<span class="c_top badge"><span class="top">0</span>t<span class="topAttempts">77</span></span>
-			<span class="c_bonus badge"><span class="bonus">0</span>b<span class="bonusAttempts">77</span></span>
+			<h3 class="c_name">-</h3>
+			<span class="c_top badge"><span class="top">0</span>t<span class="topAttempts">0</span></span>
+			<span class="c_bonus badge"><span class="bonus">0</span>b<span class="bonusAttempts">0</span></span>
 			<div class="c_score">
 				<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
 				--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
@@ -176,11 +176,11 @@
 
 	<div class="climber clearfix" id="rank3">
 		<div id="NW003">
-			<span class="c_rank">999</span>
+			<span class="c_rank">0</span>
 			<span class="c_id">NW003</span>
-			<h3 class="c_name">Cathy Baratheon, First of Her Name</h3>
-			<span class="c_top badge"><span class="top">0</span>t<span class="topAttempts">77</span></span>
-			<span class="c_bonus badge"><span class="bonus">0</span>b<span class="bonusAttempts">77</span></span>
+			<h3 class="c_name">-</h3>
+			<span class="c_top badge"><span class="top">0</span>t<span class="topAttempts">0</span></span>
+			<span class="c_bonus badge"><span class="bonus">0</span>b<span class="bonusAttempts">0</span></span>
 			<div class="c_score">
 				<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
 				--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
@@ -194,11 +194,11 @@
 
 	<div class="climber clearfix" id="rank4">
 		<div id="NW004">
-			<span class="c_rank">999</span>
+			<span class="c_rank">0</span>
 			<span class="c_id">NW004</span>
-			<h3 class="c_name">Dorothy Oberyn Martell</h3>
-			<span class="c_top badge"><span class="top">0</span>t<span class="topAttempts">77</span></span>
-			<span class="c_bonus badge"><span class="bonus">0</span>b<span class="bonusAttempts">77</span></span>
+			<h3 class="c_name">-</h3>
+			<span class="c_top badge"><span class="top">0</span>t<span class="topAttempts">0</span></span>
+			<span class="c_bonus badge"><span class="bonus">0</span>b<span class="bonusAttempts">0</span></span>
 			<div class="c_score">
 				<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
 				--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
@@ -212,11 +212,11 @@
 
 	<div class="climber clearfix" id="rank5">
 		<div id="NW005">
-			<span class="c_rank">999</span>
+			<span class="c_rank">0</span>
 			<span class="c_id">NW005</span>
-			<h3 class="c_name">Eric the Gym Leader</h3>
-			<span class="c_top badge"><span class="top">0</span>t<span class="topAttempts">77</span></span>
-			<span class="c_bonus badge"><span class="bonus">0</span>b<span class="bonusAttempts">77</span></span>
+			<h3 class="c_name">-</h3>
+			<span class="c_top badge"><span class="top">0</span>t<span class="topAttempts">0</span></span>
+			<span class="c_bonus badge"><span class="bonus">0</span>b<span class="bonusAttempts">0</span></span>
 			<div class="c_score">
 				<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
 				--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
@@ -230,11 +230,11 @@
 
 	<div class="climber clearfix" id="rank6">
 		<div id="NW006">
-			<span class="c_rank">999</span>
+			<span class="c_rank">0</span>
 			<span class="c_id">NW006</span>
-			<h3 class="c_name">Felicia Blackfyre the Ursuper</h3>
-			<span class="c_top badge"><span class="top">0</span>t<span class="topAttempts">77</span></span>
-			<span class="c_bonus badge"><span class="bonus">0</span>b<span class="bonusAttempts">77</span></span>
+			<h3 class="c_name">-</h3>
+			<span class="c_top badge"><span class="top">0</span>t<span class="topAttempts">0</span></span>
+			<span class="c_bonus badge"><span class="bonus">0</span>b<span class="bonusAttempts">0</span></span>
 			<div class="c_score">
 				<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
 				--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
@@ -248,11 +248,11 @@
 
 	<div class="climber clearfix" id="rank7">
 		<div id="NW007">
-			<span class="c_rank">999</span>
+			<span class="c_rank">0</span>
 			<span class="c_id">NW007</span>
-			<h3 class="c_name">Ginny Targaryan</h3>
-			<span class="c_top badge"><span class="top">0</span>t<span class="topAttempts">77</span></span>
-			<span class="c_bonus badge"><span class="bonus">0</span>b<span class="bonusAttempts">77</span></span>
+			<h3 class="c_name">-</h3>
+			<span class="c_top badge"><span class="top">0</span>t<span class="topAttempts">0</span></span>
+			<span class="c_bonus badge"><span class="bonus">0</span>b<span class="bonusAttempts">0</span></span>
 			<div class="c_score">
 				<div class="c_score-col" id="route1">t<span class="top">0</span> b<span class="bonus">0</span></div><!--
 				--><div class="c_score-col" id="route2">t<span class="top">0</span> b<span class="bonus">0</span></div><!--

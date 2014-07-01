@@ -35,6 +35,7 @@ function restartWebsocket() {
 	}
 
 	ws.onmessage = function(event) {
+		// TODO: remove this
 		console.log(event.data);
 		parseData(JSON.parse(event.data));
 	}
@@ -50,13 +51,14 @@ function pingSocket() {
 	ws.send(JSON.stringify({'action':'PING', 'source':'CRIMP-client'}));
 	setTimeout(function() {
 		if (ws.readyState === 1)	pingSocket();
-	}, 10000);
+	}, 45000);
 };
 
 function parseData(incomingMessage) {
 	switch (incomingMessage.type) {
 		case ('GET'):
 			setLocalScores(incomingMessage.data);
+			updateActiveClimber(incomingMessage.data.activeClimbers);
 			break;
 		case ('POST'):
 			updateLocalScores(incomingMessage.data);
@@ -72,10 +74,7 @@ function parseData(incomingMessage) {
 }
 
 function setLocalScores(data) {
-	console.log('set');
 	if (!data.climbers || !data.activeClimbers)	return;
-
-	updateActiveClimber(data.activeClimbers);
 
 	// Load server data into local array
 	for (var i = data.climbers.length - 1; i >= 0; i--) {
@@ -89,22 +88,33 @@ function setLocalScores(data) {
 
 function updateLocalScores(data) {
 	console.log('update');
+	var id = '#' + data.c_id;
+
 }
 
 function updateActiveClimber(data) {
-	console.log('AC');
 	for (var prop in data) {
-		if (!data[prop].c_id) {
-			$('#active' + prop + ' > .activeId').html('Empty!');
+		if (data[prop].c_id === activeClimbers[prop].c_id) {
+			// do nothing
+		} else if (!data[prop].c_id) {
+			activeClimbers[prop] = data[prop];
+			$('#active' + prop + ' > .activeId').animate({width: 'toggle'}, 50);
+			$('#active' + prop + ' > .activeName').animate({width: 'toggle'}, 50);
+			$('#active' + prop + ' > .activeId').html('Empty Lane!');
 			$('#active' + prop + ' > .activeName').html('');
+			$('#active' + prop + ' > .activeId').animate({width: 'toggle'}, 200);
+			$('#active' + prop + ' > .activeName').animate({width: 'toggle'}, 200);
+
 		} else if (data[prop].c_id !== activeClimbers[prop].c_id) {
 			activeClimbers[prop] = data[prop];
+			$('#active' + prop + ' > .activeId').animate({width: 'toggle'}, 50);
+			$('#active' + prop + ' > .activeName').animate({width: 'toggle'}, 50);
 			$('#active' + prop + ' > .activeId').html(activeClimbers[prop].c_id);
 			$('#active' + prop + ' > .activeName').html(activeClimbers[prop].c_name);
+			$('#active' + prop + ' > .activeId').animate({width: 'toggle'}, 400);
+			$('#active' + prop + ' > .activeName').animate({width: 'toggle'}, 400);
 		}
 	}
-
-	console.log(JSON.stringify(activeClimbers));
 }
 
 function initializeAClimber(data) {

@@ -350,6 +350,8 @@ body {
 }
 
 .activeId {
+	overflow: visible;
+	height: 30px;
 }
 
 .activeName {
@@ -360,13 +362,10 @@ body {
 
 @media (min-width: 360px) {
 	.activeCell > * {
-		padding: 0 5px;
-		line-height: 30px;
 		font-size: 1.2em;
 	}
 	.activeRoute {
 		padding: 0 15px 0 20px;
-		border-right: 1px solid #333;
 	}
 }
 
