@@ -4,10 +4,10 @@
 		<meta charset="utf-8">
 		<meta name="viewport" 		content="width=device-width">
 		<meta name="description" 	content="">
-		<meta name="keywords" 		content="">
+		<meta name="keywords" 		content="National University of Singapore, Boulderactive">
 		<meta name="author"			content="NUS Climbing Club">
-		<!--<meta name="google-site-verification" content="ahvU7TBTn8QeZIp_Ayts3MTG9v14kNXw5cbLE8t9lU4" />
-		<link rel="shortcut icon" href="img/nusclimb.ico"> -->
+		<meta name="google-site-verification" content="ahvU7TBTn8QeZIp_Ayts3MTG9v14kNXw5cbLE8t9lU4" />
+		<link rel="shortcut icon" href="img/ba-icon.ico">
 
 		<title>
 			NUS Climbing
@@ -20,11 +20,19 @@
 
 		<!-- Modenizr -->
 
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-40851629-2', 'auto');
+ga('send', 'pageview');
+</script>
 
 
 	</head>
 
-	<body>
+	<body id="top">
 		<div class="navbar navbar-inverse navbar-fixed-top">
 			<div class="container">
 				<div class="navbar-header">
@@ -39,44 +47,46 @@
 			  <div class="navbar-collapse collapse">
 			    <ul class="nav navbar-nav">
 			    	<li>AUC Men <span class="nav-links">
-							<a href="AUCMQ.php">Qualifying</a> |
-							<a href="AUCMF.php">Finals</a>
+							<a href="AMQ.php">Qualifiers</a> |
+							<a href="BMQ.php"></a>Semi-Finals	|
+							<a href="AMF.php"></a>Finals
 						</span></li>
 						<li>AUC Women <span class="nav-links">
-							<a href="AUCWQ.php">Qualifying</a> |
-							<a href="AUCWF.php">Finals</a>
+							<a href="AWQ.php">Qualifiers</a> |
+							<a href="BWQ.php"></a>Semi-Finals |
+							<a href="AWF.php"></a>Finals
 						</span></li>
 			    	<li>U17 Men <span class="nav-links">
-							<a href="U17MQ.php">Qualifying</a> |
-							<a href="N17MF.php">Finals</a>
+							<a href="UMQ.php">Qualifiers</a> |
+							<a href="NMF.php"></a>Finals
 						</span></li>
 						<li>U17 Women <span class="nav-links">
-							<a href="U17WQ.php">Qualifying</a> |
-							<a href="U17WF.php">Finals</a>
+							<a href="UWQ.php">Qualifiers</a> |
+							<a href="UWF.php"></a>Finals
 						</span></li>
 						<li>Novice Men <span class="nav-links">
-							<a href="NMQ.php">Qualifying</a> |
-							<a href="NMF.php">Finals</a>
+							<a href="NMQ.php">Qualifiers</a> |
+							<a href="NMF.php"></a>Finals
 						</span></li>
 						<li>Novice Women <span class="nav-links">
-							<a href="NWQ.php">Qualifying</a> |
-							<a href="NWF.php">Finals</a>
+							<a href="NWQ.php">Qualifiers</a> |
+							<a href="NWF.php"></a>Finals
 						</span></li>
 						<li>Intermediate Men <span class="nav-links">
-							<a href="IMQ.php">Qualifying</a> |
-							<a href="IMF.php">Finals</a>
+							<a href="IMQ.php">Qualifiers</a> |
+							<a href="IMF.php"></a>Finals
 						</span></li>
 						<li>Intermediate Women <span class="nav-links">
-							<a href="IWQ.php">Qualifying</a> |
-							<a href="IWF.php">Finals</a>
+							<a href="IWQ.php">Qualifiers</a> |
+							<a href="IWF.php"></a>Finals
 						</span></li>
 						<li>Open Men <span class="nav-links">
-							<a href="OMQ.php">Qualifying</a> |
-							<a href="OMF.php">Finals</a>
+							<a href="OMQ.php">Qualifiers</a> |
+							<a href="OMF.php"></a>Finals
 						</span></li>
 						<li>Open Women <span class="nav-links">
-							<a href="OWQ.php">Qualifying</a> |
-							<a href="OWF.php">Finals</a>
+							<a href="OWQ.php">Qualifiers</a> |
+							<a href="OWF.php"></a>Finals
 						</span></li>
 			    </ul>
 			  </div>

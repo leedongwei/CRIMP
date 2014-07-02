@@ -6,7 +6,7 @@
   "private": true,
 	"engine": "node >= 0.10.0",
   "dependencies": {
-    "pg": "2.x",
+    "pg": "2.11.1",
     "ws": "0.4.x"
   },
   "scripts": {

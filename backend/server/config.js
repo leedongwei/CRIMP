@@ -15,7 +15,7 @@ module.exports = {
 		//'port': Heroku
 		'auth_code':null,
 		//'db_conn': Heroku
-		'socketserver':null,
+		'socketserver':'ws://crimp-sockstage.herokuapp.com/',
 		'socket_auth':null
 	}
 }

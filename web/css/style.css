@@ -396,7 +396,25 @@ body {
 	}
 }
 
+.padding-container {
+	padding: 0 10%;
+	margin: 0 auto;
+}
+
 .footer-border {
+	display: block;
 	border-bottom: 1px #777 dotted;
-	margin-bottom: 1em;
+	margin-bottom: 10px;
+}
+
+.footer-content {
+	margin: 1em 0;
+	font-family: 'Open Sans Condensed', sans-serif;
+	font-size: 1.0em;
+}
+
+@media (min-width: 360px) {
+	.footer-content {
+		font-size: 1.2em;
+	}
 }

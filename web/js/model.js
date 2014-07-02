@@ -1,13 +1,9 @@
 var config = {
-	'socketHost':'ws://127.0.0.1:8080'
-	//ws://127.0.0.1:8080
-	//ws://crimp-sockstage.herokuapp.com/
+	'socketHost':'ws://obscure-plateau-socket.herokuapp.com/'
+	//'socketHost': 'ws://127.0.0.1:8080'
 };
 
-var ws;
-restartWebsocket();
-
-var activeClimbers = {
+var	activeClimbers = {
 	'1': {'c_id':'', 'c_name':''},
 	'2': {'c_id':'', 'c_name':''},
 	'3': {'c_id':'', 'c_name':''},
@@ -15,8 +11,11 @@ var activeClimbers = {
 	'5': {'c_id':'', 'c_name':''},
 	'6': {'c_id':'', 'c_name':''}
 },
-ClimberListView = [];
+ClimberListView = [],
+ws;
 
+$('.scoreHeader > h2').html('Live Scores <span style="color:red;">(NOT CONNECTED)</span>');
+restartWebsocket()
 
 function restartWebsocket() {
 	if (ws)	ws.close();
@@ -26,12 +25,17 @@ function restartWebsocket() {
 		console.log('Opened connection to ' + config.socketHost);
 		ws.send('{"action":"GET", "data":{"c_category": \"' + ws_category + '\"}}');
 		pingSocket();
+
+		$('.scoreHeader > h2').html('Live Scores <span id="ws_status" style="color:green;">(YOU ARE CONNECTED!)</span>');
+
+		setTimeout(function () {
+			$('#ws_status').animate({opacity: 'toggle'}, 2000);
+		}, 3000);
 	}
 
 	ws.onclose = function(event) {
 		console.log('Closed connection to ' + config.socketHost);
-		// CHANGE TO ALERT TO WARN USERS
-		alert('Disconnected from server! Refresh to reconnect!');
+		$('.scoreHeader > h2').html('Live Scores <span style="color:red;">(NOT CONNECTED)</span>');
 	}
 
 	ws.onmessage = function(event) {
@@ -40,13 +44,14 @@ function restartWebsocket() {
 
 	ws.onerror = function(event) {
 		console.error('Error ' + config.socketHost + ': ', event);
-		alert('Connection error!');
+		$('.scoreHeader > h2').html('Live Scores <span style="color:red;">(NOT CONNECTED)</span>');
 	}
 }
 
 // Recursively send a ping message to CRIMP-socket every 40s
 function pingSocket() {
 	ws.send(JSON.stringify({'action':'PING', 'source':'CRIMP-client'}));
+	//console.log('Pinging server!');
 	setTimeout(function() {
 		if (ws.readyState === 1)	pingSocket();
 	}, 40000);

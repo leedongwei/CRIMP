@@ -330,7 +330,6 @@ function restartWebsocket() {
 
 	ws.on('close', function() {
 	  console.log('Closed connection to ' + socketHost);
-	  restartWebsocket();
 	});
 
 
@@ -347,7 +346,6 @@ function restartWebsocket() {
 	});
 }
 
-
 // Recursively send a ping message to CRIMP-socket every 25s
 // This gives 2 pings in the 55s window given by Heroku
 function pingSocket() {
@@ -359,7 +357,6 @@ function pingSocket() {
 		if (ws.readyState === 1)	pingSocket();
 	}, 25000);
 };
-
 
 //app.get('/judge/push/' & '/judge/pop/')
 function setClimberOnWall(action, data) {

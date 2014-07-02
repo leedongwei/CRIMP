@@ -1,12 +1,81 @@
 <?php
 	// compare $date to determine category and display number of routes
-
+	/*switch ($category) {
+		case ('AMQ'):
+			$activeHeaderCategory = 'AUC Men Qualifiers';
+			break;
+		case ('BMQ'):
+			$activeHeaderCategory = 'AUC Men Semi-Finals';
+			break;
+		case ('AMF'):
+			$activeHeaderCategory = 'AUC Men Finals';
+			break;
+		case ('AWQ'):
+			$activeHeaderCategory = 'AUC Women Qualifiers';
+			break;
+		case ('BWQ'):
+			$activeHeaderCategory = 'AUC Women Semi-Finals';
+			break;
+		case ('AWF'):
+			$activeHeaderCategory = 'AUC Women Finals';
+			break;
+		case (''):
+			$activeHeaderCategory = 'Novice Men Qualifiers';
+			break;
+		case (''):
+			$activeHeaderCategory = 'Novice Men Finals';
+			break;
+		case (''):
+			$activeHeaderCategory = 'Novice Women Qualifiers';
+			break;
+		case (''):
+			$activeHeaderCategory = 'Novice Women Finals';
+			break;
+		case (''):
+			$activeHeaderCategory = 'Intermediate Men Qualifiers';
+			break;
+		case (''):
+			$activeHeaderCategory = 'Intermediate Men Finals';
+			break;
+		case (''):
+			$activeHeaderCategory = 'Intermediate Women Quali.';
+			break;
+		case (''):
+			$activeHeaderCategory = 'Intermediate Women Finals';
+			break;
+		case (''):
+			$activeHeaderCategory = 'Open Men Qualifiers';
+			break;
+		case (''):
+			$activeHeaderCategory = 'Open Men Finals';
+			break;
+		case (''):
+			$activeHeaderCategory = 'Open Women Qualifiers';
+			break;
+		case (''):
+			$activeHeaderCategory = 'Open Women Finals';
+			break;
+		case (''):
+			$activeHeaderCategory = 'U17 Men Qualifiers';
+			break;
+		case (''):
+			$activeHeaderCategory = 'U17 Men Finals';
+			break;
+		case (''):
+			$activeHeaderCategory = 'U17 Women Qualifiers';
+			break;
+		case (''):
+			$activeHeaderCategory = 'U17 Women Finals';
+			break;
+		default:
+			break;
+	}*/
 
 ?>
 <section class="activeClimber container">
 	<div class="activeHeader clearfix">
 		<h1>Currently On The Wall</h1>
-		<h2>Category: <span id="activeCategory"></span></h2>
+		<h2><span id="activeCategory"></span></h2>
 	</div>
 
 	<div id="active1" class="activeCell">

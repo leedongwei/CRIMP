@@ -1,6 +1,7 @@
 var fs = require('fs');
+var page_category = 'AWF';
 var	header = '<?php\r\n' +
-			'$category=\'NMQ\';	//define category\r\n' +
+			'$category=\''+page_category+'\';	//define category\r\n' +
 			'date_default_timezone_set(\'Asia/Singapore\');\r\n' +
 			'$date = getdate();\r\n' +
 			'include(\'includes/header.php\');\r\n' +
@@ -24,7 +25,7 @@ var	header = '<?php\r\n' +
 				'</div></div></div>\r\n\r\n',
 	insertData = '<section class="climberScores container">' +
 			'<div class="scoreHeader clearfix">' +
-				'<h1>Novice Women Qualifiers</h1>' +
+				'<h1>****</h1>' +
 				'<h2>Live Scores</h2>' +
 				'<span class="c_top">Top</span>' +
 				'<span class="c_bonus">Bonus</span>' +
@@ -52,7 +53,8 @@ fs.readFile(csvFile, 'utf8', function (err, data) {
   rows = data.split('@@@');
   var i = 1;
   rows.forEach(function (entry) {
-  	if (entry) {
+  	if (entry && entry != ',') {
+  		console.log(JSON.stringify(entry));
 	  	cells = entry.split(',');
 	  	insertData += parse(divstring, i, cells[0], i, cells[0], cells[1]);
 	  	i++
@@ -62,7 +64,7 @@ fs.readFile(csvFile, 'utf8', function (err, data) {
   });
 
   //console.log (insertData);
-  fs.writeFile('NMQ.php', header + insertData + footer, function (err) {
+  fs.writeFile(page_category+'.php', header + insertData + footer, function (err) {
 		  if (err) throw err;
 		  console.log('It\'s saved!');
 		});

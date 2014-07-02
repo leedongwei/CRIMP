@@ -61,9 +61,6 @@ function parseMessage(ws, message) {
 	if (message.action === 'PING') {
 		if (message.source === 'CRIMP-server') {
 			console.log('CRIMP-server ping!');
-		} else {
-			// TODO: Remove client ping log after testing
-			console.log('CRIMP-client ping!')
 		}
 		return;
 	}
@@ -163,7 +160,7 @@ function getLatestState(ws, message) {
 				return;
 			} else {
 				resultsTop = result.rows;
-				console.log(resultsTop);
+				//console.log(resultsTop);
 			}
 
 			if (resultsTop && resultsBonus) {
@@ -280,9 +277,9 @@ function setActiveClimber(ws, message) {
 				wss.broadcast(ws, outgoingMessage);
 
 				console.log(JSON.stringify(activeClimbers));
-				//setTimeout(function() {
-				//	removeActiveClimber(null, message);
-				//}, 180000);
+				setTimeout(function() {
+					removeActiveClimber(null, message);
+				}, 240000);
 			}
 		});
 	});
@@ -312,8 +309,8 @@ function removeActiveClimber(ws, message) {
 
 		console.log(JSON.stringify(activeClimbers));
 	} else {
-		console.log('Error activeClimber: ' + message.c_id +
-			' is not active on ' + message.r_id)
+		//console.log('Error activeClimber: ' + message.c_id +
+		//	' is not active on ' + message.r_id)
 	}
 }
 

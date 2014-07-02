@@ -1,10 +1,14 @@
-		<footer class="container">
-			<p class="pull-right"><a href="#">Top!</a></p>
-			<div class="footer-border container">
-			</div>
 
-			<div>
-				<p></p>
+
+		<footer class="padding-container">
+
+		<div style="text-align:right; width:auto;"><a href="#top">Top!</a></div>
+
+		<div class="footer-border padding-container">
+		</div>
+
+			<div class="footer-content">
+				<p>Boulderactive Live! is powered by <a href="https://github.com/leedongwei/CRIMP">CRIMP System</a></p>
 			</div>
 		</footer>
 
