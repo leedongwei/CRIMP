@@ -11,3 +11,7 @@ wscat -c ws://127.0.0.1:8080
 {"action":"POST", "auth_code":"lol", "data": {"c_id":"NW001", "r_id":"NWQ01", "top": 3, "bonus": 4}}
 
 {"action":"POST", "auth_code":"socketAUTH", "data": {"c_id":"NW001", "r_id":"NWQ01", "top": 3, "bonus": 4}}
+
+{"action":"PUSH", "auth_code":"socketAUTH", "data":{"c_id":"NW002", "r_id":"NWQ03"}}
+
+{"action":"POP", "auth_code":"socketAUTH", "data":{"c_id":"NW002", "r_id":"NWQ03"}}
