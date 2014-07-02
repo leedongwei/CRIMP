@@ -38,11 +38,11 @@ public class Helper {
 	private static final Map<String, StringPair> roundMap;
     static {
         Map<String, StringPair> aMap = new HashMap<String, StringPair>() ;
-        aMap.put("U17M Qualifier", new StringPair("U17M", "UMQ"));
-        aMap.put("U17M Final", new StringPair("U17M", "UMF"));
+        aMap.put("U17M Qualifier", new StringPair("UM", "UMQ"));
+        aMap.put("U17M Final", new StringPair("UM", "UMF"));
         
-        aMap.put("U17W Qualifier", new StringPair("U17W", "UWQ"));
-        aMap.put("U17W Final", new StringPair("U17W", "UWF"));
+        aMap.put("U17W Qualifier", new StringPair("UW", "UWQ"));
+        aMap.put("U17W Final", new StringPair("UW", "UWF"));
         
         aMap.put("NM Qualifier", new StringPair("NM", "NMQ"));
         aMap.put("NM Final", new StringPair("NM", "NMF"));
