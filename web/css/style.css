@@ -239,7 +239,7 @@ body {
 	border-left: 1px solid #333;
 	text-align: center;
 	font-family: 'Open Sans Condensed', sans-serif;
-	font-size: 1.15em;
+	font-size: 1.1em;
 }
 
 .c_score > #route1 {
@@ -269,7 +269,7 @@ body {
 		right: 0;
 	}
 	.c_score > .c_score-col {
-		width: 16%;
+		width: 15%;
 	}
 }
 
@@ -345,33 +345,54 @@ body {
 }
 
 .activeRoute {
-	padding: 0 10px 0 10px;
+	padding: 0 5px 0 10px;
 	border-right: 1px solid #333;
 }
 
 .activeId {
 	overflow: visible;
 	height: 30px;
+	margin: 0;
 }
 
 .activeName {
+	overflow: visible;
+	height: 30px;
 	padding-left: 0px;
 	font-weight: 400;
 	font-family: 'Open Sans Condensed', sans-serif;
+	white-space: nowrap;
 }
 
+.visible-320 {
+}
+.visible-360 {
+	display: none;
+}
 @media (min-width: 360px) {
-	.activeCell > * {
-		font-size: 1.2em;
+	.visible-320 {
+		display: none;
 	}
+	.visible-360 {
+		display: inline;
+	}
+}
+
+@media (min-width: 420px) {
 	.activeRoute {
 		padding: 0 15px 0 20px;
+	}
+	.activeId {
+		margin: 0 10px;
 	}
 }
 
 @media (min-width: 480px) {
+	.activeCell > * {
+		font-size: 1.2em;
+	}
 	.activeName {
-		font-size: 1.4em;
+		font-size: 1.3em;
 	}
 }
 

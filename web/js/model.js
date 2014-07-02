@@ -1,5 +1,7 @@
 var config = {
 	'socketHost':'ws://127.0.0.1:8080'
+	//ws://127.0.0.1:8080
+	//ws://crimp-sockstage.herokuapp.com/
 };
 
 var ws;
@@ -13,8 +15,7 @@ var activeClimbers = {
 	'5': {'c_id':'', 'c_name':''},
 	'6': {'c_id':'', 'c_name':''}
 },
-ClimberListView = [],
-ClimberListNew = [];
+ClimberListView = [];
 
 
 function restartWebsocket() {
@@ -23,35 +24,32 @@ function restartWebsocket() {
 
 	ws.onopen = function(event) {
 		console.log('Opened connection to ' + config.socketHost);
-		ws.send('{"action":"GET", "data":{"c_category":"NWQ"}}');
+		ws.send('{"action":"GET", "data":{"c_category": \"' + ws_category + '\"}}');
 		pingSocket();
 	}
 
 	ws.onclose = function(event) {
 		console.log('Closed connection to ' + config.socketHost);
-
 		// CHANGE TO ALERT TO WARN USERS
-		//console.log('Disconnected from server! Refresh to reconnect!');
+		alert('Disconnected from server! Refresh to reconnect!');
 	}
 
 	ws.onmessage = function(event) {
-		// TODO: remove this
-		console.log(event.data);
 		parseData(JSON.parse(event.data));
 	}
 
 	ws.onerror = function(event) {
 		console.error('Error ' + config.socketHost + ': ', event);
+		alert('Connection error!');
 	}
 }
 
-// Recursively send a ping message to CRIMP-socket every 45s
+// Recursively send a ping message to CRIMP-socket every 40s
 function pingSocket() {
-	console.log('Pinging CRIMP-socket!');
 	ws.send(JSON.stringify({'action':'PING', 'source':'CRIMP-client'}));
 	setTimeout(function() {
 		if (ws.readyState === 1)	pingSocket();
-	}, 45000);
+	}, 40000);
 };
 
 function parseData(incomingMessage) {
@@ -61,7 +59,9 @@ function parseData(incomingMessage) {
 			updateActiveClimber(incomingMessage.data.activeClimbers);
 			break;
 		case ('POST'):
-			updateLocalScores(incomingMessage.data);
+			if (ws_category.substring(0,2) === incomingMessage.data.c_id.substring(0,2)) {
+				updateLocalScores(incomingMessage.data);
+			}
 			break;
 		case ('UPDATE'):
 			updateActiveClimber(incomingMessage.data);
@@ -77,7 +77,7 @@ function setLocalScores(data) {
 	if (!data.climbers || !data.activeClimbers)	return;
 
 	// Load server data into local array
-	for (var i = data.climbers.length - 1; i >= 0; i--) {
+	for (var i = 0; i < data.climbers.length; i++) {
 		ClimberListView.push(initializeAClimber(data.climbers[i]));
 	};
 
@@ -87,9 +87,49 @@ function setLocalScores(data) {
 }
 
 function updateLocalScores(data) {
-	console.log('update');
-	var id = '#' + data.c_id;
+	var updatedLocalScores = false,
+			id = '#' + data.c_id;
 
+	ClimberListView.every(function (climber){
+		if (climber.c_id === data.c_id) {
+
+			for (var prop in data.tops) {
+				climber.tops[prop] = data.tops[prop];
+			}
+
+			for (var prop in data.bonus) {
+				climber.bonus[prop] = data.bonus[prop];
+			}
+
+			var tops = 0, topAtt = 0,
+					bonus = 0, bonusAtt = 0;
+			for (var prop in climber.tops) {
+				if (climber.tops[prop]) tops++;
+				topAtt += climber.tops[prop];
+			}
+			for (var prop in climber.bonus) {
+				if (climber.bonus[prop]) bonus++;
+				bonusAtt += climber.bonus[prop];
+			}
+
+			climber.total = {
+				'tops': tops,
+				'topAttempts': topAtt,
+				'bonus': bonus,
+				'bonusAttempts': bonusAtt
+			}
+			updatedLocalScores = true;
+		}
+
+		if (updatedLocalScores) {
+			return false;
+		} else {
+			return true;
+		}
+	});
+
+	ClimberListView.sort(climberSort);
+	renderListView();
 }
 
 function updateActiveClimber(data) {
@@ -102,8 +142,8 @@ function updateActiveClimber(data) {
 			$('#active' + prop + ' > .activeName').animate({width: 'toggle'}, 50);
 			$('#active' + prop + ' > .activeId').html('Empty Lane!');
 			$('#active' + prop + ' > .activeName').html('');
-			$('#active' + prop + ' > .activeId').animate({width: 'toggle'}, 200);
-			$('#active' + prop + ' > .activeName').animate({width: 'toggle'}, 200);
+			$('#active' + prop + ' > .activeId').animate({width: 'toggle'}, 300);
+			$('#active' + prop + ' > .activeName').animate({width: 'toggle'}, 300);
 
 		} else if (data[prop].c_id !== activeClimbers[prop].c_id) {
 			activeClimbers[prop] = data[prop];
@@ -132,6 +172,7 @@ function initializeAClimber(data) {
 	return {
 		'c_rank': '',
 		'c_id': data.c_id,
+		'c_name': data.c_name,
 		'tops': {
 			'1': data.tops['1'],
 			'2': data.tops['2'],
@@ -162,7 +203,7 @@ function climberSort(a, b) {
 		if (a.total.topAttempts === b.total.topAttempts) {
 			if (a.total.bonus === b.total.bonus) {
 				if (a.total.bonusAttempts === b.total.bonusAttempts) {
-					return 0;
+					return a.c_id < b.c_id ? -1 : 1;
 				}
 				return a.total.bonusAttempts < b.total.bonusAttempts ? -1 : 1;
 			}
@@ -174,47 +215,13 @@ function climberSort(a, b) {
 }
 
 function renderListView() {
-	for (var i = 0; i < ClimberListView.length; i++) {
-		var id = '#' + ClimberListView[i].c_id;
+	var i = 1;
+	ClimberListView.forEach(function (climber) {
+		climber.c_rank = i;
+		var stringBloc = '<div id="'+climber.c_id+'"><span class="c_rank">'+i+'</span><span class="c_id">'+climber.c_id+'</span><h3 class="c_name">'+climber.c_name+'</h3><span class="c_top badge">'+climber.total.tops+'t'+climber.total.topAttempts+'</span><span class="c_bonus badge">'+climber.total.bonus+'b'+climber.total.bonusAttempts+'</span><div class="c_score"><div class="c_score-col" id="route1">t'+climber.tops['1']+' b'+climber.bonus['1']+'</div><div class="c_score-col" id="route2">t'+climber.tops['2']+' b'+climber.bonus['2']+'</div><div class="c_score-col" id="route3">t'+climber.tops['3']+' b'+climber.bonus['3']+'</div><div class="c_score-col" id="route4">t'+climber.tops['4']+' b'+climber.bonus['4']+'</div><div class="c_score-col" id="route5">t'+climber.tops['5']+' b'+climber.bonus['5']+'</div><div class="c_score-col" id="route6">t'+climber.tops['6']+' b'+climber.bonus['6']+'</div></div></div>';
 
-		// Current rank
-		$(id + ' > .c_rank').html(i+1);
+		$('#rank' + i).html(stringBloc);
 
-		// Overal scores
-		$(id + ' > .c_top > .top')
-			.html(ClimberListView[i].total.tops);
-		$(id + ' > .c_top > .topAttempts')
-			.html(ClimberListView[i].total.topAttempts);
-		$(id + ' > .c_bonus > .bonus')
-			.html(ClimberListView[i].total.bonus);
-		$(id + ' > .c_bonus > .bonusAttempts')
-			.html(ClimberListView[i].total.bonusAttempts);
-
-		// Scores for each routes
-		$(id + ' > .c_score > #route1 > .top')
-			.html(ClimberListView[i].tops['1']);
-		$(id + ' > .c_score > #route1 > .bonus')
-			.html(ClimberListView[i].bonus['1']);
-		$(id + ' > .c_score > #route2 > .top')
-			.html(ClimberListView[i].tops['2']);
-		$(id + ' > .c_score > #route2 > .bonus')
-			.html(ClimberListView[i].bonus['2']);
-		$(id + ' > .c_score > #route3 > .top')
-			.html(ClimberListView[i].tops['3']);
-		$(id + ' > .c_score > #route3 > .bonus')
-			.html(ClimberListView[i].bonus['3']);
-		$(id + ' > .c_score > #route4 > .top')
-			.html(ClimberListView[i].tops['4']);
-		$(id + ' > .c_score > #route4 > .bonus')
-			.html(ClimberListView[i].bonus['4']);
-		$(id + ' > .c_score > #route5 > .top')
-			.html(ClimberListView[i].tops['5']);
-		$(id + ' > .c_score > #route5 > .bonus')
-			.html(ClimberListView[i].bonus['5']);
-		$(id + ' > .c_score > #route6 > .top')
-			.html(ClimberListView[i].tops['6']);
-		$(id + ' > .c_score > #route6 > .bonus')
-			.html(ClimberListView[i].bonus['6']);
-
-	};
+		i++;
+	})
 }
