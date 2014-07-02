@@ -62,6 +62,15 @@ public class Helper {
         aMap.put("OW Qualifier", new StringPair("OW", "OWQ"));
         aMap.put("OW Final", new StringPair("OW", "OWF"));
         
+        aMap.put("AUC Qualifier Men", new StringPair("AM", "AMQ"));
+        aMap.put("AUC Qualifier Women", new StringPair("AW", "AWQ"));
+        
+        aMap.put("AUC Semi-Final Men", new StringPair("BM", "BMQ"));
+        aMap.put("AUC Semi-Final Women", new StringPair("BW", "BWQ"));
+        
+        aMap.put("AUC Final Men", new StringPair("AM", "AMQ"));
+        aMap.put("AUC Final Women", new StringPair("AW", "BWQ"));
+        
         roundMap = Collections.unmodifiableMap(aMap);
     }
 	
