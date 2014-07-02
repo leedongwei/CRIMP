@@ -37,6 +37,10 @@ public class UploadScoreSubmit extends SpringAndroidSpiceRequest<Object>{
 		return getRestTemplate().postForObject(baseUrl, uploadContent, Object.class);
     }
 	
+	public int getId(){
+		return id;
+	}
+	
 	public void updateScoreWithOld(String oldScore){
 		uploadContent.updateScoreWithOld(oldScore);
 	}

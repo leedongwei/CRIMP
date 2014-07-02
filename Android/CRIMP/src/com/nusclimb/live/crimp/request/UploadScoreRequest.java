@@ -22,6 +22,10 @@ public class UploadScoreRequest extends ScoreRequest {
 		this.id = id;
 	}
 	
+	public int getId(){
+		return id;		
+	}
+	
 	@Override
 	public String createCacheKey(){
 		return "["+id+"]"+super.createCacheKey();
