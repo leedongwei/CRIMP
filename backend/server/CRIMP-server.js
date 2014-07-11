@@ -18,7 +18,7 @@ var app = express(),
  			console.log('Listening on port %d', server.address().port);
 		}),
 		ws;
-		restartWebsocket();
+restartWebsocket();
 app.use(bodyParser());
 
 
@@ -247,11 +247,14 @@ app.get('/admin/get/:r_id', function (req, res) {
 
 	var r_id = req.params.r_id;
 			c_category = r_id.substring(0,3),
-			route = r_id.substring(2, 5).toLowerCase() + '_raw',
+			routeStr = r_id.substring(2, 5).toLowerCase() + '_raw',
+			topStr = route = r_id.substring(2, 5).toLowerCase() + '_top',
+			bonusStr = route = r_id.substring(2, 5).toLowerCase() + '_bonus',
 			judge = r_id.substring(2, 5).toLowerCase() + '_judge',
 			message = {	'climbers': []},
 			queryConfig = {
-				'text': 'SELECT c_id, ' + judge + ', c_name, ' + route +
+				'text': 'SELECT c_id, ' + judge + ', c_name, ' + routeStr + ', ' +
+								topStr + ', ' + bonusStr +
 								' FROM crimp_data ' +
 								'WHERE c_category = $1;',
 				'values': [c_category]
@@ -298,18 +301,6 @@ app.get('/admin/open/:auth_code', function (req, res) {
 });
 
 
-// Recursively send a ping message to CRIMP-socket every 45s
-function pingSocket() {
-	//console.log('Pinging CRIMP-socket');
-	ws.send(JSON.stringify({'action':'PING', 'source':'CRIMP-server'}), function (error) {
-			if (error) console.error('ws.send(ping) ' + error);
-	});
-	setTimeout(function() {
-		pingSocket();
-	}, 45000);
-};
-
-
 //app.post('/judge/set')
 function calculateTop(rawScore) {
 	var i = 0;
@@ -342,7 +333,6 @@ function restartWebsocket() {
 
 	ws.on('close', function() {
 	  console.log('Closed connection to ' + socketHost);
-	  restartWebsocket();
 	});
 
 
@@ -358,6 +348,18 @@ function restartWebsocket() {
 		console.error(JSON.stringify(ws));
 	});
 }
+
+// Recursively send a ping message to CRIMP-socket every 25s
+// This gives 2 pings in the 55s window given by Heroku
+function pingSocket() {
+	//console.log('Pinging CRIMP-socket');
+	ws.send(JSON.stringify({'action':'PING', 'source':'CRIMP-server'}), function (error) {
+			if (error) console.error('ws.send(ping) ' + error);
+	});
+	setTimeout(function() {
+		if (ws.readyState === 1)	pingSocket();
+	}, 25000);
+};
 
 //app.get('/judge/push/' & '/judge/pop/')
 function setClimberOnWall(action, data) {

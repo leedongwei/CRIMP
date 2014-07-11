@@ -8,7 +8,8 @@
   "dependencies": {
     "body-parser": "1.x",
     "express": "4.x",
-    "pg": "2.x"
+    "pg": "2.x",
+    "ws": "0.4.x"
   },
   "scripts": {
 		"start": "node CRIMP-server.js"

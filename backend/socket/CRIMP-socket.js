@@ -12,12 +12,12 @@ wss._server._maxListeners = 0;
 console.log('Listening on port %d', wss.options.port);
 
 var activeClimbers = {
-	'1':'',
-	'2':'',
-	'3':'',
-	'4':'',
-	'5':'',
-	'6':'',
+	'1': {'c_id':'', 'c_name':''},
+	'2': {'c_id':'', 'c_name':''},
+	'3': {'c_id':'', 'c_name':''},
+	'4': {'c_id':'', 'c_name':''},
+	'5': {'c_id':'', 'c_name':''},
+	'6': {'c_id':'', 'c_name':''}
 }
 
 
@@ -60,7 +60,7 @@ wss.broadcast = function(ws, message) {
 function parseMessage(ws, message) {
 	if (message.action === 'PING') {
 		if (message.source === 'CRIMP-server') {
-			console.log('CRIMP-server ping!')
+			console.log('CRIMP-server ping!');
 		}
 		return;
 	}
@@ -106,7 +106,7 @@ function getLatestState(ws, message) {
 
 	if (message.c_category.substring(2,3) === 'Q') {
 		queryConfigTop = {
-			'text': 'SELECT c_id, ' +
+			'text': 'SELECT c_id, c_name, ' +
 							'q01_top, q02_top, q03_top, q04_top, q05_top, q06_top ' +
 							'FROM crimp_data ' +
 							'WHERE c_category = $1;',
@@ -122,7 +122,7 @@ function getLatestState(ws, message) {
 		};
 	} else if (message.c_category.substring(2,3) === 'F') {
 		queryConfigTop = {
-			'text': 'SELECT c_id, ' +
+			'text': 'SELECT c_id, c_name, ' +
 							'f01_top, f02_top, f03_top, f04_top ' +
 							'FROM crimp_data ' +
 							'WHERE c_category = $1;',
@@ -206,17 +206,21 @@ function getLatestState(ws, message) {
  *	}
  */
 function broadcastNewScore(ws, message) {
-	var climber = {
-		'c_id': message.c_id,
-		'top': {},
-		'bonus': {}
+	var outgoingMessage = {
+		'type': 'POST',
+		'data': {
+			'c_id': message.c_id,
+			'tops': {},
+			'bonus': {}
+		}
 	},
 	route = message.r_id.substring(4,5);
 
-	climber.top[route] = message.top;
-	climber.bonus[route] = message.bonus;
+	// message.top comes from CRIMP-server, do not change to message.tops
+	outgoingMessage.data.tops[route] = message.top;
+	outgoingMessage.data.bonus[route] = message.bonus;
 
-	wss.broadcast(ws, climber);
+	wss.broadcast(ws, outgoingMessage);
 }
 
 
@@ -237,12 +241,17 @@ function setActiveClimber(ws, message) {
 		return;
 	}
 
-	var route = message.r_id.substring(2, 5).toLowerCase() + '_raw',
-			queryConfig = {
-				'text': 'SELECT c_name, ' + route +
-								' FROM crimp_data ' +
-								'WHERE c_id = $1;',
+	// For reliablilty, CRIMP android app will send 3 requests to update
+	// the activeClimber. This discards the excess requests.
+	if (activeClimbers[message.r_id.substring(4, 5)] === message.c_id) return;
+
+	var queryConfig = {
+				'text': 'SELECT c_name FROM crimp_data WHERE c_id = $1;',
 				'values': [message.c_id]
+			},
+			outgoingMessage = {
+				'type': 'UPDATE',
+				'data': null
 			};
 
 	pg.connect(dbConn, function (err, client, done) {
@@ -261,13 +270,16 @@ function setActiveClimber(ws, message) {
 				console.error('Error activeClimber: ' + message.c_id + ' does not exists in database');
 			} else if (result.rowCount === 1) {
 				// Confirmed that climber exists in database
-				activeClimbers[message.r_id.substring(4, 5)] = message.c_id;
-				wss.broadcast(ws, activeClimbers);
+				activeClimbers[message.r_id.substring(4, 5)].c_id = message.c_id;
+				activeClimbers[message.r_id.substring(4, 5)].c_name = result.rows[0].c_name;
+
+				outgoingMessage.data = activeClimbers;
+				wss.broadcast(ws, outgoingMessage);
 
 				console.log(JSON.stringify(activeClimbers));
 				setTimeout(function() {
 					removeActiveClimber(null, message);
-				}, 5000);
+				}, 240000);
 			}
 		});
 	});
@@ -283,61 +295,76 @@ function setActiveClimber(ws, message) {
 function removeActiveClimber(ws, message) {
 	if (!message || !message.c_id || !message.r_id) return;
 
-	if (activeClimbers[message.r_id.substring(4, 5)] === message.c_id) {
-		activeClimbers[message.r_id.substring(4, 5)] = '';
-		wss.broadcast(ws, activeClimbers);
+	var outgoingMessage = {
+		'type': 'UPDATE',
+		'data': null
+	};
+
+	if (activeClimbers[message.r_id.substring(4, 5)].c_id === message.c_id) {
+		activeClimbers[message.r_id.substring(4, 5)].c_id = '';
+		activeClimbers[message.r_id.substring(4, 5)].c_name = '';
+
+		outgoingMessage.data = activeClimbers;
+		wss.broadcast(ws, outgoingMessage);
+
 		console.log(JSON.stringify(activeClimbers));
 	} else {
-		console.error('Error activeClimber: ' + message.c_id +
-			' is not active on ' + message.r_id)
+		//console.log('Error activeClimber: ' + message.c_id +
+		//	' is not active on ' + message.r_id)
 	}
 }
 
 
 function tabulateAndSendScores (resultsTop, resultsBonus, ws) {
 	var i = 0,
-			outgoingData = {
-				'activeClimbers': activeClimbers,
-				'climbers':[]
+			outgoingMessage = {
+				'type': 'GET',
+				'data': {
+					'activeClimbers': activeClimbers,
+					'climbers':[]
+				}
 			};
 
 	for (; i < resultsTop.length; i++) {
 		if (resultsTop[i].c_id === resultsBonus[i].c_id) {
 			var climber = {
 				'c_id': '',
-			 	'top': {},
+				'c_name': '',
+			 	'tops': {},
 			 	'bonus': {}
 			};
 
 			climber.c_id = resultsTop[i].c_id;
+			climber.c_name = resultsTop[i].c_name;
 			delete resultsTop[i].c_id;
+			delete resultsTop[i].c_name;
 			delete resultsBonus[i].c_id;
 
 			var j = 1;
 			for (var prop in resultsTop[i]) {
 				if (resultsTop[i][prop]) {
-					climber.top[j] = resultsTop[i][prop];
+					climber.tops[j] = resultsTop[i][prop];
 				} else {
 					// turns 'undefined' and 'null' to 0
-					climber.top[j] = 0;
+					climber.tops[j] = 0;
 				}
 				j++;
 			}
 
 			j = 1;
 			for (var prop in resultsBonus[i]) {
-				if (resultsTop[i][prop]) {
-					climber.bonus[j] = resultsTop[i][prop];
+				if (resultsBonus[i][prop]) {
+					climber.bonus[j] = resultsBonus[i][prop];
 				} else {
 					// turns 'undefined' and 'null' to 0
 					climber.bonus[j] = 0;
 				}
 				j++;
 			}
-			outgoingData.climbers.push(climber);
+			outgoingMessage.data.climbers.push(climber);
 		}
 	}
 
-	//console.log(JSON.stringify(outgoingData, null, 2));
-	ws.send(JSON.stringify(outgoingData));
+	//console.log(JSON.stringify(outgoingMessage, null, 2));
+	ws.send(JSON.stringify(outgoingMessage));
 }
