@@ -247,11 +247,14 @@ app.get('/admin/get/:r_id', function (req, res) {
 
 	var r_id = req.params.r_id;
 			c_category = r_id.substring(0,3),
-			route = r_id.substring(2, 5).toLowerCase() + '_raw',
+			routeStr = r_id.substring(2, 5).toLowerCase() + '_raw',
+			topStr = route = r_id.substring(2, 5).toLowerCase() + '_top',
+			bonusStr = route = r_id.substring(2, 5).toLowerCase() + '_bonus',
 			judge = r_id.substring(2, 5).toLowerCase() + '_judge',
 			message = {	'climbers': []},
 			queryConfig = {
-				'text': 'SELECT c_id, ' + judge + ', c_name, ' + route +
+				'text': 'SELECT c_id, ' + judge + ', c_name, ' + routeStr + ', ' +
+								topStr + ', ' + bonusStr +
 								' FROM crimp_data ' +
 								'WHERE c_category = $1;',
 				'values': [c_category]
