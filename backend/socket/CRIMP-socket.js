@@ -109,7 +109,7 @@ function getLatestState(ws, message) {
 
 	if (message.c_category.substring(2,3) === 'Q') {
 		queryConfigTop = {
-			'text': 'SELECT c_id, ' +
+			'text': 'SELECT c_id, c_name, ' +
 							'q01_top, q02_top, q03_top, q04_top, q05_top, q06_top ' +
 							'FROM crimp_data ' +
 							'WHERE c_category = $1;',
@@ -125,7 +125,7 @@ function getLatestState(ws, message) {
 		};
 	} else if (message.c_category.substring(2,3) === 'F') {
 		queryConfigTop = {
-			'text': 'SELECT c_id, ' +
+			'text': 'SELECT c_id, c_name, ' +
 							'f01_top, f02_top, f03_top, f04_top ' +
 							'FROM crimp_data ' +
 							'WHERE c_category = $1;',
@@ -332,12 +332,15 @@ function tabulateAndSendScores (resultsTop, resultsBonus, ws) {
 		if (resultsTop[i].c_id === resultsBonus[i].c_id) {
 			var climber = {
 				'c_id': '',
+				'c_name': '',
 			 	'tops': {},
 			 	'bonus': {}
 			};
 
 			climber.c_id = resultsTop[i].c_id;
+			climber.c_name = resultsTop[i].c_name;
 			delete resultsTop[i].c_id;
+			delete resultsTop[i].c_name;
 			delete resultsBonus[i].c_id;
 
 			var j = 1;
