@@ -110,11 +110,17 @@ function updateLocalScores(data) {
 					bonus = 0, bonusAtt = 0;
 			for (var prop in climber.tops) {
 				if (climber.tops[prop]) tops++;
-				topAtt += climber.tops[prop];
+				// Check if tops is a number. Prevents NaN error
+				if (climber.tops[prop] === parseInt(climber.tops[prop])) {
+					topAtt += climber.tops[prop];
+				}
 			}
 			for (var prop in climber.bonus) {
 				if (climber.bonus[prop]) bonus++;
-				bonusAtt += climber.bonus[prop];
+				// Check if tops is a number. Prevents NaN error
+				if (climber.bonus[prop] === parseInt(climber.bonus[prop])) {
+					bonusAtt += climber.bonus[prop];
+				}
 			}
 
 			climber.total = {
@@ -221,12 +227,48 @@ function climberSort(a, b) {
 
 function renderListView() {
 	var i = 1;
+
+	// Initialize with first climber in ListView
+	lastEqualRankClimber = ClimberListView[0];
+	ClimberListView[0].c_rank = i;
+
 	ClimberListView.forEach(function (climber) {
-		climber.c_rank = i;
-		var stringBloc = '<div id="'+climber.c_id+'"><span class="c_rank">'+i+'</span><span class="c_id">'+climber.c_id+'</span><h3 class="c_name">'+climber.c_name+'</h3><span class="c_top badge">'+climber.total.tops+'t'+climber.total.topAttempts+'</span><span class="c_bonus badge">'+climber.total.bonus+'b'+climber.total.bonusAttempts+'</span><div class="c_score"><div class="c_score-col" id="route1">t'+climber.tops['1']+' b'+climber.bonus['1']+'</div><div class="c_score-col" id="route2">t'+climber.tops['2']+' b'+climber.bonus['2']+'</div><div class="c_score-col" id="route3">t'+climber.tops['3']+' b'+climber.bonus['3']+'</div><div class="c_score-col" id="route4">t'+climber.tops['4']+' b'+climber.bonus['4']+'</div><div class="c_score-col" id="route5">t'+climber.tops['5']+' b'+climber.bonus['5']+'</div><div class="c_score-col" id="route6">t'+climber.tops['6']+' b'+climber.bonus['6']+'</div></div></div>';
+		// Display the same rank number for climbers with equal scores
+		if (climber.total.tops === lastEqualRankClimber.total.tops &&
+				climber.total.topAttempts === lastEqualRankClimber.total.topAttempts &&
+				climber.total.bonus === lastEqualRankClimber.total.bonus &&
+				climber.total.bonusAttempts === lastEqualRankClimber.total.bonusAttempts) {
+			climber.c_rank = lastEqualRankClimber.c_rank;
+		} else {
+			climber.c_rank = i;
+			lastEqualRankClimber = climber;
+		}
+
+		var stringBloc = '<div id="' + climber.c_id + '">' +
+			'<span class="c_rank">' + climber.c_rank + '</span>' +
+			'<span class="c_id">' + climber.c_id + '</span>' +
+			'<h3 class="c_name">' + climber.c_name + '</h3>' +
+			'<span class="c_top badge">' +
+				climber.total.tops + 't' + climber.total.topAttempts +
+			'</span>' +
+			'<span class="c_bonus badge">' +
+				climber.total.bonus + 'b' + climber.total.bonusAttempts +
+			'</span>' +
+			'<div class="c_score">' +
+			'<div class="c_score-col" id="route1">t' + climber.tops['1'] + ' b' + climber.bonus['1'] + '</div>' +
+			'<div class="c_score-col" id="route2">t' + climber.tops['2'] + ' b' + climber.bonus['2'] + '</div>' +
+			'<div class="c_score-col" id="route3">t' + climber.tops['3'] + ' b' + climber.bonus['3'] + '</div>' +
+			'<div class="c_score-col" id="route4">t' + climber.tops['4'] + ' b' + climber.bonus['4'] + '</div>';
+
+		if (climber.tops['5'] != undefined) {
+			stringBloc += '<div class="c_score-col" id="route5">t' + climber.tops['5'] + ' b' + climber.bonus['5'] + '</div>';
+			stringBloc += '<div class="c_score-col" id="route6">t' + climber.tops['6'] + ' b' + climber.bonus['6'] + '</div>';
+		}
+
+		stringBloc += '</div></div>';
+
 
 		$('#rank' + i).html(stringBloc);
-
 		i++;
 	})
 }
