@@ -38,11 +38,11 @@ public class Helper {
 	private static final Map<String, StringPair> roundMap;
     static {
         Map<String, StringPair> aMap = new HashMap<String, StringPair>() ;
-        aMap.put("U17M Qualifier", new StringPair("U17M", "UMQ"));
-        aMap.put("U17M Final", new StringPair("U17M", "UMF"));
+        aMap.put("U17M Qualifier", new StringPair("UM", "UMQ"));
+        aMap.put("U17M Final", new StringPair("UM", "UMF"));
         
-        aMap.put("U17W Qualifier", new StringPair("U17W", "UWQ"));
-        aMap.put("U17W Final", new StringPair("U17W", "UWF"));
+        aMap.put("U17W Qualifier", new StringPair("UW", "UWQ"));
+        aMap.put("U17W Final", new StringPair("UW", "UWF"));
         
         aMap.put("NM Qualifier", new StringPair("NM", "NMQ"));
         aMap.put("NM Final", new StringPair("NM", "NMF"));
@@ -61,6 +61,15 @@ public class Helper {
         
         aMap.put("OW Qualifier", new StringPair("OW", "OWQ"));
         aMap.put("OW Final", new StringPair("OW", "OWF"));
+        
+        aMap.put("AUC Qualifier Men", new StringPair("AM", "AMQ"));
+        aMap.put("AUC Qualifier Women", new StringPair("AW", "AWQ"));
+        
+        aMap.put("AUC Semi-Final Men", new StringPair("BM", "BMQ"));
+        aMap.put("AUC Semi-Final Women", new StringPair("BW", "BWQ"));
+        
+        aMap.put("AUC Final Men", new StringPair("AM", "AMQ"));
+        aMap.put("AUC Final Women", new StringPair("AW", "BWQ"));
         
         roundMap = Collections.unmodifiableMap(aMap);
     }

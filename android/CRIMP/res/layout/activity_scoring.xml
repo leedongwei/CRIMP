@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingBottom="@dimen/activity_vertical_margin"
 	android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey_light" >
 	
 	<Button
 		android:id="@+id/scoring_submit_button"
+		android:layout_marginLeft="@dimen/view_padding"
+	    android:layout_marginRight="@dimen/view_padding"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true"
@@ -16,15 +19,19 @@
 		android:text="@string/UI_submit" />
 	
 	<LinearLayout android:id="@+id/scoring_button_row" 
+	    android:paddingLeft="@dimen/view_padding"
+	    android:paddingRight="@dimen/view_padding"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
+		android:weightSum="27.0"
 		android:orientation="horizontal" 
 		android:layout_above="@id/scoring_submit_button" >
 		
 		<Button 
 			android:id="@+id/scoring_plus_one_button"
-			android:layout_width="wrap_content" 
+			android:layout_width="0dp" 
 			android:layout_height="wrap_content"
+			android:layout_weight="4.0" 
 			android:layout_marginRight="@dimen/view_between_margin"
 			android:background="@drawable/crimp_button"
 			android:textColor="@color/white"
@@ -33,8 +40,9 @@
 		
 		<Button 
 			android:id="@+id/scoring_b_button"
-			android:layout_width="wrap_content" 
+			android:layout_width="0dp" 
 			android:layout_height="wrap_content"
+			android:layout_weight="7.0" 
 			android:layout_marginRight="@dimen/view_between_margin"
 			android:background="@drawable/crimp_button"
 			android:textColor="@color/white"
@@ -43,8 +51,9 @@
 		
 		<Button 
 			android:id="@+id/scoring_t_button"
-			android:layout_width="wrap_content" 
+			android:layout_width="0dp" 
 			android:layout_height="wrap_content"
+			android:layout_weight="5.0" 
 			android:layout_marginRight="@dimen/view_between_margin"
 			android:background="@drawable/crimp_button"
 			android:textColor="@color/white"
@@ -55,7 +64,7 @@
 			android:id="@+id/scoring_backspace_button"
 			android:layout_width="0dp" 
 			android:layout_height="wrap_content"
-			android:layout_weight="1" 
+			android:layout_weight="11.0" 
 			android:background="@drawable/crimp_button"
 			android:textColor="@color/white"
 			android:text="@string/UI_backspace"
