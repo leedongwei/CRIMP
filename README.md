@@ -4,9 +4,23 @@
 
 ## Interface
 ### Judges
-/pictures to come
+
+<img src="/screenshot/judge-1.png?raw=true" width="18%" height="auto" alt="Credentials page">
+<img src="/screenshot/judge-2.png?raw=true" width="18%" height="auto" alt="QR Code scanning to identify climbers">
+<img src="/screenshot/judge-3.png?raw=true" width="18%" height="auto" alt="Manual entry of climber-ID if QR fails">
+<img src="/screenshot/judge-4.png?raw=true" width="18%" height="auto" alt="Climber's scoring page">
+<img src="/screenshot/judge-5.png?raw=true" width="18%" height="auto" alt="Confirmation before submission">
+<br>
+<img src="/screenshot/debug-1.png?raw=true" width="18%" height="auto" alt="Message queue to server">
+<img src="/screenshot/debug-2.png?raw=true" width="18%" height="auto" alt="Attempting to resend upon connection">
+<img src="/screenshot/debug-3.png?raw=true" width="18%" height="auto" alt="Error status">
+<img src="/screenshot/debug-4.png?raw=true" width="18%" height="auto" alt="Debug page">
+
 ### Spectators
-/pictures to come
+<img src="/screenshot/spec-1.png?raw=true" width="18%" height="auto" alt="Active Climber display">
+<img src="/screenshot/spec-2.png?raw=true" width="18%" height="auto" alt="Confirmation of websocket connection">
+<img src="/screenshot/spec-3.png?raw=true" width="18%" height="auto" alt="Scores of climbers">
+
 
 
 ## Demo
