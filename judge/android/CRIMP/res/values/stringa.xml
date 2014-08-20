@@ -20,12 +20,22 @@
         <item>OM Final</item>
         <item>OW Qualifier</item>
         <item>OW Final</item>
+        
+        <item>AUC Qualifier Men</item>
+        <item>AUC Qualifier Women</item>
+        
+        <item>AUC Semi-Final Men</item>
+        <item>AUC Semi-Final Women</item>
+        
+        <item>AUC Final Men</item>
+        <item>AUC Final Women</item>
     </string-array>
     
     <!-- Novice/U17 qualifier = 6 routes
     	 Inter/Open qualifier = 5 routes
     	 U17/Novice/Inter final = 3 routes
-    	 Open final = 3+1 routes -->
+    	 Open final = 3+1 routes 
+    	 AUC = 6 routes -->
     <string-array name="route_qualifier_novice">
         <item>Route 1</item>
         <item>Route 2</item>

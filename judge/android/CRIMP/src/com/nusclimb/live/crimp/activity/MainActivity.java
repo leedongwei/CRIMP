@@ -174,6 +174,12 @@ public class MainActivity extends ActionBarActivity {
 				case 2:
 				case 4:
 				case 6:
+				case 16:
+				case 17:
+				case 18:
+				case 19:
+				case 20:
+				case 21:
 				{
 					// 6 routes
 					String[] route_array = res.getStringArray(R.array.route_qualifier_novice);
