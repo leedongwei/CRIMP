@@ -64,7 +64,9 @@ Participants data is expected to be provided in an excel file by the admin/regis
 
 
 ## Technical Support & Development
-Demand-based. Feel free to submit a pull-request, open an issue or send us an email :)
+* Currently ongoing!
+* [Git branching model](http://nvie.com/posts/a-successful-git-branching-model/)
+
 
 
 ## Users
