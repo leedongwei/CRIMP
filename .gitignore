@@ -43,3 +43,11 @@ local.properties
 
 # PDT-specific
 .buildpath
+
+
+
+#node.js gitignore ===========================
+**/*.log
+
+# https://docs.npmjs.com/misc/faq#should-i-check-my-node-modules-folder-into-git
+**/node_modules
