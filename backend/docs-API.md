@@ -1,88 +1,133 @@
 #CRIMP-server
 
-##GET ('/judge/get/:round')
-:round [round expects 3 characters: NMQ/NWF]
 
-<pre><code>
-response (header: 200):
-{
-	"climbers": [
-		{
-			"c_id":"",
-			"c_name":""
-		}
-	]
+
+
+## POST '/judge/login'
+* Used by judges/admins to login or create an account
+
+#### Request
+```
+header: [FB Auth Credentials]
+```
+
+#### Response
+```
+Status: 200 OK / 201 Created / 401 Unauthorized
+Body: {
+  adminId: 'happycaterpie',
+  adminStatus: -1
 }
-</code></pre>
+```
+* Respond 200 for successful login
+* Respond 201 for successful creation
+* Respond 401 when adminId exists in database but credentials are wrong
+* `adminStatus` -1 for pending, 0 for judges, 1 for admin, 2 for super-admin
 
 
-##GET ('/judge/get/:c_id/:r_id')
 
-:c_id [climber_id expect 5 characters: NW001/NM001]
-* first 2 char to be category, last 3 char to be climber number
 
-:r_id [route_id expect 5 characters: NWQ01/NMF01]
-* first 3 char to be round name, last 2 char to be route number
-* The first 2 character of c_id and r_id must match
-* 3rd char of :r_id must be an alphabet
+## POST '/judge/report'
+* Used by judges to report in when they are judging a route
+* Server will track the judges currently active on all the routes in an array
+* If there is no activity from a judge for 6mins, he will be removed from the array
+* Removal can be enforced by setting `force` to true for the case that judges are being replaced from duty
 
-<pre><code>
-response (header: 200):
-{
-	"c_name" : "climber_name",
-	"c_score" : "magic_string"
+#### Request
+```
+header: [FB Auth Credentials]
+body: {
+  categoryId: 'NWQ'
+  routeId: 'NWQ01
+  force: false
 }
-</code></pre>
+```
 
-
-
-##POST ('/judge/set')
-
-<pre><code>
-body:
-{
-	"j_name" : "judge's name"
-	"auth_code" : "",
-	"r_id" : "route_id",
-	"c_id" : "climber_id",
-	"c_score" : "magic_string"
+#### Response
+```
+Status: 200 OK
+Body: {
+  adminId: 'happycaterpie',
+  adminName: 'Weizhi'
+  categoryId: 'NWQ',
+  routeId: 'NWQ01'
+  state: 1
 }
+```
+* `adminId` and `adminName` refers to the active judge on that route
+* `state` 1 for successful request, 0 for failed request
+* `adminId` and `adminName` be your's if successful, someone else's if failed.
+* Request will fail when there is already a judge on that route
 
-response (header: 200 / 401 Unauthorized):
-{}
-</code></pre>
 
 
 
-##GET ('/admin/get/:r_id')
+## GET 'judge/climbers/:categoryId'
+* Used by judges to get identity of all the climbers in a specific category
 
-:r_id [route_id expect 5 characters: NWQ01/NMF01]
-* first 3 char to be round name, last 2 char to be route number
-* 3rd char of :r_id must be an alphabet
+#### Response
+```
+Status: 200 OK
+Body: {
+  categoryId: 'NWQ'
+  climbers: [
+    {
+      climberId: 'NMQ001'
+      climberName: 'DongWei'
+    },
+    {
+      climberId: 'NMQ002',
+      climberName: 'Weizhi'
+    },
 
-<pre><code>
-response (header: 200):
-{
-	"climbers": {
-		"c_id":
-		"j_name":
-		"c_name":
-		"c_score":
-	}
+    ...
+
+  ]
 }
-</code></pre>
+````
 
 
 
-##GET ('/admin/open/:auth_code')
-Attempts to reopen websocket connection to CRIMP-socket
+## GET 'judge/score/:routeId/:climberId'
+* Used by judges to get the score of a climber on a specific route
 
-Look at logs for confirmation of successful connection
+#### Response
+```
+Status: 200 OK
+Body: {
+  routeId: 'NMQ001'
+  climberId: 'NMQ001',
+  climberName: 'DongWei',
+  score: '11B11'
+}
+```
 
-<pre><code>
-response (header: 200 or 400)
-</code></pre>
+
+
+## POST 'judge/score/:routeId/:climberId'
+* Used by judges to update the score of a climber on a specific route
+
+#### Request
+```
+header: [FB Auth Credentials]
+body: {
+  score: '11T'
+}
+```
+
+#### Response
+```
+Status: 200 OK / 401 Unauthorized
+```
+
+* `score` should only cover climbs on that attempt
+  * e.g. sending in '11T' for DongWei makes his overall score to be '11B1111T'
+
+
+
 
 
 
 #CRIMP-socket
+
+_Coming soon_
