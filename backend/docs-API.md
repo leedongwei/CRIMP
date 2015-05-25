@@ -1,6 +1,10 @@
-#CRIMP-server
+# CRIMP-receiver
+* Only admins and judges are allowed to connect to `CRIMP-receiver`, the public will connect to `CRIMP-broadcaster` (see below)
+* Separation ensure that scoring will be up even if 1 million people connect to see the scores and inadvertently DDOS us
+* You're strongly recommended to keep the address of this server a secret
 
 
+<br>
 
 
 ## POST '/judge/login'
@@ -25,6 +29,7 @@ Body: {
 * `adminStatus` -1 for pending, 0 for judges, 1 for admin, 2 for super-admin
 
 
+<br><br><br>
 
 
 ## POST '/judge/report'
@@ -60,6 +65,7 @@ Body: {
 * Request will fail when there is already a judge on that route
 
 
+<br><br><br>
 
 
 ## POST 'judge/help'
@@ -76,6 +82,7 @@ Status: 200 OK / 401 Unauthorized
 ```
 
 
+<br><br><br>
 
 
 ## GET 'judge/climbers/:categoryId'
@@ -103,6 +110,8 @@ Body: {
 ````
 
 
+<br><br><br>
+
 
 ## GET 'judge/score/:routeId/:climberId'
 * Used by judges to get the score of a climber on a specific route
@@ -118,6 +127,8 @@ Body: {
 }
 ```
 
+
+<br><br><br>
 
 
 ## POST 'judge/score/:routeId/:climberId'
@@ -140,10 +151,10 @@ Status: 200 OK / 401 Unauthorized
   * e.g. sending in '11T' for DongWei makes his overall score to be '11B1111T'
 
 
+<br><br><br>
+<br><br><br>
 
 
-
-
-#CRIMP-socket
+# CRIMP-broadcaster
 
 _Coming soon_
