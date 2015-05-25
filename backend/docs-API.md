@@ -62,6 +62,22 @@ Body: {
 
 
 
+## POST 'judge/help'
+* Used by judges to summon help from the admin to their station
+
+#### Request
+```
+header: [FB Auth Credentials]
+```
+
+#### Response
+```
+Status: 200 OK / 401 Unauthorized
+```
+
+
+
+
 ## GET 'judge/climbers/:categoryId'
 * Used by judges to get identity of all the climbers in a specific category
 
