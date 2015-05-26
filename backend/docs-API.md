@@ -7,8 +7,8 @@
 <br>
 
 
-## POST '/judge/login'
-* Used by judges/admins to login or create an account
+## POST 'judge/login'
+* Used by judges to login or create an account
 
 #### Request
 ```
@@ -26,7 +26,7 @@ Body: {
 * Respond 200 for successful login
 * Respond 201 for successful creation
 * Respond 401 when adminId exists in database but credentials are wrong
-* `adminStatus` -1 for pending, 0 for judges, 1 for admin, 2 for super-admin
+* `adminStatus` 0 for pending, 1 for judges, 2 for admin, 3 for super-admin
 
 
 <br><br><br>
@@ -34,9 +34,9 @@ Body: {
 
 ## POST '/judge/report'
 * Used by judges to report in when they are judging a route
-* Server will track the judges currently active on all the routes in an array
+* Server will track the judges currently active (login/scoring) on all the routes in an array
 * If there is no activity from a judge for 6mins, he will be removed from the array
-* Removal can be enforced by setting `force` to true for the case that judges are being replaced from duty
+* Removal can be enforced by setting `force` to true, which covers the case when judges are substituted from duty
 
 #### Request
 ```
@@ -68,12 +68,16 @@ Body: {
 <br><br><br>
 
 
-## POST 'judge/help'
+## POST 'judge/helpme'
 * Used by judges to summon help from the admin to their station
 
 #### Request
 ```
 header: [FB Auth Credentials]
+body: {
+  adminId: 'happycaterpie',
+  routeId: 'NWQ01'
+}
 ```
 
 #### Response
