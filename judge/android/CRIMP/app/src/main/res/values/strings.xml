@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">CRIMP</string>
+    <string name="title_activity_login">LoginActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_upload_list">UploadListActivity</string>
+
+    <!-- Login Activity UI -->
+    <string name="login_activity_login_wait">Awaiting confirmation from admins...</string>
+    <string name="login_activity_login_fail">User does not exist.</string>
+    <string name="login_activity_login_error">Error.</string>
+    <string name="login_activity_cancel">Cancel</string>
+    <string name="login_activity_retry">Retry</string>
+
+    <!-- Hello Activity UI -->
+    <string name="hello_activity_next">Next</string>
+    <string name="hello_activity_category_hint">Pick a category</string>
+    <string name="hello_activity_route_hint">Pick a route</string>
+
+
+
+    <!-- Facebook stuff -->
+    <string name="facebook_app_id">1448790512098965</string>
+    <string name="title_activity_hello">HelloActivity</string>
 </resources>
