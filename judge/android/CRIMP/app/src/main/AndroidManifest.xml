@@ -39,22 +39,32 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".uploadlist.UploadListActivity"
-            android:label="@string/title_activity_upload_list" >
-        </activity>
+
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <activity
             android:name=".hello.HelloActivity"
             android:label="@string/title_activity_hello"
-            android:parentActivityName=".login.LoginActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.nusclimb.live.crimp.login.LoginActivity" />
+            android:screenOrientation="portrait" >
+        </activity>
+
+
+
+        <activity
+            android:name=".uploadlist.UploadListActivity"
+            android:label="@string/title_activity_upload_list" >
+        </activity>
+        <activity
+            android:name=".TestActivity"
+            android:label="@string/title_activity_test" >
+        </activity>
+        <activity
+            android:name=".qr.QRScanActivity"
+            android:label="@string/title_activity_qrscan" >
         </activity>
     </application>
 

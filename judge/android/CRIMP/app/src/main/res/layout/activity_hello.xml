@@ -9,6 +9,13 @@
     android:orientation="vertical"
     tools:context="com.nusclimb.live.crimp.welcome.HelloActivity">
 
+    <TextView
+        android:id="@+id/hello_question"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="@string/hello_activity_question"/>
+
     <LinearLayout
         android:id="@+id/hello_form"
         android:layout_width="match_parent"
@@ -18,12 +25,21 @@
         <Spinner
             android:id="@+id/hello_category_spinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="40dp"
+            android:layout_marginBottom="8dp" />
+
+        <Spinner
+            android:id="@+id/hello_dummy_route_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginBottom="8dp" />
 
         <Spinner
             android:id="@+id/hello_route_spinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="40dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/hello_next"
