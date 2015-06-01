@@ -165,6 +165,35 @@ public class Helper {
 
         return sb.toString();
     }
+
+    /**
+     * Remove all non-alphanumeric characters from {@code string}.
+     * @param string text to perform operation on.
+     * @return {@code string} with all non-alphanumeric characters removed.
+     */
+    public static String toAlphaNumeric(String string){
+        StringBuilder sb = new StringBuilder();
+
+        for(int i=0; i<string.length(); i++){
+            if(isAlphaNumeric(string.charAt(i))){
+                sb.append(string.charAt(i));
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Check if {@code c} is an alphanumeric character. An alphanumeric
+     * character is defined as a character in the set comprise of A-Z
+     * (both upper and lower case) and 0-9.
+     * @param c {@code char} to check.
+     * @return if {@code c} is alphanumeric
+     */
+    public static boolean isAlphaNumeric(char c){
+        return ( ('a'<=c && c<='z') || ('A'<=c && c<='Z') || ('0'<=c && c<='9')  );
+    }
+
 	
 	
 	

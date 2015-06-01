@@ -1,2 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <!-- Number of categories -->
+    <integer name="number_of_categories">4</integer>
+
+    <string-array name="categories">
+        <item>NM Qualifier</item>
+        <item>IM Qualifier</item>
+        <item>NW Qualifier</item>
+        <item>IW Qualifier</item>
+        <item>U17M Qualifier</item>
+        <item>U17W Qualifier</item>
+    </string-array>
+</resources>
