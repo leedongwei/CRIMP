@@ -31,17 +31,10 @@
             android:layout_marginBottom="8dp" />
 
         <Spinner
-            android:id="@+id/hello_dummy_route_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginBottom="8dp" />
-
-        <Spinner
             android:id="@+id/hello_route_spinner"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone"/>
+            android:layout_marginBottom="8dp" />
 
         <Button
             android:id="@+id/hello_next"

@@ -1,18 +1,12 @@
 package com.nusclimb.live.crimp.hello;
 
-import android.app.Activity;
-import android.graphics.Color;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -31,11 +25,11 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
     private String sessionToken;
     private String mText;
 
+
     // UI references
     private TextView mQuestionView;
     private Spinner mCategorySpinner;
     private Spinner mRouteSpinner;
-    private Spinner mDummyRouteSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,15 +47,10 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
         mQuestionView = (TextView) findViewById(R.id.hello_question);
         mCategorySpinner = (Spinner) findViewById(R.id.hello_category_spinner);
         mRouteSpinner = (Spinner) findViewById(R.id.hello_route_spinner);
-        mDummyRouteSpinner = (Spinner) findViewById(R.id.hello_dummy_route_spinner);
-
-        Log.d(TAG, "In onCreate. [category:"+R.id.hello_category_spinner+"] [route:"+
-                R.id.hello_route_spinner+"] [dummy:"+R.id.hello_dummy_route_spinner+
-                "] [sessionToken:"+sessionToken+"]");
 
         mQuestionView.setText(mText);
         setupCategorySpinner();
-        setupDummySpinner();
+        setupRouteSpinner();
     }
 
 
@@ -91,11 +80,10 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
         // Create a list of categories
         List<String> categoryTempList = Arrays.asList(getResources().getStringArray(R.array.categories));
         List<SpinnerItem> mCategoryList = new ArrayList();
+        mCategoryList.add(new SpinnerItem(getResources().getString(R.string.hello_activity_category_hint), true));
         for(String s:categoryTempList){
             mCategoryList.add(new SpinnerItem(s, false));
         }
-        // Add hint to the list of categories
-        mCategoryList.add(new SpinnerItem(getResources().getString(R.string.hello_activity_category_hint), true));
 
         // Create adapter using the list of categories
         SpinnerAdapterWithHint categoryAdapter= new SpinnerAdapterWithHint(
@@ -104,22 +92,22 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
 
         // Apply the adapter to the spinner, initialize selection to hint and attach listener.
         mCategorySpinner.setAdapter(categoryAdapter);
-        mCategorySpinner.setSelection(categoryAdapter.getLastPosition());
+        mCategorySpinner.setSelection(categoryAdapter.getFirstHintPosition());
         mCategorySpinner.setOnItemSelectedListener(this);
     }
 
-    private void setupDummySpinner(){
-        // Create an empty adapter
-        ArrayAdapter<String> dummyAdapter = new ArrayAdapter<String>(
+    private void setupRouteSpinner(){
+        // Create adapter using the list of categories
+        SpinnerAdapterWithHint routeAdapter= new SpinnerAdapterWithHint(
                 this, android.R.layout.simple_spinner_item);
-        dummyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // Add hint to adapter
-        dummyAdapter.add(getResources().getString(R.string.hello_activity_route_hint));
+        routeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        routeAdapter.add(new SpinnerItem(getString(R.string.hello_activity_route_hint), true));
 
         // Apply the adapter to the spinner, initialize selection to hint and attach listener.
-        mDummyRouteSpinner.setAdapter(dummyAdapter);
-        mDummyRouteSpinner.setEnabled(false);
+        mRouteSpinner.setAdapter(routeAdapter);
+        mRouteSpinner.setSelection(routeAdapter.getFirstHintPosition());
+        mRouteSpinner.setOnItemSelectedListener(this);
+        mRouteSpinner.setEnabled(false);
     }
 
     private void updateRouteSpinner(String category){
@@ -131,22 +119,17 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
         // Create a list of routes
         List<String> routeTempList = Arrays.asList(getResources().getStringArray(id));
         List<SpinnerItem> mRouteList = new ArrayList();
+        mRouteList.add(new SpinnerItem(getResources().getString(R.string.hello_activity_route_hint), true));
         for(String s:routeTempList){
             mRouteList.add(new SpinnerItem(s, false));
         }
-        // Add hint to the list of routes
-        mRouteList.add(new SpinnerItem(getResources().getString(R.string.hello_activity_route_hint), true));
 
-        // Create adapter using the list of routes
-        SpinnerAdapterWithHint routeAdapter= new SpinnerAdapterWithHint(
-                this, android.R.layout.simple_spinner_item, mRouteList);
-        routeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ((SpinnerAdapterWithHint)mRouteSpinner.getAdapter()).clear();
+        ((SpinnerAdapterWithHint)mRouteSpinner.getAdapter()).addAll(mRouteList);
 
-        // Apply the adapter to the spinner, initialize selection to hint and attach listener.
-        mRouteSpinner.setAdapter(routeAdapter);
-        mRouteSpinner.setSelection(routeAdapter.getLastPosition());
-        mRouteSpinner.setOnItemSelectedListener(this);
-        mRouteSpinner.setVisibility(View.VISIBLE);
+        mRouteSpinner.setSelection(((SpinnerAdapterWithHint) mRouteSpinner.getAdapter()).getFirstHintPosition());
+        ((TextView)mRouteSpinner.getSelectedView()).setTextColor(getResources().getColor(R.color.hint_color));
+        mRouteSpinner.setEnabled(true);
     }
 
     public void onItemSelected(AdapterView<?> parent, View view,
@@ -162,10 +145,6 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
             }
             else{
                 Log.d(TAG, "OnItemSelected. Category. Not hint.");
-                if(mDummyRouteSpinner != null) {
-                    ((LinearLayout)mDummyRouteSpinner.getParent()).removeView(mDummyRouteSpinner);
-                    mDummyRouteSpinner = null;
-                }
                 updateRouteSpinner(selectedItem.getItemString());
             }
         }
