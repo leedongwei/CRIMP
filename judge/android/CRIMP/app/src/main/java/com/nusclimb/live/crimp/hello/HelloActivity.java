@@ -16,6 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.facebook.FacebookSdk;
+import com.facebook.Profile;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.Helper;
 
@@ -27,8 +29,10 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
     private final String TAG = HelloActivity.class.getSimpleName();
 
     private String sessionToken;
+    private String mText;
 
-    // Spinner references
+    // UI references
+    private TextView mQuestionView;
     private Spinner mCategorySpinner;
     private Spinner mRouteSpinner;
     private Spinner mDummyRouteSpinner;
@@ -36,11 +40,17 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_hello);
 
         sessionToken = getIntent().getStringExtra(getString(R.string.package_name) +
                 getString(R.string.login_activity_sessiontoken));
 
+        mText = getString(R.string.hello_activity_greeting)+
+            Profile.getCurrentProfile().getName()+
+            getString(R.string.hello_activity_question);
+
+        mQuestionView = (TextView) findViewById(R.id.hello_question);
         mCategorySpinner = (Spinner) findViewById(R.id.hello_category_spinner);
         mRouteSpinner = (Spinner) findViewById(R.id.hello_route_spinner);
         mDummyRouteSpinner = (Spinner) findViewById(R.id.hello_dummy_route_spinner);
@@ -49,6 +59,7 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
                 R.id.hello_route_spinner+"] [dummy:"+R.id.hello_dummy_route_spinner+
                 "] [sessionToken:"+sessionToken+"]");
 
+        mQuestionView.setText(mText);
         setupCategorySpinner();
         setupDummySpinner();
     }
