@@ -1,0 +1,50 @@
+db.categories.insert([
+  {
+    name: 'Novice Men Qualifiers',
+    acronym: 'NMQ',
+    route_count: 6,
+    climbers: [],
+    time_start: '',
+    time_end: ''
+  },
+  {
+    name: 'Novice Women Qualifiers',
+    acronym: 'NWQ',
+    route_count: 6,
+    climbers: [],
+    time_start: '',
+    time_end: ''
+  },
+  {
+    name: 'Intermediate Men Qualifiers',
+    acronym: 'IMQ',
+    route_count: 5,
+    climbers: [],
+    time_start: '',
+    time_end: ''
+  },
+  {
+    name: 'Intermediate Women Qualifiers',
+    acronym: 'IWQ',
+    route_count: 5,
+    climbers: [],
+    time_start: '',
+    time_end: ''
+  },
+  {
+    name: 'Open Men Qualifiers',
+    acronym: 'OMQ',
+    route_count: 4,
+    climbers: [],
+    time_start: '',
+    time_end: ''
+  },
+  {
+    name: 'Open Women Qualifiers',
+    acronym: 'OWQ',
+    route_count: 4,
+    climbers: [],
+    time_start: '',
+    time_end: ''
+  },
+])

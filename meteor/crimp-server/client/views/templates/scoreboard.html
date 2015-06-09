@@ -1,0 +1,38 @@
+
+<template name="scoreboard">
+  <p>SCOREBOARD</p>
+
+  <p>CATEGORIES</p>
+  <select class="scoreboard-categories">
+    {{ #each categories }}
+      {{ > scoreboard_category }}
+    {{ /each }}
+  </select>
+
+  <p>CLIMBERS</p>
+  <ul>
+    {{ #each climbers }}
+      {{ > scoreboard_climber }}
+    {{ /each }}
+  </ul>
+</template>
+
+
+
+<template name="scoreboard_category">
+  <option value="{{ _id }}">
+    {{ name }}
+  </option>
+</template>
+
+
+
+<template name="scoreboard_climber">
+  <li>
+    {{ _id }} <br>
+    {{ id }} <br>
+    {{ name }} <br>
+    {{ status }} <br>
+    {{ association }}
+  </li>
+</template>

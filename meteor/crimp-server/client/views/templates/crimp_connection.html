@@ -1,0 +1,16 @@
+<template name="crimp_connection">
+  {{ #with state_check }}
+
+    {{ #if state_check.connected }}
+      {{ state_check.status }}
+    {{ else }}
+
+      {{ state_check.status }},
+      <!-- {{ state_check.retryCount }},
+      trying in .. {{ state_check.retryTime }},-->
+      reason: {{ state_check.reason }}
+
+    {{ /if }}
+
+  {{ /with }}
+</template>
