@@ -20,7 +20,7 @@
 
 
 <template name="scoreboard_category">
-  <option value="{{ _id }}">
+  <option value="{{ acronym }}">
     {{ name }}
   </option>
 </template>
@@ -30,9 +30,12 @@
 <template name="scoreboard_climber">
   <li>
     {{ _id }} <br>
-    {{ id }} <br>
     {{ name }} <br>
-    {{ status }} <br>
-    {{ association }}
+    {{ category }}{{ number }} <br>
+    {{ affliation }}<br>
+    {{ scores_tiebreak }}<br>
+    {{ standard_status }}<br>
+    {{ additional_status }}<br>
+    {{ scores }}
   </li>
 </template>

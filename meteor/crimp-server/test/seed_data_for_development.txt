@@ -4,6 +4,7 @@ db.categories.insert([
     acronym: 'NMQ',
     route_count: 6,
     climbers: [],
+    scores_finalized: 123,
     time_start: '',
     time_end: ''
   },
@@ -12,6 +13,7 @@ db.categories.insert([
     acronym: 'NWQ',
     route_count: 6,
     climbers: [],
+    scores_finalized: false,
     time_start: '',
     time_end: ''
   },
@@ -20,6 +22,7 @@ db.categories.insert([
     acronym: 'IMQ',
     route_count: 5,
     climbers: [],
+    scores_finalized: false,
     time_start: '',
     time_end: ''
   },
@@ -28,6 +31,7 @@ db.categories.insert([
     acronym: 'IWQ',
     route_count: 5,
     climbers: [],
+    scores_finalized: false,
     time_start: '',
     time_end: ''
   },
@@ -36,6 +40,7 @@ db.categories.insert([
     acronym: 'OMQ',
     route_count: 4,
     climbers: [],
+    scores_finalized: false,
     time_start: '',
     time_end: ''
   },
@@ -44,7 +49,155 @@ db.categories.insert([
     acronym: 'OWQ',
     route_count: 4,
     climbers: [],
+    scores_finalized: false,
     time_start: '',
     time_end: ''
   },
-])
+]);
+
+
+
+
+
+db.climbers.insert([
+  {
+    name: 'Adam',
+    category: 'NMQ',
+    number: '001',
+    scores: 'a',
+    affliation: 'a'
+  },
+  {
+    name: 'Bran',
+    category: 'NMQ',
+    number: '002',
+    scores: '',
+    affliation: 'NUS'
+  },
+  {
+    name: 'Charlie',
+    category: 'NMQ',
+    number: '003',
+    scores: '',
+    affliation: 'SMU'
+  },
+  {
+    name: 'Dan',
+    category: 'NMQ',
+    number: '004',
+    scores: '',
+    affliation: 'SMU'
+  },
+  {
+    name: 'Ernie',
+    category: 'NMQ',
+    number: '005',
+    scores: '',
+    affliation: 'SMU'
+  },
+  {
+    name: 'Alice',
+    category: 'NWQ',
+    number: '001',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'Brenda',
+    category: 'NWQ',
+    number: '002',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'Carol',
+    category: 'NWQ',
+    number: '003',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'Diana',
+    category: 'NWQ',
+    number: '004',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'Elaine',
+    category: 'NWQ',
+    number: '005',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'Aaron',
+    category: 'IMQ',
+    number: '001',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'Bernie',
+    category: 'IMQ',
+    number: '002',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'Charles',
+    category: 'IMQ',
+    number: '003',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'David',
+    category: 'IMQ',
+    number: '004',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'Everitt',
+    category: 'IMQ',
+    number: '005',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'Frank',
+    category: 'IMQ',
+    number: '006',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'Glen',
+    category: 'IMQ',
+    number: '007',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'Hank',
+    category: 'IMQ',
+    number: '008',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'Ian',
+    category: 'IMQ',
+    number: '009',
+    scores: '',
+    affliation: ''
+  },
+  {
+    name: 'Jake',
+    category: 'IMQ',
+    number: '010',
+    scores: '',
+    affliation: ''
+  }
+]);

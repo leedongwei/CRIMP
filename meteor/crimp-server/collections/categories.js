@@ -1,26 +1,30 @@
 Categories = new Mongo.Collection('categories');
-Category_Schema = new SimpleSchema({
+Schema.Category = new SimpleSchema({
   name: {
     label: "Name of category",
     type: String,
-    unique: true
   },
   acronym: {
     label: "Acronym for name",
     type: String,
     index: true,
     unique: true,
+    min: 3,
     max: 3
   },
   route_count: {
-    type: Number,
     label: "Number of routes",
+    type: Number,
     min: 1
   },
   climbers: {
-    label: "References to climber documents",
     // TODO: Change to Climber_Schema or array of sorts
+    label: "References to climber documents",
     type: String
+  },
+  scores_finalized: {
+    label: "Check if chief judge validates scores",
+    type: Boolean
   },
   time_start: {
     label: "Starting date and time",
@@ -35,8 +39,7 @@ Category_Schema = new SimpleSchema({
 });
 
 
-
-Categories.attachSchema(Category_Schema);
+Categories.attachSchema(Schema.Category);
 
 // TODO: Ensure admin-only access
 // Use audit-argument-checks for checks?
@@ -54,7 +57,7 @@ Meteor.methods({
     });
   },
 
-  readCategory: function(data) {
+  findCategory: function(data) {
     return Categories.find(data).fetch();
   },
 

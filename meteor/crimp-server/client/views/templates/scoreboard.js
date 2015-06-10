@@ -13,8 +13,8 @@ Template.scoreboard.events({
   'change .scoreboard-categories': function(event, template) {
 
     // TODO: Set this up after Climber Collection
-    console.log(event.target.value);
-    currentCategory = {name: 'DongWei'};
+    console.log();
+    currentCategory = {category: event.target.value};
     currentCategoryDeps.changed();
   }
 });
