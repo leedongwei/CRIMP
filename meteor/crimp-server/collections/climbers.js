@@ -1,43 +1,43 @@
 Climbers = new Mongo.Collection('climbers');
 Schema.Climber = new SimpleSchema({
   name: {
-    label: "Name of climber",
+    label: 'Name of climber',
     type: String
   },
   category_id: {
-    label: "Category of climber",
+    label: 'Category of climber',
     type: String,
     min: 3,
     max: 3
   },
   number: {
-    label: "Climber number",
+    label: 'Climber\'s number',
     type: String,
     regEx: /\d+/,
     min: 3,
     max: 3
   },
   id: {
-    label: "Climber ID (category_id + number)",
+    label: 'Climber ID (category_id + number)',
     type: String,
     index: true,
     unique: true,
     min: 6,
     max: 6
   },
-  scores: {
-    // TODO: Change to ObjectID reference
-    label: "Scores on all routes",
-    type: String,
-    optional: true
-  },
+  // TODO: Probably not needed. Can delete
+  // scores: {
+  //   label: 'Scores on all routes',
+  //   type: String,
+  //   optional: true
+  // },
   affliation: {
-    label: "Affliations of the climber (school, gym etc)",
+    label: 'Affliations of the climber (school, gym etc)',
     type: String,
     optional: true
   },
   scores_tiebreak: {
-    label: "Manually rank climbers that have equal score",
+    label: 'Manually rank climbers that have equal score',
     type: Number,
     autoValue: function() {
       if (this.isInsert) {
@@ -48,7 +48,7 @@ Schema.Climber = new SimpleSchema({
   },
   standard_status: {
     type: String,
-    label: "1st/2nd/3rd/Qualified",
+    label: '1st/2nd/3rd/Qualified',
     optional: true
   },
   additional_status: {

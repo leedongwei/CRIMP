@@ -1,11 +1,11 @@
 Categories = new Mongo.Collection('categories');
 Schema.Category = new SimpleSchema({
   name: {
-    label: "Name of category",
+    label: 'Name of category',
     type: String,
   },
   id: {
-    label: "Acronym for name",
+    label: 'Acronym for name',
     type: String,
     index: true,
     unique: true,
@@ -13,21 +13,21 @@ Schema.Category = new SimpleSchema({
     max: 3
   },
   route_count: {
-    label: "Number of routes",
+    label: 'Number of routes',
     type: Number,
     min: 1
   },
   scores_finalized: {
-    label: "Check if chief judge validates scores",
+    label: 'Check if chief judge validates scores',
     type: Boolean
   },
   time_start: {
-    label: "Starting date and time",
+    label: 'Starting date and time',
     type: Date,
     optional: true
   },
   time_end: {
-    label: "Ending date and time",
+    label: 'Ending date and time',
     type: Date,
     optional: true
   }
