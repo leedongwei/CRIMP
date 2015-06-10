@@ -1,7 +1,7 @@
 db.categories.insert([
   {
     name: 'Novice Men Qualifiers',
-    acronym: 'NMQ',
+    id: 'NMQ',
     route_count: 6,
     climbers: [],
     scores_finalized: 123,
@@ -10,7 +10,7 @@ db.categories.insert([
   },
   {
     name: 'Novice Women Qualifiers',
-    acronym: 'NWQ',
+    id: 'NWQ',
     route_count: 6,
     climbers: [],
     scores_finalized: false,
@@ -19,7 +19,7 @@ db.categories.insert([
   },
   {
     name: 'Intermediate Men Qualifiers',
-    acronym: 'IMQ',
+    id: 'IMQ',
     route_count: 5,
     climbers: [],
     scores_finalized: false,
@@ -28,7 +28,7 @@ db.categories.insert([
   },
   {
     name: 'Intermediate Women Qualifiers',
-    acronym: 'IWQ',
+    id: 'IWQ',
     route_count: 5,
     climbers: [],
     scores_finalized: false,
@@ -37,7 +37,7 @@ db.categories.insert([
   },
   {
     name: 'Open Men Qualifiers',
-    acronym: 'OMQ',
+    id: 'OMQ',
     route_count: 4,
     climbers: [],
     scores_finalized: false,
@@ -46,7 +46,7 @@ db.categories.insert([
   },
   {
     name: 'Open Women Qualifiers',
-    acronym: 'OWQ',
+    id: 'OWQ',
     route_count: 4,
     climbers: [],
     scores_finalized: false,
@@ -59,145 +59,170 @@ db.categories.insert([
 
 
 
-db.climbers.insert([
+var data = [
   {
     name: 'Adam',
-    category: 'NMQ',
+    category_id: 'NMQ',
     number: '001',
-    scores: 'a',
-    affliation: 'a'
+    id: 'NMQ001',
+    scores: '',
+    affliation: 'NTU'
   },
   {
     name: 'Bran',
-    category: 'NMQ',
+    category_id: 'NMQ',
     number: '002',
+    id: 'NMQ002',
     scores: '',
     affliation: 'NUS'
   },
   {
     name: 'Charlie',
-    category: 'NMQ',
+    category_id: 'NMQ',
     number: '003',
+    id: 'NMQ003',
     scores: '',
     affliation: 'SMU'
   },
   {
     name: 'Dan',
-    category: 'NMQ',
+    category_id: 'NMQ',
     number: '004',
+    id: 'NMQ004',
     scores: '',
     affliation: 'SMU'
   },
   {
     name: 'Ernie',
-    category: 'NMQ',
+    category_id: 'NMQ',
     number: '005',
+    id: 'NMQ005',
     scores: '',
     affliation: 'SMU'
   },
   {
     name: 'Alice',
-    category: 'NWQ',
+    category_id: 'NWQ',
     number: '001',
+    id: 'NWQ001',
     scores: '',
     affliation: ''
   },
   {
     name: 'Brenda',
-    category: 'NWQ',
+    category_id: 'NWQ',
     number: '002',
+    id: 'NWQ002',
     scores: '',
     affliation: ''
   },
   {
     name: 'Carol',
-    category: 'NWQ',
+    category_id: 'NWQ',
     number: '003',
+    id: 'NWQ003',
     scores: '',
     affliation: ''
   },
   {
     name: 'Diana',
-    category: 'NWQ',
+    category_id: 'NWQ',
     number: '004',
+    id: 'NWQ004',
     scores: '',
     affliation: ''
   },
   {
     name: 'Elaine',
-    category: 'NWQ',
+    category_id: 'NWQ',
     number: '005',
+    id: 'NWQ005',
     scores: '',
     affliation: ''
   },
   {
     name: 'Aaron',
-    category: 'IMQ',
+    category_id: 'IMQ',
     number: '001',
+    id: 'IMQ001',
     scores: '',
     affliation: ''
   },
   {
     name: 'Bernie',
-    category: 'IMQ',
+    category_id: 'IMQ',
     number: '002',
+    id: 'IMQ002',
     scores: '',
     affliation: ''
   },
   {
     name: 'Charles',
-    category: 'IMQ',
+    category_id: 'IMQ',
     number: '003',
+    id: 'IMQ003',
     scores: '',
     affliation: ''
   },
   {
     name: 'David',
-    category: 'IMQ',
+    category_id: 'IMQ',
     number: '004',
+    id: 'IMQ004',
     scores: '',
     affliation: ''
   },
   {
     name: 'Everitt',
-    category: 'IMQ',
+    category_id: 'IMQ',
     number: '005',
+    id: 'IMQ005',
     scores: '',
     affliation: ''
   },
   {
     name: 'Frank',
-    category: 'IMQ',
+    category_id: 'IMQ',
     number: '006',
+    id: 'IMQ006',
     scores: '',
     affliation: ''
   },
   {
     name: 'Glen',
-    category: 'IMQ',
+    category_id: 'IMQ',
     number: '007',
+    id: 'IMQ007',
     scores: '',
     affliation: ''
   },
   {
     name: 'Hank',
-    category: 'IMQ',
+    category_id: 'IMQ',
     number: '008',
+    id: 'IMQ008',
     scores: '',
     affliation: ''
   },
   {
     name: 'Ian',
-    category: 'IMQ',
+    category_id: 'IMQ',
     number: '009',
+    id: 'IMQ009',
     scores: '',
     affliation: ''
   },
   {
     name: 'Jake',
-    category: 'IMQ',
+    category_id: 'IMQ',
     number: '010',
+    id: 'IMQ010',
     scores: '',
     affliation: ''
   }
-]);
+];
+
+for (var i = 0; i < data.length; i++) {
+  console.log(data[i]);
+  Meteor.call('addClimber', data[i]);
+}

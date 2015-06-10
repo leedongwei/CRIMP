@@ -4,7 +4,7 @@ Schema.Category = new SimpleSchema({
     label: "Name of category",
     type: String,
   },
-  acronym: {
+  id: {
     label: "Acronym for name",
     type: String,
     index: true,
@@ -44,7 +44,7 @@ Categories.attachSchema(Schema.Category);
 // TODO: Ensure admin-only access
 // Use audit-argument-checks for checks?
 Meteor.methods({
-  createCategory: function(data) {
+  addCategory: function(data) {
     Categories.insert(data, function(error, insertedId) {
       if (error) {
         // TODO: handle the error

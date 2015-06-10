@@ -4,23 +4,32 @@ Schema.Climber = new SimpleSchema({
     label: "Name of climber",
     type: String
   },
-  category: {
-    label: "Acronym of category of climber",
-    type: String
+  category_id: {
+    label: "Category of climber",
+    type: String,
+    min: 3,
+    max: 3
   },
   number: {
-    label: "Climber number (Combine with Category for ID)",
+    label: "Climber number",
+    type: String,
+    regEx: /\d+/,
+    min: 3,
+    max: 3
+  },
+  id: {
+    label: "Climber ID (category_id + number)",
     type: String,
     index: true,
     unique: true,
-    // regEx: /\d/g,
-    min: 3,
-    max: 3
+    min: 6,
+    max: 6
   },
   scores: {
     // TODO: Change to ObjectID reference
     label: "Scores on all routes",
-    type: String
+    type: String,
+    optional: true
   },
   affliation: {
     label: "Affliations of the climber (school, gym etc)",
@@ -54,14 +63,20 @@ Climbers.attachSchema(Schema.Climber);
 
 // TODO: Ensure admin-only access
 Meteor.methods({
-  createClimber: function(data) {
+  addClimber: function(data) {
+
+    // Create the ID
+    data['id'] = data.category_id + data.number;
+
     Climbers.insert(data, function(error, insertedId) {
       if (error) {
         // TODO: handle the error
+        console.log('dongwei: got into an error')
         console.log(error);
 
         return error;
       } else {
+        console.log('dongwei: we are doing just fine')
         return insertedId;
       }
     });
@@ -73,6 +88,7 @@ Meteor.methods({
 
   updateClimber: function(data) {
 
+    data['id'] = data.category + data.number;
     Climbers.update(selector, modifier, function(error, updatedCount) {
       if (error) {
         // TODO: handle the error
