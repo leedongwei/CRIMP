@@ -17,11 +17,6 @@ Schema.Category = new SimpleSchema({
     type: Number,
     min: 1
   },
-  climbers: {
-    // TODO: Change to Climber_Schema or array of sorts
-    label: "References to climber documents",
-    type: String
-  },
   scores_finalized: {
     label: "Check if chief judge validates scores",
     type: Boolean
