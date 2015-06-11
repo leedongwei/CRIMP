@@ -1,11 +1,28 @@
+Template.scoreboard.created = function() {
+  Meteor.subscribe('getCategories');
+  Meteor.subscribe('getClimbers', currentCategory);
+}
+
 Template.scoreboard.helpers({
+
+  // TODO: Use Meteor.call to replace .find()
+
   categories: function() {
-    return Categories.find({});
+    return Categories.find({}).fetch();
   },
   climbers: function() {
     currentCategoryDeps.depend();
     // TODO: See below
-    return Climbers.find(currentCategory);
+    var climbers = Climbers.find(currentCategory).fetch();
+    var scores = Scores.find({}).fetch();
+
+    console.log(climbers);
+    console.log(scores);
+
+    return Climbers.find(currentCategory).fetch();
+  },
+  scores: function(climber_id) {
+    return Scores.find({}).fetch();
   }
 });
 

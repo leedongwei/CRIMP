@@ -1,4 +1,4 @@
-Scores = new Mongo.Collection('score');
+Scores = new Mongo.Collection('scores');
 Schema.Score = new SimpleSchema({
   climber_id: {
     label: 'ID of climber',
@@ -22,13 +22,12 @@ Schema.Score = new SimpleSchema({
   route_id: {
     label: 'ID of route',
     type: String,
-    min: 6,
-    max: 6,
     denyUpdate: true
   },
   score_string: {
     label: 'Raw scoring string',
-    type: String
+    type: String,
+    trim: false
   },
   score_top: {
     label: 'Attempts to top',
@@ -43,7 +42,6 @@ Schema.Score = new SimpleSchema({
     autoValue: function() {
       return new Date();
     },
-    denyInsert: true,
     optional: true
   }
 });
@@ -53,6 +51,21 @@ Scores.attachSchema(Schema.Score);
 
 // TODO: Ensure admin-only access
 Meteor.methods({
+  addScore: function(data) {
+    Scores.insert(data,
+                  { removeEmptyStrings: false, autoConvert: false },
+                  function(error, insertedId) {
+      if (error) {
+        // TODO: handle the error
+        console.log(error);
+
+        return error;
+      } else {
+        return insertedId;
+      }
+    });
+  },
+
   findScore: function(data) {
     return Scores.find(data).fetch();
   },
@@ -63,10 +76,12 @@ Meteor.methods({
       climber_id: data['climber_id']
     };
 
-    // TODO: Tabulate top/bonus before saving
+    data['score_top'] = calculateTop(data[score_string]);
+    data['score_bonus'] = calculateBonus(data[score_string]);
 
-    delete data['route_id'];
-    delete data['climber_id'];
+    // Probably not needed, see if it throws an error
+    // delete data['route_id'];
+    // delete data['climber_id'];
 
     Scores.upsert(selector, data, function(error, updatedCount) {
       if (error) {

@@ -1,7 +1,12 @@
-Meteor.publish('categories', function() {
+Meteor.publish('getCategories', function() {
   return Categories.find({});
 });
 
-Meteor.publish('climbers', function() {
+Meteor.publish('getClimbers', function(category_id) {
+  check(category_id, String);
   return Climbers.find({});
+});
+
+Meteor.publish('scores', function() {
+  return Scores.find({});
 });

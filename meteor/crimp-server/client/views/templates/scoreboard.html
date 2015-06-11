@@ -12,7 +12,7 @@
   <p>CLIMBERS</p>
   <ul>
     {{ #each climbers }}
-      {{ > scoreboard_climber }}
+        {{ > scoreboard_climber }}
     {{ /each }}
   </ul>
 </template>
@@ -20,7 +20,7 @@
 
 
 <template name="scoreboard_category">
-  <option value="{{ id }}">
+  <option value="{{ _id }}">
     {{ name }}
   </option>
 </template>
@@ -37,6 +37,9 @@
     {{ scores_tiebreak }}<br>
     {{ standard_status }}<br>
     {{ additional_status }}<br>
-    {{ scores }}
+
+    --
+
+    --
   </li>
 </template>

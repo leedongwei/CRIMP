@@ -104,10 +104,6 @@ Meteor.methods({
   deleteClimber: function(data) {
     Climbers.remove(data, function(error, removedCount) {
       if (error) {
-        // TODO: handle the error
-        console.log(error);
-
-
         return error;
       } else {
         return removedCount;
