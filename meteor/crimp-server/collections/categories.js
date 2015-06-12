@@ -19,7 +19,10 @@ Schema.Category = new SimpleSchema({
   },
   scores_finalized: {
     label: 'Check if chief judge validates scores',
-    type: Boolean
+    type: Boolean,
+    autoValue: function() {
+      return false;
+    }
   },
   time_start: {
     label: 'Starting date and time',
@@ -41,14 +44,7 @@ Categories.attachSchema(Schema.Category);
 Meteor.methods({
   addCategory: function(data) {
     Categories.insert(data, function(error, insertedId) {
-      if (error) {
-        // TODO: handle the error
-        console.log(error);
-
-        return error;
-      } else {
-        return insertedId;
-      }
+      if (error)  throw error;
     });
   },
 
@@ -58,25 +54,15 @@ Meteor.methods({
 
   updateCategory: function(data) {
 
-    Categories.update(selector, modifier, function(error, updatedCount) {
-      if (error) {
-        // TODO: handle the error
-        console.log(error);
-
-        return error;
-      } else {
-        return updatedCount;
-      }
+    Categories.update(data.selector, { $set: data.modifier },
+                      function(error, updatedCount) {
+      if (error)  throw error;
     });
   },
 
   deleteCategory: function(data) {
     Categories.remove(data, function(error, removedCount) {
-      if (error) {
-        return error;
-      } else {
-        return removedCount;
-      }
+      if (error)  throw error;
     });
   }
 });

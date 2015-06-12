@@ -8,14 +8,16 @@ Schema.Climber = new SimpleSchema({
     label: 'Category of climber',
     type: String,
     min: 3,
-    max: 3
+    max: 3,
+    denyUpdate: true
   },
   number: {
     label: 'Climber\'s number',
     type: String,
     regEx: /\d+/,
     min: 3,
-    max: 3
+    max: 3,
+    denyUpdate: true
   },
   id: {
     label: 'Climber ID (category_id + number)',
@@ -23,7 +25,8 @@ Schema.Climber = new SimpleSchema({
     index: true,
     unique: true,
     min: 6,
-    max: 6
+    max: 6,
+    denyUpdate: true
   },
   // TODO: Probably not needed. Can delete
   // scores: {
@@ -73,11 +76,6 @@ Meteor.methods({
         // TODO: handle the error
         console.log('dongwei: got into an error')
         console.log(error);
-
-        return error;
-      } else {
-        console.log('dongwei: we are doing just fine')
-        return insertedId;
       }
     });
   },
@@ -87,27 +85,14 @@ Meteor.methods({
   },
 
   updateClimber: function(data) {
-
-    data['id'] = data.category + data.number;
     Climbers.update(selector, modifier, function(error, updatedCount) {
-      if (error) {
-        // TODO: handle the error
-        console.log(error);
-
-        return error;
-      } else {
-        return updatedCount;
-      }
+      if (error)  throw error;
     });
   },
 
   deleteClimber: function(data) {
     Climbers.remove(data, function(error, removedCount) {
-      if (error) {
-        return error;
-      } else {
-        return removedCount;
-      }
+      if (error)  throw error;
     });
   }
 });

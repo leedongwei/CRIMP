@@ -1,5 +1,5 @@
 // Client application state
 
-// TOOD: Set default to ongoing category
-currentCategory = { category_id: 'NMQ' };
-currentCategoryDeps = new Deps.Dependency;
+// TOOD: Set default to next/ongoing category
+// TODO: Session does not persist, use something else
+Session.setDefault('currentCategory', 'NMQ');

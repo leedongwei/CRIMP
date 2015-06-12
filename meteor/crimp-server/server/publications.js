@@ -2,11 +2,12 @@ Meteor.publish('getCategories', function() {
   return Categories.find({});
 });
 
-Meteor.publish('getClimbers', function(category_id) {
-  check(category_id, String);
-  return Climbers.find({});
+Meteor.publish('getClimbers', function(category) {
+  category = typeof category !== 'undefined' ? category : {};
+  return Climbers.find(category);
 });
 
-Meteor.publish('scores', function() {
-  return Scores.find({});
+Meteor.publish('getScores', function(category) {
+  category = typeof category !== 'undefined' ? category : {};
+  return Scores.find(category);
 });

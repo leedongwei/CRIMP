@@ -3,43 +3,48 @@
   <p>SCOREBOARD</p>
 
   <p>CATEGORIES</p>
-  <select class="scoreboard-categories">
-    {{ #each categories }}
-      {{ > scoreboard_category }}
-    {{ /each }}
-  </select>
+  {{ > scoreboard_categories }}
 
   <p>CLIMBERS</p>
-  <ul>
-    {{ #each climbers }}
-        {{ > scoreboard_climber }}
-    {{ /each }}
-  </ul>
+  {{ > scoreboard_climber }}
 </template>
 
 
 
-<template name="scoreboard_category">
-  <option value="{{ _id }}">
-    {{ name }}
-  </option>
+<template name="scoreboard_categories">
+  <select class="scoreboard-categories">
+    {{ #each categories }}
+
+      {{ !TODO: There should be a more elegant way of doing this }}
+      {{ #if selectedCategory id }}
+        <option value="{{ id }}" selected>{{ name }}</option>
+      {{ else }}
+        <option value="{{ id }}">{{ name }}</option>
+      {{ /if }}
+
+    {{ /each }}
+  </select>
+  {{ setvalue }}
 </template>
 
 
 
 <template name="scoreboard_climber">
-  <li>
-    {{ _id }}<br>
-    {{ name }}<br>
-    {{ id }}<br>
-    {{ category_id }} - {{ number }}<br>
-    {{ affliation }}<br>
-    {{ scores_tiebreak }}<br>
-    {{ standard_status }}<br>
-    {{ additional_status }}<br>
+  <ul>
+    {{ #each climbers }}
+      <li>
+        {{ _id }}<br>
+        {{ name }}<br>
+        {{ id }}<br>
+        {{ category_id }} - {{ number }}<br>
+        {{ affliation }}<br>
+        {{ scores_tiebreak }}<br>
+        {{ standard_status }}<br>
+        {{ additional_status }}<br>
+        --
 
-    --
-
-    --
-  </li>
+        --
+      </li>
+    {{ /each }}
+  </ul>
 </template>

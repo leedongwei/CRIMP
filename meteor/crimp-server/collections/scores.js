@@ -67,6 +67,7 @@ Meteor.methods({
   },
 
   findScore: function(data) {
+    console.log('accessing DB')
     return Scores.find(data).fetch();
   },
 
