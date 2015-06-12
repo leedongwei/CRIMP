@@ -19,8 +19,8 @@ Template.scoreboard_categories.helpers({
   categories: function() {
     return Categories.find({}).fetch();
   },
-  selectedCategory: function(category_id) {
-    return category_id === Session.get('currentCategory');
+  isCurrentCategory: function(category_id) {
+    return Session.equals('currentCategory', category_id);
   }
 });
 
@@ -35,10 +35,18 @@ Template.scoreboard_categories.events({
 
 Template.scoreboard_climber.helpers({
   climbers: function() {
+    // console.log(Climbers.find({'climber_id': 'NMQ001'}).fetch());
     return Climbers.find({ category_id: Session.get('currentCategory') })
                    .fetch();
   },
-  scores: function(climber_id) {
-    console.log(Scores.find({'climber_id': climber_id}));
+  aggregatedScores: function(scores) {
+    var data = {
+      routes: scores,
+      total_top: 0,
+      total_bonus: 0
+    };
+
+    // console.log(data)
+    return data;
   }
 });

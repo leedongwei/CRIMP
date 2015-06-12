@@ -16,7 +16,7 @@
     {{ #each categories }}
 
       {{ !TODO: There should be a more elegant way of doing this }}
-      {{ #if selectedCategory category_id }}
+      {{ #if isCurrentCategory category_id }}
         <option value="{{ category_id }}" selected>{{ name }}</option>
       {{ else }}
         <option value="{{ category_id }}">{{ name }}</option>
@@ -42,6 +42,8 @@
         {{ standard_status }}<br>
         {{ additional_status }}<br>
         --
+
+        {{ aggregatedScores scores}}
 
         --
       </li>

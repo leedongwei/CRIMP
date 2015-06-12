@@ -28,12 +28,10 @@ Schema.Climber = new SimpleSchema({
     max: 6,
     denyUpdate: true
   },
-  // TODO: Probably not needed. Can delete
-  // scores: {
-  //   label: 'Scores on all routes',
-  //   type: String,
-  //   optional: true
-  // },
+  scores: {
+    label: 'List to _id of scoring documents',
+    type: Object
+  },
   affliation: {
     label: 'Affliations of the climber (school, gym etc)',
     type: String,
@@ -67,8 +65,39 @@ Climbers.attachSchema(Schema.Climber);
 // TODO: Ensure admin-only access
 Meteor.methods({
   addClimber: function(data) {
-    // Create the ID
+
+    var scores = {},
+        routeCount = Categories
+                      .find({'category_id': data.category_id})
+                      .fetch()[0].route_count;
+
+    // Step 1: Create the X number of scoring documents associated with
+    // the climber
+    for (var i=1; i < routeCount+1; i++) {
+      var scoreSchema = {
+        climber_id: data.climber_id,
+        admin_id: 'autoCreated',
+        category_id: data.category_id,
+        route_id: data.category_id + i,
+        score_string: '',
+        score_top: 0,
+        score_bonus: 0
+      }
+
+      Scores.insert(scoreSchema,
+                    { removeEmptyStrings: false, autoConvert: false },
+                    function(error, result) {
+        if (error) {
+          throw error;
+        } else {
+          scores[i] = result;
+        }
+      });
+    }
+
+    // Step 2: Create the climber document
     data['climber_id'] = data.category_id + data.number;
+    data['scores'] = scores;
 
     Climbers.insert(data, function(error, insertedId) {
       if (error) {

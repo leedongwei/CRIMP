@@ -41,8 +41,7 @@ Schema.Score = new SimpleSchema({
     type: Date,
     autoValue: function() {
       return new Date();
-    },
-    optional: true
+    }
   }
 });
 
@@ -52,22 +51,25 @@ Scores.attachSchema(Schema.Score);
 // TODO: Ensure admin-only access
 Meteor.methods({
   addScore: function(data) {
-    Scores.insert(data,
-                  { removeEmptyStrings: false, autoConvert: false },
-                  function(error, insertedId) {
-      if (error) {
-        // TODO: handle the error
-        console.log(error);
+    // TODO: Integrated with addClimber
+    // It make sense because a score document is always tied to a climber
 
-        return error;
-      } else {
-        return insertedId;
-      }
-    });
+    // Scores.insert(data,
+    //               { removeEmptyStrings: false, autoConvert: false },
+    //               function(error, insertedId) {
+    //   if (error) {
+    //     // TODO: handle the error
+    //     console.log(error);
+
+    //     return error;
+    //   } else {
+    //     console.log('* ' + insertedId);
+    //     return insertedId;
+    //   }
+    // });
   },
 
   findScore: function(data) {
-    console.log('accessing DB')
     return Scores.find(data).fetch();
   },
 
