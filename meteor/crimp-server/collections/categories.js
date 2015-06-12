@@ -4,7 +4,7 @@ Schema.Category = new SimpleSchema({
     label: 'Name of category',
     type: String,
   },
-  id: {
+  category_id: {
     label: 'Acronym for name',
     type: String,
     index: true,
@@ -44,7 +44,7 @@ Categories.attachSchema(Schema.Category);
 Meteor.methods({
   addCategory: function(data) {
     Categories.insert(data, function(error, insertedId) {
-      if (error)  throw error;
+      if (error)  console.log(error);
     });
   },
 

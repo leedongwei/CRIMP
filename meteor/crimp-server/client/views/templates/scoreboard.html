@@ -16,10 +16,10 @@
     {{ #each categories }}
 
       {{ !TODO: There should be a more elegant way of doing this }}
-      {{ #if selectedCategory id }}
-        <option value="{{ id }}" selected>{{ name }}</option>
+      {{ #if selectedCategory category_id }}
+        <option value="{{ category_id }}" selected>{{ name }}</option>
       {{ else }}
-        <option value="{{ id }}">{{ name }}</option>
+        <option value="{{ category_id }}">{{ name }}</option>
       {{ /if }}
 
     {{ /each }}
@@ -35,7 +35,7 @@
       <li>
         {{ _id }}<br>
         {{ name }}<br>
-        {{ id }}<br>
+        {{ climber_id }}<br>
         {{ category_id }} - {{ number }}<br>
         {{ affliation }}<br>
         {{ scores_tiebreak }}<br>

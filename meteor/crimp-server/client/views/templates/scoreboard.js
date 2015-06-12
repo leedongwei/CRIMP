@@ -35,11 +35,10 @@ Template.scoreboard_categories.events({
 
 Template.scoreboard_climber.helpers({
   climbers: function() {
-    return Climbers
-            .find({ category_id: Session.get('currentCategory') })
-            .fetch();
+    return Climbers.find({ category_id: Session.get('currentCategory') })
+                   .fetch();
   },
-  scores: function() {
-
+  scores: function(climber_id) {
+    console.log(Scores.find({'climber_id': climber_id}));
   }
 });

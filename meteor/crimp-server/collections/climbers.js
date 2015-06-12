@@ -19,7 +19,7 @@ Schema.Climber = new SimpleSchema({
     max: 3,
     denyUpdate: true
   },
-  id: {
+  climber_id: {
     label: 'Climber ID (category_id + number)',
     type: String,
     index: true,
@@ -67,9 +67,8 @@ Climbers.attachSchema(Schema.Climber);
 // TODO: Ensure admin-only access
 Meteor.methods({
   addClimber: function(data) {
-
     // Create the ID
-    data['id'] = data.category_id + data.number;
+    data['climber_id'] = data.category_id + data.number;
 
     Climbers.insert(data, function(error, insertedId) {
       if (error) {

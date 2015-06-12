@@ -1,54 +1,48 @@
 var categorydata = [
   {
     name: 'Novice Men Qualifiers',
-    id: 'NMQ',
+    category_id: 'NMQ',
     route_count: 6,
-    // climbers: [],
     scores_finalized: false,
     time_start: '',
     time_end: ''
   },
   {
     name: 'Novice Women Qualifiers',
-    id: 'NWQ',
+    category_id: 'NWQ',
     route_count: 6,
-    // climbers: [],
     scores_finalized: false,
     time_start: '',
     time_end: ''
   },
   {
     name: 'Intermediate Men Qualifiers',
-    id: 'IMQ',
+    category_id: 'IMQ',
     route_count: 5,
-    // climbers: [],
     scores_finalized: false,
     time_start: '',
     time_end: ''
   },
   {
     name: 'Intermediate Women Qualifiers',
-    id: 'IWQ',
+    category_id: 'IWQ',
     route_count: 5,
-    // climbers: [],
     scores_finalized: false,
     time_start: '',
     time_end: ''
   },
   {
     name: 'Open Men Qualifiers',
-    id: 'OMQ',
+    category_id: 'OMQ',
     route_count: 4,
-    // climbers: [],
     scores_finalized: false,
     time_start: '',
     time_end: ''
   },
   {
     name: 'Open Women Qualifiers',
-    id: 'OWQ',
+    category_id: 'OWQ',
     route_count: 4,
-    // climbers: [],
     scores_finalized: false,
     time_start: '',
     time_end: ''
@@ -57,7 +51,7 @@ var categorydata = [
 
 for (var i=0; i < categorydata.length; i++) {
   console.log(categorydata[i]);
-  console.log(Meteor.call('addCategory', categorydata[i]));
+  Meteor.call('addCategory', categorydata[i]);
 }
 
 
@@ -74,7 +68,7 @@ var climberdata = [
     name: 'Adam',
     category_id: 'NMQ',
     number: '001',
-    id: 'NMQ001',
+    climber_id: 'NMQ001',
     scores: '',
     affliation: 'NTU'
   },
@@ -82,7 +76,7 @@ var climberdata = [
     name: 'Bran',
     category_id: 'NMQ',
     number: '002',
-    id: 'NMQ002',
+    climber_id: 'NMQ002',
     scores: '',
     affliation: 'NUS'
   },
@@ -90,7 +84,7 @@ var climberdata = [
     name: 'Charlie',
     category_id: 'NMQ',
     number: '003',
-    id: 'NMQ003',
+    climber_id: 'NMQ003',
     scores: '',
     affliation: 'SMU'
   },
@@ -98,7 +92,7 @@ var climberdata = [
     name: 'Dan',
     category_id: 'NMQ',
     number: '004',
-    id: 'NMQ004',
+    climber_id: 'NMQ004',
     scores: '',
     affliation: 'SMU'
   },
@@ -106,7 +100,7 @@ var climberdata = [
     name: 'Ernie',
     category_id: 'NMQ',
     number: '005',
-    id: 'NMQ005',
+    climber_id: 'NMQ005',
     scores: '',
     affliation: 'SMU'
   },
@@ -114,7 +108,7 @@ var climberdata = [
     name: 'Alice',
     category_id: 'NWQ',
     number: '001',
-    id: 'NWQ001',
+    climber_id: 'NWQ001',
     scores: '',
     affliation: ''
   },
@@ -122,7 +116,7 @@ var climberdata = [
     name: 'Brenda',
     category_id: 'NWQ',
     number: '002',
-    id: 'NWQ002',
+    climber_id: 'NWQ002',
     scores: '',
     affliation: ''
   },
@@ -130,7 +124,7 @@ var climberdata = [
     name: 'Carol',
     category_id: 'NWQ',
     number: '003',
-    id: 'NWQ003',
+    climber_id: 'NWQ003',
     scores: '',
     affliation: ''
   },
@@ -138,7 +132,7 @@ var climberdata = [
     name: 'Diana',
     category_id: 'NWQ',
     number: '004',
-    id: 'NWQ004',
+    climber_id: 'NWQ004',
     scores: '',
     affliation: ''
   },
@@ -146,7 +140,7 @@ var climberdata = [
     name: 'Elaine',
     category_id: 'NWQ',
     number: '005',
-    id: 'NWQ005',
+    climber_id: 'NWQ005',
     scores: '',
     affliation: ''
   },
@@ -154,7 +148,7 @@ var climberdata = [
     name: 'Aaron',
     category_id: 'IMQ',
     number: '001',
-    id: 'IMQ001',
+    climber_id: 'IMQ001',
     scores: '',
     affliation: ''
   },
@@ -162,7 +156,7 @@ var climberdata = [
     name: 'Bernie',
     category_id: 'IMQ',
     number: '002',
-    id: 'IMQ002',
+    climber_id: 'IMQ002',
     scores: '',
     affliation: ''
   },
@@ -170,7 +164,7 @@ var climberdata = [
     name: 'Charles',
     category_id: 'IMQ',
     number: '003',
-    id: 'IMQ003',
+    climber_id: 'IMQ003',
     scores: '',
     affliation: ''
   },
@@ -178,7 +172,7 @@ var climberdata = [
     name: 'David',
     category_id: 'IMQ',
     number: '004',
-    id: 'IMQ004',
+    climber_id: 'IMQ004',
     scores: '',
     affliation: ''
   },
@@ -186,7 +180,7 @@ var climberdata = [
     name: 'Everitt',
     category_id: 'IMQ',
     number: '005',
-    id: 'IMQ005',
+    climber_id: 'IMQ005',
     scores: '',
     affliation: ''
   },
@@ -194,7 +188,7 @@ var climberdata = [
     name: 'Frank',
     category_id: 'IMQ',
     number: '006',
-    id: 'IMQ006',
+    climber_id: 'IMQ006',
     scores: '',
     affliation: ''
   },
@@ -202,7 +196,7 @@ var climberdata = [
     name: 'Glen',
     category_id: 'IMQ',
     number: '007',
-    id: 'IMQ007',
+    climber_id: 'IMQ007',
     scores: '',
     affliation: ''
   },
@@ -210,7 +204,7 @@ var climberdata = [
     name: 'Hank',
     category_id: 'IMQ',
     number: '008',
-    id: 'IMQ008',
+    climber_id: 'IMQ008',
     scores: '',
     affliation: ''
   },
@@ -218,7 +212,7 @@ var climberdata = [
     name: 'Ian',
     category_id: 'IMQ',
     number: '009',
-    id: 'IMQ009',
+    climber_id: 'IMQ009',
     scores: '',
     affliation: ''
   },
@@ -226,7 +220,7 @@ var climberdata = [
     name: 'Jake',
     category_id: 'IMQ',
     number: '010',
-    id: 'IMQ010',
+    climber_id: 'IMQ010',
     scores: '',
     affliation: ''
   }
