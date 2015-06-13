@@ -30,7 +30,8 @@ Schema.Climber = new SimpleSchema({
   },
   scores: {
     label: 'List to _id of scoring documents',
-    type: Object
+    type: Object,
+    blackbox: true
   },
   affliation: {
     label: 'Affliations of the climber (school, gym etc)',
@@ -65,11 +66,11 @@ Climbers.attachSchema(Schema.Climber);
 // TODO: Ensure admin-only access
 Meteor.methods({
   addClimber: function(data) {
-
     var scores = {},
         routeCount = Categories
                       .find({'category_id': data.category_id})
                       .fetch()[0].route_count;
+        data['climber_id'] = data.category_id + data.number;
 
     // Step 1: Create the X number of scoring documents associated with
     // the climber
@@ -84,28 +85,22 @@ Meteor.methods({
         score_bonus: 0
       }
 
-      Scores.insert(scoreSchema,
+      scores[i] = Scores.insert(scoreSchema,
                     { removeEmptyStrings: false, autoConvert: false },
                     function(error, result) {
-        if (error) {
-          throw error;
-        } else {
-          scores[i] = result;
-        }
+        if (error)  throw error;
       });
+
     }
 
     // Step 2: Create the climber document
-    data['climber_id'] = data.category_id + data.number;
+    console.log(scores)
     data['scores'] = scores;
 
-    Climbers.insert(data, function(error, insertedId) {
-      if (error) {
-        // TODO: handle the error
-        console.log('dongwei: got into an error')
-        console.log(error);
-      }
+    return Climbers.insert(data, function(error, results) {
+
     });
+
   },
 
   findClimber: function(data) {
@@ -113,7 +108,7 @@ Meteor.methods({
   },
 
   updateClimber: function(data) {
-    Climbers.update(selector, modifier, function(error, updatedCount) {
+    return Climbers.update(selector, modifier, function(error, updatedCount) {
       if (error)  throw error;
     });
   },

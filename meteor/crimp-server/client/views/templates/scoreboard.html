@@ -24,7 +24,6 @@
 
     {{ /each }}
   </select>
-  {{ setvalue }}
 </template>
 
 
@@ -41,11 +40,12 @@
         {{ scores_tiebreak }}<br>
         {{ standard_status }}<br>
         {{ additional_status }}<br>
-        --
 
-        {{ aggregatedScores scores}}
+        {{ #each scores }}
+          {{ route_id }} {{ score_top }}t{{ score_bonus }}b
+          <br>
+        {{ /each }}
 
-        --
       </li>
     {{ /each }}
   </ul>

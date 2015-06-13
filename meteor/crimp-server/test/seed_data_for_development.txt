@@ -69,7 +69,6 @@ var climberdata = [
     category_id: 'NMQ',
     number: '001',
     climber_id: 'NMQ001',
-    scores: '',
     affliation: 'NTU'
   },
   {
@@ -77,7 +76,6 @@ var climberdata = [
     category_id: 'NMQ',
     number: '002',
     climber_id: 'NMQ002',
-    scores: '',
     affliation: 'NUS'
   },
   {
@@ -85,7 +83,6 @@ var climberdata = [
     category_id: 'NMQ',
     number: '003',
     climber_id: 'NMQ003',
-    scores: '',
     affliation: 'SMU'
   },
   {
@@ -93,7 +90,6 @@ var climberdata = [
     category_id: 'NMQ',
     number: '004',
     climber_id: 'NMQ004',
-    scores: '',
     affliation: 'SMU'
   },
   {
@@ -101,7 +97,6 @@ var climberdata = [
     category_id: 'NMQ',
     number: '005',
     climber_id: 'NMQ005',
-    scores: '',
     affliation: 'SMU'
   },
   {
@@ -109,7 +104,6 @@ var climberdata = [
     category_id: 'NWQ',
     number: '001',
     climber_id: 'NWQ001',
-    scores: '',
     affliation: ''
   },
   {
@@ -117,7 +111,6 @@ var climberdata = [
     category_id: 'NWQ',
     number: '002',
     climber_id: 'NWQ002',
-    scores: '',
     affliation: ''
   },
   {
@@ -125,7 +118,6 @@ var climberdata = [
     category_id: 'NWQ',
     number: '003',
     climber_id: 'NWQ003',
-    scores: '',
     affliation: ''
   },
   {
@@ -133,7 +125,6 @@ var climberdata = [
     category_id: 'NWQ',
     number: '004',
     climber_id: 'NWQ004',
-    scores: '',
     affliation: ''
   },
   {
@@ -141,7 +132,6 @@ var climberdata = [
     category_id: 'NWQ',
     number: '005',
     climber_id: 'NWQ005',
-    scores: '',
     affliation: ''
   },
   {
@@ -149,7 +139,6 @@ var climberdata = [
     category_id: 'IMQ',
     number: '001',
     climber_id: 'IMQ001',
-    scores: '',
     affliation: ''
   },
   {
@@ -157,7 +146,6 @@ var climberdata = [
     category_id: 'IMQ',
     number: '002',
     climber_id: 'IMQ002',
-    scores: '',
     affliation: ''
   },
   {
@@ -165,7 +153,6 @@ var climberdata = [
     category_id: 'IMQ',
     number: '003',
     climber_id: 'IMQ003',
-    scores: '',
     affliation: ''
   },
   {
@@ -173,7 +160,6 @@ var climberdata = [
     category_id: 'IMQ',
     number: '004',
     climber_id: 'IMQ004',
-    scores: '',
     affliation: ''
   },
   {
@@ -181,7 +167,6 @@ var climberdata = [
     category_id: 'IMQ',
     number: '005',
     climber_id: 'IMQ005',
-    scores: '',
     affliation: ''
   },
   {
@@ -189,7 +174,6 @@ var climberdata = [
     category_id: 'IMQ',
     number: '006',
     climber_id: 'IMQ006',
-    scores: '',
     affliation: ''
   },
   {
@@ -197,7 +181,6 @@ var climberdata = [
     category_id: 'IMQ',
     number: '007',
     climber_id: 'IMQ007',
-    scores: '',
     affliation: ''
   },
   {
@@ -205,7 +188,6 @@ var climberdata = [
     category_id: 'IMQ',
     number: '008',
     climber_id: 'IMQ008',
-    scores: '',
     affliation: ''
   },
   {
@@ -213,7 +195,6 @@ var climberdata = [
     category_id: 'IMQ',
     number: '009',
     climber_id: 'IMQ009',
-    scores: '',
     affliation: ''
   },
   {
@@ -221,7 +202,6 @@ var climberdata = [
     category_id: 'IMQ',
     number: '010',
     climber_id: 'IMQ010',
-    scores: '',
     affliation: ''
   }
 ];
@@ -349,17 +329,7 @@ var scoredata = [
     score_string: '111',
     score_top: 0,
     score_bonus: 0
-  },
-
-  // {
-  //   climber_id: '',
-  //   admin_id: 'foobar',
-  //   category_id: '',
-  //   route_id: '',
-  //   score_string: '',
-  //   score_top: 0,
-  //   score_bonus: 0
-  // },
+  }
 ]
 
 for (var i = 0; i < scoredata.length; i++) {

@@ -36,17 +36,22 @@ Template.scoreboard_categories.events({
 Template.scoreboard_climber.helpers({
   climbers: function() {
     // console.log(Climbers.find({'climber_id': 'NMQ001'}).fetch());
-    return Climbers.find({ category_id: Session.get('currentCategory') })
-                   .fetch();
-  },
-  aggregatedScores: function(scores) {
-    var data = {
-      routes: scores,
-      total_top: 0,
-      total_bonus: 0
-    };
+    var climberData = Climbers
+                        .find({ category_id: Session.get('currentCategory') })
+                        .fetch();
 
-    // console.log(data)
-    return data;
+    climberData.forEach(function(climber, index) {
+
+      var scoreArray = [];
+      for (var i=1; i < Object.keys(climber.scores).length+1; i++) {
+        scoreArray.push(Scores.findOne(climber.scores[i]));
+      }
+      climber.scores = scoreArray;
+
+      console.log(climber);
+      console.log('   --**--   ')
+    });
+
+    return climberData;
   }
 });

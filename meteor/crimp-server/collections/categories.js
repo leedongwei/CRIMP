@@ -43,7 +43,7 @@ Categories.attachSchema(Schema.Category);
 // Use audit-argument-checks for checks?
 Meteor.methods({
   addCategory: function(data) {
-    Categories.insert(data, function(error, insertedId) {
+    return Categories.insert(data, function(error, insertedId) {
       if (error)  console.log(error);
     });
   },
@@ -53,8 +53,7 @@ Meteor.methods({
   },
 
   updateCategory: function(data) {
-
-    Categories.update(data.selector, { $set: data.modifier },
+    return Categories.update(data.selector, { $set: data.modifier },
                       function(error, updatedCount) {
       if (error)  throw error;
     });
