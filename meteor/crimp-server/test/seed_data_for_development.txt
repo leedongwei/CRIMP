@@ -222,58 +222,46 @@ for (var i = 0; i < climberdata.length; i++) {
 
 var scoredata = [
   {
-    climber_id: 'NMQ003',
+    climber_id: 'NMQ001',
     admin_id: 'foobar',
     category_id: 'NMQ',
     route_id: 'NMQ1',
-    score_string: 'T',
-    score_top: 1,
-    score_bonus: 1
+    score_string: 'T'
   },
   {
     climber_id: 'NMQ001',
     admin_id: 'foobar',
     category_id: 'NMQ',
     route_id: 'NMQ2',
-    score_string: 'BT',
-    score_top: 2,
-    score_bonus: 1
+    score_string: 'BT'
   },
   {
     climber_id: 'NMQ001',
     admin_id: 'foobar',
     category_id: 'NMQ',
     route_id: 'NMQ3',
-    score_string: '11B11',
-    score_top: 0,
-    score_bonus: 3
+    score_string: '11B11'
   },
   {
     climber_id: 'NMQ001',
     admin_id: 'foobar',
     category_id: 'NMQ',
     route_id: 'NMQ4',
-    score_string: '',
-    score_top: 0,
-    score_bonus: 0
+    score_string: ''
   },
   {
     climber_id: 'NMQ001',
     admin_id: 'foobar',
     category_id: 'NMQ',
     route_id: 'NMQ5',
-    score_string: '11B11T',
-    score_top: 6,
-    score_bonus: 3
+    score_string: '11B11T'
   },
   {
     climber_id: 'NMQ001',
     admin_id: 'foobar',
     category_id: 'NMQ',
     route_id: 'NMQ6',
-    score_string: '111',
-    score_top: 0,
-    score_bonus: 0
+    score_string: '111'
   },
 
   {
@@ -281,58 +269,45 @@ var scoredata = [
     admin_id: 'foobar',
     category_id: 'NMQ',
     route_id: 'NMQ1',
-    score_string: 'T',
-    score_top: 1,
-    score_bonus: 1
+    score_string: 'B111'
   },
   {
     climber_id: 'NMQ002',
     admin_id: 'foobar',
     category_id: 'NMQ',
     route_id: 'NMQ2',
-    score_string: 'BT',
-    score_top: 2,
-    score_bonus: 1
+    score_string: '111TB'
   },
   {
     climber_id: 'NMQ002',
     admin_id: 'foobar',
     category_id: 'NMQ',
     route_id: 'NMQ3',
-    score_string: '11B11',
-    score_top: 0,
-    score_bonus: 3
+    score_string: 'BBBT'
   },
   {
     climber_id: 'NMQ002',
     admin_id: 'foobar',
     category_id: 'NMQ',
     route_id: 'NMQ4',
-    score_string: '',
-    score_top: 0,
-    score_bonus: 0
+    score_string: 'helloT'
   },
   {
     climber_id: 'NMQ002',
     admin_id: 'foobar',
     category_id: 'NMQ',
     route_id: 'NMQ5',
-    score_string: '11B11T',
-    score_top: 6,
-    score_bonus: 3
+    score_string: 'T111B'
   },
   {
     climber_id: 'NMQ002',
     admin_id: 'foobar',
     category_id: 'NMQ',
     route_id: 'NMQ6',
-    score_string: '111',
-    score_top: 0,
-    score_bonus: 0
+    score_string: '1111111111111111111T',
   }
 ]
 
 for (var i = 0; i < scoredata.length; i++) {
-  console.log(scoredata[i]);
-  console.log(Meteor.call('addScore', scoredata[i]));
+    console.log(Meteor.call('updateScore', scoredata[i]));
 }

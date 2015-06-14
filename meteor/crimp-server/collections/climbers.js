@@ -1,5 +1,5 @@
 Climbers = new Mongo.Collection('climbers');
-Schema.Climber = new SimpleSchema({
+CRIMP.schema.climber = new SimpleSchema({
   name: {
     label: 'Name of climber',
     type: String
@@ -61,7 +61,7 @@ Schema.Climber = new SimpleSchema({
 });
 
 
-Climbers.attachSchema(Schema.Climber);
+Climbers.attachSchema(CRIMP.schema.climber);
 
 // TODO: Ensure admin-only access
 Meteor.methods({
@@ -70,22 +70,23 @@ Meteor.methods({
         routeCount = Categories
                       .find({'category_id': data.category_id})
                       .fetch()[0].route_count;
-        data['climber_id'] = data.category_id + data.number;
+    data.climber_id = data.category_id + data.number;
 
     // Step 1: Create the X number of scoring documents associated with
     // the climber
     for (var i=1; i < routeCount+1; i++) {
-      var scoreSchema = {
+      var scoreDocument = {
         climber_id: data.climber_id,
         admin_id: 'autoCreated',
         category_id: data.category_id,
         route_id: data.category_id + i,
+        unique_id: data.climber_id + data.category_id + i,
         score_string: '',
         score_top: 0,
         score_bonus: 0
       }
 
-      scores[i] = Scores.insert(scoreSchema,
+      scores[i] = Scores.insert(scoreDocument,
                     { removeEmptyStrings: false, autoConvert: false },
                     function(error, result) {
         if (error)  throw error;
@@ -93,12 +94,12 @@ Meteor.methods({
 
     }
 
-    // Step 2: Create the climber document
-    console.log(scores)
-    data['scores'] = scores;
+    // Step 2: Append score documents to the climber document
+    data.scores = scores;
 
+    // Step 3: Insert climber document
     return Climbers.insert(data, function(error, results) {
-
+      // TODO: Handle error
     });
 
   },

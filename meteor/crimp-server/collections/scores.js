@@ -1,5 +1,5 @@
 Scores = new Mongo.Collection('scores');
-Schema.Score = new SimpleSchema({
+CRIMP.schema.score = new SimpleSchema({
   climber_id: {
     label: 'ID of climber',
     type: String,
@@ -21,6 +21,11 @@ Schema.Score = new SimpleSchema({
   },
   route_id: {
     label: 'ID of route',
+    type: String,
+    denyUpdate: true
+  },
+  unique_id: {
+    label: 'Unique identifier (climber_id+route_id)',
     type: String,
     denyUpdate: true
   },
@@ -46,28 +51,14 @@ Schema.Score = new SimpleSchema({
 });
 
 
-Scores.attachSchema(Schema.Score);
+Scores.attachSchema(CRIMP.schema.score);
 
 // TODO: Ensure admin-only access
 Meteor.methods({
-  addScore: function(data) {
-    // TODO: Integrated with addClimber
-    // It make sense because a score document is always tied to a climber
-
-    // Scores.insert(data,
-    //               { removeEmptyStrings: false, autoConvert: false },
-    //               function(error, insertedId) {
-    //   if (error) {
-    //     // TODO: handle the error
-    //     console.log(error);
-
-    //     return error;
-    //   } else {
-    //     console.log('* ' + insertedId);
-    //     return insertedId;
-    //   }
-    // });
-  },
+  // addScore: function(data) {
+  //   Note: Integrated with addClimber because score documents
+  //   are always tied to a climber
+  // },
 
   findScore: function(data) {
     return Scores.find(data).fetch();
@@ -75,27 +66,27 @@ Meteor.methods({
 
   updateScore: function(data) {
     var selector = {
-      route_id: data['route_id'],
-      climber_id: data['climber_id']
+      unique_id: data.climber_id + data.route_id
     };
 
-    data['score_top'] = calculateTop(data[score_string]);
-    data['score_bonus'] = calculateBonus(data[score_string]);
+    // Removing fields which has denyUpdates
+    try {
+      delete data.climber_id;
+      delete data.route_id;
+      delete data.category_id;
+      delete data.unique_id;
+    } catch (e) {
+      // lol fail.
+    }
 
-    // Probably not needed, see if it throws an error
-    // delete data['route_id'];
-    // delete data['climber_id'];
+    data.score_top = CRIMP.scoring.calculateTop(data.score_string);
+    data.score_bonus = CRIMP.scoring.calculateBonus(data.score_string);
 
-    Scores.upsert(selector, data, function(error, updatedCount) {
-      if (error) {
-        // TODO: handle the error
-        console.log(error);
-
-        return error;
-      } else {
-        return updatedCount;
-      }
+    return Scores.update(selector, {$set: data},
+                         function(error, updatedCount) {
+      // TODO: Handle error
     });
+
   },
 
   deleteScore: function(data) {

@@ -8,19 +8,22 @@
   systems in the future
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+CRIMP.scoring = {
+  calculateTop: function(scoreString) {
+    for (var i=0; i < scoreString.length; i++) {
+      if (scoreString[i] === 'T') {
+        return i+1;
+      }
+    }
+    return 0;
+  },
 
-function calculateTop(scoreString) {
-  for (var i=0; i < scoreString.length; i++) {
-    if (scoreString[i] === 'T')
-      return i+1;
+  calculateBonus: function(scoreString) {
+    for (var i=0; i < scoreString.length; i++) {
+      if (scoreString[i] === 'T' || scoreString[i] === 'B') {
+        return i+1;
+      }
+    }
+    return 0;
   }
-  return 0;
-}
-
-function calculateBonus(scoreString) {
-  for (var i=0; i < scoreString.length; i++) {
-    if (rawScore[i] === 'T' || rawScore[i] === 'B')
-      return i+1;
-  }
-  return 0;
 }

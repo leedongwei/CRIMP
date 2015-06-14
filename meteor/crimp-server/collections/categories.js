@@ -1,5 +1,5 @@
 Categories = new Mongo.Collection('categories');
-Schema.Category = new SimpleSchema({
+CRIMP.schema.category = new SimpleSchema({
   name: {
     label: 'Name of category',
     type: String,
@@ -37,7 +37,7 @@ Schema.Category = new SimpleSchema({
 });
 
 
-Categories.attachSchema(Schema.Category);
+Categories.attachSchema(CRIMP.schema.category);
 
 // TODO: Ensure admin-only access
 // Use audit-argument-checks for checks?

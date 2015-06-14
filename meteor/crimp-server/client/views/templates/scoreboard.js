@@ -35,7 +35,6 @@ Template.scoreboard_categories.events({
 
 Template.scoreboard_climber.helpers({
   climbers: function() {
-    // console.log(Climbers.find({'climber_id': 'NMQ001'}).fetch());
     var climberData = Climbers
                         .find({ category_id: Session.get('currentCategory') })
                         .fetch();
@@ -46,10 +45,9 @@ Template.scoreboard_climber.helpers({
       for (var i=1; i < Object.keys(climber.scores).length+1; i++) {
         scoreArray.push(Scores.findOne(climber.scores[i]));
       }
-      climber.scores = scoreArray;
 
-      console.log(climber);
-      console.log('   --**--   ')
+      // Replace the scores._id array with the score documents array
+      climber.scores = scoreArray;
     });
 
     return climberData;
