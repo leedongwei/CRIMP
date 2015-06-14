@@ -57,3 +57,4 @@ local.properties
 #meteor gitignore ===========================
 **/.meteor/local
 **/.meteor/meteorite
+**/.meteor/.gitignore

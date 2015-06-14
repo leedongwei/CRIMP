@@ -1,22 +1,17 @@
 Scores = new Mongo.Collection('scores');
 CRIMP.schema.score = new SimpleSchema({
-  climber_id: {
-    label: 'ID of climber',
-    type: String,
-    min: 6,
-    max: 6,
-    denyUpdate: true
-  },
-  admin_id: {
-    // TODO: Find a more efficient way of referencing admins
-    label: 'ID of admin',
-    type: String
-  },
   category_id: {
     label: 'ID of category',
     type: String,
     min: 3,
     max: 3,
+    denyUpdate: true
+  },
+  climber_id: {
+    label: 'ID of climber',
+    type: String,
+    min: 6,
+    max: 6,
     denyUpdate: true
   },
   route_id: {
@@ -27,7 +22,14 @@ CRIMP.schema.score = new SimpleSchema({
   unique_id: {
     label: 'Unique identifier (climber_id+route_id)',
     type: String,
+    index: true,
+    unique: true,
     denyUpdate: true
+  },
+  admin_id: {
+    // TODO: Find a more efficient way of referencing admins
+    label: 'ID of admin doing updates',
+    type: String
   },
   score_string: {
     label: 'Raw scoring string',
