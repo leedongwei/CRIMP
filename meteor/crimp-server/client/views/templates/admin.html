@@ -1,6 +1,18 @@
 
 <template name="admin">
-  <p>Super secret admin area</p>
+  <p>Admin area</p>
 
-  {{ > loginButtons }}
+  {{ #if isVerified }}
+    {{ > loginButtons }}
+    {{ > admin_restricted }}
+  {{ else }}
+    {{ > loginButtons }}
+  {{ /if }}
+
+</template>
+
+
+
+<template name="admin_restricted">
+  <p>restricted admin area</p>
 </template>
