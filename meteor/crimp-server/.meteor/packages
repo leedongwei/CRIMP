@@ -6,3 +6,7 @@
 
 meteor-platform
 aldeed:collection2
+iron:router
+accounts-ui
+accounts-facebook
+alanning:roles
