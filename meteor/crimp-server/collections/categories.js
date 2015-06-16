@@ -39,12 +39,15 @@ CRIMP.schema.category = new SimpleSchema({
 
 Categories.attachSchema(CRIMP.schema.category);
 
-// TODO: Ensure admin-only access
 // Use audit-argument-checks for checks?
 Meteor.methods({
   addCategory: function(data) {
+    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
+      throw new Meteor.Error(403, "Access denied");
+    }
+
     return Categories.insert(data, function(error, insertedId) {
-      if (error)  console.log(error);
+      if (error)  throw error;
     });
   },
 
@@ -53,6 +56,10 @@ Meteor.methods({
   },
 
   updateCategory: function(data) {
+    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
+      throw new Meteor.Error(403, "Access denied");
+    }
+
     return Categories.update(data.selector, { $set: data.modifier },
                       function(error, updatedCount) {
       if (error)  throw error;
@@ -60,6 +67,10 @@ Meteor.methods({
   },
 
   deleteCategory: function(data) {
+    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
+      throw new Meteor.Error(403, "Access denied");
+    }
+
     Categories.remove(data, function(error, removedCount) {
       if (error)  throw error;
     });

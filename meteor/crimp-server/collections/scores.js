@@ -67,6 +67,10 @@ Meteor.methods({
   },
 
   updateScore: function(data) {
+    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.organizers)) {
+      throw new Meteor.Error(403, "Access denied");
+    }
+
     var selector = {
       unique_id: data.climber_id + data.route_id
     };

@@ -57,7 +57,17 @@ CRIMP.schema.climber = new SimpleSchema({
     type: String,
     label: 'Additional comment to reflect on scoreboard',
     optional: true
-  }
+  },
+  // identity: {
+  //   type: String,
+  //   label: 'NRIC or driver license number',
+  //   optional: true
+  // },
+  // notes: {
+  //   type: String,
+  //   label: 'Notes on climber (i.e. payment status) that will be hidden',
+  //   optional: true
+  // }
 });
 
 
@@ -66,6 +76,10 @@ Climbers.attachSchema(CRIMP.schema.climber);
 // TODO: Ensure admin-only access
 Meteor.methods({
   addClimber: function(data) {
+    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
+      throw new Meteor.Error(403, "Access denied");
+    }
+
     var scores = {},
         routeCount = Categories
                       .find({'category_id': data.category_id})
@@ -109,14 +123,20 @@ Meteor.methods({
   },
 
   updateClimber: function(data) {
+    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
+      throw new Meteor.Error(403, "Access denied");
+    }
+
     return Climbers.update(selector, modifier, function(error, updatedCount) {
       if (error)  throw error;
     });
   },
 
   deleteClimber: function(data) {
-    Climbers.remove(data, function(error, removedCount) {
-      if (error)  throw error;
-    });
+    // Climbers.remove(data, function(error, removedCount) {
+    //   if (error)  throw error;
+    // });
+
+    // TODO: Delete score documents when deleting climber
   }
 });
