@@ -10,3 +10,5 @@ iron:router
 accounts-ui
 accounts-facebook
 alanning:roles
+nimble:restivus
+http

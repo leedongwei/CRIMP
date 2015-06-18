@@ -1,38 +1,42 @@
-# CRIMP-receiver
-* Only admins and judges are allowed to connect to `CRIMP-receiver`, the public will connect to `CRIMP-broadcaster` (see below)
-* Separation ensure that scoring will be up even if 1 million people connect to see the scores and inadvertently DDOS us
-* You're strongly recommended to keep the address of this server a secret
-
+# CRIMP-server
+* Communicates with spectator and admin web interface using DDP
+* Exposes a HTTPS only, REST API for the judges' mobile app
+  * `Content-Type` is always `application/json`
+  * When there is an error processing the request, the response body will have the key `error` with the explanation
 
 <br>
 
 
-## POST 'judge/login'
+## POST '/api/judge/login'
 * Used by judges to login or create an account
+* Authenticates with Facebook only
 
 #### Request
 ```
-header: [FB Auth Credentials]
+Body: {
+  access_token: 'CAAE1913yZC2ABAAO6...'
+  expiresAt: '143961...'
+}
 ```
 
 #### Response
 ```
 Status: 200 OK / 201 Created / 401 Unauthorized
 Body: {
-  adminId: 'happycaterpie',
-  adminStatus: -1
+  x-user-id: 'A6kvTowyvNz...',
+  x-auth-token: 'RCDBy6X3zS8...',
+  roles: 'pending'
 }
 ```
 * Respond 200 for successful login
 * Respond 201 for successful creation
-* Respond 401 when adminId exists in database but credentials are wrong
-* `adminStatus` 0 for pending, 1 for judges, 2 for admin, 3 for super-admin
+* `roles` in increasing order of access: denied, pending, partner, judge, admin, hukkataival
 
 
 <br><br><br>
 
 
-## POST '/judge/report'
+## POST '/api/judge/report'
 * Used by judges to report in when they are judging a route
 * Server will track the judges currently active (login/scoring) on all the routes in an array
 * If there is no activity from a judge for 6mins, he will be removed from the array
