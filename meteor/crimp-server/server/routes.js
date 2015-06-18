@@ -27,19 +27,21 @@ Restivus.addRoute('judge/login', { authRequired: false }, {
       fb.data.accessToken = this.bodyParams.accessToken;
       fb.data.expiresAt = this.bodyParams.expiresAt;
 
-
       user = Accounts.updateOrCreateUserFromExternalService(
         'facebook', fb.data
       );
 
-      // Prevent multiple loginTokens on 1 account
+      // Prevent multiple loginTokens on 1 account, doesn't seem to be needed
       // Accounts._clearAllLoginTokens(user.userId)
 
       // Create a loginToken and tie it to the account
       user.token = Accounts._generateStampedLoginToken();
       Accounts._insertLoginToken(user.userId, user.token);
 
-      user.roles = Roles.getRolesForUser(user.userId);
+      // Retrieve the role
+      user.roles = Meteor.users.findOne(user.userId).roles;
+      // TODO: Does not work: Roles.getRolesForUser(user.userId);
+
 
       return {
         'x-user-id': user.userId,
