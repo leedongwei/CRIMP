@@ -4,6 +4,7 @@
   * `Content-Type` is always `application/json`
   * When there is an error processing the request, the response body will have the key `error` with the explanation
 
+
 <br>
 
 
@@ -14,7 +15,7 @@
 #### Request
 ```
 Body: {
-  access_token: 'CAAE1913yZC2ABAAO6...'
+  accessToken: 'CAAE1913yZC2ABAAO6...'
   expiresAt: '143961...'
 }
 ```
@@ -31,41 +32,46 @@ Body: {
 * Respond 200 for successful login
 * Respond 201 for successful creation
 * `roles` in increasing order of access: denied, pending, partner, judge, admin, hukkataival
+* `GET` 'api/logout' to destroy the session
 
 
 <br><br><br>
 
 
 ## POST '/api/judge/report'
-* Used by judges to report in when they are judging a route
-* Server will track the judges currently active (login/scoring) on all the routes in an array
-* If there is no activity from a judge for 6mins, he will be removed from the array
-* Removal can be enforced by setting `force` to true, which covers the case when judges are substituted from duty
+* Used by judges to report in when they are judging a route, and to inform everyone if there is a clash
+* Used by admin to make sure that the judges are on the right route
 
 #### Request
 ```
-header: [FB Auth Credentials]
+header: {
+  x-user-id: 'A6kvTowyvNz...',
+  x-auth-token: 'RCDBy6X3zS8...'
+}
 body: {
-  categoryId: 'NWQ'
-  routeId: 'NWQ01
+  category_id: 'NWQ'
+  route_id: 'NWQ1
   force: false
 }
 ```
+* Server will track the judges currently active (on scoring duty)
+* If there is no activity from a judge for 10mins, he will be removed from the array
+* Removal can be enforced by setting `force` to true, which covers the case when judges are substituted from duty
 
 #### Response
 ```
 Status: 200 OK
 Body: {
-  adminId: 'happycaterpie',
-  adminName: 'Weizhi'
-  categoryId: 'NWQ',
-  routeId: 'NWQ01'
+  admin_id: 'A6kvTowyvNz...',
+  admin_name: 'Weizhi'
+  category_id: 'NWQ',
+  route_id: 'NWQ01'
   state: 1
 }
 ```
-* `adminId` and `adminName` refers to the active judge on that route
+* `admin_id` and `admin_name` refers to the active judge on that route
 * `state` 1 for successful request, 0 for failed request
-* `adminId` and `adminName` be your's if successful, someone else's if failed.
+* `admin_id` and `admin_name` be your's if successful, someone else's if failed.
 * Request will fail when there is already a judge on that route
 
 
@@ -77,10 +83,13 @@ Body: {
 
 #### Request
 ```
-header: [FB Auth Credentials]
+header: {
+  x-user-id: 'A6kvTowyvNz...',
+  x-auth-token: 'RCDBy6X3zS8...'
+}
 body: {
-  adminId: 'happycaterpie',
-  routeId: 'NWQ01'
+  admin_id: 'A6kvTowyvNz...',
+  route_id: 'NWQ1'
 }
 ```
 
@@ -93,22 +102,33 @@ Status: 200 OK / 401 Unauthorized
 <br><br><br>
 
 
-## GET 'judge/climbers/:categoryId'
-* Used by judges to get identity of all the climbers in a specific category
+## GET 'judge/categories'
+* Used by judges to get data on all the categories
+
+#### Request
+```
+header: {
+  x-user-id: 'A6kvTowyvNz...',
+  x-auth-token: 'RCDBy6X3zS8...'
+}
+```
 
 #### Response
 ```
 Status: 200 OK
 Body: {
-  categoryId: 'NWQ'
-  climbers: [
+  categories: [
     {
-      climberId: 'NMQ001'
-      climberName: 'DongWei'
+      category_name: 'NMQ001',
+      category_id: 'DongWei',
+      route_count: 6,
+      scores_finalized: false,
+      time_start: <format undecided>,
+      time_end: <format undecided>,
     },
     {
-      climberId: 'NMQ002',
-      climberName: 'Weizhi'
+      climber_id: 'NMQ002',
+      climber_name: 'Weizhi'
     },
 
     ...
@@ -121,16 +141,60 @@ Body: {
 <br><br><br>
 
 
-## GET 'judge/score/:routeId/:climberId'
-* Used by judges to get the score of a climber on a specific route
+## GET 'judge/climbers/:category_id'
+* Used by judges to get identity of all the climbers in a specific category
+
+#### Request
+```
+header: {
+  x-user-id: 'A6kvTowyvNz...',
+  x-auth-token: 'RCDBy6X3zS8...'
+}
+```
 
 #### Response
 ```
 Status: 200 OK
 Body: {
-  routeId: 'NMQ001'
-  climberId: 'NMQ001',
-  climberName: 'DongWei',
+  category_id: 'NWQ'
+  climbers: [
+    {
+      climber_id: 'NMQ001'
+      climber_name: 'DongWei'
+    },
+    {
+      climber_id: 'NMQ002',
+      climber_name: 'Weizhi'
+    },
+
+    ...
+
+  ]
+}
+````
+
+
+<br><br><br>
+
+
+## GET 'judge/score/:route_id/:climber_id'
+* Used by judges to get the score of a climber on a specific route
+
+#### Request
+```
+header: {
+  x-user-id: 'A6kvTowyvNz...',
+  x-auth-token: 'RCDBy6X3zS8...'
+}
+```
+
+#### Response
+```
+Status: 200 OK
+Body: {
+  route_id: 'NMQ001'
+  climber_id: 'NMQ001',
+  climber_name: 'DongWei',
   score: '11B11'
 }
 ```
@@ -139,12 +203,16 @@ Body: {
 <br><br><br>
 
 
-## POST 'judge/score/:routeId/:climberId'
+## POST 'judge/score/:route_id/:climber_id'
 * Used by judges to update the score of a climber on a specific route
+* If `scores_finalized` is `true` for a category, then the scores will not be updated any more.
 
 #### Request
 ```
-header: [FB Auth Credentials]
+header: {
+  x-user-id: 'A6kvTowyvNz...',
+  x-auth-token: 'RCDBy6X3zS8...'
+}
 body: {
   score: '11T'
 }
@@ -153,16 +221,12 @@ body: {
 #### Response
 ```
 Status: 200 OK / 401 Unauthorized
+body: {
+  // if there is an error
+  error: 'Scores are finalized' / 'Unauthorized'
+}
 ```
 
 * `score` should only cover climbs on that attempt
   * e.g. sending in '11T' for DongWei makes his overall score to be '11B1111T'
 
-
-<br><br><br>
-<br><br><br>
-
-
-# CRIMP-broadcaster
-
-_Coming soon_

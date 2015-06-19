@@ -53,3 +53,37 @@ Restivus.addRoute('judge/login', { authRequired: false }, {
     }
   }
 });
+
+Restivus.addRoute('judge/report', { authRequired: true }, {
+  post: function () {
+    return { error: 'Endpoint is not implemented' };
+  }
+});
+
+Restivus.addRoute('judge/helpme', { authRequired: true }, {
+  post: function () {
+    return { error: 'Endpoint is not implemented' };
+  }
+});
+
+Restivus.addRoute('judge/categories/', { authRequired: true }, {
+  get: function () {
+    return { error: 'Endpoint is not implemented' };
+  }
+});
+
+Restivus.addRoute('judge/climbers/:category_id', { authRequired: true }, {
+  get: function () {
+    return { error: 'Endpoint is not implemented' };
+  }
+});
+
+Restivus.addRoute('judge/score/:route_id/:climber_id',
+    { authRequired: true }, {
+  get: function () {
+    return { error: 'Endpoint is not implemented' };
+  },
+  post: function() {
+    return { error: 'Endpoint is not implemented' };
+  }
+});
