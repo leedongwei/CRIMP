@@ -8,6 +8,7 @@ Restivus.configure({
   prettyJson: true
 });
 
+
 Restivus.addRoute('judge/login', { authRequired: false }, {
   post: function () {
     if (!('accessToken' in this.bodyParams) ||
@@ -54,32 +55,47 @@ Restivus.addRoute('judge/login', { authRequired: false }, {
   }
 });
 
-Restivus.addRoute('judge/report', { authRequired: true }, {
+
+Restivus.addRoute('judge/report',
+      { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   post: function () {
     return { error: 'Endpoint is not implemented' };
   }
 });
 
-Restivus.addRoute('judge/helpme', { authRequired: true }, {
+
+Restivus.addRoute('judge/helpme',
+      { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   post: function () {
     return { error: 'Endpoint is not implemented' };
   }
 });
 
-Restivus.addRoute('judge/categories/', { authRequired: true }, {
+
+Restivus.addRoute('judge/categories/',
+      { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   get: function () {
     return Categories.find({}).fetch();
   }
 });
 
-Restivus.addRoute('judge/climbers/:category_id', { authRequired: true }, {
+
+Restivus.addRoute('judge/climbers/:category_id',
+      { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   get: function () {
-    return { error: 'Endpoint is not implemented' };
+    var category = this.bodyParams.category_id;
+
+    if (category.length !== 3) {
+      return { 'error': 'Bad syntax for :category_id' };
+    }
+
+    return Climbers.find({'category_id': this.bodyParams.category_id });
   }
 });
 
+
 Restivus.addRoute('judge/score/:route_id/:climber_id',
-    { authRequired: true }, {
+      { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   get: function () {
     return { error: 'Endpoint is not implemented' };
   },

@@ -21,15 +21,12 @@ Body: {
 
 #### Response
 ```
-Status: 200 OK / 201 Created / 401 Unauthorized
 Body: {
   x-user-id: 'A6kvTowyvNz...',
   x-auth-token: 'RCDBy6X3zS8...',
   roles: 'pending'
 }
 ```
-* Respond 200 for successful login
-* Respond 201 for successful creation
 * `roles` in increasing order of access: denied, pending, partner, judge, admin, hukkataival
 * `GET` 'api/logout' to destroy the session
 
@@ -59,7 +56,6 @@ body: {
 
 #### Response
 ```
-Status: 200 OK
 Body: {
   admin_id: 'A6kvTowyvNz...',
   admin_name: 'Weizhi'
@@ -94,7 +90,9 @@ body: {
 
 #### Response
 ```
-Status: 200 OK / 401 Unauthorized
+body: {
+  status: 'received'
+}
 ```
 
 
@@ -114,7 +112,6 @@ header: {
 
 #### Response
 ```
-Status: 200 OK
 Body: {
   categories: [
     {
@@ -122,12 +119,16 @@ Body: {
       category_id: 'DongWei',
       route_count: 6,
       scores_finalized: false,
-      time_start: <format undecided>,
-      time_end: <format undecided>,
+      time_start: {format undecided},
+      time_end: {format undecided},
     },
     {
-      climber_id: 'NMQ002',
-      climber_name: 'Weizhi'
+      category_name: 'NMQ001',
+      category_id: 'DongWei',
+      route_count: 6,
+      scores_finalized: false,
+      time_start: {format undecided},
+      time_end: {format undecided},
     },
 
     ...
