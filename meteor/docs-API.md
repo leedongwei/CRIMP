@@ -24,7 +24,7 @@ Body: {
 Body: {
   x-user-id: 'A6kvTowyvNz...',
   x-auth-token: 'RCDBy6X3zS8...',
-  roles: 'pending'
+  roles: ['admin']
 }
 ```
 * `roles` in increasing order of access: denied, pending, partner, judge, admin, hukkataival

@@ -1,10 +1,15 @@
 Restivus.configure({
   defaultHeaders: { 'Content-Type': 'application/json' },
   useAuth: true,
-  // auth: {
-  //   'token':
-  //   'user':
-  // }
+  auth: {
+    'token': 'services.resume.loginTokens.hashedToken',
+    'user': function() {
+      return {
+        userId: this.request.headers['x-user-id'],
+        token: Accounts._hashLoginToken(this.request.headers['x-auth-token'])
+      };
+    }
+  },
   prettyJson: true
 });
 
@@ -40,8 +45,7 @@ Restivus.addRoute('judge/login', { authRequired: false }, {
       Accounts._insertLoginToken(user.userId, user.token);
 
       // Retrieve the role
-      user.roles = Meteor.users.findOne(user.userId).roles;
-      // TODO: Does not work: Roles.getRolesForUser(user.userId);
+      user.roles = Roles.getRolesForUser(user.userId);
 
 
       return {
@@ -72,7 +76,7 @@ Restivus.addRoute('judge/helpme',
 });
 
 
-Restivus.addRoute('judge/categories/',
+Restivus.addRoute('judge/categories',
       { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   get: function () {
     return Categories.find({}).fetch();
