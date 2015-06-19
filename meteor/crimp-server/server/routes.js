@@ -68,7 +68,7 @@ Restivus.addRoute('judge/helpme', { authRequired: true }, {
 
 Restivus.addRoute('judge/categories/', { authRequired: true }, {
   get: function () {
-    return { error: 'Endpoint is not implemented' };
+    return Categories.find({}).fetch();
   }
 });
 

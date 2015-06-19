@@ -4,7 +4,6 @@
   * `Content-Type` is always `application/json`
   * When there is an error processing the request, the response body will have the key `error` with the explanation
 
-
 <br>
 
 
