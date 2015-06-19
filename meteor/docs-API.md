@@ -28,6 +28,8 @@ Body: {
 }
 ```
 * `roles` in increasing order of access: denied, pending, partner, judge, admin, hukkataival
+* Store `x-user-id` and `x-auth-token` for subsequent requests
+* `x-auth-token` will be hashed. To generate a new token, log out
 * `GET` 'api/logout' to destroy the session
 
 

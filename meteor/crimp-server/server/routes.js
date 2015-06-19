@@ -47,14 +47,13 @@ Restivus.addRoute('judge/login', { authRequired: false }, {
       // Retrieve the role
       user.roles = Roles.getRolesForUser(user.userId);
 
-
       return {
         'x-user-id': user.userId,
         'x-auth-token': user.token.token,
         'roles': user.roles
       };
     } catch (e) {
-      return { error: e.message };
+      return { 'error': e.message };
     }
   }
 });
@@ -63,7 +62,7 @@ Restivus.addRoute('judge/login', { authRequired: false }, {
 Restivus.addRoute('judge/report',
       { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   post: function () {
-    return { error: 'Endpoint is not implemented' };
+    return { 'error': 'Endpoint is not implemented' };
   }
 });
 
@@ -71,7 +70,7 @@ Restivus.addRoute('judge/report',
 Restivus.addRoute('judge/helpme',
       { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   post: function () {
-    return { error: 'Endpoint is not implemented' };
+    return { 'error': 'Endpoint is not implemented' };
   }
 });
 
@@ -87,13 +86,14 @@ Restivus.addRoute('judge/categories',
 Restivus.addRoute('judge/climbers/:category_id',
       { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   get: function () {
-    var category = this.bodyParams.category_id;
+    var category = this.urlParams.category_id;
 
     if (category.length !== 3) {
       return { 'error': 'Bad syntax for :category_id' };
     }
 
-    return Climbers.find({'category_id': this.bodyParams.category_id });
+    // TODO: Clean up data, scores._id is being sent over
+    return Climbers.find({ category_id: category }).fetch();
   }
 });
 
@@ -101,9 +101,21 @@ Restivus.addRoute('judge/climbers/:category_id',
 Restivus.addRoute('judge/score/:route_id/:climber_id',
       { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   get: function () {
-    return { error: 'Endpoint is not implemented' };
+    console.log(this.bodyParams)
+    var route = this.urlParams.route_id,
+        climber = this.urlParams.climber_id;
+
+    // Route and climber should belong to the same category
+    if (route.substring(0, 3) !== climber.substring(0, 3)) {
+      return { 'error': 'Route/Climber is from the wrong category' };
+    }
+
+    return Scores.findOne({
+      climber_id: climber,
+      route_id: route
+    });
   },
   post: function() {
-    return { error: 'Endpoint is not implemented' };
+    return { 'error': 'Endpoint is not implemented' };
   }
 });
