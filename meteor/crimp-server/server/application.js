@@ -8,11 +8,13 @@ Accounts.onCreateUser(function(options, user) {
     user.profile = options.profile;
   }
 
-  // Auto-grant admin privileges for demo
-  // TODO/Notes: Manually add role to user, because http://t.co/hg0K1NQdlU
-  // There's probably a better way to do this, oh well.
-  user.roles = ENVIRONMENT.demo ? ['admin'] : ['pending'];
-  Roles.addUsersToRoles(user._id, user.roles);
+  // Set first user as the boss
+  if (Meteor.users.find().count() === 0) {
+    user.roles = ['hukkataival'];
+  } else {
+    // Set users as admin if this is a demo
+    user.roles = ENVIRONMENT.demo ? ['admin'] : ['pending'];
+  }
 
   return user;
 });

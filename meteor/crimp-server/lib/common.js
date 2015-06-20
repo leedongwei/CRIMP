@@ -21,5 +21,17 @@ CRIMP.roles = {
   'organizers' : ['judge', 'admin', 'hukkataival'],
 
   // trusted have read+write access to categories, climbers, scores and users
-  'trusted': ['admin', 'hukkataival']
+  'trusted': ['admin', 'hukkataival'],
+
+  // nalle is the man
+  'nalle': ['hukkataival'],
+
+  'getAll': [
+    'denied',
+    'pending',
+    'partner',
+    'judge',
+    'admin',
+    'hukkataival'
+  ]
 };

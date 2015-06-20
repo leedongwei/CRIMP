@@ -33,8 +33,9 @@ Restivus.addRoute('judge/login', { authRequired: false }, {
       fb.data.accessToken = this.bodyParams.accessToken;
       fb.data.expiresAt = this.bodyParams.expiresAt;
 
+      // Create user account
       user = Accounts.updateOrCreateUserFromExternalService(
-        'facebook', fb.data
+        'facebook', fb.data, {'profile': {'name': fb.data.name }}
       );
 
       // Prevent multiple loginTokens on 1 account, doesn't seem to be needed
@@ -88,6 +89,7 @@ Restivus.addRoute('judge/climbers/:category_id',
   get: function () {
     var category = this.urlParams.category_id;
 
+    // TODO: More checks needed?
     if (category.length !== 3) {
       return { 'error': 'Bad syntax for :category_id' };
     }
@@ -101,10 +103,10 @@ Restivus.addRoute('judge/climbers/:category_id',
 Restivus.addRoute('judge/score/:route_id/:climber_id',
       { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   get: function () {
-    console.log(this.bodyParams)
     var route = this.urlParams.route_id,
         climber = this.urlParams.climber_id;
 
+    // TODO: More checks needed?
     // Route and climber should belong to the same category
     if (route.substring(0, 3) !== climber.substring(0, 3)) {
       return { 'error': 'Route/Climber is from the wrong category' };
@@ -116,6 +118,20 @@ Restivus.addRoute('judge/score/:route_id/:climber_id',
     });
   },
   post: function() {
+    var score = this.bodyParams.score,
+        selector = {
+          'route': this.urlParams.route_id,
+          'climber': this.urlParams.climber_id
+        };
+
+    var modifier = {
+      'score_string': score,
+      'score_top': CRIMP.scoring.calculateTop(score),
+      'score_bonus': CRIMP.scoring.calculateBonus(score),
+    }
+
+
+
     return { 'error': 'Endpoint is not implemented' };
   }
 });
