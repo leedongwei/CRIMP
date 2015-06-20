@@ -11,6 +11,7 @@
 CRIMP.scoring = {
   calculateTop: function(scoreString) {
     for (var i=0; i < scoreString.length; i++) {
+      scoreString = scoreString.toUpperCase();
       if (scoreString[i] === 'T') {
         return i+1;
       }
@@ -20,6 +21,7 @@ CRIMP.scoring = {
 
   calculateBonus: function(scoreString) {
     for (var i=0; i < scoreString.length; i++) {
+      scoreString = scoreString.toUpperCase();
       if (scoreString[i] === 'T' || scoreString[i] === 'B') {
         return i+1;
       }

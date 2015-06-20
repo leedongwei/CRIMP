@@ -102,12 +102,11 @@ Restivus.addRoute('judge/climbers/:category_id',
 
 Restivus.addRoute('judge/score/:route_id/:climber_id',
       { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
-  get: function () {
+  get: function() {
     var route = this.urlParams.route_id,
         climber = this.urlParams.climber_id;
 
     // TODO: More checks needed?
-    // Route and climber should belong to the same category
     if (route.substring(0, 3) !== climber.substring(0, 3)) {
       return { 'error': 'Route/Climber is from the wrong category' };
     }
@@ -119,19 +118,32 @@ Restivus.addRoute('judge/score/:route_id/:climber_id',
   },
   post: function() {
     var score = this.bodyParams.score,
+        category = this.urlParams.route_id.substring(0, 3),
         selector = {
-          'route': this.urlParams.route_id,
-          'climber': this.urlParams.climber_id
+          'route_id': this.urlParams.route_id,
+          'climber_id': this.urlParams.climber_id
         };
+
+    var isFinalized = Categories.findOne({
+      'category_id': category
+    }).scores_finalized;
+
+    if (isFinalized) {
+      return { 'error': 'Scores for ' + category + ' has been finalized' }
+    }
+
+    // Retrieve previous score strings
+    score = Scores.findOne(selector).score_string + score;
 
     var modifier = {
       'score_string': score,
       'score_top': CRIMP.scoring.calculateTop(score),
       'score_bonus': CRIMP.scoring.calculateBonus(score),
-    }
+      'admin_id': this.userId
+    };
 
+    Scores.update(selector, {$set: modifier});
 
-
-    return { 'error': 'Endpoint is not implemented' };
+    return {};
   }
 });
