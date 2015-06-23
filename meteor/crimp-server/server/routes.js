@@ -63,7 +63,7 @@ Restivus.addRoute('judge/login', { authRequired: false }, {
 Restivus.addRoute('judge/report',
       { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   post: function () {
-    return { 'error': 'Endpoint is not implemented' };
+    return {};
   }
 });
 
@@ -142,8 +142,10 @@ Restivus.addRoute('judge/score/:route_id/:climber_id',
       'admin_id': this.userId
     };
 
-    Scores.update(selector, {$set: modifier});
-
-    return {};
+    if (Scores.update(selector, {$set: modifier})) {
+      return {};
+    } else {
+      return { 'error': 'Updated 0 scores' };
+    }
   }
 });
