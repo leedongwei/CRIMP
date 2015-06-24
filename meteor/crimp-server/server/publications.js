@@ -13,3 +13,7 @@ Meteor.publish('getScores', function(category) {
   category = typeof category !== 'undefined' ? category : {};
   return Scores.find(category);
 });
+
+Meteor.publish('getActiveClimbers', function() {
+  return ActiveClimbers.find({});
+});

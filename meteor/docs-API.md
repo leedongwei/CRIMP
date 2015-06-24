@@ -47,8 +47,7 @@ header: {
   x-auth-token: 'RCDBy6X3zS8...'
 }
 body: {
-  category_id: 'NWQ'
-  route_id: 'NWQ1
+  route_id: 'NWQ1',
   force: false
 }
 ```
@@ -61,7 +60,6 @@ body: {
 Body: {
   admin_id: 'A6kvTowyvNz...',
   admin_name: 'Weizhi'
-  category_id: 'NWQ',
   route_id: 'NWQ01'
   state: 1
 }
