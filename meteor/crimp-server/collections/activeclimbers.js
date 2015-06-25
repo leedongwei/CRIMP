@@ -17,16 +17,29 @@ CRIMP.schema.activeclimber = new SimpleSchema({
   admin_expiry: {
     label: 'Time to delete document',
     type: Date,
+    autoValue: function() {
+      // expires in 10mins
+      return new Date(Date.now() + 600000);
+    }
   },
   climber_id: {
     label: 'ID of climber',
     type: Number,
     optional: true
   },
+  climber_name: {
+    label: 'Name of climber',
+    type: String,
+    optional: true
+  },
   climber_expiry: {
     label: 'Time to remove climber',
     type: Date,
-    optional: true
+    optional: true,
+    autoValue: function() {
+      // expires in 5mins
+      return new Date(Date.now() + 15000);
+    }
   }
 });
 
@@ -37,12 +50,19 @@ function checkActiveClimberExpiry(ac) {
 
   console.log(timeNow + '/' + ac.climber_expiry + '/' + ac.admin_expiry);
 
-  if (ac.admin_expiry >= timeNow) {
-    // delete
-  }
+  // if (ac.admin_expiry <= timeNow) {
+  //   ActiveClimbers.remove(ac._id);
+  //   return;
+  // }
 
-  if (ac.climber_expiry) {
-    // remove climber
+  if (ac.climber_expiry <= timeNow) {
+    console.log('boomz')
+    ActiveClimbers.update(ac._id, {
+      climber_id: '',
+      climber_expiry: ''
+    });
+
+    return;
   }
 }
 
