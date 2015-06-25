@@ -149,6 +149,48 @@ Restivus.addRoute('judge/climbers/:category_id',
 });
 
 
+Restivus.addRoute('judge/activeclimbers',
+      { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
+  post: function () {
+    var route_id = this.bodyParams.route_id,
+        admin_id = this.userId,
+        admin_name = this.user.profile.name,
+        climber_id = this.bodyParams.climber_id,
+        climber_name = Climbers.findOne({
+          'climber_id': this.bodyParams.climber_id
+        }).name,
+        insert = this.bodyParams.insert;
+
+    // TODO: Checks
+
+    if (insert) {
+      console.log('inserting')
+      CRIMP.activeclimbers.insertActiveClimber(
+        { 'route_id': route_id },
+        {
+          'route_id': route_id,
+          'admin_id': admin_id,
+          'admin_name': admin_name,
+          'climber_id': climber_id,
+          'climber_name': climber_name
+        }
+      )
+    } else {
+      console.log('iremoving')
+      CRIMP.activeclimbers.removeActiveClimber(
+        { 'route_id': route_id },
+        {
+          'admin_id': admin_id,
+          'admin_name': admin_name
+        }
+      );
+    }
+
+    return {};
+  }
+});
+
+
 Restivus.addRoute('judge/score/:route_id/:climber_id',
       { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   get: function() {
@@ -191,8 +233,13 @@ Restivus.addRoute('judge/score/:route_id/:climber_id',
       'admin_id': this.userId
     };
 
-    if (Scores.update(selector, {$set: modifier})) {
+    console.log(this.user)
 
+    if (Scores.update(selector, {$set: modifier})) {
+      CRIMP.activeclimbers.removeActiveClimber(selector, {
+        'admin_id': this.userId,
+        'admin_name': this.user.profile.name
+      });
       return {};
     } else {
       return { 'error': 'Updated 0 scores' };

@@ -177,6 +177,32 @@ Body: {
 <br><br><br>
 
 
+## POST 'judge/activeclimbers'
+* Insert/remove a climber from ActiveClimbers
+
+#### Request
+```
+header: {
+  x-user-id: 'A6kvTowyvNz...',
+  x-auth-token: 'RCDBy6X3zS8...'
+}
+body: {
+  route_id: 'NMQ1',
+  climber_id: 'NMQ009',     // not needed for removal
+  insert: true              // true => insert, false => remove
+}
+```
+
+#### Response
+```
+Status: 200 OK
+Body: {}
+```
+
+
+<br><br><br>
+
+
 ## GET 'judge/score/:route_id/:climber_id'
 * Used by judges to get the score of a climber on a specific route
 
@@ -206,6 +232,7 @@ Body: {
 ## POST 'judge/score/:route_id/:climber_id'
 * Used by judges to update the score of a climber on a specific route
 * If `scores_finalized` is `true` for a category, then the scores will not be updated any more.
+* Will remove climber from `ActiveClimber`
 
 #### Request
 ```
@@ -214,7 +241,7 @@ header: {
   x-auth-token: 'RCDBy6X3zS8...'
 }
 body: {
-  score: '11T'
+  score: '11T'    // Important! See note 13 lines down.
 }
 ```
 

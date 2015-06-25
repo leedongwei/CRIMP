@@ -24,7 +24,7 @@ CRIMP.schema.activeclimber = new SimpleSchema({
   },
   climber_id: {
     label: 'ID of climber',
-    type: Number,
+    type: String,
     optional: true
   },
   climber_name: {
@@ -38,41 +38,84 @@ CRIMP.schema.activeclimber = new SimpleSchema({
     optional: true,
     autoValue: function() {
       // expires in 5mins
-      return new Date(Date.now() + 15000);
+      return new Date(Date.now() + 300000);
     }
   }
 });
 
+
 ActiveClimbers.attachSchema(CRIMP.schema.activeclimber);
-
-function checkActiveClimberExpiry(ac) {
-  var timeNow = Date.now();
-
-  console.log(timeNow + '/' + ac.climber_expiry + '/' + ac.admin_expiry);
-
-  // if (ac.admin_expiry <= timeNow) {
-  //   ActiveClimbers.remove(ac._id);
-  //   return;
-  // }
-
-  if (ac.climber_expiry <= timeNow) {
-    console.log('boomz')
-    ActiveClimbers.update(ac._id, {
-      climber_id: '',
-      climber_expiry: ''
-    });
-
-    return;
-  }
-}
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
-    // Check expiry every 90sec
     Meteor.setInterval(function() {
-      console.log(' --- checking ---');
-      var acCursor = ActiveClimbers.find({});
-      acCursor.forEach(checkActiveClimberExpiry);
-    }, 10000);
+      console.log('   --- interval AC ---');
+      ActiveClimbers.find({})
+                    .forEach(checkActiveClimberExpiry);
+    }, 90000);
+
+
   });
+
+
+  function checkActiveClimberExpiry(ac) {
+    var timeNow = Date.now();
+
+    console.log(Date(timeNow) + ' checking AC\r\n'
+      + ac.climber_expiry + ' | ' + ac.admin_expiry + '\r\n\r\n');
+
+    if (ac.admin_expiry < timeNow) {
+      ActiveClimbers.remove(ac._id, function(error, results) {
+        // do nothing, prevents ActiveClimber.update from blocking
+        if (error)  console.error(error);
+      });
+      return;
+    }
+
+    if (ac.climber_expiry < timeNow) {
+      CRIMP.activeclimbers.removeActiveClimber(ac._id);
+      return;
+    }
+  }
+
+  CRIMP.activeclimbers = {
+    insertActiveClimber: function(selector, modifier) {
+      console.log('insertActiveClimber')
+      console.log(selector)
+      console.log(modifier)
+
+      // TODO: do checks
+      if (!modifier.climber_name) {
+
+      }
+
+      ActiveClimbers.upsert(selector,
+        { $set: modifier },
+        function(error, result) {
+          // do nothing, prevents ActiveClimber.update from blocking
+          if (error)  console.error(error);
+        }
+      );
+    },
+    removeActiveClimber: function(selector, modifier) {
+      modifier.climber_id = '';
+      modifier.climber_name = '';
+
+      console.log('removeActiveClimber')
+      console.log(selector)
+      console.log(modifier)
+
+
+      // TODO: do checks
+
+
+      ActiveClimbers.update(selector,
+        { $set: modifier },
+        function(error, result) {
+          // do nothing, prevents ActiveClimber.update from blocking
+          if (error)  console.error(error);
+        }
+      );
+    }
+  }
 }
