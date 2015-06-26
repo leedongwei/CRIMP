@@ -40,6 +40,7 @@
             android:id="@+id/hello_next"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="launchQRScanActivity"
             android:text="@string/hello_activity_next"/>
 
 

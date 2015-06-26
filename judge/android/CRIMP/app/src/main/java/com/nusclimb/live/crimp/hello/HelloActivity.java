@@ -1,5 +1,6 @@
 package com.nusclimb.live.crimp.hello;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -14,6 +15,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.Profile;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.Helper;
+import com.nusclimb.live.crimp.qr.QRScanActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,8 +25,10 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
     private final String TAG = HelloActivity.class.getSimpleName();
 
     private String sessionToken;
+    private String xUserId;
+    private String xAuthToken;
+    private ArrayList<String> roles;
     private String mText;
-
 
     // UI references
     private TextView mQuestionView;
@@ -37,8 +41,13 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_hello);
 
-        sessionToken = getIntent().getStringExtra(getString(R.string.package_name) +
-                getString(R.string.login_activity_sessiontoken));
+        xUserId = getIntent().getStringExtra(getString(R.string.package_name) +
+                getString(R.string.login_activity_xuserid));
+        xAuthToken = getIntent().getStringExtra(getString(R.string.package_name) +
+                getString(R.string.login_activity_xauthtoken));
+        roles = getIntent().getStringArrayListExtra(getString(R.string.package_name) +
+                getString(R.string.login_activity_role));
+
 
         mText = getString(R.string.hello_activity_greeting)+
             Profile.getCurrentProfile().getName()+
@@ -165,6 +174,11 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
     public void onNothingSelected(AdapterView<?> parent) {
         // Another interface callback
         Log.d(TAG, "parent:"+parent.getId());
+    }
+
+    public void launchQRScanActivity(View view){
+        Intent intent = new Intent(getApplicationContext(), QRScanActivity.class);
+        startActivity(intent);
     }
 
 
