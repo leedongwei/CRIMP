@@ -1,11 +1,13 @@
 package com.nusclimb.live.crimp.login;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -16,7 +18,7 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.json.Session;
+import com.nusclimb.live.crimp.common.json.LoginResponse;
 import com.nusclimb.live.crimp.common.spicerequest.LoginRequest;
 import com.nusclimb.live.crimp.hello.HelloActivity;
 import com.nusclimb.live.crimp.service.CrimpService;
@@ -24,6 +26,9 @@ import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Login activity of CRIMP.
@@ -48,7 +53,9 @@ public class LoginActivity extends Activity {
     private String loginRequestCacheKey;
     private SpiceManager spiceManager = new SpiceManager(
             CrimpService.class);
-    private String sessionToken;
+    private String xUserId;
+    private String xAuthToken;
+    private ArrayList<String> roles;
 
     // Activity state
     private LoginState mState = LoginState.NOT_LOGIN;
@@ -72,7 +79,7 @@ public class LoginActivity extends Activity {
      *
      * @author Lin Weizhi (ecc.weizhi@gmail.com)
      */
-    private class LoginRequestListener implements RequestListener<Session> {
+    private class LoginRequestListener implements RequestListener<LoginResponse> {
         @Override
         public void onRequestFailure(SpiceException e) {
             Log.d(TAG, "LoginRequestListener request fail.");
@@ -88,11 +95,13 @@ public class LoginActivity extends Activity {
         }
 
         @Override
-        public void onRequestSuccess(Session result) {
+        public void onRequestSuccess(LoginResponse result) {
             Log.d(TAG, "LoginRequestListener request succeed.");
 
             loginRequestCacheKey = null;
-            sessionToken = result.getSessionToken();
+            xUserId = result.getxUserId();
+            xAuthToken = result.getxAuthToken();
+            roles = result.getRoles();
 
             if(mState == LoginState.IN_VERIFYING)
                 changeState(LoginState.VERIFIED_OK);
@@ -101,7 +110,10 @@ public class LoginActivity extends Activity {
 
     //TODO remove this before production
     private void forceSuccess(){
-        sessionToken = "onetwothree";
+        xUserId = "testUserId";
+        xAuthToken = "testAuthToken";
+        String[] rolesArray = {"testRole"};
+        roles = new ArrayList<String>(Arrays.asList(rolesArray));
 
         if(mState == LoginState.IN_VERIFYING)
             changeState(LoginState.VERIFIED_OK);
@@ -162,7 +174,11 @@ public class LoginActivity extends Activity {
             case VERIFIED_OK:
                 break;
             case VERIFIED_NOT_OK:
-                //TODO toast message
+                //TODO toast message and UI stuff. Incomplete.
+                Context context = getApplicationContext();
+                CharSequence text = getString(R.string.login_activity_login_fail);
+                Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+                toast.show();
                 break;
             case VERIFIED_FAILED:
                 showFacebookButton(false);
@@ -199,9 +215,10 @@ public class LoginActivity extends Activity {
                 changeState(LoginState.IN_VERIFYING);
                 break;
             case IN_VERIFYING:
+                AccessToken currentAccessToken = AccessToken.getCurrentAccessToken();
                 //TODO change this when going production
-                //LoginRequest request = new LoginRequest(AccessToken.getCurrentAccessToken().getToken());
-                LoginRequest request = new LoginRequest("abcde");
+                //LoginRequest request = new LoginRequest(currentAccessToken.getToken(), currentAccessToken.getExpires().toString());
+                LoginRequest request = new LoginRequest("testAccessToken", "testExpire");
                 loginRequestCacheKey = request.createCacheKey();
                 spiceManager.execute(request, loginRequestCacheKey,
                         DurationInMillis.ALWAYS_EXPIRED,
@@ -211,6 +228,7 @@ public class LoginActivity extends Activity {
                 launchHelloActivity();
                 break;
             case VERIFIED_NOT_OK:
+                //TODO
                 break;
             case VERIFIED_FAILED:
                 break;
@@ -219,7 +237,8 @@ public class LoginActivity extends Activity {
 
     /**
      * Set {@code mState} to {@code state}. Changes to {@code mState} must
-     * go through this method.
+     * go through this method. Perform a call to {@code updateUI()} before
+     * calling {@code doVerification()}.
      *
      * @param state Login state to set {@code mState} to.
      */
@@ -231,6 +250,12 @@ public class LoginActivity extends Activity {
         doVerification();
     }
 
+    /**
+     * This method is called when user clicked on cancel button. Log out from
+     * facebook (if user is not already logged out).
+     *
+     * @param view
+     */
     public void retry(View view) {
         LoginManager.getInstance().logOut();
         changeState(LoginState.NOT_LOGIN);
@@ -244,7 +269,7 @@ public class LoginActivity extends Activity {
             Log.d(TAG, "Pressed cancel. mState:" + mState);
         }
         if(loginRequestCacheKey != null){
-            spiceManager.cancel(Session.class, loginRequestCacheKey);
+            spiceManager.cancel(LoginResponse.class, loginRequestCacheKey);
             loginRequestCacheKey = null;
         }
         LoginManager.getInstance().logOut();
@@ -253,9 +278,11 @@ public class LoginActivity extends Activity {
     }
 
     private void launchHelloActivity(){
-        Log.d(TAG, "Launching hello activity. mState: "+mState+ "; sessionToken: "+sessionToken);
+        Log.d(TAG, "Launching hello activity. mState: "+mState+ "; xUserId: "+xUserId+"; xAuthToken: "+xAuthToken);
         Intent intent = new Intent(getApplicationContext(), HelloActivity.class);
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_sessiontoken), sessionToken);
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_xuserid), xUserId);
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_xauthtoken), xAuthToken);
+        intent.putStringArrayListExtra(getString(R.string.package_name) + getString(R.string.login_activity_role), roles);
         startActivity(intent);
     }
 
@@ -343,7 +370,7 @@ public class LoginActivity extends Activity {
         }
 
         if(loginRequestCacheKey != null){
-            spiceManager.cancel(Session.class, loginRequestCacheKey);
+            spiceManager.cancel(LoginResponse.class, loginRequestCacheKey);
             loginRequestCacheKey = null;
         }
     }

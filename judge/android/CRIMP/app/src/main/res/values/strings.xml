@@ -16,7 +16,9 @@
     <string name="login_activity_retry">Retry</string>
 
     <!-- Login Activity -->
-    <string name="login_activity_sessiontoken">loginActivitySessionToken</string>
+    <string name="login_activity_xuserid">loginActivityXUserId</string>
+    <string name="login_activity_xauthtoken">loginActivityXAuthToken</string>
+    <string name="login_activity_role">loginActivityRole</string>
 
     <!-- Hello Activity UI -->
     <string name="hello_activity_next">Next</string>
@@ -30,6 +32,23 @@
     <string name="title_activity_hello">HelloActivity</string>
     <string name="title_activity_test">TestActivity</string>
     <string name="title_activity_qrscan">QRScanActivity</string>
+
+    <!-- QR Code prefix -->
+    <string name="qr_prefix">&lt;BA2014&gt;</string>
+
+    <!-- Intent Key -->
+    <string name="intent_username">.username</string>
+    <string name="intent_round">.round</string>
+    <string name="intent_route">.route</string>
+    <string name="intent_climber_id">.climber_id</string>
+    <string name="intent_climber_name">.climber_name</string>
+    <string name="intent_dl_url">.downloadUrl</string>
+    <string name="intent_ul_url">.uploadUrl</string>
+    <string name="intent_j_name">.jName</string>
+    <string name="intent_auth_code">.authCode</string>
+    <string name="intent_r_id">.rId</string>
+    <string name="intent_c_id">.cId</string>
+    <string name="intent_score_append">.appendScore</string>
 
 
 </resources>
