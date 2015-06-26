@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- QR scan states -->
+    <item type="id" name="decode"/>
+    <item type="id" name="decode_failed"/>
+    <item type="id" name="decode_succeeded"/>
+    <item type="id" name="quit"/>
+
+    <!-- Broadcast message type -->
+    <item type="id" name="service_created" />
+    <item type="id" name="service_destroyed" />
+    <item type="id" name="cache_updated" />
+    <item type="id" name="receiver_null" />
+
+    <!-- Handler message what -->
+    <item type="id" name="upload" />
+
+    <item type="id" name="download_climber_info" />
+    <item type="id" name="download_route_score" />
+
+
+    <!-- Notification ids -->
+    <item type="id" name="notification_upload" />
+
+
+</resources>
