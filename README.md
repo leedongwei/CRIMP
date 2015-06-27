@@ -1,30 +1,16 @@
 # Comprehensive Real-time Index of Monkey Points (CRIMP)
-### A real-time scoring and ranking system for bouldering competitions/carnivals that uses the Top/Bonus scoring system.
+### A real-time scoring and ranking system for climbing events
 
 
 ## Interface
+### Spectators
+
 ### Judges
 
-<img src="/screenshot/judge-1.png?raw=true" width="18%" height="auto" alt="Credentials page">
-<img src="/screenshot/judge-2.png?raw=true" width="18%" height="auto" alt="QR Code scanning to identify climbers">
-<img src="/screenshot/judge-3.png?raw=true" width="18%" height="auto" alt="Manual entry of climber-ID if QR fails">
-<img src="/screenshot/judge-4.png?raw=true" width="18%" height="auto" alt="Climber's scoring page">
-<img src="/screenshot/judge-5.png?raw=true" width="18%" height="auto" alt="Confirmation before submission">
-<br>
-<img src="/screenshot/debug-1.png?raw=true" width="18%" height="auto" alt="Message queue to server">
-<img src="/screenshot/debug-2.png?raw=true" width="18%" height="auto" alt="Attempting to resend upon connection">
-<img src="/screenshot/debug-3.png?raw=true" width="18%" height="auto" alt="Error status">
-<img src="/screenshot/debug-4.png?raw=true" width="18%" height="auto" alt="Debug page">
+### Admin
 
-### Spectators
-<img src="/screenshot/spec-1.png?raw=true" width="18%" height="auto" alt="Active Climber display">
-<img src="/screenshot/spec-2.png?raw=true" width="18%" height="auto" alt="Confirmation of websocket connection">
-<img src="/screenshot/spec-3.png?raw=true" width="18%" height="auto" alt="Scores of climbers">
-
-
-
-## Demo
-/video to come
+## Scoring systems available
+* IFSC Top/Bonus
 
 
 ## System Components
@@ -34,8 +20,6 @@ Mobile-supported web application for spectators to display real-time information
 1. A list of climbers who are currently on the wall
 2. Sorted and ranked list of climbers with their scores on each route
 
-Participant data is pre-generated as a static page to help SEO. Spectators will connect to the `socket` to retrieve the latest scores. A persistent connection will be maintained so `socket` can push score updates to the spectators.
-
 
 ### judge
 Android app for judges to submit scores. Emphasis placed on a simple and easy-to-use interface to reduce judges' workload. App uses QR code to identify climbers, but the keypad is available to manually enter the climber's ID as a backup. The app is fail-safe even if there is no internet connection - scores will be stored in a queue and sent out in sequence when connection is re-established.
@@ -43,24 +27,6 @@ Android app for judges to submit scores. Emphasis placed on a simple and easy-to
 
 ### paper
 Generator for physical scoresheets with unique QR codes for every climber. Produces a single PDF file to send for printing. It would be nice if you have a few minions to cut and sort them for distribution. Distributing the scoresheets in the call-zone will prevent climbers from losing them.
-
-### backend
-2 node.js applications deployed on [Heroku](https://www.heroku.com/) free hobbyist plan, which is more than sufficient for a week-long competition with 1000 climbers. Having 2 applications to separately handle judges and spectators ensures stability and security.
-
-* `server`: Dedicated server for judges and admin to submit/review scores. Exposes a RESTful API that requires a password to write changes to database. Push updates to `socket` through a websocket connection.
-
-* `socket`: Websocket server for `web` to retrieve latest scores. Can only read from database. Identifies updates from `server` and broadcasts them to all connected spectators.
-
-
-### admin
-Set of command-line tools to:
-
-1. Initialized participants data for use by all components
-1. Periodically download and backup database onto local machine
-1. Analytics for post-event analysis on each route
-
-Participants data is expected to be provided in an excel file by the admin/registration/sales/whatever team. Admin is expected to know what he/she is doing.
-
 
 
 ## Technical Support & Development
@@ -75,7 +41,7 @@ Participants data is expected to be provided in an excel file by the admin/regis
 
 
 ## License
-Copyright © 2014, [DongWei](https://github.com/leedongwei) & [Weizhi](https://github.com/ecc-weizhi)
+Copyright © 2014-2015, [DongWei](https://github.com/leedongwei) & [Weizhi](https://github.com/ecc-weizhi)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
