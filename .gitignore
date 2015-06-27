@@ -58,3 +58,4 @@ local.properties
 **/.meteor/local
 **/.meteor/meteorite
 **/.meteor/.gitignore
+**/meteor/**/settings.json
