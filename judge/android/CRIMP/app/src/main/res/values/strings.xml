@@ -10,13 +10,22 @@
 
     <!-- Login Activity UI -->
     <string name="login_activity_login_wait">Awaiting confirmation from admins...</string>
-    <string name="login_activity_login_fail">User does not exist.</string>
-    <string name="login_activity_login_error">Error.</string>
+    <string name="login_activity_categories_wait">Retrieving route list...</string>
+    <string name="login_activity_login_hey">"Hey "</string>
+    <string name="login_activity_login_exclamation">"! "</string>
+    <string name="login_activity_verification_fail">Access denied. Please contact admin to request for permission.</string>
+    <string name="login_activity_verification_error">Verification error: Wrong/No response from server.</string>
+    <string name="login_activity_categories_fail">Route list request denied. This should not happen.</string>
+    <string name="login_activity_categories_error">Categories request error: Wrong/No response from server.</string>
     <string name="login_activity_cancel">Cancel</string>
     <string name="login_activity_retry">Retry</string>
 
     <!-- Login Activity -->
-    <string name="login_activity_sessiontoken">loginActivitySessionToken</string>
+    <string name="login_activity_intent_xUserId">loginActivityXUserId</string>
+    <string name="login_activity_intent_xAuthToken">loginActivityXAuthToken</string>
+    <string name="login_activity_intent_categoryIdList">loginActivityCategoryIdList</string>
+    <string name="login_activity_intent_categoryNameList">loginActivityCategoryNameList</string>
+    <string name="login_activity_intent_categoryRouteCountList">loginActivityCategoryRouteCountList</string>
 
     <!-- Hello Activity UI -->
     <string name="hello_activity_next">Next</string>
