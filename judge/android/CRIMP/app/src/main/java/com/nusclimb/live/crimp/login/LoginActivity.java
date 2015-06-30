@@ -35,13 +35,18 @@ public class LoginActivity extends Activity {
 
     // Various state of activity.
     private enum LoginState {
-        NOT_LOGIN,          // Not login to facebook. Not login to CRIMP server.
-        IN_FACEBOOK,        // In facebook login activity.
-        FACEBOOK_OK,        // Successfully login to facebook.
-        IN_VERIFYING,       // Trying to login to CRIMP server.
-        VERIFIED_OK,        // CRIMP server reply ok.
-        VERIFIED_NOT_OK,    // CRIMP server reject user.
-        VERIFIED_FAILED     // No response or unknown response from CRIMP server.
+        NOT_LOGIN,              // Not login to facebook. Not login to CRIMP server.
+        IN_FACEBOOK,            // In facebook login activity.
+        FACEBOOK_OK,            // Successfully login to facebook.
+        IN_VERIFYING,           // Trying to login to CRIMP server.
+        VERIFIED_OK,            // CRIMP server reply ok.
+        VERIFIED_NOT_OK,        // CRIMP server reject user.
+        VERIFIED_FAILED,        // No response or unknown response from CRIMP server.
+
+        IN_REQUEST_CATEGORIES,  // Requesting list of routes from CRIMP server.
+        CATEGORIES_OK,          // Received list of routes from CRIMP server correctly.
+        CATEGORIES_NOT_OK,      // Rejected by CRIMP server when requesting route list.
+        CATEGORIES_FAILED       // No response or unknown response from CRIMP server.
     }
 
     // Stuff for communicating with CRIMP server
