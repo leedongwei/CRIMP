@@ -22,7 +22,11 @@ import java.util.List;
 public class HelloActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private final String TAG = HelloActivity.class.getSimpleName();
 
-    private String sessionToken;
+    private String xUserId;
+    private String xAuthToken;
+    private String[] categoryIdList;
+    private String[] categoryNameList;
+    private int[] categoryRouteCountList;
     private String mText;
 
 
@@ -37,8 +41,16 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_hello);
 
-        sessionToken = getIntent().getStringExtra(getString(R.string.package_name) +
-                getString(R.string.login_activity_sessiontoken));
+        xUserId = getIntent().getStringExtra(getString(R.string.package_name) +
+                getString(R.string.login_activity_intent_xUserId));
+        xAuthToken = getIntent().getStringExtra(getString(R.string.package_name) +
+                getString(R.string.login_activity_intent_xAuthToken));
+        categoryIdList = getIntent().getStringArrayExtra(getString(R.string.package_name) +
+                getString(R.string.login_activity_intent_categoryIdList));
+        categoryNameList = getIntent().getStringArrayExtra(getString(R.string.package_name) +
+                getString(R.string.login_activity_intent_categoryNameList));
+        categoryRouteCountList = getIntent().getIntArrayExtra(getString(R.string.package_name) +
+                getString(R.string.login_activity_intent_categoryRouteCountList));
 
         mText = getString(R.string.hello_activity_greeting)+
             Profile.getCurrentProfile().getName()+
