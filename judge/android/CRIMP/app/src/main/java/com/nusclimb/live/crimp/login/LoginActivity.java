@@ -2,11 +2,7 @@ package com.nusclimb.live.crimp.login;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -34,8 +30,6 @@ import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,17 +98,13 @@ public class LoginActivity extends Activity {
 
             loginRequestCacheKey = null;
 
-            //TODO uncomment this
-            //forceVerifySuccess();
-
             if(mState == LoginState.IN_VERIFYING)
                 changeState(LoginState.VERIFIED_FAILED);
-
         }
 
         @Override
         public void onRequestSuccess(LoginResponse result) {
-            Log.d(TAG, "LoginRequestListener request succeed.");
+            Log.d(TAG, "LoginRequestListener request succeed. result="+result.toString());
 
             loginRequestCacheKey = null;
             xUserId = result.getxUserId();
@@ -122,35 +112,37 @@ public class LoginActivity extends Activity {
             roles = result.getRoles();
 
             // Verify response.
-            boolean isContainJudge = false;
+            boolean isContainJudgeOrAbove = false;
             if(roles!=null){
                 int i = 0;
-                while(i<roles.size() && !isContainJudge){
-                    isContainJudge = roles.get(i).equalsIgnoreCase("judge");
+                while(i<roles.size() && !isContainJudgeOrAbove){
+                    isContainJudgeOrAbove = roles.get(i).equalsIgnoreCase("judge");
+                    i++;
+                }
+                i=0;
+                while(i<roles.size() && !isContainJudgeOrAbove){
+                    isContainJudgeOrAbove = roles.get(i).equalsIgnoreCase("admin");
+                    i++;
+                }
+                i=0;
+                while(i<roles.size() && !isContainJudgeOrAbove){
+                    isContainJudgeOrAbove = roles.get(i).equalsIgnoreCase("hukkataival");
+                    i++;
                 }
             }
 
             // roles need to contain "judge" to be verified ok.
-            if(isContainJudge) {
+            if(isContainJudgeOrAbove) {
+                Log.d(TAG, "Roles contain judge or above. mState="+mState);
                 if (mState == LoginState.IN_VERIFYING)
                     changeState(LoginState.VERIFIED_OK);
             }
             else{
+                Log.d(TAG, "Roles don't contain judge or above. mState="+mState);
                 if (mState == LoginState.IN_VERIFYING)
                     changeState(LoginState.VERIFIED_NOT_OK);
             }
         }
-    }
-
-    //TODO remove this before production
-    private void forceVerifySuccess(){
-        xUserId = "testUserId";
-        xAuthToken = "testAuthToken";
-        roles = new ArrayList<String>();
-        roles.add("judge");
-
-        if(mState == LoginState.IN_VERIFYING)
-            changeState(LoginState.VERIFIED_OK);
     }
 
     private class CategoriesRequestListener implements RequestListener<CategoriesResponse> {
@@ -310,6 +302,7 @@ public class LoginActivity extends Activity {
     }
 
 
+    // Facebook stuff
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -334,13 +327,12 @@ public class LoginActivity extends Activity {
                 changeState(LoginState.IN_VERIFYING);
                 break;
             case IN_VERIFYING:
-                //TODO change this when going production
-
                 if(loginRequestCacheKey==null) {
                     LoginRequest mLoginRequest = new LoginRequest(AccessToken.getCurrentAccessToken().getToken(),
-                            AccessToken.getCurrentAccessToken().getExpires().toString());
+                            String.valueOf(AccessToken.getCurrentAccessToken().getExpires().getTime()),
+                            AccessToken.getCurrentAccessToken().getUserId(),
+                            this);
 
-                    //LoginRequest mLoginRequest = new LoginRequest("testAccessToken", "testExpireDate");
                     loginRequestCacheKey = mLoginRequest.createCacheKey();
                     spiceManager.execute(mLoginRequest, loginRequestCacheKey,
                             DurationInMillis.ALWAYS_EXPIRED,
@@ -357,7 +349,7 @@ public class LoginActivity extends Activity {
 
             case IN_REQUEST_CATEGORIES:
                 if(categoriesRequestCacheKey==null) {
-                    CategoriesRequest mCategoriesRequest = new CategoriesRequest(xUserId, xAuthToken);
+                    CategoriesRequest mCategoriesRequest = new CategoriesRequest(xUserId, xAuthToken, this);
                     categoriesRequestCacheKey = mCategoriesRequest.createCacheKey();
                     spiceManager.execute(mCategoriesRequest, categoriesRequestCacheKey,
                             DurationInMillis.ALWAYS_EXPIRED,

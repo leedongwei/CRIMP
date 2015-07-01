@@ -1,7 +1,9 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.json.LoginResponse;
 import com.nusclimb.live.crimp.common.json.Session;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
@@ -23,27 +25,34 @@ import java.util.Map;
  */
 public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponse> {
     private static final String TAG = LoginRequest.class.getSimpleName();
-    private static final String BASE_URL = "http://crimp-testing-0625.meteor.com/api/judge/login";
 
     // Information needed to craft a LoginRequest
     private String accessToken;
     private String expiresAt;
+    private String userId;
+    private Context context;
+
+    private String baseUrl;
 
     /**
      *
      *
      * @param accessToken
      */
-    public LoginRequest(String accessToken, String expiresAt) {
+    public LoginRequest(String accessToken, String expiresAt, String userId, Context context) {
         super(LoginResponse.class);
         this.accessToken = accessToken;
         this.expiresAt = expiresAt;
+        this.userId = userId;
+        this.context = context;
+
+        baseUrl = context.getString(R.string.crimp_url);
     }
 
     @Override
     public LoginResponse loadDataFromNetwork() throws Exception {
         // Craft URL.
-        String address = BASE_URL;
+        String address = baseUrl+context.getString(R.string.login_api);
 
         // Prepare message
         Map<String, String> parameters = new HashMap<String, String>();
@@ -63,6 +72,7 @@ public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponse> {
     }
 
     public String createCacheKey() {
-        return accessToken+expiresAt;
+        // CacheKey too long will cause exception.
+        return userId+expiresAt;
     }
 }

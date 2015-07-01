@@ -3,6 +3,17 @@
     <string name="package_name">com.nusclimb.live</string>
     <string name="title_activity_login">LoginActivity</string>
 
+    <!-- URL -->
+    <string name="crimp_url">"http://crimp-testing-0625.meteor.com"</string>
+    <string name="login_api">/api/judge/login</string>
+    <string name="report_api">/api/judge/report</string>
+    <string name="helpme_api">/api/judge/helpme</string>
+    <string name="categories_api">/api/judge/categories</string>
+    <string name="climbers_api">/api/judge/climbers/</string>
+    <string name="activeclimbers_api">/api/judge/activeclimbers</string>
+    <string name="get_score_api">/api/judge/score/</string>
+    <string name="post_score_api">/api/judge/score/</string>
+
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
