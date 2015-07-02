@@ -1,12 +1,14 @@
 package com.nusclimb.live.crimp.common.json;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Created by user on 30-Jun-15.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Category {
-    @JsonProperty("category_name")
+    @JsonProperty("name")
     private String categoryName;
     @JsonProperty("category_id")
     private String categoryId;

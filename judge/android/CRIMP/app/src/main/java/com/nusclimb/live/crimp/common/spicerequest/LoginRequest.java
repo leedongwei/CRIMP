@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.json.LoginResponse;
-import com.nusclimb.live.crimp.common.json.Session;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.springframework.http.HttpEntity;

@@ -20,7 +20,6 @@ import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.json.CategoriesResponse;
 import com.nusclimb.live.crimp.common.json.Category;
 import com.nusclimb.live.crimp.common.json.LoginResponse;
-import com.nusclimb.live.crimp.common.json.Session;
 import com.nusclimb.live.crimp.common.spicerequest.CategoriesRequest;
 import com.nusclimb.live.crimp.common.spicerequest.LoginRequest;
 import com.nusclimb.live.crimp.hello.HelloActivity;
@@ -65,9 +64,9 @@ public class LoginActivity extends Activity {
     private String xUserId;
     private String xAuthToken;
     private List<String> roles;
-    private List<String> categoryIdList;
-    private List<String> categoryNameList;
-    private List<Integer> categoryRouteCountList;
+    private List<String> categoryIdList = new ArrayList<String>();
+    private List<String> categoryNameList = new ArrayList<String>();
+    private List<Integer> categoryRouteCountList = new ArrayList<Integer>();
 
     // Activity state
     private LoginState mState = LoginState.NOT_LOGIN;
@@ -152,12 +151,8 @@ public class LoginActivity extends Activity {
 
             categoriesRequestCacheKey = null;
 
-            //TODO uncomment this
-            forceCategorySuccess();
-            /*
-            if(mState == LoginState.IN_VERIFYING)
-                changeState(LoginState.VERIFIED_FAILED);
-            */
+            if(mState == LoginState.IN_REQUEST_CATEGORIES)
+                changeState(LoginState.CATEGORIES_FAILED);
         }
 
         @Override
@@ -165,6 +160,10 @@ public class LoginActivity extends Activity {
             Log.d(TAG, "CategoriesRequestListener request succeed.");
 
             categoriesRequestCacheKey = null;
+
+            categoryIdList.clear();
+            categoryNameList.clear();
+            categoryRouteCountList.clear();
 
             // parse response.
             for(Category c:result){
@@ -175,16 +174,8 @@ public class LoginActivity extends Activity {
 
             if (mState == LoginState.IN_REQUEST_CATEGORIES)
                 changeState(LoginState.CATEGORIES_OK);
-
         }
     }
-
-    private void forceCategorySuccess(){
-        categoryIdList.add("test1");
-        categoryNameList.add("testcategoryName1");
-        categoryRouteCountList.add(2);
-    }
-
 
     /*=========================================================================
      * UI methods
@@ -393,7 +384,7 @@ public class LoginActivity extends Activity {
             Log.d(TAG, "Pressed cancel. mState:" + mState);
         }
         if(loginRequestCacheKey != null){
-            spiceManager.cancel(Session.class, loginRequestCacheKey);
+            spiceManager.cancel(LoginResponse.class, loginRequestCacheKey);
             loginRequestCacheKey = null;
         }
 
@@ -508,7 +499,19 @@ public class LoginActivity extends Activity {
         }
 
         if(loginRequestCacheKey != null){
-            spiceManager.cancel(Session.class, loginRequestCacheKey);
+            spiceManager.cancel(LoginResponse.class, loginRequestCacheKey);
+            loginRequestCacheKey = null;
+        }
+
+        if(categoriesRequestCacheKey != null) {
+            Log.d(TAG, "In onPause(). mState: " + mState+". Cancelling categoriesRequest: "+categoriesRequestCacheKey);
+        }
+        else{
+            Log.d(TAG, "In onPause(). mState: " + mState);
+        }
+
+        if(categoriesRequestCacheKey != null){
+            spiceManager.cancel(LoginResponse.class, categoriesRequestCacheKey);
             loginRequestCacheKey = null;
         }
     }
