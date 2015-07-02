@@ -7,13 +7,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.facebook.FacebookSdk;
 import com.facebook.Profile;
+import com.facebook.login.LoginManager;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.Helper;
+import com.nusclimb.live.crimp.common.json.CategoriesResponse;
+import com.nusclimb.live.crimp.common.json.Category;
+import com.nusclimb.live.crimp.common.json.LoginResponse;
+import com.nusclimb.live.crimp.common.json.ReportResponse;
+import com.nusclimb.live.crimp.common.spicerequest.ReportRequest;
+import com.nusclimb.live.crimp.service.CrimpService;
+import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.persistence.DurationInMillis;
+import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,18 +37,26 @@ import java.util.List;
 public class HelloActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private final String TAG = HelloActivity.class.getSimpleName();
 
+    private SpiceManager spiceManager = new SpiceManager(
+            CrimpService.class);
+    private String reportRequestCacheKey;
+
+    // Information retrieved from intent.
     private String xUserId;
     private String xAuthToken;
-    private String[] categoryIdList;
-    private String[] categoryNameList;
-    private int[] categoryRouteCountList;
-    private String mText;
-
+    private List<SpinnerItem> categorySpinnerItemList;
 
     // UI references
     private TextView mQuestionView;
     private Spinner mCategorySpinner;
     private Spinner mRouteSpinner;
+    private LinearLayout mHelloForm;
+    private LinearLayout mVerificationForm;
+    private ProgressBar mProgressBar;
+    private TextView mVerificationStatus;
+    private Button mNextButton;
+    private RelativeLayout mReplaceForm;
+    private TextView mReplaceText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,28 +64,57 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_hello);
 
+        // Retrieve info from intent.
         xUserId = getIntent().getStringExtra(getString(R.string.package_name) +
                 getString(R.string.login_activity_intent_xUserId));
         xAuthToken = getIntent().getStringExtra(getString(R.string.package_name) +
                 getString(R.string.login_activity_intent_xAuthToken));
-        categoryIdList = getIntent().getStringArrayExtra(getString(R.string.package_name) +
+        String[] categoryIdList = getIntent().getStringArrayExtra(getString(R.string.package_name) +
                 getString(R.string.login_activity_intent_categoryIdList));
-        categoryNameList = getIntent().getStringArrayExtra(getString(R.string.package_name) +
+        String[] categoryNameList = getIntent().getStringArrayExtra(getString(R.string.package_name) +
                 getString(R.string.login_activity_intent_categoryNameList));
-        categoryRouteCountList = getIntent().getIntArrayExtra(getString(R.string.package_name) +
+        int[] categoryRouteCountList = getIntent().getIntArrayExtra(getString(R.string.package_name) +
                 getString(R.string.login_activity_intent_categoryRouteCountList));
 
-        mText = getString(R.string.hello_activity_greeting)+
-            Profile.getCurrentProfile().getName()+
-            getString(R.string.hello_activity_question);
+        categorySpinnerItemList = new ArrayList<SpinnerItem>();
+        for(int i=0; i<categoryIdList.length; i++){
+            categorySpinnerItemList.add(new CategorySpinnerItem(categoryNameList[i],
+                    categoryIdList[i], categoryRouteCountList[i], false));
+        }
 
+        // Get UI references.
         mQuestionView = (TextView) findViewById(R.id.hello_question);
         mCategorySpinner = (Spinner) findViewById(R.id.hello_category_spinner);
         mRouteSpinner = (Spinner) findViewById(R.id.hello_route_spinner);
+        mHelloForm = (LinearLayout) findViewById(R.id.hello_form);
+        mVerificationForm = (LinearLayout) findViewById(R.id.verification_form);
+        mProgressBar = (ProgressBar) findViewById(R.id.loading_wheel);
+        mVerificationStatus = (TextView) findViewById(R.id.verification_status);
+        mNextButton = (Button) findViewById(R.id.hello_next);
+        mReplaceForm = (RelativeLayout) findViewById(R.id.replace_form);
+        mReplaceText = (TextView) findViewById(R.id.replace_text);
 
-        mQuestionView.setText(mText);
+        // Setup for UI.
+        mQuestionView.setText(getString(R.string.hello_activity_greeting)+
+                Profile.getCurrentProfile().getName()+
+                getString(R.string.hello_activity_question));
         setupCategorySpinner();
         setupRouteSpinner();
+    }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+        Log.d(TAG, "In onStart().");
+
+        spiceManager.start(this);
+    }
+
+    @Override
+    protected void onStop(){
+        super.onStop();
+        Log.d(TAG, "In onStop().");
+        spiceManager.shouldStop();
     }
 
 
@@ -89,17 +141,13 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
     }
 
     private void setupCategorySpinner(){
-        // Create a list of categories
-        List<String> categoryTempList = Arrays.asList(getResources().getStringArray(R.array.categories));
-        List<SpinnerItem> mCategoryList = new ArrayList();
-        mCategoryList.add(new SpinnerItem(getResources().getString(R.string.hello_activity_category_hint), true));
-        for(String s:categoryTempList){
-            mCategoryList.add(new SpinnerItem(s, false));
-        }
+        categorySpinnerItemList.add(0, new CategorySpinnerItem(
+                getResources().getString(R.string.hello_activity_category_hint), true));
 
         // Create adapter using the list of categories
         SpinnerAdapterWithHint categoryAdapter= new SpinnerAdapterWithHint(
-                this, android.R.layout.simple_spinner_item, mCategoryList);
+                this, android.R.layout.simple_spinner_item, categorySpinnerItemList);
+
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         // Apply the adapter to the spinner, initialize selection to hint and attach listener.
@@ -113,7 +161,7 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
         SpinnerAdapterWithHint routeAdapter= new SpinnerAdapterWithHint(
                 this, android.R.layout.simple_spinner_item);
         routeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        routeAdapter.add(new SpinnerItem(getString(R.string.hello_activity_route_hint), true));
+        routeAdapter.add(new RouteSpinnerItem(getString(R.string.hello_activity_route_hint)));
 
         // Apply the adapter to the spinner, initialize selection to hint and attach listener.
         mRouteSpinner.setAdapter(routeAdapter);
@@ -122,18 +170,11 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
         mRouteSpinner.setEnabled(false);
     }
 
-    private void updateRouteSpinner(String category){
-        // Find resource id of route list based on category
-        String name = Helper.toAlphaNumeric(category);
-        String defPackage = this.getPackageName();
-        int id = getResources().getIdentifier(name, "array", defPackage);
-
-        // Create a list of routes
-        List<String> routeTempList = Arrays.asList(getResources().getStringArray(id));
-        List<SpinnerItem> mRouteList = new ArrayList();
-        mRouteList.add(new SpinnerItem(getResources().getString(R.string.hello_activity_route_hint), true));
-        for(String s:routeTempList){
-            mRouteList.add(new SpinnerItem(s, false));
+    private void updateRouteSpinner(int routeCount){
+        List<RouteSpinnerItem> mRouteList = new ArrayList<RouteSpinnerItem>();
+        mRouteList.add(new RouteSpinnerItem(getResources().getString(R.string.hello_activity_route_hint)));
+        for(int i=1; i<=routeCount; i++){
+            mRouteList.add(new RouteSpinnerItem(i));
         }
 
         ((SpinnerAdapterWithHint)mRouteSpinner.getAdapter()).clear();
@@ -146,18 +187,18 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
 
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
-        Log.d(TAG, "OnItemSelected raw: "+parent.getId()+", "+view.getId()+", "+pos+", "+id);
+        Log.d(TAG, "OnItemSelected raw: " + parent.getId() + ", " + view.getId() + ", " + pos + ", " + id);
 
         // Called from category spinner
         if(parent.getId() == mCategorySpinner.getId()){
-            SpinnerItem selectedItem = (SpinnerItem)parent.getSelectedItem();
+            CategorySpinnerItem selectedItem = (CategorySpinnerItem)(parent.getSelectedItem());
             if(selectedItem.isHint()){
                 Log.d(TAG, "OnItemSelected. Category. Hint.");
                 ((TextView)view).setTextColor(getResources().getColor(R.color.hint_color));
             }
             else{
                 Log.d(TAG, "OnItemSelected. Category. Not hint.");
-                updateRouteSpinner(selectedItem.getItemString());
+                updateRouteSpinner(selectedItem.getRouteCount());
             }
         }
 
@@ -167,9 +208,12 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
             if(selectedItem.isHint()) {
                 Log.d(TAG, "OnItemSelected. Route. Hint.");
                 ((TextView) view).setTextColor(getResources().getColor(R.color.hint_color));
+
+                mNextButton.setEnabled(false);
             }
             else{
                 Log.d(TAG, "OnItemSelected. Route. Not hint.");
+                mNextButton.setEnabled(true);
             }
         }
     }
@@ -180,4 +224,70 @@ public class HelloActivity extends AppCompatActivity implements AdapterView.OnIt
     }
 
 
+    public void next(View view){
+        //TODO perform checks on selection
+        CategorySpinnerItem selectedCategory = (CategorySpinnerItem) mCategorySpinner.getSelectedItem();
+        RouteSpinnerItem selectedRoute = (RouteSpinnerItem) mRouteSpinner.getSelectedItem();
+
+        String routeId = selectedCategory.getCategoryId()+selectedRoute.getRouteNumber();
+
+        mVerificationStatus.setText(routeId);
+
+        // parse response.
+        ReportRequest mReportRequest = new ReportRequest(xUserId,xAuthToken
+                ,routeId, true, this);
+
+        reportRequestCacheKey = mReportRequest.createCacheKey();
+        spiceManager.execute(mReportRequest, reportRequestCacheKey,
+                DurationInMillis.ALWAYS_EXPIRED,
+                new ReportRequestListener());
+
+
+        mNextButton.setVisibility(View.GONE);
+        mVerificationForm.setVisibility(View.VISIBLE);
+    }
+
+    public void yes(View view){
+
+    }
+
+    public void no(View view){
+
+    }
+
+    private class ReportRequestListener implements RequestListener<ReportResponse> {
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            Log.d(TAG, "ReportRequestListener request fail.");
+
+            reportRequestCacheKey = null;
+
+            //TODO fail
+            mVerificationStatus.setText("Fail");
+        }
+
+        @Override
+        public void onRequestSuccess(ReportResponse result) {
+            Log.d(TAG, "ReportRequestListener request succeed.");
+
+            reportRequestCacheKey = null;
+
+            // TODO check succeed
+
+            //TODO change out testuser
+            String question = "Dongwei"+getString(R.string.hello_activity_replace_question1)+
+                    ((CategorySpinnerItem)mCategorySpinner.getSelectedItem()).getItemString()+
+                    getString(R.string.hello_activity_replace_question2)+
+                    ((RouteSpinnerItem)mRouteSpinner.getSelectedItem()).getItemString()+
+                    getString(R.string.hello_activity_replace_question3)+
+                    "Dongwei"+
+                    getString(R.string.hello_activity_replace_question4);
+
+            mReplaceText.setText(question);
+            mHelloForm.setVisibility(View.GONE);
+            mReplaceForm.setVisibility(View.VISIBLE);
+
+            mVerificationStatus.setText("succeed");
+        }
+    }
 }

@@ -405,13 +405,19 @@ public class LoginActivity extends Activity {
     }
 
     private void launchHelloActivity(){
-        Log.d(TAG, "Launching hello activity. mState: "+mState);
+        Log.d(TAG, "Launching hello activity. mState: " + mState);
         Intent intent = new Intent(getApplicationContext(), HelloActivity.class);
         intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_xUserId), xUserId);
         intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_xAuthToken), xAuthToken);
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryIdList), categoryIdList.toArray());
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryNameList), categoryNameList.toArray());
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryRouteCountList), categoryRouteCountList.toArray());
+        String[] categoryIdListAsArray = categoryIdList.toArray(new String[categoryIdList.size()]);
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryIdList), categoryIdListAsArray);
+        String[] categoryNameListAsArray = categoryNameList.toArray(new String[categoryNameList.size()]);
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryNameList), categoryNameListAsArray);
+        int[] categoryRouteCountListAsArray = new int[categoryRouteCountList.size()];
+        for(int i=0; i<categoryRouteCountList.size(); i++){
+            categoryRouteCountListAsArray[i] = categoryRouteCountList.get(i);
+        }
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryRouteCountList), categoryRouteCountListAsArray);
         startActivity(intent);
     }
 

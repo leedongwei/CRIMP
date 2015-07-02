@@ -9,20 +9,20 @@
     android:orientation="vertical"
     tools:context="com.nusclimb.live.crimp.welcome.HelloActivity">
 
-    <TextView
-        android:id="@+id/hello_question"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:textSize="20sp"
-        android:text="@string/hello_activity_question"/>
-
     <LinearLayout
         android:id="@+id/hello_form"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/hello_question"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:textSize="20sp"
+            android:text="@string/hello_activity_question"/>
 
         <Spinner
             android:id="@+id/hello_category_spinner"
@@ -40,8 +40,62 @@
             android:id="@+id/hello_next"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/hello_activity_next"/>
+            android:text="@string/hello_activity_next"
+            android:onClick="next"
+            android:enabled="false"/>
+
+        <LinearLayout android:id="@+id/verification_form"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ProgressBar android:id="@+id/loading_wheel"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView android:id="@+id/verification_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="dummy text"
+                android:visibility="visible" />
+
+        </LinearLayout>
+
 
 
     </LinearLayout>
+
+    <RelativeLayout android:id="@+id/replace_form"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <TextView android:id="@+id/replace_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:textSize="20sp"
+            android:visibility="visible" />
+
+        <Button android:id="@+id/yes_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/replace_text"
+            android:text="@string/hello_activity_yes"
+            android:onClick="yes"/>
+
+        <Button android:id="@+id/no_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/replace_text"
+            android:layout_toRightOf="@id/yes_button"
+            android:text="@string/hello_activity_no"
+            android:onClick="no"/>
+
+    </RelativeLayout>
+
 </LinearLayout>
