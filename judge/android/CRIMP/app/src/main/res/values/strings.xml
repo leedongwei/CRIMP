@@ -1,7 +1,15 @@
 <resources>
     <string name="app_name">CRIMP</string>
     <string name="package_name">com.nusclimb.live</string>
-    <string name="title_activity_login">LoginActivity</string>
+
+    <!-- Activity title -->
+    <string name="title_activity_login">Login</string>
+    <string name="title_activity_scoring">Score</string>
+    <string name="title_activity_hello">Route</string>
+    <string name="title_activity_qrscan">Scan</string>
+
+    <!-- QR Code prefix -->
+    <string name="qr_prefix">&lt;BA2015&gt;</string>
 
     <!-- URL -->
     <string name="crimp_url">"http://crimp-testing-0625.meteor.com"</string>
@@ -50,12 +58,15 @@
     <string name="hello_activity_replace_question4">"?"</string>
     <string name="hello_activity_yes">Yes</string>
     <string name="hello_activity_no">No</string>
+    <string name="hello_activity_status_report_in">Judge reporting in...</string>
+    <string name="hello_activity_status_report_in_fail">No/Wrong response from server. Retrying...</string>
+
+    <!-- Intent -->
+    <string name="intent_route_id">route_id</string>
 
     <!-- Facebook stuff -->
     <string name="facebook_app_id">1448790512098965</string>
-    <string name="title_activity_hello">HelloActivity</string>
-    <string name="title_activity_test">TestActivity</string>
-    <string name="title_activity_qrscan">QRScanActivity</string>
+
 
 
 </resources>

@@ -56,11 +56,13 @@ public class LoginActivity extends Activity {
         CATEGORIES_FAILED       // No response or unknown response from CRIMP server.
     }
 
-    // Stuff for communicating with CRIMP server
-    private String loginRequestCacheKey;
-    private String categoriesRequestCacheKey;
+    // RoboSpice stuff
     private SpiceManager spiceManager = new SpiceManager(
             CrimpService.class);
+    private String loginRequestCacheKey;
+    private String categoriesRequestCacheKey;
+
+    // Stuff for communicating with CRIMP server
     private String xUserId;
     private String xAuthToken;
     private List<String> roles;
@@ -91,9 +93,11 @@ public class LoginActivity extends Activity {
      * @author Lin Weizhi (ecc.weizhi@gmail.com)
      */
     private class LoginRequestListener implements RequestListener<LoginResponse> {
+        private final String TAG = LoginRequestListener.class.getSimpleName();
+
         @Override
         public void onRequestFailure(SpiceException e) {
-            Log.d(TAG, "LoginRequestListener request fail.");
+            Log.d(TAG, "LoginRequest fail. Setting loginRequestCacheKey to null. mState="+mState);
 
             loginRequestCacheKey = null;
 
@@ -103,7 +107,7 @@ public class LoginActivity extends Activity {
 
         @Override
         public void onRequestSuccess(LoginResponse result) {
-            Log.d(TAG, "LoginRequestListener request succeed. result="+result.toString());
+            Log.d(TAG, "LoginRequest succeed. Setting loginRequestCacheKey to null. LoginResponse="+result.toString());
 
             loginRequestCacheKey = null;
             xUserId = result.getxUserId();
@@ -144,10 +148,17 @@ public class LoginActivity extends Activity {
         }
     }
 
+    /**
+     * RequestListener for receiving response of categories request.
+     *
+     * @author Lin Weizhi (ecc.weizhi@gmail.com)
+     */
     private class CategoriesRequestListener implements RequestListener<CategoriesResponse> {
+        private final String TAG = CategoriesRequestListener.class.getSimpleName();
+
         @Override
         public void onRequestFailure(SpiceException e) {
-            Log.d(TAG, "CategoriesRequestListener request fail.");
+            Log.d(TAG, "CategoriesRequest fail. Setting categoriesRequestCacheKey to null. mState="+mState);
 
             categoriesRequestCacheKey = null;
 
@@ -157,7 +168,7 @@ public class LoginActivity extends Activity {
 
         @Override
         public void onRequestSuccess(CategoriesResponse result) {
-            Log.d(TAG, "CategoriesRequestListener request succeed.");
+            Log.d(TAG, "CategoriesRequest succeed. Setting categoriesRequestCacheKey to null. CategoriesResponse="+result.toString());
 
             categoriesRequestCacheKey = null;
 
@@ -176,6 +187,7 @@ public class LoginActivity extends Activity {
                 changeState(LoginState.CATEGORIES_OK);
         }
     }
+
 
     /*=========================================================================
      * UI methods
@@ -406,18 +418,23 @@ public class LoginActivity extends Activity {
 
     private void launchHelloActivity(){
         Log.d(TAG, "Launching hello activity. mState: " + mState);
-        Intent intent = new Intent(getApplicationContext(), HelloActivity.class);
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_xUserId), xUserId);
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_xAuthToken), xAuthToken);
+
+        // Prepare stuff to put in intent.
         String[] categoryIdListAsArray = categoryIdList.toArray(new String[categoryIdList.size()]);
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryIdList), categoryIdListAsArray);
         String[] categoryNameListAsArray = categoryNameList.toArray(new String[categoryNameList.size()]);
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryNameList), categoryNameListAsArray);
         int[] categoryRouteCountListAsArray = new int[categoryRouteCountList.size()];
         for(int i=0; i<categoryRouteCountList.size(); i++){
             categoryRouteCountListAsArray[i] = categoryRouteCountList.get(i);
         }
+
+        // Putting stuff into intent.
+        Intent intent = new Intent(getApplicationContext(), HelloActivity.class);
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_xUserId), xUserId);
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_xAuthToken), xAuthToken);
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryIdList), categoryIdListAsArray);
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryNameList), categoryNameListAsArray);
         intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryRouteCountList), categoryRouteCountListAsArray);
+
         startActivity(intent);
     }
 
