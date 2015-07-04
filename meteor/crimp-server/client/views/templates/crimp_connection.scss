@@ -1,0 +1,68 @@
+.status-meteor {
+  display: inline-block;
+  width: 80px;
+  margin: 10px;
+
+  font-size: 10px;
+  line-height: 10px;
+  border: 1px solid #000; // Todo: Delete
+
+  .status-dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    background-color: #f04124;
+
+    // For connection status text
+    &::after {
+      margin-left: 12px;
+    }
+
+    &.status-connected {
+      background-color: #43AC6A;
+
+      &::after {
+        content: 'Connected';
+      }
+    }
+
+    &.status-waiting {
+      background-color: #f60;
+
+      &::after {
+        content: 'Waiting';
+      }
+    }
+
+    &.status-connecting {
+      background-color: #f60;
+      -webkit-animation: status-pulse 2s ease infinite;
+      -moz-animation:    status-pulse 2s ease infinite;
+      -o-animation:      status-pulse 2s ease infinite;
+      animation:         status-pulse 2s ease infinite;
+
+      &::after {
+        content: 'Connecting';
+      }
+    }
+
+    &.status-failed,
+    &.status-offline {
+      // color remains red
+    }
+  }
+}
+
+@-webkit-keyframes status-pulse {
+  50% { background-color: #43AC6A }
+}
+@-moz-keyframes status-pulse {
+  50% { background-color: #43AC6A }
+}
+@-o-keyframes status-pulse {
+  50% { background-color: #43AC6A }
+}
+@keyframes status-pulse {
+  50% { background-color: #43AC6A }
+}

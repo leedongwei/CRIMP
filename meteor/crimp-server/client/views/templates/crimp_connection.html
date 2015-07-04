@@ -1,16 +1,7 @@
 <template name="crimp_connection">
-  {{ #with state_check }}
-
-    {{ #if state_check.connected }}
-      {{ state_check.status }}
-    {{ else }}
-
-      {{ state_check.status }},
-      <!-- {{ state_check.retryCount }},
-      trying in .. {{ state_check.retryTime }},-->
-      reason: {{ state_check.reason }}
-
-    {{ /if }}
-
-  {{ /with }}
+  <div class="status-meteor">
+    {{ #with state_check }}
+      <div class="status-dot status-{{ state_check.status }}"></div>
+    {{ /with }}
+  </div>
 </template>
