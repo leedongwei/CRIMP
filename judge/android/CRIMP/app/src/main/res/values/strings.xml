@@ -1,7 +1,26 @@
 <resources>
     <string name="app_name">CRIMP</string>
     <string name="package_name">com.nusclimb.live</string>
-    <string name="title_activity_login">LoginActivity</string>
+
+    <!-- Activity title -->
+    <string name="title_activity_login">Login</string>
+    <string name="title_activity_scoring">Score</string>
+    <string name="title_activity_hello">Route</string>
+    <string name="title_activity_qrscan">Scan</string>
+
+    <!-- QR Code prefix -->
+    <string name="qr_prefix">&lt;BA2015&gt;</string>
+
+    <!-- URL -->
+    <string name="crimp_url">"http://crimp-testing-0625.meteor.com"</string>
+    <string name="login_api">/api/judge/login</string>
+    <string name="report_api">/api/judge/report</string>
+    <string name="helpme_api">/api/judge/helpme</string>
+    <string name="categories_api">/api/judge/categories</string>
+    <string name="climbers_api">/api/judge/climbers/</string>
+    <string name="activeclimbers_api">/api/judge/activeclimbers</string>
+    <string name="get_score_api">/api/judge/score/</string>
+    <string name="post_score_api">/api/judge/score/</string>
 
 
     <string name="hello_world">Hello world!</string>
@@ -10,15 +29,22 @@
 
     <!-- Login Activity UI -->
     <string name="login_activity_login_wait">Awaiting confirmation from admins...</string>
-    <string name="login_activity_login_fail">User does not exist.</string>
-    <string name="login_activity_login_error">Error.</string>
+    <string name="login_activity_categories_wait">Retrieving route list...</string>
+    <string name="login_activity_login_hey">"Hey "</string>
+    <string name="login_activity_login_exclamation">"! "</string>
+    <string name="login_activity_verification_fail">Access denied. Please contact admin to request for permission.</string>
+    <string name="login_activity_verification_error">Verification error: Wrong/No response from server.</string>
+    <string name="login_activity_categories_fail">Route list request denied. This should not happen.</string>
+    <string name="login_activity_categories_error">Categories request error: Wrong/No response from server.</string>
     <string name="login_activity_cancel">Cancel</string>
     <string name="login_activity_retry">Retry</string>
 
     <!-- Login Activity -->
-    <string name="login_activity_xuserid">loginActivityXUserId</string>
-    <string name="login_activity_xauthtoken">loginActivityXAuthToken</string>
-    <string name="login_activity_role">loginActivityRole</string>
+    <string name="login_activity_intent_xUserId">loginActivityXUserId</string>
+    <string name="login_activity_intent_xAuthToken">loginActivityXAuthToken</string>
+    <string name="login_activity_intent_categoryIdList">loginActivityCategoryIdList</string>
+    <string name="login_activity_intent_categoryNameList">loginActivityCategoryNameList</string>
+    <string name="login_activity_intent_categoryRouteCountList">loginActivityCategoryRouteCountList</string>
 
     <!-- Hello Activity UI -->
     <string name="hello_activity_next">Next</string>
@@ -26,12 +52,21 @@
     <string name="hello_activity_route_hint">Pick a route</string>
     <string name="hello_activity_greeting">"Hello "</string>
     <string name="hello_activity_question">, you are route judge for</string>
+    <string name="hello_activity_replace_question1">" is already route judge for "</string>
+    <string name="hello_activity_replace_question2">", "</string>
+    <string name="hello_activity_replace_question3">".\n\nReplace "</string>
+    <string name="hello_activity_replace_question4">"?"</string>
+    <string name="hello_activity_yes">Yes</string>
+    <string name="hello_activity_no">No</string>
+    <string name="hello_activity_status_report_in">Judge reporting in...</string>
+    <string name="hello_activity_status_report_in_fail">No/Wrong response from server. Retrying...</string>
+
+    <!-- Intent -->
+    <string name="intent_route_id">route_id</string>
 
     <!-- Facebook stuff -->
     <string name="facebook_app_id">1448790512098965</string>
-    <string name="title_activity_hello">HelloActivity</string>
-    <string name="title_activity_test">TestActivity</string>
-    <string name="title_activity_qrscan">QRScanActivity</string>
+
 
     <!-- QR Code prefix -->
     <string name="qr_prefix">&lt;BA2014&gt;</string>

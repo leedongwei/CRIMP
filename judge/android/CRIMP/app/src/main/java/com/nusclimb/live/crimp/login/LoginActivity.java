@@ -14,11 +14,15 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.Profile;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.nusclimb.live.crimp.R;
+import com.nusclimb.live.crimp.common.json.CategoriesResponse;
+import com.nusclimb.live.crimp.common.json.Category;
 import com.nusclimb.live.crimp.common.json.LoginResponse;
+import com.nusclimb.live.crimp.common.spicerequest.CategoriesRequest;
 import com.nusclimb.live.crimp.common.spicerequest.LoginRequest;
 import com.nusclimb.live.crimp.hello.HelloActivity;
 import com.nusclimb.live.crimp.service.CrimpService;
@@ -28,7 +32,7 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * Login activity of CRIMP.
@@ -40,22 +44,33 @@ public class LoginActivity extends Activity {
 
     // Various state of activity.
     private enum LoginState {
-        NOT_LOGIN,          // Not login to facebook. Not login to CRIMP server.
-        IN_FACEBOOK,        // In facebook login activity.
-        FACEBOOK_OK,        // Successfully login to facebook.
-        IN_VERIFYING,       // Trying to login to CRIMP server.
-        VERIFIED_OK,        // CRIMP server reply ok.
-        VERIFIED_NOT_OK,    // CRIMP server reject user.
-        VERIFIED_FAILED     // No response or unknown response from CRIMP server.
+        NOT_LOGIN,              // Not login to facebook. Not login to CRIMP server.
+        IN_FACEBOOK,            // In facebook login activity.
+        FACEBOOK_OK,            // Successfully login to facebook.
+        IN_VERIFYING,           // Trying to login to CRIMP server.
+        VERIFIED_OK,            // CRIMP server reply ok.
+        VERIFIED_NOT_OK,        // CRIMP server reject user.
+        VERIFIED_FAILED,        // No response or unknown response from CRIMP server.
+
+        IN_REQUEST_CATEGORIES,  // Requesting list of routes from CRIMP server.
+        CATEGORIES_OK,          // Received list of routes from CRIMP server correctly.
+        CATEGORIES_NOT_OK,      // Rejected by CRIMP server when requesting route list.
+        CATEGORIES_FAILED       // No response or unknown response from CRIMP server.
     }
 
-    // Stuff for communicating with CRIMP server
-    private String loginRequestCacheKey;
+    // RoboSpice stuff
     private SpiceManager spiceManager = new SpiceManager(
             CrimpService.class);
+    private String loginRequestCacheKey;
+    private String categoriesRequestCacheKey;
+
+    // Stuff for communicating with CRIMP server
     private String xUserId;
     private String xAuthToken;
-    private ArrayList<String> roles;
+    private List<String> roles;
+    private List<String> categoryIdList = new ArrayList<String>();
+    private List<String> categoryNameList = new ArrayList<String>();
+    private List<Integer> categoryRouteCountList = new ArrayList<Integer>();
 
     // Activity state
     private LoginState mState = LoginState.NOT_LOGIN;
@@ -80,45 +95,100 @@ public class LoginActivity extends Activity {
      * @author Lin Weizhi (ecc.weizhi@gmail.com)
      */
     private class LoginRequestListener implements RequestListener<LoginResponse> {
+        private final String TAG = LoginRequestListener.class.getSimpleName();
+
         @Override
         public void onRequestFailure(SpiceException e) {
-            Log.d(TAG, "LoginRequestListener request fail.");
+            Log.d(TAG, "LoginRequest fail. Setting loginRequestCacheKey to null. mState="+mState);
 
             loginRequestCacheKey = null;
 
-            //TODO uncomment this
-            forceSuccess();
-            /*
             if(mState == LoginState.IN_VERIFYING)
                 changeState(LoginState.VERIFIED_FAILED);
-            */
         }
 
         @Override
         public void onRequestSuccess(LoginResponse result) {
-            Log.d(TAG, "LoginRequestListener request succeed.");
+            Log.d(TAG, "LoginRequest succeed. Setting loginRequestCacheKey to null. LoginResponse="+result.toString());
 
             loginRequestCacheKey = null;
             xUserId = result.getxUserId();
             xAuthToken = result.getxAuthToken();
             roles = result.getRoles();
 
-            if(mState == LoginState.IN_VERIFYING)
-                changeState(LoginState.VERIFIED_OK);
+            // Verify response.
+            boolean isContainJudgeOrAbove = false;
+            if(roles!=null){
+                int i = 0;
+                while(i<roles.size() && !isContainJudgeOrAbove){
+                    isContainJudgeOrAbove = roles.get(i).equalsIgnoreCase("judge");
+                    i++;
+                }
+                i=0;
+                while(i<roles.size() && !isContainJudgeOrAbove){
+                    isContainJudgeOrAbove = roles.get(i).equalsIgnoreCase("admin");
+                    i++;
+                }
+                i=0;
+                while(i<roles.size() && !isContainJudgeOrAbove){
+                    isContainJudgeOrAbove = roles.get(i).equalsIgnoreCase("hukkataival");
+                    i++;
+                }
+            }
+
+            // roles need to contain "judge" to be verified ok.
+            if(isContainJudgeOrAbove) {
+                Log.d(TAG, "Roles contain judge or above. mState="+mState);
+                if (mState == LoginState.IN_VERIFYING)
+                    changeState(LoginState.VERIFIED_OK);
+            }
+            else{
+                Log.d(TAG, "Roles don't contain judge or above. mState="+mState);
+                if (mState == LoginState.IN_VERIFYING)
+                    changeState(LoginState.VERIFIED_NOT_OK);
+            }
         }
     }
 
-    //TODO remove this before production
-    private void forceSuccess(){
-        xUserId = "testUserId";
-        xAuthToken = "testAuthToken";
-        String[] rolesArray = {"testRole"};
-        roles = new ArrayList<String>(Arrays.asList(rolesArray));
+    /**
+     * RequestListener for receiving response of categories request.
+     *
+     * @author Lin Weizhi (ecc.weizhi@gmail.com)
+     */
+    private class CategoriesRequestListener implements RequestListener<CategoriesResponse> {
+        private final String TAG = CategoriesRequestListener.class.getSimpleName();
 
-        if(mState == LoginState.IN_VERIFYING)
-            changeState(LoginState.VERIFIED_OK);
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            Log.d(TAG, "CategoriesRequest fail. Setting categoriesRequestCacheKey to null. mState="+mState);
+
+            categoriesRequestCacheKey = null;
+
+            if(mState == LoginState.IN_REQUEST_CATEGORIES)
+                changeState(LoginState.CATEGORIES_FAILED);
+        }
+
+        @Override
+        public void onRequestSuccess(CategoriesResponse result) {
+            Log.d(TAG, "CategoriesRequest succeed. Setting categoriesRequestCacheKey to null. CategoriesResponse="+result.toString());
+
+            categoriesRequestCacheKey = null;
+
+            categoryIdList.clear();
+            categoryNameList.clear();
+            categoryRouteCountList.clear();
+
+            // parse response.
+            for(Category c:result){
+                categoryIdList.add(c.getCategoryId());
+                categoryNameList.add(c.getCategoryName());
+                categoryRouteCountList.add(c.getRouteCount());
+            }
+
+            if (mState == LoginState.IN_REQUEST_CATEGORIES)
+                changeState(LoginState.CATEGORIES_OK);
+        }
     }
-
 
 
     /*=========================================================================
@@ -145,6 +215,11 @@ public class LoginActivity extends Activity {
         mViewResponseText.setVisibility(View.VISIBLE);
     }
 
+    private void showResponseText(String textResource){
+        ((TextView) mViewResponseText).setText(textResource);
+        mViewResponseText.setVisibility(View.VISIBLE);
+    }
+
     private void showCancelButton(boolean show){
         mViewCancelButton.setVisibility(show ? View.VISIBLE : View.GONE);
         mViewRetryButton.setVisibility(show ? View.GONE : View.VISIBLE);
@@ -155,6 +230,8 @@ public class LoginActivity extends Activity {
      */
     private void updateUI(){
         Log.d(TAG, "Update UI. mState:" + mState);
+        String responseText;
+
         switch (mState) {
             case NOT_LOGIN:
                 showFacebookButton(true);
@@ -174,16 +251,55 @@ public class LoginActivity extends Activity {
             case VERIFIED_OK:
                 break;
             case VERIFIED_NOT_OK:
-                //TODO toast message and UI stuff. Incomplete.
-                Context context = getApplicationContext();
-                CharSequence text = getString(R.string.login_activity_login_fail);
-                Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
-                toast.show();
+                showFacebookButton(false);
+                showLoadingWheel(false);
+                responseText = getString(R.string.login_activity_login_hey)+
+                        Profile.getCurrentProfile().getName()+
+                        getString(R.string.login_activity_login_exclamation)+
+                        getString(R.string.login_activity_verification_fail);
+                showResponseText(responseText);
+                showCancelButton(false);
+                showVerifyingView(true);
                 break;
             case VERIFIED_FAILED:
                 showFacebookButton(false);
                 showLoadingWheel(false);
-                showResponseText(R.string.login_activity_login_error);
+                responseText = getString(R.string.login_activity_login_hey)+
+                        Profile.getCurrentProfile().getName()+
+                        getString(R.string.login_activity_login_exclamation)+
+                        getString(R.string.login_activity_verification_error);
+                showResponseText(responseText);
+                showCancelButton(false);
+                showVerifyingView(true);
+                break;
+
+            case IN_REQUEST_CATEGORIES:
+                showFacebookButton(false);
+                showLoadingWheel(true);
+                showResponseText(R.string.login_activity_categories_wait);
+                showCancelButton(true);
+                showVerifyingView(true);
+                break;
+            case CATEGORIES_OK:
+                break;
+            case CATEGORIES_NOT_OK:showFacebookButton(false);
+                showLoadingWheel(false);
+                responseText = getString(R.string.login_activity_login_hey)+
+                        Profile.getCurrentProfile().getName()+
+                        getString(R.string.login_activity_login_exclamation)+
+                        getString(R.string.login_activity_categories_fail);
+                showResponseText(responseText);
+                showCancelButton(false);
+                showVerifyingView(true);
+                break;
+            case CATEGORIES_FAILED:
+                showFacebookButton(false);
+                showLoadingWheel(false);
+                responseText = getString(R.string.login_activity_login_hey)+
+                        Profile.getCurrentProfile().getName()+
+                        getString(R.string.login_activity_login_exclamation)+
+                        getString(R.string.login_activity_categories_error);
+                showResponseText(responseText);
                 showCancelButton(false);
                 showVerifyingView(true);
                 break;
@@ -191,6 +307,7 @@ public class LoginActivity extends Activity {
     }
 
 
+    // Facebook stuff
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -215,22 +332,42 @@ public class LoginActivity extends Activity {
                 changeState(LoginState.IN_VERIFYING);
                 break;
             case IN_VERIFYING:
-                AccessToken currentAccessToken = AccessToken.getCurrentAccessToken();
-                //TODO change this when going production
-                //LoginRequest request = new LoginRequest(currentAccessToken.getToken(), currentAccessToken.getExpires().toString());
-                LoginRequest request = new LoginRequest("testAccessToken", "testExpire");
-                loginRequestCacheKey = request.createCacheKey();
-                spiceManager.execute(request, loginRequestCacheKey,
-                        DurationInMillis.ALWAYS_EXPIRED,
-                        new LoginRequestListener());
+                if(loginRequestCacheKey==null) {
+                    LoginRequest mLoginRequest = new LoginRequest(AccessToken.getCurrentAccessToken().getToken(),
+                            String.valueOf(AccessToken.getCurrentAccessToken().getExpires().getTime()),
+                            AccessToken.getCurrentAccessToken().getUserId(),
+                            this);
+
+                    loginRequestCacheKey = mLoginRequest.createCacheKey();
+                    spiceManager.execute(mLoginRequest, loginRequestCacheKey,
+                            DurationInMillis.ALWAYS_EXPIRED,
+                            new LoginRequestListener());
+                }
                 break;
             case VERIFIED_OK:
-                launchHelloActivity();
+                changeState(LoginState.IN_REQUEST_CATEGORIES);
                 break;
             case VERIFIED_NOT_OK:
                 //TODO
                 break;
             case VERIFIED_FAILED:
+                break;
+
+            case IN_REQUEST_CATEGORIES:
+                if(categoriesRequestCacheKey==null) {
+                    CategoriesRequest mCategoriesRequest = new CategoriesRequest(xUserId, xAuthToken, this);
+                    categoriesRequestCacheKey = mCategoriesRequest.createCacheKey();
+                    spiceManager.execute(mCategoriesRequest, categoriesRequestCacheKey,
+                            DurationInMillis.ALWAYS_EXPIRED,
+                            new CategoriesRequestListener());
+                }
+                break;
+            case CATEGORIES_OK:
+                launchHelloActivity();
+                break;
+            case CATEGORIES_NOT_OK:
+                break;
+            case CATEGORIES_FAILED:
                 break;
         }
     }
@@ -272,17 +409,42 @@ public class LoginActivity extends Activity {
             spiceManager.cancel(LoginResponse.class, loginRequestCacheKey);
             loginRequestCacheKey = null;
         }
+
+        if(categoriesRequestCacheKey!=null) {
+            Log.d(TAG, "Pressed cancel. mState:" + mState+". Cancel request: "+categoriesRequestCacheKey);
+        }
+        else{
+            Log.d(TAG, "Pressed cancel. mState:" + mState);
+        }
+        if(categoriesRequestCacheKey != null){
+            spiceManager.cancel(CategoriesResponse.class, categoriesRequestCacheKey);
+            categoriesRequestCacheKey = null;
+        }
+
         LoginManager.getInstance().logOut();
 
         changeState(LoginState.NOT_LOGIN);
     }
 
     private void launchHelloActivity(){
-        Log.d(TAG, "Launching hello activity. mState: "+mState+ "; xUserId: "+xUserId+"; xAuthToken: "+xAuthToken);
+        Log.d(TAG, "Launching hello activity. mState: " + mState);
+
+        // Prepare stuff to put in intent.
+        String[] categoryIdListAsArray = categoryIdList.toArray(new String[categoryIdList.size()]);
+        String[] categoryNameListAsArray = categoryNameList.toArray(new String[categoryNameList.size()]);
+        int[] categoryRouteCountListAsArray = new int[categoryRouteCountList.size()];
+        for(int i=0; i<categoryRouteCountList.size(); i++){
+            categoryRouteCountListAsArray[i] = categoryRouteCountList.get(i);
+        }
+
+        // Putting stuff into intent.
         Intent intent = new Intent(getApplicationContext(), HelloActivity.class);
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_xuserid), xUserId);
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_xauthtoken), xAuthToken);
-        intent.putStringArrayListExtra(getString(R.string.package_name) + getString(R.string.login_activity_role), roles);
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_xUserId), xUserId);
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_xAuthToken), xAuthToken);
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryIdList), categoryIdListAsArray);
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryNameList), categoryNameListAsArray);
+        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryRouteCountList), categoryRouteCountListAsArray);
+
         startActivity(intent);
     }
 
@@ -371,6 +533,18 @@ public class LoginActivity extends Activity {
 
         if(loginRequestCacheKey != null){
             spiceManager.cancel(LoginResponse.class, loginRequestCacheKey);
+            loginRequestCacheKey = null;
+        }
+
+        if(categoriesRequestCacheKey != null) {
+            Log.d(TAG, "In onPause(). mState: " + mState+". Cancelling categoriesRequest: "+categoriesRequestCacheKey);
+        }
+        else{
+            Log.d(TAG, "In onPause(). mState: " + mState);
+        }
+
+        if(categoriesRequestCacheKey != null){
+            spiceManager.cancel(LoginResponse.class, categoriesRequestCacheKey);
             loginRequestCacheKey = null;
         }
     }

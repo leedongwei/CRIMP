@@ -1,10 +1,7 @@
 package com.nusclimb.live.crimp.qr;
 
-import com.nusclimb.live.crimp.common.Helper;
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.qr.CameraManager;
-import com.nusclimb.live.crimp.qr.DecodeHandler;
-import com.nusclimb.live.crimp.qr.PreviewView;
+import com.nusclimb.live.crimp.scoring.ScoringActivity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -38,7 +35,7 @@ import android.widget.Toast;
  *
  */
 public class QRScanActivity extends Activity {
-    private final String TAG = QRScanActivity.class.getSimpleName();
+    private final String TAG = QRScanActivity.class.getSimpleName
 
     private final String STATE_ACTIVITY = "state_activity";
     private final String STATE_JUDGE = "state_judge";
@@ -48,7 +45,6 @@ public class QRScanActivity extends Activity {
     private String routeJudge, round, route;
     private String climberId;
     private String climberName;
-
     private Point previewResolution;	// Size of the previewView
     private PreviewView previewView;
     private CameraManager cameraManager;
@@ -102,15 +98,16 @@ public class QRScanActivity extends Activity {
 
         // Read intent
         String packageName = getString(R.string.package_name);
-        Intent intent = getIntent();
-        routeJudge = "hey";//intent.getStringExtra(packageName + getString(R.string.intent_username));
-        round = "you";//intent.getStringExtra(packageName + getString(R.string.intent_round));
-        route = "roar";//intent.getStringExtra(packageName + getString(R.string.intent_route));
+        Intent intent = getIntent
+        routeJudge = "test";//intent.getStringExtra(packageName + getString(R.string.intent_username));
+        round = "test";//intent.getStringExtra(packageName + getString(R.string.intent_round));
+        route = "test";//intent.getStringExtra(packageName + getString(R.string.intent_route));
 
         // Update title.
         this.setTitle(round + " " + route);
         TextView climberRoundId =  (TextView) findViewById(R.id.QRScan_round_text);
-        climberRoundId.setText(Helper.toIdRound(round));
+
+        climberRoundId.setText("test");
 
         // Update buttons.
         if(!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)){
@@ -230,10 +227,35 @@ public class QRScanActivity extends Activity {
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_qrscan, menu);
+        return true;
+    }
 
-	
-	
-	
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+            /*
+            case R.id.preferences:
+                // Launch settings activity
+                Intent i = new Intent(this, SettingsActivity.class);
+                startActivity(i);
+                return true;
+                */
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+
 	/*=========================================================================
 	 * Public methods
 	 *=======================================================================*/
@@ -309,9 +331,8 @@ public class QRScanActivity extends Activity {
         }
         else{
             String packageName = getString(R.string.package_name);
-
+/*
             // Preparing to start ScoringActivity.
-            /*
             Intent intent = new Intent(this, ScoringActivity.class);
             intent.putExtra(packageName + getString(R.string.intent_username) , routeJudge);
             intent.putExtra(packageName + getString(R.string.intent_round), round);
@@ -323,9 +344,14 @@ public class QRScanActivity extends Activity {
 
             setState(R.id.decode);
 
-            startActivity(intent);
-            */
+            startActivity(intent);*/
         }
+    }
+
+    //TODO remove this method
+    public void next2(View view){
+        Intent intent = new Intent(this, ScoringActivity.class);
+        startActivity(intent);
     }
 
     /**
@@ -336,9 +362,8 @@ public class QRScanActivity extends Activity {
     public void toggleFlash(View view){
         getCameraManager().setFlash(!getCameraManager().isTorchOn());
     }
-	
-	
-	
+
+
 	/*=========================================================================
 	 * Private methods
 	 *=======================================================================*/
@@ -423,3 +448,6 @@ public class QRScanActivity extends Activity {
     }
 
 }
+
+
+
