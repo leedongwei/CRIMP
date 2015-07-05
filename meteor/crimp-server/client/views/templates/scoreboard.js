@@ -14,6 +14,9 @@ Template.scoreboard.helpers({
 
 
 
+/*
+ *  Scoreboard Categories
+ */
 Template.scoreboard_categories.helpers({
   // TODO: Use Meteor.call to replace .find()
   categories: function() {
@@ -32,8 +35,10 @@ Template.scoreboard_categories.events({
 
 
 
-
-Template.scoreboard_climber.helpers({
+/*
+ *  Scoreboard Climber
+ */
+Template.scoreboard_climbers.helpers({
   climbers: function() {
     var climberData = Climbers
                         .find({ category_id: Session.get('currentCategory') })
@@ -55,6 +60,11 @@ Template.scoreboard_climber.helpers({
   }
 });
 
+
+
+/*
+ *  Helper functions
+ */
 function climberTabulateScores(climberData) {
   climberData.forEach(function(climber, index) {
     var scoreArray = [],
@@ -65,6 +75,8 @@ function climberTabulateScores(climberData) {
 
     for (var i=1; i < Object.keys(climber.scores).length+1; i++) {
       var cs = Scores.findOne(climber.scores[i]);
+
+      if (!cs)  continue;
       scoreArray.push(cs);
 
       // Tabulate succesful top/bonus

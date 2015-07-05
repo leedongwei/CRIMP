@@ -1,7 +1,7 @@
 <template name="scoreboard">
   <h2> SCOREBOARD </h2>
   {{ > scoreboard_categories }}
-  {{ > scoreboard_climber }}"
+  {{ > scoreboard_climbers }}
 </template>
 
 
@@ -18,10 +18,9 @@
 </template>
 
 
-<template name="scoreboard_climber">
-  <ul>
+<template name="scoreboard_climbers">
+  <ul class="scoreboard-climbers">
     {{ #each climbers }}
-
       <li>
         <span class="climber-rank" data-tiebreak="{{ scores_tiebreak }}">{{ rank }}</span>
         <span class="climber-name">{{ name }}</span>
