@@ -1,5 +1,5 @@
 Router.route('/', function () {
-  this.render('scoreboard');
+  this.render('crimp_spectator');
 });
 
 Router.route('/admin', function () {

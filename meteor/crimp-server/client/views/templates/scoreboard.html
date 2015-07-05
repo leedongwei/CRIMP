@@ -1,72 +1,25 @@
-
 <template name="scoreboard">
-
-  <header>
-    <div class="contain-to-grid sticky">
-      <nav class="top-bar" data-topbar role="navigation">
-        <ul class="title-area">
-          <li class="name">
-            <h1><a>CRIMP</a></h1>
-          </li>
-        </ul>
-
-
-
-        <section class="top-bar-section">
-          <ul class="left">
-            <li><span class="crimp-conn">
-            {{ > crimp_status }}</span></li>
-          </ul>
-
-          <ul class="right">
-            <li><a>ActiveClimber</a></li>
-            <li><a>Search</a></li>
-          </ul>
-
-          <!-- Left Nav Section -->
-        </section>
-      </nav>
-    </div>
-  </header>
-
-  <section class="crimp-data-section">
-
-    <div class="row">
-      <div class="small-12 large-6 columns">
-        <h2> Currently on the Wall</h2>
-        {{ > activeboard }}
-      </div>
-      <div class="small-12 large-6 columns">
-        <h2>Scores</h2>
-
-        {{ > scoreboard_categories }}
-        {{ > scoreboard_climber }}
-      </div>
-    </div>
-  </section>
+  <h2> SCOREBOARD </h2>
+  {{ > scoreboard_categories }}
+  {{ > scoreboard_climber }}"
 </template>
-
 
 
 <template name="scoreboard_categories">
   <select class="scoreboard-categories">
     {{ #each categories }}
-
-      {{ !TODO: There should be a more elegant way of doing this }}
       {{ #if isCurrentCategory category_id }}
         <option value="{{ category_id }}" selected>{{ name }}</option>
       {{ else }}
         <option value="{{ category_id }}">{{ name }}</option>
       {{ /if }}
-
     {{ /each }}
   </select>
 </template>
 
 
-
 <template name="scoreboard_climber">
-  <ul class="scoreboard-climbers">
+  <ul>
     {{ #each climbers }}
 
       <li>
