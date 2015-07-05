@@ -1,20 +1,16 @@
 .status-meteor {
   display: inline-block;
-
-  font-size: 10px;
-  line-height: 10px;
+  padding: 0 5px;
 
   .status-dot {
+    display: inline-block;
     height: 10px;
     width: 10px;
     border-radius: 5px;
+    -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     background-color: #f04124;
-
-    // For connection status text
-    &::after {
-      margin-left: 13px;
-    }
+    margin: 0 2px;
 
     &.status-connected {
       background-color: #43AC6A;
@@ -22,6 +18,35 @@
       -moz-animation:    status-glow 5s ease infinite;
       -o-animation:      status-glow 5s ease infinite;
       animation:         status-glow 5s ease infinite;
+    }
+
+    &.status-waiting {
+      background-color: #f60;
+    }
+
+    &.status-connecting {
+      background-color: #f60;
+      -webkit-animation: status-pulse 2s ease infinite;
+      -moz-animation:    status-pulse 2s ease infinite;
+      -o-animation:      status-pulse 2s ease infinite;
+      animation:         status-pulse 2s ease infinite;
+    }
+
+    &.status-failed,
+    &.status-offline {
+      // color remains red
+    }
+  }
+
+  // Note: .status-text is necessary because attaching ::after to
+  // .status-dot does not allow us to align the text properly
+  .status-text {
+    display: inline-block;
+    position: relative;
+    bottom: 1px;        // Pushes up the text for alignment
+    font-size: 10px;
+
+    &.status-connected {
 
       &::after {
         content: 'Connected';
@@ -34,20 +59,12 @@
     }
 
     &.status-waiting {
-      background-color: #f60;
-
       &::after {
         content: 'Waiting';
       }
     }
 
     &.status-connecting {
-      background-color: #f60;
-      -webkit-animation: status-pulse 2s ease infinite;
-      -moz-animation:    status-pulse 2s ease infinite;
-      -o-animation:      status-pulse 2s ease infinite;
-      animation:         status-pulse 2s ease infinite;
-
       &::after {
         content: 'Connecting';
       }
@@ -55,13 +72,13 @@
 
     &.status-failed,
     &.status-offline {
-      // color remains red
       &::after {
         content: 'Disconnected';
       }
     }
   }
 }
+
 
 @-webkit-keyframes status-glow {
   25%   { box-shadow: 0 0 0px 0px #43AC6A; }
@@ -84,6 +101,7 @@
   25%   { box-shadow: 0 0 0px 0px #43AC6A; }
 }
 
+
 @-webkit-keyframes status-pulse {
   50%   { background-color: #43AC6A; }
 }
@@ -96,6 +114,7 @@
 @keyframes status-pulse {
   50%   { background-color: #43AC6A; }
 }
+
 
 @-webkit-keyframes status-fade {
   0%    { opacity: 1; }
