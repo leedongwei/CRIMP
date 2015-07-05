@@ -2,20 +2,48 @@
 <template name="scoreboard">
 
   <header>
-    <h1>CRIMP</h1>
+    <div class="contain-to-grid sticky">
+      <nav class="top-bar" data-topbar role="navigation">
+        <ul class="title-area">
+          <li class="name">
+            <h1><a>CRIMP</a></h1>
+          </li>
+        </ul>
 
-    {{ > crimp_connection }}
 
+
+        <section class="top-bar-section">
+          <ul class="left">
+            <li><span class="crimp-conn">
+            {{ > crimp_status }}</span></li>
+          </ul>
+
+          <ul class="right">
+            <li><a>ActiveClimber</a></li>
+            <li><a>Search</a></li>
+          </ul>
+
+          <!-- Left Nav Section -->
+        </section>
+      </nav>
+    </div>
   </header>
-  <p>SCOREBOARD</p>
-  <p>activeclimber</p>
-  {{ > activeboard }}
 
-  <p>CATEGORIES</p>
-  {{ > scoreboard_categories }}
+  <section class="crimp-data-section">
 
-  <p>CLIMBERS</p>
-  {{ > scoreboard_climber }}
+    <div class="row">
+      <div class="small-12 large-6 columns">
+        <h2> Currently on the Wall</h2>
+        {{ > activeboard }}
+      </div>
+      <div class="small-12 large-6 columns">
+        <h2>Scores</h2>
+
+        {{ > scoreboard_categories }}
+        {{ > scoreboard_climber }}
+      </div>
+    </div>
+  </section>
 </template>
 
 
@@ -38,22 +66,32 @@
 
 
 <template name="scoreboard_climber">
-  <ul>
+  <ul class="scoreboard-climbers">
     {{ #each climbers }}
-      <li>
-        {{ _id }}<br>
-        {{ name }}<br>
-        {{ climber_id }}<br>
-        {{ category_id }} - {{ number }}<br>
-        {{ affliation }}<br>
-        {{ scores_tiebreak }}<br>
-        {{ standard_status }}<br>
-        {{ additional_status }}<br>
 
-        {{ #each scores }}
-          {{ route_id }} t{{ score_top }} b{{ score_bonus }}
-          <br>
-        {{ /each }}
+      <li>
+        <span class="climber-rank" data-tiebreak="{{ scores_tiebreak }}">{{ rank }}</span>
+        <span class="climber-name">{{ name }}</span>
+        <span class="climber-status">{{ standard_status }}</span>
+
+        <span class="label round climber-top">
+          {{ tops }}t{{ topAttempts }}</span>
+        <span class="label round climber-bonus">
+          {{ bonuses }}b{{ bonusAttempts }}</span>
+
+        <br>
+
+        <span class="climber-id">{{ climber_id }}</span>
+
+        <table class="climber-scores">
+          <tr>
+            {{ #each scores }}
+              <td data-route="{{ route_id }} ">
+              t{{ score_top }} b{{ score_bonus }}
+              </td>
+            {{ /each }}
+          </tr>
+        </table>
 
       </li>
     {{ /each }}

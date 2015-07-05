@@ -1,0 +1,119 @@
+.status-meteor {
+  display: inline-block;
+
+  font-size: 10px;
+  line-height: 10px;
+
+  .status-dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    background-color: #f04124;
+
+    // For connection status text
+    &::after {
+      margin-left: 13px;
+    }
+
+    &.status-connected {
+      background-color: #43AC6A;
+      -webkit-animation: status-glow 5s ease infinite;
+      -moz-animation:    status-glow 5s ease infinite;
+      -o-animation:      status-glow 5s ease infinite;
+      animation:         status-glow 5s ease infinite;
+
+      &::after {
+        content: 'Connected';
+        opacity: 0;
+        -webkit-animation: status-fade 6s 0s 1 ease-in;
+        -moz-animation:    status-fade 6s 0s 1 ease-in;
+        -o-animation:      status-fade 6s 0s 1 ease-in;
+        animation:         status-fade 6s 0s 1 ease-in;
+      }
+    }
+
+    &.status-waiting {
+      background-color: #f60;
+
+      &::after {
+        content: 'Waiting';
+      }
+    }
+
+    &.status-connecting {
+      background-color: #f60;
+      -webkit-animation: status-pulse 2s ease infinite;
+      -moz-animation:    status-pulse 2s ease infinite;
+      -o-animation:      status-pulse 2s ease infinite;
+      animation:         status-pulse 2s ease infinite;
+
+      &::after {
+        content: 'Connecting';
+      }
+    }
+
+    &.status-failed,
+    &.status-offline {
+      // color remains red
+      &::after {
+        content: 'Disconnected';
+      }
+    }
+  }
+}
+
+@-webkit-keyframes status-glow {
+  25%   { box-shadow: 0 0 0px 0px #43AC6A; }
+  50%   { box-shadow: 0 0 2px 1px #43AC6A; }
+  25%   { box-shadow: 0 0 0px 0px #43AC6A; }
+}
+@-moz-keyframes status-glow {
+  25%   { box-shadow: 0 0 0px 0px #43AC6A; }
+  50%   { box-shadow: 0 0 3px 1px #43AC6A; }
+  25%   { box-shadow: 0 0 0px 0px #43AC6A; }
+}
+@-o-keyframes status-glow {
+  25%   { box-shadow: 0 0 0px 0px #43AC6A; }
+  50%   { box-shadow: 0 0 2px 1px #43AC6A; }
+  25%   { box-shadow: 0 0 0px 0px #43AC6A; }
+}
+@keyframes status-glow {
+  25%   { box-shadow: 0 0 0px 0px #43AC6A; }
+  50%   { box-shadow: 0 0 2px 1px #43AC6A; }
+  25%   { box-shadow: 0 0 0px 0px #43AC6A; }
+}
+
+@-webkit-keyframes status-pulse {
+  50%   { background-color: #43AC6A; }
+}
+@-moz-keyframes status-pulse {
+  50%   { background-color: #43AC6A; }
+}
+@-o-keyframes status-pulse {
+  50%   { background-color: #43AC6A; }
+}
+@keyframes status-pulse {
+  50%   { background-color: #43AC6A; }
+}
+
+@-webkit-keyframes status-fade {
+  0%    { opacity: 1; }
+  50%   { opacity: 1; }
+  100%  { opacity: 0; }
+}
+@-moz-keyframes status-fade {
+  0%    { opacity: 1; }
+  50%   { opacity: 1; }
+  100%  { opacity: 0; }
+}
+@-o-keyframes status-fade {
+  0%    { opacity: 1; }
+  50%   { opacity: 1; }
+  100%  { opacity: 0; }
+}
+@keyframes status-fade {
+  0%    { opacity: 1; }
+  50%   { opacity: 1; }
+  100%  { opacity: 0; }
+}
