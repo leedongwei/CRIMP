@@ -1,11 +1,54 @@
-.scoreboard-categories {
-  height: 50px;
-  font-size: 25px;
+select.scoreboard-categories {
+  height: 3rem;
+  font-family: League Gothic, sans-serif;
+  font-size: 1.9rem;
+  text-decoration: underline;
+
   background-color: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+
+  option {
+    font-size: 1rem;
+  }
 }
 
 ul.scoreboard-climbers {
-  min-width: 320px;
+  min-width: 290px;
   margin: 0;
   list-style: none;
+}
+
+table.climber-scores {
+  display: block;
+  font-size: 0;
+  // border: 0;
+
+  tr {
+    position: relative;
+    display: block;
+    width: 100%;
+    text-align: center;
+    // border: 1px solid orange;
+
+    td {
+      position: relative;
+      display: inline-block;
+      width: 16.6%;
+      height: 1.2rem;
+      border-right: 1px solid #555;
+      padding: 0.2rem 0.2rem;
+
+      font-size: 0.875rem;
+      line-height: 0.875em;
+      text-align: center;
+    }
+
+    td:last-child {
+      border-right: 0;
+    }
+  }
+
+
 }

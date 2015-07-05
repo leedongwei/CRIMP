@@ -1,15 +1,19 @@
 <template name="activeboard">
 <h2> Currently on the Wall</h2>
-{{ #each activeClimbers }}
-  {{ route_id }} |
-  {{ climber_id }} |
-  {{ climber_name }} |
-  {{ climber_expiry }}
-  <br>
-  {{ admin_id }} |
-  {{ admin_name }} |
-  {{ admin_expiry }}
+{{ #if activeClimbers }}
+  {{ #each activeClimbers }}
+    {{ route_id }} |
+    {{ climber_id }} |
+    {{ climber_name }} |
+    {{ climber_expiry }}
+    <br>
+    {{ admin_id }} |
+    {{ admin_name }} |
+    {{ admin_expiry }}
 
-  <br><br>
-{{ /each }}
+    <br><br>
+  {{ /each }}
+{{ else }}
+  Next category is at 2pm
+{{ /if }}
 </template>

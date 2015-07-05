@@ -8,16 +8,12 @@ Template.scoreboard.onCreated(function() {
   });
 });
 
-Template.scoreboard.helpers({
-  // Moved to scoreboard_categories
-});
-
 
 
 /*
  *  Scoreboard Categories
  */
-Template.scoreboard_categories.helpers({
+Template.scoreboard_header.helpers({
   // TODO: Use Meteor.call to replace .find()
   categories: function() {
     return Categories.find({}).fetch();
@@ -27,7 +23,7 @@ Template.scoreboard_categories.helpers({
   }
 });
 
-Template.scoreboard_categories.events({
+Template.scoreboard_header.events({
   'change .scoreboard-categories': function(event, template) {
     Session.set('currentCategory', event.target.value);
   }

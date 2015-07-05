@@ -1,11 +1,10 @@
 <template name="scoreboard">
-  <h2> SCOREBOARD </h2>
-  {{ > scoreboard_categories }}
+  {{ > scoreboard_header }}
   {{ > scoreboard_climbers }}
 </template>
 
 
-<template name="scoreboard_categories">
+<template name="scoreboard_header">
   <select class="scoreboard-categories">
     {{ #each categories }}
       {{ #if isCurrentCategory category_id }}
@@ -23,6 +22,7 @@
     {{ #each climbers }}
       <li>
         <span class="climber-rank" data-tiebreak="{{ scores_tiebreak }}">{{ rank }}</span>
+        <span class="climber-id">{{ climber_id }}</span>
         <span class="climber-name">{{ name }}</span>
         <span class="climber-status">{{ standard_status }}</span>
 
@@ -33,7 +33,6 @@
 
         <br>
 
-        <span class="climber-id">{{ climber_id }}</span>
 
         <table class="climber-scores">
           <tr>
