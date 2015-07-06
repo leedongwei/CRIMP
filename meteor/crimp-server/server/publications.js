@@ -1,5 +1,3 @@
-// TODO: Add fine-grained permissions here so we do not overexpose
-// extra information to unauthorized users
 Meteor.publish('getCategories', function() {
   return Categories.find({}, {
     fields: {

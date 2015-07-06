@@ -14,7 +14,6 @@ Template.scoreboard.onCreated(function() {
  *  Scoreboard Categories
  */
 Template.scoreboard_header.helpers({
-  // TODO: Use Meteor.call to replace .find()
   categories: function() {
     return Categories.find({}).fetch();
   },

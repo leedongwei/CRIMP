@@ -27,7 +27,6 @@ CRIMP.schema.score = new SimpleSchema({
     denyUpdate: true
   },
   admin_id: {
-    // TODO: Find a more efficient way of referencing admins
     label: 'ID of admin doing updates',
     type: String
   },
@@ -55,7 +54,6 @@ CRIMP.schema.score = new SimpleSchema({
 
 Scores.attachSchema(CRIMP.schema.score);
 
-// TODO: Ensure admin-only access
 Meteor.methods({
   // addScore: function(data) {
   //   Note: Integrated with addClimber because score documents

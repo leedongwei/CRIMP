@@ -73,7 +73,6 @@ CRIMP.schema.climber = new SimpleSchema({
 
 Climbers.attachSchema(CRIMP.schema.climber);
 
-// TODO: Ensure admin-only access
 Meteor.methods({
   addClimber: function(data) {
     if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
