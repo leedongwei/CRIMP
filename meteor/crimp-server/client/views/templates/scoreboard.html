@@ -28,10 +28,13 @@
     {{ #each climbers }}
       <li>
         <div class="climber-row clearfix">
-            <span class="climber-rank left" data-tiebreak="{{ scores_tiebreak }}">{{ rank }}</span>
-            <span class="climber-id show-for-large-up left">{{ climber_id }}</span>
-            <span class="climber-name left">{{ name }}</span>
-            <span class="climber-status left">{{ standard_status }}</span>
+            <div class="climber-rank left" data-tiebreak="{{ scores_tiebreak }}">{{ rank }}</div>
+            <div class="climber-id show-for-large-up left">{{ climber_id }}</div>
+            <div class="climber-name left">
+              {{ name }}
+              {{ standard_status }}
+              {{ additonal_status }}
+            </div>
 
 
           <div class="climber-scoretotal right">
