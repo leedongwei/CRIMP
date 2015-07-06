@@ -72,9 +72,7 @@ Restivus.addRoute('judge/report',
         { $set: {
           route_id: route,
           admin_id: this.userId,
-          admin_name: this.user.profile.name,
-          // Expires in 10mins if there's no activity
-          admin_expiry: new Date().getTime() + 1000 * 10
+          admin_name: this.user.profile.name
         } },
         function(error, results) {
           // do nothing
@@ -94,9 +92,7 @@ Restivus.addRoute('judge/report',
           {
             route_id: route,
             admin_id: this.userId,
-            admin_name: this.user.profile.name,
-            // Expires in 10mins if there's no activity
-            admin_expiry: new Date().getTime() + 1000 * 10
+            admin_name: this.user.profile.name
           },
           function(error, results) {
             // do nothing

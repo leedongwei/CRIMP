@@ -39,7 +39,7 @@ Template.scoreboard_climbers.helpers({
                         .find({ category_id: Session.get('currentCategory') })
                         .fetch();
 
-    // Case there are no climbers in the system
+    // Case where there are no climbers in the system
     if (!climberData.length)  return climberData;
 
     // Tabulate scores for each climber
@@ -58,7 +58,7 @@ Template.scoreboard_climbers.helpers({
 
 
 /*
- *  Helper functions
+ *  Utility functions
  */
 function climberTabulateScores(climberData) {
   climberData.forEach(function(climber, index) {

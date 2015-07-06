@@ -37,8 +37,8 @@ CRIMP.schema.activeclimber = new SimpleSchema({
     type: Date,
     optional: true,
     autoValue: function() {
-      // expires in 5mins
-      return new Date(Date.now() + 300000);
+      // expires in 6mins
+      return new Date(Date.now() + 360000);
     }
   }
 });
@@ -49,19 +49,20 @@ ActiveClimbers.attachSchema(CRIMP.schema.activeclimber);
 if (Meteor.isServer) {
   Meteor.startup(function () {
     Meteor.setInterval(function() {
+
+      // TODO: Clean up
       console.log('   --- interval AC ---');
       ActiveClimbers.find({})
                     .forEach(checkActiveClimberExpiry);
     }, 90000);
-
-
   });
 
 
   function checkActiveClimberExpiry(ac) {
     var timeNow = Date.now();
 
-    console.log(Date(timeNow) + ' checking AC\r\n'
+    // TODO: Clean up
+    console.log(Date(timeNow) + ' checking ActiveClimber\r\n'
       + ac.climber_expiry + ' | ' + ac.admin_expiry + '\r\n\r\n');
 
     if (ac.admin_expiry < timeNow) {
@@ -80,6 +81,7 @@ if (Meteor.isServer) {
 
   CRIMP.activeclimbers = {
     insertActiveClimber: function(selector, modifier) {
+      // TODO: Clean up
       console.log('insertActiveClimber')
       console.log(selector)
       console.log(modifier)
@@ -101,6 +103,7 @@ if (Meteor.isServer) {
       modifier.climber_id = '';
       modifier.climber_name = '';
 
+      // TODO: Clean up
       console.log('removeActiveClimber')
       console.log(selector)
       console.log(modifier)

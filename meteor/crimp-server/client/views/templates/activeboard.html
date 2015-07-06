@@ -1,23 +1,28 @@
 <template name="activeboard">
-<h2> Currently on the Wall</h2>
-{{ #if activeClimbers }}
-  <table class="activeboard-climbers">
-    <tr>
-      <td>Route</td>
-      <td>ID</td>
-      <td>name</td>
-    </tr>
-  {{ #each activeClimbers }}
-    <tr>
-      <td class="activeclimber-route">{{ route_id }}</td>
-      <td class="activeclimber-id">{{ climber_id }}</td>
-      <td class="activeclimber-name">{{ climber_name }}</td>
-    </tr>
-  {{ /each }}
-  </table>
-{{ else }}
-  <div class="activeboard-notice">
-    Next category will be at {{ nextCategoryTime }}
-  </div>
-{{ /if }}
+  <h2> Currently on the Wall</h2>
+
+  {{ #if activeClimbers }}
+
+    <table class="activeboard-climbers">
+      <tr>
+        <td>Route</td>
+        <td>ID</td>
+        <td>name</td>
+      </tr>
+
+      {{ #each activeClimbers }}
+        <tr>
+          <td class="activeclimber-route">{{ route_id }}</td>
+          <td class="activeclimber-id">{{ climber_id }}</td>
+          <td class="activeclimber-name">{{ climber_name }}</td>
+        </tr>
+      {{ /each }}
+    </table>
+
+  {{ else }}
+
+    <div class="activeboard-notice">
+      Next category will be at {{ nextCategoryTime }}
+    </div>
+  {{ /if }}
 </template>
