@@ -1,4 +1,4 @@
-Template.admin.helpers({
+Template.crimp_admin.helpers({
   isVerified: function() {
     // Note: A user can modify CRIMP.roles values in the client console
     // and get access to the template, but he will not be able to pull data

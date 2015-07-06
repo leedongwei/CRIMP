@@ -3,5 +3,5 @@ Router.route('/', function () {
 });
 
 Router.route('/admin', function () {
-  this.render('admin');
+  this.render('crimp_admin');
 });
