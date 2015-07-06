@@ -14,6 +14,12 @@
       {{ /if }}
     {{ /each }}
   </select>
+
+  <div class="scoreboard-header clearfix">
+    TODO: Fill in this with something
+    <div class="climber-scoretotal right">Bonus</div>
+    <div class="climber-scoretotal right">Top</div>
+  </div>
 </template>
 
 
@@ -21,28 +27,36 @@
   <ul class="scoreboard-climbers">
     {{ #each climbers }}
       <li>
-        <span class="climber-rank" data-tiebreak="{{ scores_tiebreak }}">{{ rank }}</span>
-        <span class="climber-id">{{ climber_id }}</span>
-        <span class="climber-name">{{ name }}</span>
-        <span class="climber-status">{{ standard_status }}</span>
-
-        <span class="label round climber-top">
-          {{ tops }}t{{ topAttempts }}</span>
-        <span class="label round climber-bonus">
-          {{ bonuses }}b{{ bonusAttempts }}</span>
-
-        <br>
+        <div class="climber-row clearfix">
+            <span class="climber-rank left" data-tiebreak="{{ scores_tiebreak }}">{{ rank }}</span>
+            <span class="climber-id show-for-large-up left">{{ climber_id }}</span>
+            <span class="climber-name left">{{ name }}</span>
+            <span class="climber-status left">{{ standard_status }}</span>
 
 
-        <table class="climber-scores">
-          <tr>
-            {{ #each scores }}
-              <td data-route="{{ route_id }} ">
-              t{{ score_top }} b{{ score_bonus }}
-              </td>
-            {{ /each }}
-          </tr>
-        </table>
+          <div class="climber-scoretotal right">
+            <span class="label round climber-scoretotal-label climber-bonus">
+              {{ bonuses }}b{{ bonusAttempts }}
+            </span>
+          </div>
+          <div class="climber-scoretotal right">
+            <span class="label round climber-scoretotal-label climber-top">
+              {{ tops }}t{{ topAttempts }}
+            </span>
+          </div>
+        </div>
+
+        <div class="climber-row">
+          <table class="climber-scores">
+            <tr>
+              {{ #each scores }}
+                <td data-route="{{ route_id }} ">
+                t{{ score_top }} b{{ score_bonus }}
+                </td>
+              {{ /each }}
+            </tr>
+          </table>
+        </div>
 
       </li>
     {{ /each }}

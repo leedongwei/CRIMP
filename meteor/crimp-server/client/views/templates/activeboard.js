@@ -5,9 +5,12 @@ Template.activeboard.onCreated(function() {
 });
 
 Template.activeboard.helpers({
-  // TODO: Use Meteor.call to replace .find()
   activeClimbers: function() {
     return ActiveClimbers.find({}, { sort: ['route_id', 'asc'] })
                          .fetch();
+  },
+  nextCategoryTime: function() {
+
+    return '2pm';
   }
 });
