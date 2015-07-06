@@ -67,10 +67,6 @@
     <!-- Facebook stuff -->
     <string name="facebook_app_id">1448790512098965</string>
 
-
-    <!-- QR Code prefix -->
-    <string name="qr_prefix">&lt;BA2014&gt;</string>
-
     <!-- Intent Key -->
     <string name="intent_username">.username</string>
     <string name="intent_round">.round</string>

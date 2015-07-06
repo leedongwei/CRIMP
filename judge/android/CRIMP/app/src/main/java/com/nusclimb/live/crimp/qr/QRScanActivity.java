@@ -35,7 +35,7 @@ import android.widget.Toast;
  *
  */
 public class QRScanActivity extends Activity {
-    private final String TAG = QRScanActivity.class.getSimpleName
+    private final String TAG = QRScanActivity.class.getSimpleName();
 
     private final String STATE_ACTIVITY = "state_activity";
     private final String STATE_JUDGE = "state_judge";
@@ -98,7 +98,7 @@ public class QRScanActivity extends Activity {
 
         // Read intent
         String packageName = getString(R.string.package_name);
-        Intent intent = getIntent
+        Intent intent = getIntent();
         routeJudge = "test";//intent.getStringExtra(packageName + getString(R.string.intent_username));
         round = "test";//intent.getStringExtra(packageName + getString(R.string.intent_round));
         route = "test";//intent.getStringExtra(packageName + getString(R.string.intent_route));
