@@ -48,13 +48,13 @@ ActiveClimbers.attachSchema(CRIMP.schema.activeclimber);
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
-    Meteor.setInterval(function() {
+    // Meteor.setInterval(function() {
 
-      // TODO: Clean up
-      console.log('   --- interval AC ---');
-      ActiveClimbers.find({})
-                    .forEach(checkActiveClimberExpiry);
-    }, 90000);
+    //   // TODO: Clean up
+    //   console.log('   --- interval AC ---');
+    //   ActiveClimbers.find({})
+    //                 .forEach(checkActiveClimberExpiry);
+    // }, 90000);
   });
 
 
@@ -81,11 +81,6 @@ if (Meteor.isServer) {
 
   CRIMP.activeclimbers = {
     insertActiveClimber: function(selector, modifier) {
-      // TODO: Clean up
-      console.log('insertActiveClimber')
-      console.log(selector)
-      console.log(modifier)
-
       // TODO: do checks
       if (!modifier.climber_name) {
 
@@ -102,12 +97,6 @@ if (Meteor.isServer) {
     removeActiveClimber: function(selector, modifier) {
       modifier.climber_id = '';
       modifier.climber_name = '';
-
-      // TODO: Clean up
-      console.log('removeActiveClimber')
-      console.log(selector)
-      console.log(modifier)
-
 
       // TODO: do checks
 

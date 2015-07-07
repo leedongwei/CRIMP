@@ -1,21 +1,64 @@
 table.activeboard-climbers {
-
   display: block;
+  border: 0;
+
+  tr {
+    position: relative;
+    display: block;
+    background: transparent;
+  }
 
   td {
-    border: 1px solid #555;
+    // border: 1px solid #555;
   }
 
-  .activeclimber-route {
+  tr.activeboard-header {
+    margin-bottom: 5px;
+    border-bottom: 1px solid #000;
+
+    td {
+      font-family: League Gothic, sans-serif;
+      font-size: 2rem;
+      bottom: 0;    // Note: Prevents headers from being shifted
+                    // when aligning cells below
+    }
+  }
+
+  .activeboard-route {
+    position: relative;
+    bottom: -3px;
+    width: 75px;
     font-family: League Spartan, sans-serif;
-
+    font-size: 1rem;
   }
 
-  .activeclimber-id {
-
+  .activeboard-id {
+    position: absolute;
+    top: 0;
+    left: 80px;
+    width: 75px;
+    font-size: 1.1rem;
   }
 
-  .activeclimber-name {
+  .activeboard-name {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding-left: calc(0.625rem + 75px);
+    text-align: left;
+    font-size: 1.1rem;
 
+    word-wrap: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media only screen and (min-width: 64.063em) {
+  table.activeboard-climbers .activeboard-name {
+    padding-left: calc(0.625rem + 150px);
   }
 }

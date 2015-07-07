@@ -160,7 +160,6 @@ Restivus.addRoute('judge/activeclimbers',
     // TODO: Checks
 
     if (insert) {
-      console.log('inserting')
       CRIMP.activeclimbers.insertActiveClimber(
         { 'route_id': route_id },
         {
@@ -172,7 +171,6 @@ Restivus.addRoute('judge/activeclimbers',
         }
       )
     } else {
-      console.log('iremoving')
       CRIMP.activeclimbers.removeActiveClimber(
         { 'route_id': route_id },
         {
@@ -228,8 +226,6 @@ Restivus.addRoute('judge/score/:route_id/:climber_id',
       'score_bonus': CRIMP.scoring.calculateBonus(score),
       'admin_id': this.userId
     };
-
-    console.log(this.user)
 
     if (Scores.update(selector, {$set: modifier})) {
       CRIMP.activeclimbers.removeActiveClimber(selector, {

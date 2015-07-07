@@ -4,17 +4,17 @@
   {{ #if activeClimbers }}
 
     <table class="activeboard-climbers">
-      <tr>
-        <td>Route</td>
-        <td>ID</td>
-        <td>name</td>
+      <tr class="activeboard-header">
+        <td class="activeboard-route">Route</td>
+        <td class="activeboard-id show-for-large-up">ID</td>
+        <td class="activeboard-name">Name</td>
       </tr>
 
       {{ #each activeClimbers }}
         <tr>
-          <td class="activeclimber-route">{{ route_id }}</td>
-          <td class="activeclimber-id">{{ climber_id }}</td>
-          <td class="activeclimber-name">{{ climber_name }}</td>
+          <td class="activeboard-route">{{ route_id }}</td>
+          <td class="activeboard-id show-for-large-up">{{ climber_id }}</td>
+          <td class="activeboard-name">{{ climber_name }}</td>
         </tr>
       {{ /each }}
     </table>
