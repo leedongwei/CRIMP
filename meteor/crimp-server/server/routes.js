@@ -66,13 +66,15 @@ Restivus.addRoute('judge/report',
     var route = this.bodyParams.route_id,
         force = this.bodyParams.force;
 
+
+
     if (force) {
       ActiveClimbers.upsert(
         { 'route_id': route },
         { $set: {
-          route_id: route,
-          admin_id: this.userId,
-          admin_name: this.user.profile.name
+          'route_id': route,
+          'admin_id': this.userId,
+          'admin_name': this.user.profile.name
         } },
         function(error, results) {
           // do nothing
@@ -84,15 +86,15 @@ Restivus.addRoute('judge/report',
         return {
           'admin_id': currentAdmin._id,
           'admin_name': currentAdmin.profile.name,
-          route_id: route,
-          state: 0
+          'route_id': route,
+          'state': 0
         }
       } else {
         ActiveClimbers.insert(
           {
-            route_id: route,
-            admin_id: this.userId,
-            admin_name: this.user.profile.name
+            'route_id': route,
+            'admin_id': this.userId,
+            'admin_name': this.user.profile.name
           },
           function(error, results) {
             // do nothing
@@ -100,10 +102,10 @@ Restivus.addRoute('judge/report',
         );
 
         return {
-          admin_id: this.userId,
-          admin_name: this.user.profile.name,
-          route_id: route,
-          state: 1
+          'admin_id': this.userId,
+          'admin_name': this.user.profile.name,
+          'route_id': route,
+          'state': 1
         }
       }
     }

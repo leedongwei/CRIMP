@@ -13,3 +13,20 @@
 section.section-activeboard {
   margin-bottom: 30px;
 }
+
+span.crimp-env-marker {
+  display: block;
+  position: absolute;
+  top: 5px;
+  color: red;
+
+  &.crimp-env-production {
+    left: 0px;
+    font-size: 0.7rem;
+  }
+
+  &.crimp-env-demo {
+    left: 60px;
+    font-size: 0.7rem;
+  }
+}
