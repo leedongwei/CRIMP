@@ -111,3 +111,57 @@ if (Meteor.isServer) {
     }
   }
 }
+
+Meteor.methods({
+  _insertActiveClimbers: function(data) {
+    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
+      throw new Meteor.Error(403, "Access denied");
+    }
+
+    var category = Categories.findOne({ 'category_id': data }),
+        climbers = Climbers.find({}).fetch();
+
+    if (!category)
+      return { 'error': 'category_id \"' + data + '\" does not exist' };
+
+    for (var i=1; i < category.route_count+1; i++) {
+      CRIMP.activeclimbers.insertActiveClimber(
+        {
+          'route_id': category.category_id + i.toString()
+        },
+        {
+          'route_id': category.category_id + i.toString(),
+          'climber_id': climbers[i].climber_id,
+          'climber_name': climbers[i].name,
+          'admin_id': '0',
+          'admin_name': '_insertActiveClimbers'
+        }
+      );
+    }
+  },
+  _removeActiveClimbers: function(data) {
+    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
+      throw new Meteor.Error(403, "Access denied");
+    }
+
+    var category = Categories.findOne({ 'category_id': data });
+
+    if (!category)
+      return { 'error': 'category_id \"' + data + '\" does not exist' };
+
+    for (var i=1; i < category.route_count+1; i++) {
+      CRIMP.activeclimbers.removeActiveClimber(
+        {
+          'route_id': category.category_id + i.toString()
+        },
+        {
+          'climber_id': '',
+          'climber_name': '',
+          'admin_id': '0',
+          'admin_name': '_removeActiveClimbers'
+        }
+      );
+    }
+  }
+})
+
