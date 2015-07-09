@@ -3,6 +3,8 @@ package com.nusclimb.live.crimp.qr;
 import android.os.Looper;
 import android.util.Log;
 
+import com.nusclimb.live.crimp.hello.ScanFragment;
+
 /**
  * Worker thread for handling decode operation.
  *
@@ -16,10 +18,10 @@ public class DecodeThread extends Thread{
     public static final String BARCODE_SCALED_FACTOR = "barcode_scaled_factor";
 
     private DecodeHandler handler;
-    private QRScanActivity activity;
+    private ScanFragment fragment;
 
-    public DecodeThread(QRScanActivity activity){
-        this.activity = activity;
+    public DecodeThread(ScanFragment fragment){
+        this.fragment = fragment;
 
         Log.d(TAG, "DecodeThread constructed.");
     }
@@ -28,7 +30,7 @@ public class DecodeThread extends Thread{
     public void run(){
         Log.d(TAG, "DecodeThread begin running");
         Looper.prepare();
-        handler = new DecodeHandler(activity);
+        handler = new DecodeHandler(fragment);
         Looper.loop();
     }
 

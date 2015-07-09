@@ -1,6 +1,7 @@
 package com.nusclimb.live.crimp.qr;
 
 import com.nusclimb.live.crimp.R;
+import com.nusclimb.live.crimp.hello.ScanFragment;
 
 import android.os.Handler;
 import android.os.Message;
@@ -9,13 +10,13 @@ import android.util.Log;
 public class QRScanHandler extends Handler{
     private static final String TAG = QRScanHandler.class.getSimpleName();
 
-    private QRScanActivity activity;
+    private ScanFragment fragment;
     private DecodeThread decodeThread;
     private boolean running;
 
-    public QRScanHandler(QRScanActivity activity){
-        this.activity = activity;
-        decodeThread = new DecodeThread(activity);
+    public QRScanHandler(ScanFragment fragment){
+        this.fragment = fragment;
+        decodeThread = new DecodeThread(fragment);
         decodeThread.start();
 
         Log.d(TAG, "QRScanHandler constructed");
@@ -38,16 +39,16 @@ public class QRScanHandler extends Handler{
         switch (message.what) {
             case R.id.decode_succeeded:
                 Log.d(TAG, "QRScanHandler receive msg 'succeed'.");
-                activity.getCameraManager().stopPreview();
-                activity.setState(R.id.decode_succeeded);
+                fragment.getCameraManager().stopPreview();
+                fragment.setState(R.id.decode_succeeded);
                 String result = (String) message.obj;
-                activity.updateStatusView(result);
+                fragment.updateStatusView(result);
                 //TODO should release camera?
                 break;
             case R.id.decode_failed:
                 //TODO maybe need check and start preview.
-                if(activity.getCameraManager().isPreviewing()){
-                    activity.getCameraManager().startScan();
+                if(fragment.getCameraManager().isPreviewing()){
+                    fragment.getCameraManager().startScan();
                 }
                 else{
                     Log.w(TAG, "QRScanHandler received decode fail msg. Start scan failed due to not previewing." );

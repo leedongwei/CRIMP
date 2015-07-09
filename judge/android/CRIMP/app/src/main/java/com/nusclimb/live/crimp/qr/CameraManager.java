@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.nusclimb.live.crimp.R;
+import com.nusclimb.live.crimp.hello.RouteFragment;
+import com.nusclimb.live.crimp.hello.ScanFragment;
 
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -26,15 +28,15 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
     private boolean _isSurfaceReady;			// Whether the surface to show preview is ready (between
                                                 // surfaceCreated and surfaceDestroyed).
     private Camera camera;
-    private QRScanActivity activity;
+    private ScanFragment fragment;
     private boolean _isPreviewing;			    // Whether we are displaying camera input on previewView.
     private boolean _isScanning;			    // Whether we are sending new camera input to decode.
     private Camera.Size bestPreviewSize;
     private Point previewViewResolution;
     private boolean _isTorchOn;
 
-    public CameraManager(QRScanActivity activity){
-        this.activity = activity;
+    public CameraManager(ScanFragment fragment){
+        this.fragment = fragment;
         _isScanning = false;
         _isPreviewing = false;
         bestPreviewSize = null;
@@ -301,7 +303,7 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         // Got preview data. Need to send over to QRScanHandler.
-        DecodeHandler handler = activity.getDecodeHandler();
+        DecodeHandler handler = fragment.getDecodeHandler();
         if (handler != null) {
             Message message = handler.obtainMessage(R.id.decode, bestPreviewSize.width, bestPreviewSize.height, data);
             message.sendToTarget();
@@ -352,7 +354,7 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
         // reformatting changes here
 
         // Only start scanning if activity state is "decode"
-        if(activity.getState() == R.id.decode && hasCamera()){
+        if(fragment.getState() == R.id.decode && hasCamera()){
             startPreview(holder);
             startScan();
         }

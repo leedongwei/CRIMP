@@ -2,14 +2,11 @@
     <string name="app_name">CRIMP</string>
     <string name="package_name">com.nusclimb.live</string>
 
-    <!-- Activity title -->
-    <string name="title_activity_login">Login</string>
-    <string name="title_activity_scoring">Score</string>
-    <string name="title_activity_hello">Route</string>
-    <string name="title_activity_qrscan">Scan</string>
-
     <!-- QR Code prefix -->
     <string name="qr_prefix">&lt;BA2015&gt;</string>
+
+    <!-- Facebook stuff -->
+    <string name="facebook_app_id">1448790512098965</string>
 
     <!-- URL -->
     <string name="crimp_url">"http://crimp-testing-0625.meteor.com"</string>
@@ -22,14 +19,9 @@
     <string name="get_score_api">/api/judge/score/</string>
     <string name="post_score_api">/api/judge/score/</string>
 
-
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="title_activity_upload_list">UploadListActivity</string>
-
     <!-- Login Activity UI -->
-    <string name="login_activity_login_wait">Awaiting confirmation from admins...</string>
-    <string name="login_activity_categories_wait">Retrieving route list...</string>
+    <string name="login_activity_login_wait">Awaiting confirmation from admins…</string>
+    <string name="login_activity_categories_wait">Retrieving route list…</string>
     <string name="login_activity_login_hey">"Hey "</string>
     <string name="login_activity_login_exclamation">"! "</string>
     <string name="login_activity_verification_fail">Access denied. Please contact admin to request for permission.</string>
@@ -39,33 +31,60 @@
     <string name="login_activity_cancel">Cancel</string>
     <string name="login_activity_retry">Retry</string>
 
-    <!-- Login Activity -->
-    <string name="login_activity_intent_xUserId">loginActivityXUserId</string>
-    <string name="login_activity_intent_xAuthToken">loginActivityXAuthToken</string>
-    <string name="login_activity_intent_categoryIdList">loginActivityCategoryIdList</string>
-    <string name="login_activity_intent_categoryNameList">loginActivityCategoryNameList</string>
-    <string name="login_activity_intent_categoryRouteCountList">loginActivityCategoryRouteCountList</string>
+    <!-- Route Fragment UI -->
+    <string name="route_fragment_next">Next</string>
+    <string name="route_fragment_category_hint">Pick a category</string>
+    <string name="route_fragment_route_hint">Pick a route</string>
+    <string name="route_fragment_greeting">"Hello "</string>
+    <string name="route_fragment_question">, you are route judge for</string>
+    <string name="route_fragment_replace_question1">" is already route judge for "</string>
+    <string name="route_fragment_replace_question2">", "</string>
+    <string name="route_fragment_replace_question3">".\n\nReplace "</string>
+    <string name="route_fragment_replace_question4">"?"</string>
+    <string name="route_fragment_yes">Yes</string>
+    <string name="route_fragment_no">No</string>
+    <string name="route_fragment_status_report_in">Judge reporting in…</string>
+    <string name="route_fragment_status_report_in_fail">No/Wrong response from server. Retrying…</string>
 
-    <!-- Hello Activity UI -->
-    <string name="hello_activity_next">Next</string>
-    <string name="hello_activity_category_hint">Pick a category</string>
-    <string name="hello_activity_route_hint">Pick a route</string>
-    <string name="hello_activity_greeting">"Hello "</string>
-    <string name="hello_activity_question">, you are route judge for</string>
-    <string name="hello_activity_replace_question1">" is already route judge for "</string>
-    <string name="hello_activity_replace_question2">", "</string>
-    <string name="hello_activity_replace_question3">".\n\nReplace "</string>
-    <string name="hello_activity_replace_question4">"?"</string>
-    <string name="hello_activity_yes">Yes</string>
-    <string name="hello_activity_no">No</string>
-    <string name="hello_activity_status_report_in">Judge reporting in...</string>
-    <string name="hello_activity_status_report_in_fail">No/Wrong response from server. Retrying...</string>
+    <!-- Scan Fragment UI -->
+    <string name="scan_fragment_climberid">"Climber ID"</string>
+    <string name="scan_fragment_climbername">"Climber name (optional)"</string>
+    <string name="scan_fragment_rescan">Rescan</string>
+    <string name="scan_fragment_flash">Flash</string>
+    <string name="scan_fragment_next">Next</string>
 
-    <!-- Intent -->
-    <string name="intent_route_id">route_id</string>
 
-    <!-- Facebook stuff -->
-    <string name="facebook_app_id">1448790512098965</string>
+
+
+
+
+
+
+
+    <!-- Bundle Key -->
+    <string name="bundle_x_user_id">bundle_xuserid</string>
+    <string name="bundle_x_auth_token">bundle_xauthtoken</string>
+    <string name="bundle_category_id_list">bundle_categoryidlist</string>
+    <string name="bundle_category_name_list">bundle_categorynamelist</string>
+    <string name="bundle_category_route_count_list">bundle_categoryroutecountlist</string>
+    <string name="bundle_category_spinner_selection">bundle_categoryspinnerselection</string>
+    <string name="bundle_route_spinner_selection">bundle_routespinnerselection</string>
+    <string name="bundle_route_state">bundle_routestate</string>
+
+
+
+
+
+
+
+
+
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_upload_list">UploadListActivity</string>
+
+
+
 
     <!-- Intent Key -->
     <string name="intent_username">.username</string>

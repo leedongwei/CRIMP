@@ -15,6 +15,7 @@ import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.nusclimb.live.crimp.R;
+import com.nusclimb.live.crimp.hello.ScanFragment;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -34,19 +35,19 @@ public class DecodeHandler extends Handler{
 
     private final String PREFIX;	// Magic string to check if QR Code is valid
 
-    private final QRScanActivity activity;
+    private final ScanFragment fragment;
     private final MultiFormatReader multiFormatReader;
     private boolean running;
 
-    DecodeHandler(QRScanActivity activity) {
-        PREFIX = activity.getString(R.string.qr_prefix);
+    DecodeHandler(ScanFragment fragment) {
+        PREFIX = fragment.getActivity().getString(R.string.qr_prefix);
         running = true;
         multiFormatReader = new MultiFormatReader();
         Map<DecodeHintType,Object> hints = new EnumMap<>(DecodeHintType.class);
         Collection<BarcodeFormat> decodeFormats = EnumSet.of(BarcodeFormat.QR_CODE);
         hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
         multiFormatReader.setHints(hints);
-        this.activity = activity;
+        this.fragment = fragment;
 
         Log.d(TAG, "DecodeHandler constructed.");
     }
@@ -83,7 +84,7 @@ public class DecodeHandler extends Handler{
     private void decode(byte[] data, int width, int height) {
         long start = System.currentTimeMillis();
         Result rawResult = null;
-        PlanarYUVLuminanceSource source = activity.getCameraManager().buildLuminanceSource(data, width, height);
+        PlanarYUVLuminanceSource source = fragment.getCameraManager().buildLuminanceSource(data, width, height);
         if (source != null) {
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             try {
@@ -95,7 +96,7 @@ public class DecodeHandler extends Handler{
             }
         }
 
-        Handler handler = activity.getHandler();
+        Handler handler = fragment.getHandler();
         if (rawResult != null) {
             // Need to verify the result.
             String result = verifyResult(rawResult.getText());
