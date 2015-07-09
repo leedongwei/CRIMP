@@ -1,13 +1,11 @@
 package com.nusclimb.live.crimp.login;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -46,6 +44,7 @@ public class LoginActivity extends Activity {
     private enum LoginState {
         NOT_LOGIN,              // Not login to facebook. Not login to CRIMP server.
         IN_FACEBOOK,            // In facebook login activity.
+        FACEBOOK_OK_STAY,       // Successfully login to facebook. For use with onPause().
         FACEBOOK_OK,            // Successfully login to facebook.
         IN_VERIFYING,           // Trying to login to CRIMP server.
         VERIFIED_OK,            // CRIMP server reply ok.
@@ -61,8 +60,6 @@ public class LoginActivity extends Activity {
     // RoboSpice stuff
     private SpiceManager spiceManager = new SpiceManager(
             CrimpService.class);
-    private String loginRequestCacheKey;
-    private String categoriesRequestCacheKey;
 
     // Stuff for communicating with CRIMP server
     private String xUserId;
@@ -73,7 +70,7 @@ public class LoginActivity extends Activity {
     private List<Integer> categoryRouteCountList = new ArrayList<Integer>();
 
     // Activity state
-    private LoginState mState = LoginState.NOT_LOGIN;
+    private LoginState mState;
 
     // UI references.
     private View mViewVerifying;
@@ -99,19 +96,22 @@ public class LoginActivity extends Activity {
 
         @Override
         public void onRequestFailure(SpiceException e) {
-            Log.d(TAG, "LoginRequest fail. Setting loginRequestCacheKey to null. mState="+mState);
+            Log.d(TAG+".onRequestFailure()", "mState="+mState);
 
-            loginRequestCacheKey = null;
-
+            // We only changeState if mState == IN_VERIFYING
             if(mState == LoginState.IN_VERIFYING)
                 changeState(LoginState.VERIFIED_FAILED);
         }
 
         @Override
         public void onRequestSuccess(LoginResponse result) {
-            Log.d(TAG, "LoginRequest succeed. Setting loginRequestCacheKey to null. LoginResponse="+result.toString());
+            Log.d(TAG+".onRequestSuccess()", "LoginResponse="+result.toString());
 
-            loginRequestCacheKey = null;
+            if (mState != LoginState.IN_VERIFYING) {
+                return;
+            }
+
+            // Extract response.
             xUserId = result.getxUserId();
             xAuthToken = result.getxAuthToken();
             roles = result.getRoles();
@@ -138,14 +138,14 @@ public class LoginActivity extends Activity {
 
             // roles need to contain "judge" to be verified ok.
             if(isContainJudgeOrAbove) {
-                Log.d(TAG, "Roles contain judge or above. mState="+mState);
-                if (mState == LoginState.IN_VERIFYING)
-                    changeState(LoginState.VERIFIED_OK);
+                Log.d(TAG+".onRequestSuccess()", "Roles contain judge or above. "
+                        +mState+" -> "+LoginState.VERIFIED_OK);
+                changeState(LoginState.VERIFIED_OK);
             }
             else{
-                Log.d(TAG, "Roles don't contain judge or above. mState="+mState);
-                if (mState == LoginState.IN_VERIFYING)
-                    changeState(LoginState.VERIFIED_NOT_OK);
+                Log.d(TAG+".onRequestSuccess()", "Roles don't contain judge or above. "
+                        +mState+" -> "+LoginState.VERIFIED_NOT_OK);
+                changeState(LoginState.VERIFIED_NOT_OK);
             }
         }
     }
@@ -160,33 +160,34 @@ public class LoginActivity extends Activity {
 
         @Override
         public void onRequestFailure(SpiceException e) {
-            Log.d(TAG, "CategoriesRequest fail. Setting categoriesRequestCacheKey to null. mState="+mState);
+            Log.d(TAG+".onRequestFailure()", "mState="+mState);
 
-            categoriesRequestCacheKey = null;
-
+            // We only changeState if mState == IN_REQUEST_CATEGORIES.
             if(mState == LoginState.IN_REQUEST_CATEGORIES)
                 changeState(LoginState.CATEGORIES_FAILED);
         }
 
         @Override
         public void onRequestSuccess(CategoriesResponse result) {
-            Log.d(TAG, "CategoriesRequest succeed. Setting categoriesRequestCacheKey to null. CategoriesResponse="+result.toString());
+            Log.d(TAG + ".onRequestSuccess()", "CategoriesResponse=" + result.toString());
 
-            categoriesRequestCacheKey = null;
-
-            categoryIdList.clear();
-            categoryNameList.clear();
-            categoryRouteCountList.clear();
-
-            // parse response.
-            for(Category c:result){
-                categoryIdList.add(c.getCategoryId());
-                categoryNameList.add(c.getCategoryName());
-                categoryRouteCountList.add(c.getRouteCount());
+            if (mState != LoginState.IN_REQUEST_CATEGORIES) {
+                return;
             }
+            else {
+                categoryIdList.clear();
+                categoryNameList.clear();
+                categoryRouteCountList.clear();
 
-            if (mState == LoginState.IN_REQUEST_CATEGORIES)
+                // parse response.
+                for (Category c : result) {
+                    categoryIdList.add(c.getCategoryId());
+                    categoryNameList.add(c.getCategoryName());
+                    categoryRouteCountList.add(c.getRouteCount());
+                }
+
                 changeState(LoginState.CATEGORIES_OK);
+            }
         }
     }
 
@@ -204,10 +205,6 @@ public class LoginActivity extends Activity {
 
     private void showLoadingWheel(boolean show){
         mViewLoadingWheel.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
-    }
-
-    private void showResponseText(boolean show){
-        mViewResponseText.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void showResponseText(int textResource){
@@ -229,7 +226,7 @@ public class LoginActivity extends Activity {
      * Method to control which UI element is visible at different state.
      */
     private void updateUI(){
-        Log.d(TAG, "Update UI. mState:" + mState);
+        Log.d(TAG + ".updateUI()", "mState:" + mState);
         String responseText;
 
         switch (mState) {
@@ -238,6 +235,8 @@ public class LoginActivity extends Activity {
                 showVerifyingView(false);
                 break;
             case IN_FACEBOOK:
+                break;
+            case FACEBOOK_OK_STAY:
                 break;
             case FACEBOOK_OK:
                 break;
@@ -312,7 +311,7 @@ public class LoginActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "In onActivityResult(). mState: " + mState + "; resultcode: " + resultCode + "; ok is " + RESULT_OK);
+        Log.d(TAG+".onActivityResult()", "mState: " + mState + "; resultcode: " + resultCode + "; ok is " + RESULT_OK);
 
         if(resultCode == RESULT_OK)
             changeState(LoginState.FACEBOOK_OK);
@@ -322,48 +321,66 @@ public class LoginActivity extends Activity {
      * Method to control what is performed at different state.
      */
     private void doVerification(){
-        Log.d(TAG, "Attempts to do verification. mState:" + mState);
+        Log.d(TAG+".doVerification()", "mState:" + mState);
         switch (mState){
             case NOT_LOGIN:
+                xUserId = null;
+                xAuthToken = null;
+                categoryIdList.clear();
+                categoryNameList.clear();
+                categoryRouteCountList.clear();
                 break;
             case IN_FACEBOOK:
                 break;
+            case FACEBOOK_OK_STAY:
+                break;
             case FACEBOOK_OK:
+                xUserId = null;
+                xAuthToken = null;
+                categoryIdList.clear();
+                categoryNameList.clear();
+                categoryRouteCountList.clear();
                 changeState(LoginState.IN_VERIFYING);
                 break;
             case IN_VERIFYING:
-                if(loginRequestCacheKey==null) {
-                    LoginRequest mLoginRequest = new LoginRequest(AccessToken.getCurrentAccessToken().getToken(),
-                            String.valueOf(AccessToken.getCurrentAccessToken().getExpires().getTime()),
-                            AccessToken.getCurrentAccessToken().getUserId(),
-                            this);
+                LoginRequest mLoginRequest = new LoginRequest(AccessToken.getCurrentAccessToken().getToken(),
+                        String.valueOf(AccessToken.getCurrentAccessToken().getExpires().getTime()),
+                        AccessToken.getCurrentAccessToken().getUserId(),
+                        this);
 
-                    loginRequestCacheKey = mLoginRequest.createCacheKey();
-                    spiceManager.execute(mLoginRequest, loginRequestCacheKey,
-                            DurationInMillis.ALWAYS_EXPIRED,
-                            new LoginRequestListener());
-                }
+                spiceManager.execute(mLoginRequest, mLoginRequest.createCacheKey(),
+                        DurationInMillis.ALWAYS_EXPIRED,
+                        new LoginRequestListener());
                 break;
             case VERIFIED_OK:
-                changeState(LoginState.IN_REQUEST_CATEGORIES);
+                if((xUserId == null) || (xAuthToken == null) ){
+                    Log.d(TAG+".doVerification()", "xUserId/xAuthToken is null. mState: "+mState );
+                    changeState(LoginState.FACEBOOK_OK);
+                }
+                else {
+                    changeState(LoginState.IN_REQUEST_CATEGORIES);
+                }
                 break;
             case VERIFIED_NOT_OK:
-                //TODO
                 break;
             case VERIFIED_FAILED:
                 break;
 
             case IN_REQUEST_CATEGORIES:
-                if(categoriesRequestCacheKey==null) {
-                    CategoriesRequest mCategoriesRequest = new CategoriesRequest(xUserId, xAuthToken, this);
-                    categoriesRequestCacheKey = mCategoriesRequest.createCacheKey();
-                    spiceManager.execute(mCategoriesRequest, categoriesRequestCacheKey,
-                            DurationInMillis.ALWAYS_EXPIRED,
-                            new CategoriesRequestListener());
-                }
+                CategoriesRequest mCategoriesRequest = new CategoriesRequest(xUserId, xAuthToken, this);
+                spiceManager.execute(mCategoriesRequest, mCategoriesRequest.createCacheKey(),
+                        DurationInMillis.ALWAYS_EXPIRED,
+                        new CategoriesRequestListener());
                 break;
             case CATEGORIES_OK:
-                launchHelloActivity();
+                if((xUserId == null) || (xAuthToken == null) || (categoryIdList.size() == 0) ||
+                        (categoryNameList.size() == 0) || (categoryRouteCountList.size() == 0) ){
+                    Log.d(TAG+".doVerification()", "xUserId/xAuthToken is null or category is empty. mState: "+mState );
+                    changeState(LoginState.FACEBOOK_OK);
+                }
+                else {
+                    launchHelloActivity();
+                }
                 break;
             case CATEGORIES_NOT_OK:
                 break;
@@ -380,7 +397,7 @@ public class LoginActivity extends Activity {
      * @param state Login state to set {@code mState} to.
      */
     private void changeState(LoginState state){
-        Log.d(TAG, "Change state: "+mState+"->"+state);
+        Log.d(TAG+".changeState()", mState+"->"+state);
 
         mState = state;
         updateUI();
@@ -394,41 +411,18 @@ public class LoginActivity extends Activity {
      * @param view
      */
     public void retry(View view) {
+        Log.d(TAG+".retry()", "mState: "+mState);
         LoginManager.getInstance().logOut();
         changeState(LoginState.NOT_LOGIN);
     }
 
     public void cancel(View view){
-        if(loginRequestCacheKey!=null) {
-            Log.d(TAG, "Pressed cancel. mState:" + mState+". Cancel request: "+loginRequestCacheKey);
-        }
-        else{
-            Log.d(TAG, "Pressed cancel. mState:" + mState);
-        }
-        if(loginRequestCacheKey != null){
-            spiceManager.cancel(LoginResponse.class, loginRequestCacheKey);
-            loginRequestCacheKey = null;
-        }
-
-        if(categoriesRequestCacheKey!=null) {
-            Log.d(TAG, "Pressed cancel. mState:" + mState+". Cancel request: "+categoriesRequestCacheKey);
-        }
-        else{
-            Log.d(TAG, "Pressed cancel. mState:" + mState);
-        }
-        if(categoriesRequestCacheKey != null){
-            spiceManager.cancel(CategoriesResponse.class, categoriesRequestCacheKey);
-            categoriesRequestCacheKey = null;
-        }
-
+        Log.d(TAG+".cancel()", "mState: "+mState);
         LoginManager.getInstance().logOut();
-
         changeState(LoginState.NOT_LOGIN);
     }
 
     private void launchHelloActivity(){
-        Log.d(TAG, "Launching hello activity. mState: " + mState);
-
         // Prepare stuff to put in intent.
         String[] categoryIdListAsArray = categoryIdList.toArray(new String[categoryIdList.size()]);
         String[] categoryNameListAsArray = categoryNameList.toArray(new String[categoryNameList.size()]);
@@ -439,12 +433,17 @@ public class LoginActivity extends Activity {
 
         // Putting stuff into intent.
         Intent intent = new Intent(getApplicationContext(), HelloActivity.class);
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_xUserId), xUserId);
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_xAuthToken), xAuthToken);
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryIdList), categoryIdListAsArray);
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryNameList), categoryNameListAsArray);
-        intent.putExtra(getString(R.string.package_name) + getString(R.string.login_activity_intent_categoryRouteCountList), categoryRouteCountListAsArray);
 
+        Bundle mBundle = new Bundle();
+        mBundle.putString(getString(R.string.package_name) + getString(R.string.bundle_x_user_id), xUserId);
+        mBundle.putString(getString(R.string.package_name) + getString(R.string.bundle_x_auth_token), xAuthToken);
+        mBundle.putStringArray(getString(R.string.package_name) + getString(R.string.bundle_category_id_list), categoryIdListAsArray);
+        mBundle.putStringArray(getString(R.string.package_name) + getString(R.string.bundle_category_name_list), categoryNameListAsArray);
+        mBundle.putIntArray(getString(R.string.package_name) + getString(R.string.bundle_category_route_count_list), categoryRouteCountListAsArray);
+
+        intent.putExtras(mBundle);
+
+        Log.d(TAG + ".launchHelloActivity()", "mState: " + mState);
         startActivity(intent);
     }
 
@@ -459,8 +458,6 @@ public class LoginActivity extends Activity {
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_login);
 
-        Log.d(TAG, "In onCreate(). mState:"+mState);
-
         // Assign views to references
         mViewVerifying = findViewById(R.id.verifying_view);
         mViewLoginButton = (LoginButton) findViewById(R.id.login_button);
@@ -473,19 +470,21 @@ public class LoginActivity extends Activity {
         callbackManager = CallbackManager.Factory.create();
         mViewLoginButton.setReadPermissions("public_profile");
         mViewLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            private final String TAG = FacebookCallback.class.getSimpleName();
+
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "In FacebookCallback. Facebook login succeeded.");
+                Log.d(TAG+".onSuccess()", "Facebook login succeeded.");
             }
 
             @Override
             public void onCancel() {
-                Log.d(TAG, "In FacebookCallback. Facebook login cancelled.");
+                Log.d(TAG+".onCancel()", "Facebook login cancelled.");
             }
 
             @Override
             public void onError(FacebookException exception) {
-                Log.e(TAG, "In FacebookCallback. Facebook login error.");
+                Log.e(TAG+".onError()", "Facebook login error.");
             }
         });
     }
@@ -493,73 +492,68 @@ public class LoginActivity extends Activity {
     @Override
     protected void onStart(){
         super.onStart();
-        Log.d(TAG, "In onStart(). mState:" + mState);
-
         spiceManager.start(this);
 
-        // Application could have restarted. Checking if we are login on facebook
-        // and update mState accordingly.
-        if(mState == LoginState.NOT_LOGIN){
-            if(AccessToken.getCurrentAccessToken()!=null){
-                changeState(LoginState.FACEBOOK_OK);
-            }
+        // Initialize mState here.
+        if(AccessToken.getCurrentAccessToken()==null){
+            mState = LoginState.NOT_LOGIN;
+            Log.d(TAG+".onStart()", "mState initialized to "+mState);
+        }
+        else{
+            mState = LoginState.FACEBOOK_OK_STAY;
+            Log.d(TAG+".onStart()", "mState initialized to "+mState);
         }
     }
 
     @Override
     protected void onRestart(){
         super.onRestart();
-        Log.d(TAG, "In onRestart(). mState:" + mState);
+        Log.d(TAG+".onRestart()", "mState:" + mState);
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        Log.d(TAG, "In onResume(). mState:" + mState);
+        // TODO should we cancel all request here?
 
-        changeState(mState);
+        // There can only be 2 state possible here.
+        // NOT_LOGIN or FACEBOOK_OK_STAY.
+        if(mState == LoginState.NOT_LOGIN){
+            // No-Op
+        }
+
+        if(mState == LoginState.FACEBOOK_OK_STAY){
+            changeState(LoginState.FACEBOOK_OK);
+        }
     }
 
     @Override
     protected void onPause(){
         super.onPause();
 
-        if(loginRequestCacheKey != null) {
-            Log.d(TAG, "In onPause(). mState: " + mState+". Cancelling loginRequest: "+loginRequestCacheKey);
+        // We are pausing. Disregard all pending request.
+        // Set state to either NOT_LOGIN or FACEBOOK_OK_STAY.
+        if(mState != LoginState.NOT_LOGIN) {
+            Log.d(TAG+".onPause()", mState+" -> "+LoginState.FACEBOOK_OK_STAY);
+            changeState(LoginState.FACEBOOK_OK_STAY);
         }
         else{
-            Log.d(TAG, "In onPause(). mState: " + mState);
-        }
-
-        if(loginRequestCacheKey != null){
-            spiceManager.cancel(LoginResponse.class, loginRequestCacheKey);
-            loginRequestCacheKey = null;
-        }
-
-        if(categoriesRequestCacheKey != null) {
-            Log.d(TAG, "In onPause(). mState: " + mState+". Cancelling categoriesRequest: "+categoriesRequestCacheKey);
-        }
-        else{
-            Log.d(TAG, "In onPause(). mState: " + mState);
-        }
-
-        if(categoriesRequestCacheKey != null){
-            spiceManager.cancel(LoginResponse.class, categoriesRequestCacheKey);
-            loginRequestCacheKey = null;
+            // No-Op
+            Log.d(TAG+".onPause()", mState+" -> "+LoginState.NOT_LOGIN);
         }
     }
 
     @Override
     protected void onStop(){
-        super.onStop();
-        Log.d(TAG, "In onStop().mState:" + mState);
+        Log.d(TAG+".onStop()", "mState:" + mState);
         spiceManager.shouldStop();
+        super.onStop();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "In onDestroy(). mState:" + mState);
+        Log.d(TAG+".onDestroy()", "mState:" + mState);
     }
 }
 

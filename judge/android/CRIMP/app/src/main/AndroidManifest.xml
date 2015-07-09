@@ -48,24 +48,25 @@
 
         <activity
             android:name=".hello.HelloActivity"
-            android:label="@string/title_activity_hello"
+            android:label="@string/app_name"
             android:screenOrientation="portrait" >
+        </activity>
+
+        <activity android:name=".test.TestActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
         </activity>
 
 
 
         <activity
             android:name=".uploadlist.UploadListActivity"
-            android:label="@string/title_activity_upload_list" >
-        </activity>
-        <activity
-            android:name=".qr.QRScanActivity"
-            android:label="@string/title_activity_qrscan" >
+            android:label="@string/app_name" >
         </activity>
 
         <activity
             android:name=".scoring.ScoringActivity"
-            android:label="@string/title_activity_scoring" >
+            android:label="@string/app_name" >
         </activity>
     </application>
 
