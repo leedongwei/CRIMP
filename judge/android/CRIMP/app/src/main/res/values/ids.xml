@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- QR scan states -->
+    <!-- Scan states for use with Message and Handler -->
     <item type="id" name="decode"/>
     <item type="id" name="decode_failed"/>
     <item type="id" name="decode_succeeded"/>

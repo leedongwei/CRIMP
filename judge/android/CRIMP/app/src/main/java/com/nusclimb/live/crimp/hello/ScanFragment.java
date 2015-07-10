@@ -1,11 +1,14 @@
 package com.nusclimb.live.crimp.hello;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -23,6 +26,7 @@ import android.widget.TextView;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.qr.CameraManager;
 import com.nusclimb.live.crimp.qr.DecodeHandler;
+import com.nusclimb.live.crimp.qr.DecodeThread;
 import com.nusclimb.live.crimp.qr.PreviewView;
 import com.nusclimb.live.crimp.qr.QRScanHandler;
 
@@ -35,6 +39,9 @@ public class ScanFragment extends Fragment {
     // Information retrieved from intent.
     private String xUserId;
     private String xAuthToken;
+
+    // Decoding stuff
+    private DecodeThread mDecodeThread;
 
     // Camera stuff
     private QRScanHandler handler;
@@ -54,6 +61,21 @@ public class ScanFragment extends Fragment {
     private Button mFlashButton;
     private EditText mClimberNameEdit;
     private Button mNextButton;
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver(){
+        private final String TAG = "Scan"+BroadcastReceiver.class.getSimpleName();
+        @Override
+        public void onReceive(Context context, Intent intent){
+            if(intent.getAction().equals( getString(R.string.filter_action_acquire_camera) )){
+                // TODO acquire camera
+            }
+            else if(intent.getAction().equals( getString(R.string.filter_action_release_camera) )){
+                // TODO release camera
+            }
+        }
+    };
+
+
 
     private int activityState;	// R.id.decode: previewView showing camera input. preview send
                                 //      to DecodeThread to be decoded. Default entry state.
@@ -111,6 +133,9 @@ public class ScanFragment extends Fragment {
     public void onResume(){
         super.onResume();
         Log.d(TAG + ".onResume()", "");
+
+        mDecodeThread = new DecodeThread(this);
+        mDecodeThread.start();
 
         handler = new QRScanHandler(this);
         handler.setRunning(true);
@@ -280,13 +305,33 @@ public class ScanFragment extends Fragment {
         return handler;
     }
 
+    /*
     public DecodeHandler getDecodeHandler(){
         return handler.getDecodeHandler();
     }
+    */
 
     public CameraManager getCameraManager(){
         return cameraManager;
     }
 
+
+
+    // TODO
+    private void acquireCamera(){
+
+    }
+
+    private void releaseCamera(){
+
+    }
+
+    public Handler getDecodeHandler(){
+        return mDecodeThread.getHandler();
+    }
+
+    public Thread getDecodeThread(){
+        return mDecodeThread;
+    }
 
 }

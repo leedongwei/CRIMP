@@ -232,5 +232,11 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         return null;
     }
 
+    public int getCurrentSelectedTab(){
+        return mViewPager.getCurrentItem();
+    }
+
+
+
 
 }

@@ -72,6 +72,11 @@
     <string name="bundle_route_state">bundle_routestate</string>
 
 
+    <!-- Intent filter action for BroadcastReceiver -->
+    <string name="filter_action_acquire_camera">filter_action_acquire_camera</string>
+    <string name="filter_action_release_camera">filter_action_release_camera</string>
+
+
 
 
 

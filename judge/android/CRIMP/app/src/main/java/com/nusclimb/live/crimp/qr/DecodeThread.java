@@ -6,7 +6,8 @@ import android.util.Log;
 import com.nusclimb.live.crimp.hello.ScanFragment;
 
 /**
- * Worker thread for handling decode operation.
+ * Worker thread for handling decode operation. A DecodeHandler instance will
+ * be associated with this thread.
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  *
@@ -14,15 +15,15 @@ import com.nusclimb.live.crimp.hello.ScanFragment;
 public class DecodeThread extends Thread{
     private static final String TAG = DecodeThread.class.getSimpleName();
 
+    // Bundle keys
     public static final String BARCODE_BITMAP = "barcode_bitmap";
     public static final String BARCODE_SCALED_FACTOR = "barcode_scaled_factor";
 
-    private DecodeHandler handler;
+    private DecodeHandler mDecodeHandler;
     private ScanFragment fragment;
 
     public DecodeThread(ScanFragment fragment){
         this.fragment = fragment;
-
         Log.d(TAG, "DecodeThread constructed.");
     }
 
@@ -30,11 +31,16 @@ public class DecodeThread extends Thread{
     public void run(){
         Log.d(TAG, "DecodeThread begin running");
         Looper.prepare();
-        handler = new DecodeHandler(fragment);
+        mDecodeHandler = new DecodeHandler(fragment);
         Looper.loop();
     }
 
+    /**
+     * Getter for the DecodeHandler object associated with this DecodeThread.
+     *
+     * @return DecodeHandler object
+     */
     public DecodeHandler getHandler(){
-        return handler;
+        return mDecodeHandler;
     }
 }

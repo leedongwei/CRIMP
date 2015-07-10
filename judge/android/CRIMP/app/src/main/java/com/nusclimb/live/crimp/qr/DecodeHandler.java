@@ -25,7 +25,9 @@ import android.os.Message;
 import android.util.Log;
 
 /**
- * Handler to DecodeThread.
+ * Handler to {@code DecodeThread}. Process {@code Message} associated with
+ * {@code DecodeThread}. This will process either a decode request or a stop
+ * request.
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  *
@@ -36,18 +38,22 @@ public class DecodeHandler extends Handler{
     private final String PREFIX;	// Magic string to check if QR Code is valid
 
     private final ScanFragment fragment;
-    private final MultiFormatReader multiFormatReader;
+    private final MultiFormatReader multiFormatReader;  // ZXing stuff. For decoding QR code.
     private boolean running;
 
     DecodeHandler(ScanFragment fragment) {
         PREFIX = fragment.getActivity().getString(R.string.qr_prefix);
+        this.fragment = fragment;
         running = true;
+
+        // Instantiating the decoder.
         multiFormatReader = new MultiFormatReader();
+
+        // Preparing hint of possible code format and inform decoder.
         Map<DecodeHintType,Object> hints = new EnumMap<>(DecodeHintType.class);
         Collection<BarcodeFormat> decodeFormats = EnumSet.of(BarcodeFormat.QR_CODE);
         hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
         multiFormatReader.setHints(hints);
-        this.fragment = fragment;
 
         Log.d(TAG, "DecodeHandler constructed.");
     }
@@ -55,7 +61,7 @@ public class DecodeHandler extends Handler{
     @Override
     public void handleMessage(Message message) {
         if (!running) {
-            Log.d(TAG, "DecodeHandler received msg but not running.");
+            Log.d(TAG+".handleMessage()", "DecodeHandler received msg but not running.");
             return;
         }
         switch (message.what) {
@@ -63,12 +69,12 @@ public class DecodeHandler extends Handler{
                 decode((byte[]) message.obj, message.arg1, message.arg2);
                 break;
             case R.id.quit:
-                Log.d(TAG, "DecodeHandler receive msg 'quit'.");
+                Log.d(TAG+".handleMessage()", "DecodeHandler receive msg 'quit'.");
                 running = false;
                 Looper.myLooper().quit();
                 break;
             default:
-                Log.w(TAG, "DecodeHandler receive unknown msg '" + message.what + "'.");
+                Log.w(TAG+".handleMessage()", "DecodeHandler receive unknown msg '" + message.what + "'.");
                 break;
         }
     }
@@ -82,6 +88,7 @@ public class DecodeHandler extends Handler{
      * @param height The height of the preview frame.
      */
     private void decode(byte[] data, int width, int height) {
+        // Obtained a Result from decoding data.
         long start = System.currentTimeMillis();
         Result rawResult = null;
         PlanarYUVLuminanceSource source = fragment.getCameraManager().buildLuminanceSource(data, width, height);
@@ -96,20 +103,21 @@ public class DecodeHandler extends Handler{
             }
         }
 
+        // Send a message to fragment, informing of decode outcome.
         Handler handler = fragment.getHandler();
         if (rawResult != null) {
             // Need to verify the result.
             String result = verifyResult(rawResult.getText());
             long end = System.currentTimeMillis();
             if(result == null){
-                Log.d(TAG, "Found non BA2014 result: " + rawResult.getText());
+                Log.d(TAG+".decode()", "Found non BA2015 result: " + rawResult.getText());
                 if (handler != null) {
                     Message message = Message.obtain(handler, R.id.decode_failed);
                     message.sendToTarget();
                 }
             }
             else{
-                Log.i(TAG, "Found barcode in " + (end - start) + " ms: " + result);
+                Log.i(TAG+".decode()", "Found barcode in " + (end - start) + " ms: " + result);
                 if (handler != null) {
                     Message message = Message.obtain(handler, R.id.decode_succeeded, result);
                     Bundle bundle = new Bundle();
@@ -149,11 +157,11 @@ public class DecodeHandler extends Handler{
      *
      * @param rawResult Raw string decoded from QR code.
      * @return String containing climber info in the format [id:name]. Null if string is
-     * not a BA2014 string.
+     * not a BA2015 string.
      */
     private String verifyResult(String rawResult){
         if(!rawResult.startsWith(PREFIX)){
-            Log.d(TAG, "Verifying '" + rawResult + "' to be wrong prefix.");
+            Log.d(TAG+".verifyResult()", "Verifying '" + rawResult + "' to be wrong prefix.");
             return null;
         }
 
@@ -164,7 +172,7 @@ public class DecodeHandler extends Handler{
         }
         if(tokenCount == 1){
             String result = rawResult.split(PREFIX)[1];
-            Log.i(TAG, "Verified result: " + result);
+            Log.i(TAG+".verifyResult()", "Verified result: " + result);
             return result;
         }
 

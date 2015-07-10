@@ -3,22 +3,20 @@ package com.nusclimb.live.crimp.qr;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.hello.ScanFragment;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.util.Log;
 
 public class QRScanHandler extends Handler{
     private static final String TAG = QRScanHandler.class.getSimpleName();
 
     private ScanFragment fragment;
-    private DecodeThread decodeThread;
     private boolean running;
 
     public QRScanHandler(ScanFragment fragment){
         this.fragment = fragment;
-        decodeThread = new DecodeThread(fragment);
-        decodeThread.start();
-
         Log.d(TAG, "QRScanHandler constructed");
     }
 
@@ -26,23 +24,26 @@ public class QRScanHandler extends Handler{
         this.running = running;
     }
 
-    public DecodeHandler getDecodeHandler(){
-        return decodeThread.getHandler();
-    }
-
     @Override
     public void handleMessage(Message message) {
         if(!running){
-            Log.d(TAG, "QRScanHandler received msg but not running.");
+            Log.d(TAG+".handleMessage()", "QRScanHandler received msg but not running.");
             return;
         }
         switch (message.what) {
             case R.id.decode_succeeded:
-                Log.d(TAG, "QRScanHandler receive msg 'succeed'.");
+                Log.d(TAG+".handleMessage()", "QRScanHandler receive msg 'succeed'.");
                 fragment.getCameraManager().stopPreview();
                 fragment.setState(R.id.decode_succeeded);
                 String result = (String) message.obj;
                 fragment.updateStatusView(result);
+
+                // Get instance of Vibrator from current Context
+                Vibrator v = (Vibrator) fragment.getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+
+                // Vibrate for 300 milliseconds
+                v.vibrate(100);
+
                 //TODO should release camera?
                 break;
             case R.id.decode_failed:
@@ -51,11 +52,11 @@ public class QRScanHandler extends Handler{
                     fragment.getCameraManager().startScan();
                 }
                 else{
-                    Log.w(TAG, "QRScanHandler received decode fail msg. Start scan failed due to not previewing." );
+                    Log.w(TAG+".handleMessage()", "QRScanHandler received decode fail msg. Start scan failed due to not previewing." );
                 }
                 break;
             default:
-                Log.w(TAG, "QRScanHandler received unknown msg.");
+                Log.w(TAG+".handleMessage()", "QRScanHandler received unknown msg.");
                 break;
         }
     }
@@ -65,12 +66,12 @@ public class QRScanHandler extends Handler{
      * Kills the DecodeThread and do stuff.
      */
     public void onPause(){
-        Message quit = Message.obtain(decodeThread.getHandler(), R.id.quit);
+        Message quit = Message.obtain(fragment.getDecodeHandler(), R.id.quit);
         quit.sendToTarget();
 
         try {
             // Wait at most half a second; should be enough time, and onPause() will timeout quickly
-            decodeThread.join(500L);
+            fragment.getDecodeThread().join(500L);
         } catch (InterruptedException e) {
             // continue
         }

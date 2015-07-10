@@ -11,6 +11,7 @@ import com.nusclimb.live.crimp.hello.ScanFragment;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -303,7 +304,7 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         // Got preview data. Need to send over to QRScanHandler.
-        DecodeHandler handler = fragment.getDecodeHandler();
+        Handler handler = fragment.getDecodeHandler();
         if (handler != null) {
             Message message = handler.obtainMessage(R.id.decode, bestPreviewSize.width, bestPreviewSize.height, data);
             message.sendToTarget();

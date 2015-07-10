@@ -318,8 +318,8 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 changeState(State.IN_SECOND_REQUEST);
                 break;
             case JUDGE_OK:
-                // LAUNCH activity
-                //launchQRScanAcitivty();
+                // TODO setNav to next tab. Inform CrimpFragmentPagerAdapter to increase tab count.
+
                 break;
         }
     }
@@ -541,6 +541,9 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
+        // TODO disable tab
+        Log.d(TAG+".onItemSelected()", "should disable tab");
+
         Log.d(TAG+".onItemSelected()", "parentId: " + parent.getId() + ", viewId:" + view.getId() +
                 ", pos:" + pos + ", id" + id);
 
