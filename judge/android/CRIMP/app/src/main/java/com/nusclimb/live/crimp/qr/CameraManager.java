@@ -42,7 +42,7 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
         _isPreviewing = false;
         bestPreviewSize = null;
 
-        Log.d(TAG, "CameraManager is constructed!");
+        Log.v(TAG, "CameraManager is constructed!");
     }
 
 
@@ -303,7 +303,7 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
      *=======================================================================*/
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
-        // Got preview data. Need to send over to QRScanHandler.
+        // Got preview data. Need to send over to ScanFragmentHandler.
         Handler handler = fragment.getDecodeHandler();
         if (handler != null) {
             Message message = handler.obtainMessage(R.id.decode, bestPreviewSize.width, bestPreviewSize.height, data);

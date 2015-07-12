@@ -9,15 +9,15 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.util.Log;
 
-public class QRScanHandler extends Handler{
-    private static final String TAG = QRScanHandler.class.getSimpleName();
+public class ScanFragmentHandler extends Handler{
+    private static final String TAG = ScanFragmentHandler.class.getSimpleName();
 
     private ScanFragment fragment;
     private boolean running;
 
-    public QRScanHandler(ScanFragment fragment){
+    public ScanFragmentHandler(ScanFragment fragment){
         this.fragment = fragment;
-        Log.d(TAG, "QRScanHandler constructed");
+        Log.d(TAG, "ScanFragmentHandler constructed");
     }
 
     public void setRunning(boolean running){
@@ -27,12 +27,12 @@ public class QRScanHandler extends Handler{
     @Override
     public void handleMessage(Message message) {
         if(!running){
-            Log.d(TAG+".handleMessage()", "QRScanHandler received msg but not running.");
+            Log.d(TAG+".handleMessage()", "ScanFragmentHandler received msg but not running.");
             return;
         }
         switch (message.what) {
             case R.id.decode_succeeded:
-                Log.d(TAG+".handleMessage()", "QRScanHandler receive msg 'succeed'.");
+                Log.d(TAG+".handleMessage()", "ScanFragmentHandler receive msg 'succeed'.");
                 fragment.getCameraManager().stopPreview();
                 fragment.setState(R.id.decode_succeeded);
                 String result = (String) message.obj;
@@ -52,11 +52,11 @@ public class QRScanHandler extends Handler{
                     fragment.getCameraManager().startScan();
                 }
                 else{
-                    Log.w(TAG+".handleMessage()", "QRScanHandler received decode fail msg. Start scan failed due to not previewing." );
+                    Log.w(TAG+".handleMessage()", "ScanFragmentHandler received decode fail msg. Start scan failed due to not previewing." );
                 }
                 break;
             default:
-                Log.w(TAG+".handleMessage()", "QRScanHandler received unknown msg.");
+                Log.w(TAG+".handleMessage()", "ScanFragmentHandler received unknown msg.");
                 break;
         }
     }

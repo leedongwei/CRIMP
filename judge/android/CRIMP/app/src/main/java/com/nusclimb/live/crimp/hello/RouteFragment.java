@@ -1,7 +1,11 @@
 package com.nusclimb.live.crimp.hello;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +19,9 @@ import android.widget.TextView;
 
 import com.facebook.Profile;
 import com.nusclimb.live.crimp.R;
+import com.nusclimb.live.crimp.common.BusProvider;
+import com.nusclimb.live.crimp.common.busevent.RouteFinish;
+import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
 import com.nusclimb.live.crimp.common.json.ReportResponse;
 import com.nusclimb.live.crimp.common.spicerequest.ReportRequest;
 import com.nusclimb.live.crimp.service.CrimpService;
@@ -22,12 +29,13 @@ import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
+import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Zhi on 7/6/2015.
+ * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class RouteFragment extends Fragment implements AdapterView.OnItemSelectedListener{
     private final String TAG = RouteFragment.class.getSimpleName();
@@ -113,7 +121,6 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     // RoboSpice info
     private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
     private String currentJudge;
-    private String routeId;
 
 
 
@@ -182,8 +189,6 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
 
 
 
-
-
     /**
      * Set {@code mState} to {@code state}. Changes to {@code mState} must
      * go through this method.
@@ -232,6 +237,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 updateReplaceText();
                 showReplaceForm(true);
                 showProgressForm(false);
+                enableYesNo(true);
                 break;
             case IN_SECOND_REQUEST:
                 showSpinnerForm(false);
@@ -244,7 +250,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
             case SECOND_REQUEST_OK:
                 break;
             case SECOND_REQUEST_NOT_OK:
-                // TODO this shldnt happen. server reject even when we set force to true.
+                Log.e(TAG+".onUpdateUI()", "mState = "+mState);
                 break;
             case SECOND_REQUEST_FAILED:
                 showSpinnerForm(false);
@@ -255,6 +261,10 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 enableYesNo(false);
                 break;
             case JUDGE_OK:
+                showSpinnerForm(true);
+                showReplaceForm(false);
+                showProgressForm(false);
+                enableNextButtonIfPossible(false);
                 break;
         }
     }
@@ -268,15 +278,17 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
 
         switch (mState){
             case PICKING:
+                // Tell the world we are in picking stage.
+                BusProvider.getInstance().post(new RouteNotFinish());
                 break;
             case IN_FIRST_REQUEST:
                 selectedCategory = (CategorySpinnerItem) mCategorySpinner.getSelectedItem();
                 selectedRoute = (RouteSpinnerItem) mRouteSpinner.getSelectedItem();
 
-                routeId = selectedCategory.getCategoryId()+selectedRoute.getRouteNumber();
+                String routeId = selectedCategory.getCategoryId() + selectedRoute.getRouteNumber();
 
                 ReportRequest mReportRequest1 = new ReportRequest(xUserId,xAuthToken
-                        ,routeId, true, getActivity());
+                        , routeId, true, getActivity());
 
                 spiceManager.execute(mReportRequest1, mReportRequest1.createCacheKey(),
                         DurationInMillis.ALWAYS_EXPIRED,
@@ -311,15 +323,13 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 changeState(State.JUDGE_OK);
                 break;
             case SECOND_REQUEST_NOT_OK:
-                // TODO This shldnt happen. Server reject even when we force=true
-                changeState(State.JUDGE_OK);
+                Log.e(TAG + ".doWork()", "mState = " + mState);
                 break;
             case SECOND_REQUEST_FAILED:
                 changeState(State.IN_SECOND_REQUEST);
                 break;
             case JUDGE_OK:
-                // TODO setNav to next tab. Inform CrimpFragmentPagerAdapter to increase tab count.
-
+                BusProvider.getInstance().post(new RouteFinish());
                 break;
         }
     }
@@ -333,7 +343,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         super.onCreate(savedInstanceState);
 
         if(savedInstanceState == null){
-            Log.d(TAG+".onCreate()", "No savedState. Recreating fragment.");
+            Log.v(TAG+".onCreate()", "No savedState. Recreating fragment.");
 
             // Get initial info from arguments.
             Bundle args = getArguments();
@@ -357,9 +367,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
             mState = State.PICKING;
         }
         else{
-
-
-            Log.d(TAG+".onCreate()", "SavedState found.");
+            Log.v(TAG+".onCreate()", "SavedState found.");
 
             // Get initial info from savedInstanceState
             xUserId = savedInstanceState.getString(getString(R.string.package_name) +
@@ -407,10 +415,10 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         setupRouteSpinner();
 
         if(savedInstanceState == null){
-            Log.d(TAG+".onCreateView()", "No savedState.");
+            Log.v(TAG+".onCreateView()", "No savedState.");
         }
         else{
-            Log.d(TAG+".onCreateView()", "SavedState found.");
+            Log.v(TAG+".onCreateView()", "SavedState found.");
             mCategorySpinner.setSelection(savedInstanceState.getInt(
                     getString(R.string.bundle_category_spinner_selection)));
             mRouteSpinner.setSelection(savedInstanceState.getInt(
@@ -425,7 +433,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         super.onStart();
 
         // Guaranteed to have an activity here.
-        Log.d(TAG+".onStart()", "Starting spiceManager");
+        Log.v(TAG+".onStart()", "Starting spiceManager");
         spiceManager.start(getActivity());
 
         initHelloText();
@@ -434,13 +442,13 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onResume(){
         super.onResume();
-        Log.d(TAG+".onResume()", "mState: "+mState);
+        Log.v(TAG+".onResume()", "mState: "+mState);
     }
 
     @Override
     public void onPause(){
         super.onPause();
-        Log.d(TAG + ".onPause()", "mState: " + mState);
+        Log.v(TAG + ".onPause()", "mState: " + mState);
 
         switch(mState){
             case PICKING:
@@ -455,7 +463,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
 
     @Override
     public void onStop() {
-        Log.d(TAG + ".onStop()", "Stopping spiceManager.");
+        Log.v(TAG + ".onStop()", "Stopping spiceManager.");
         spiceManager.shouldStop();
 
         super.onStop();
@@ -501,7 +509,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     private void enableNextButtonIfPossible(boolean enable){
         boolean isHint = ((RouteSpinnerItem)mRouteSpinner.getSelectedItem()).isHint();
         if(!enable)
-            mNextButton.setEnabled(enable);
+            mNextButton.setEnabled(false);
         else
             mNextButton.setEnabled(!isHint);
     }
@@ -541,21 +549,23 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
-        // TODO disable tab
-        Log.d(TAG+".onItemSelected()", "should disable tab");
-
         Log.d(TAG+".onItemSelected()", "parentId: " + parent.getId() + ", viewId:" + view.getId() +
                 ", pos:" + pos + ", id" + id);
+
+        // If already in JUDGE_OK and user change the category/route, we need to enter picking state.
+        if(mState == State.JUDGE_OK){
+            changeState(State.PICKING);
+        }
 
         // Called from category spinner
         if(parent.getId() == mCategorySpinner.getId()){
             CategorySpinnerItem selectedItem = (CategorySpinnerItem)(parent.getSelectedItem());
             if(selectedItem.isHint()){
-                Log.d(TAG+".onItemSelected()", "OnItemSelected. Category. Hint.");
+                Log.v(TAG+".onItemSelected()", "OnItemSelected. Category. Hint.");
                 ((TextView)view).setTextColor(getResources().getColor(R.color.hint_color));
             }
             else{
-                Log.d(TAG+".onItemSelected()", "OnItemSelected. Category. Not hint.");
+                Log.v(TAG+".onItemSelected()", "OnItemSelected. Category. Not hint.");
                 updateRouteSpinner(selectedItem.getRouteCount());
             }
         }
@@ -564,13 +574,13 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         if(parent.getId() == mRouteSpinner.getId()){
             SpinnerItem selectedItem = (SpinnerItem)parent.getSelectedItem();
             if(selectedItem.isHint()) {
-                Log.d(TAG+".onItemSelected()", "OnItemSelected. Route. Hint.");
+                Log.v(TAG+".onItemSelected()", "OnItemSelected. Route. Hint.");
                 ((TextView) view).setTextColor(getResources().getColor(R.color.hint_color));
 
                 mNextButton.setEnabled(false);
             }
             else{
-                Log.d(TAG+".onItemSelected()", "OnItemSelected. Route. Not hint.");
+                Log.v(TAG+".onItemSelected()", "OnItemSelected. Route. Not hint.");
                 mNextButton.setEnabled(true);
             }
         }
@@ -579,7 +589,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         // Another interface callback
-        Log.d(TAG+".onNothingSelected()", "parent:"+parent.getId());
+        Log.v(TAG+".onNothingSelected()", "parent:"+parent.getId());
     }
 
 
@@ -602,7 +612,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
 
         @Override
         public void onRequestFailure(SpiceException e) {
-            Log.d(TAG+".onRequestFailure()", "mState="+mState);
+            Log.i(TAG+".onRequestFailure()", "mState="+mState);
 
             if(mState == State.IN_FIRST_REQUEST){
                 changeState(State.FIRST_REQUEST_FAILED);
@@ -614,7 +624,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
 
         @Override
         public void onRequestSuccess(ReportResponse result) {
-            Log.d(TAG+".onRequestSuccess()", "mState="+mState);
+            Log.i(TAG+".onRequestSuccess()", "mState="+mState);
 
             if(result.getState() == 1){
                 if(mState == State.IN_FIRST_REQUEST){
@@ -623,6 +633,8 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 else if(mState == State.IN_SECOND_REQUEST){
                     changeState(State.SECOND_REQUEST_OK);
                 }
+
+                getArguments().putString(getString(R.string.bundle_route_id), result.getRouteId());//TODO
             }
             else{
                 if(mState == State.IN_FIRST_REQUEST){
@@ -636,22 +648,22 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     }
 
 
+
     /*=========================================================================
      * Button onClick methods
      *=======================================================================*/
-    public void next(View view){
+    public void next(){
         if(mState == State.PICKING)
             changeState(State.IN_FIRST_REQUEST);
     }
 
-    public void yes(View view){
+    public void yes(){
         if(mState == State.REPLACE_QUESTION)
             changeState(State.IN_SECOND_REQUEST);
     }
 
-    public void no(View view){
+    public void no(){
         if(mState == State.REPLACE_QUESTION)
             changeState(State.PICKING);
     }
-
 }

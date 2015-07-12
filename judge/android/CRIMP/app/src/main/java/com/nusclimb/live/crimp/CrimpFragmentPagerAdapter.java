@@ -3,6 +3,8 @@ package com.nusclimb.live.crimp;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.view.ViewGroup;
 
 import com.nusclimb.live.crimp.hello.HelloActivity;
 import com.nusclimb.live.crimp.hello.RouteFragment;
@@ -15,6 +17,7 @@ import com.nusclimb.live.crimp.hello.TestFrag3;
 public class CrimpFragmentPagerAdapter extends FragmentPagerAdapter {
     private int crimpInternalCount;
     private HelloActivity mActivity;
+    private int _count = 3;
 
     public CrimpFragmentPagerAdapter(FragmentManager fm, HelloActivity mActivity) {
         super(fm);
@@ -50,14 +53,14 @@ public class CrimpFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         // TODO make this dynamic
-        return 3;
+        return _count;
     }
 
-    /*
+
     public void set_count(int i){
         _count = i;
+        notifyDataSetChanged();
     }
-    */
 
     @Override
     public CharSequence getPageTitle(int position) {
@@ -72,5 +75,6 @@ public class CrimpFragmentPagerAdapter extends FragmentPagerAdapter {
                 return null;
         }
     }
+
 
 }

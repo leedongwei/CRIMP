@@ -70,12 +70,7 @@
     <string name="bundle_category_spinner_selection">bundle_categoryspinnerselection</string>
     <string name="bundle_route_spinner_selection">bundle_routespinnerselection</string>
     <string name="bundle_route_state">bundle_routestate</string>
-
-
-    <!-- Intent filter action for BroadcastReceiver -->
-    <string name="filter_action_acquire_camera">filter_action_acquire_camera</string>
-    <string name="filter_action_release_camera">filter_action_release_camera</string>
-
+    <string name="bundle_route_id">bundle_routeid</string>
 
 
 
@@ -104,6 +99,10 @@
     <string name="intent_r_id">.rId</string>
     <string name="intent_c_id">.cId</string>
     <string name="intent_score_append">.appendScore</string>
+
+
+
+    <string name="intent_key_current_selected_tab">.currentSelectedTab</string>
 
 
 </resources>

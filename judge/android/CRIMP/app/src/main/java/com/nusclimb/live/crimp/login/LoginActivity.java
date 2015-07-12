@@ -96,7 +96,7 @@ public class LoginActivity extends Activity {
 
         @Override
         public void onRequestFailure(SpiceException e) {
-            Log.d(TAG+".onRequestFailure()", "mState="+mState);
+            Log.i(TAG+".onRequestFailure()", "mState="+mState);
 
             // We only changeState if mState == IN_VERIFYING
             if(mState == LoginState.IN_VERIFYING)
@@ -138,12 +138,12 @@ public class LoginActivity extends Activity {
 
             // roles need to contain "judge" to be verified ok.
             if(isContainJudgeOrAbove) {
-                Log.d(TAG+".onRequestSuccess()", "Roles contain judge or above. "
+                Log.i(TAG+".onRequestSuccess()", "Roles contain judge or above. "
                         +mState+" -> "+LoginState.VERIFIED_OK);
                 changeState(LoginState.VERIFIED_OK);
             }
             else{
-                Log.d(TAG+".onRequestSuccess()", "Roles don't contain judge or above. "
+                Log.i(TAG+".onRequestSuccess()", "Roles don't contain judge or above. "
                         +mState+" -> "+LoginState.VERIFIED_NOT_OK);
                 changeState(LoginState.VERIFIED_NOT_OK);
             }
@@ -160,7 +160,7 @@ public class LoginActivity extends Activity {
 
         @Override
         public void onRequestFailure(SpiceException e) {
-            Log.d(TAG+".onRequestFailure()", "mState="+mState);
+            Log.i(TAG+".onRequestFailure()", "mState="+mState);
 
             // We only changeState if mState == IN_REQUEST_CATEGORIES.
             if(mState == LoginState.IN_REQUEST_CATEGORIES)
@@ -170,11 +170,9 @@ public class LoginActivity extends Activity {
         @Override
         public void onRequestSuccess(CategoriesResponse result) {
             Log.d(TAG + ".onRequestSuccess()", "CategoriesResponse=" + result.toString());
+            Log.i(TAG + ".onRequestSuccess()", "\n");
 
-            if (mState != LoginState.IN_REQUEST_CATEGORIES) {
-                return;
-            }
-            else {
+            if (mState == LoginState.IN_REQUEST_CATEGORIES) {
                 categoryIdList.clear();
                 categoryNameList.clear();
                 categoryRouteCountList.clear();
@@ -190,6 +188,7 @@ public class LoginActivity extends Activity {
             }
         }
     }
+
 
 
     /*=========================================================================
@@ -222,11 +221,57 @@ public class LoginActivity extends Activity {
         mViewRetryButton.setVisibility(show ? View.GONE : View.VISIBLE);
     }
 
+
+
+
+    /*=========================================================================
+     * Button methods and facebook login callback
+     *=======================================================================*/
+    /**
+     * This method is called when user clicked on retry button. Log out from
+     * facebook (if user is not already logged out). Change state to NOT_LOGIN.
+     *
+     * @param view Button view object
+     */
+    public void retry(View view) {
+        Log.v(TAG+".retry()", "mState: "+mState);
+        LoginManager.getInstance().logOut();
+        changeState(LoginState.NOT_LOGIN);
+    }
+
+    /**
+     * This method is called when user clicked on cancel button. Log out from
+     * facebook (if user is not already logged out). Change state to NOT_LOGIN.
+     *
+     * @param view Button view object.
+     */
+    public void cancel(View view){
+        Log.v(TAG + ".cancel()", "mState: " + mState);
+        LoginManager.getInstance().logOut();
+        changeState(LoginState.NOT_LOGIN);
+    }
+
+    // Facebook stuff
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG + ".onActivityResult()", "mState: " + mState + "; resultcode: " + resultCode + "; ok is " + RESULT_OK);
+
+        if(resultCode == RESULT_OK)
+            changeState(LoginState.FACEBOOK_OK);
+    }
+
+
+
+    /*=========================================================================
+     * Main flow methods.
+     *=======================================================================*/
     /**
      * Method to control which UI element is visible at different state.
      */
     private void updateUI(){
-        Log.d(TAG + ".updateUI()", "mState:" + mState);
+        Log.v(TAG + ".updateUI()", "mState:" + mState);
         String responseText;
 
         switch (mState) {
@@ -305,23 +350,11 @@ public class LoginActivity extends Activity {
         }
     }
 
-
-    // Facebook stuff
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG+".onActivityResult()", "mState: " + mState + "; resultcode: " + resultCode + "; ok is " + RESULT_OK);
-
-        if(resultCode == RESULT_OK)
-            changeState(LoginState.FACEBOOK_OK);
-    }
-
     /**
      * Method to control what is performed at different state.
      */
     private void doVerification(){
-        Log.d(TAG+".doVerification()", "mState:" + mState);
+        Log.v(TAG + ".doVerification()", "mState:" + mState);
         switch (mState){
             case NOT_LOGIN:
                 xUserId = null;
@@ -397,7 +430,7 @@ public class LoginActivity extends Activity {
      * @param state Login state to set {@code mState} to.
      */
     private void changeState(LoginState state){
-        Log.d(TAG+".changeState()", mState+"->"+state);
+        Log.v(TAG+".changeState()", mState+"->"+state);
 
         mState = state;
         updateUI();
@@ -405,23 +438,8 @@ public class LoginActivity extends Activity {
     }
 
     /**
-     * This method is called when user clicked on cancel button. Log out from
-     * facebook (if user is not already logged out).
-     *
-     * @param view
+     * Method to launch the next activity.
      */
-    public void retry(View view) {
-        Log.d(TAG+".retry()", "mState: "+mState);
-        LoginManager.getInstance().logOut();
-        changeState(LoginState.NOT_LOGIN);
-    }
-
-    public void cancel(View view){
-        Log.d(TAG+".cancel()", "mState: "+mState);
-        LoginManager.getInstance().logOut();
-        changeState(LoginState.NOT_LOGIN);
-    }
-
     private void launchHelloActivity(){
         // Prepare stuff to put in intent.
         String[] categoryIdListAsArray = categoryIdList.toArray(new String[categoryIdList.size()]);
@@ -443,7 +461,7 @@ public class LoginActivity extends Activity {
 
         intent.putExtras(mBundle);
 
-        Log.d(TAG + ".launchHelloActivity()", "mState: " + mState);
+        Log.v(TAG + ".launchHelloActivity()", "mState: " + mState);
         startActivity(intent);
     }
 
@@ -474,17 +492,17 @@ public class LoginActivity extends Activity {
 
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG+".onSuccess()", "Facebook login succeeded.");
+                Log.d(TAG + ".onSuccess()", "Facebook login succeeded.");
             }
 
             @Override
             public void onCancel() {
-                Log.d(TAG+".onCancel()", "Facebook login cancelled.");
+                Log.d(TAG + ".onCancel()", "Facebook login cancelled.");
             }
 
             @Override
             public void onError(FacebookException exception) {
-                Log.e(TAG+".onError()", "Facebook login error.");
+                Log.e(TAG + ".onError()", "Facebook login error.");
             }
         });
     }
@@ -497,18 +515,18 @@ public class LoginActivity extends Activity {
         // Initialize mState here.
         if(AccessToken.getCurrentAccessToken()==null){
             mState = LoginState.NOT_LOGIN;
-            Log.d(TAG+".onStart()", "mState initialized to "+mState);
+            Log.v(TAG+".onStart()", "mState initialized to "+mState);
         }
         else{
             mState = LoginState.FACEBOOK_OK_STAY;
-            Log.d(TAG+".onStart()", "mState initialized to "+mState);
+            Log.v(TAG+".onStart()", "mState initialized to "+mState);
         }
     }
 
     @Override
     protected void onRestart(){
         super.onRestart();
-        Log.d(TAG+".onRestart()", "mState:" + mState);
+        Log.v(TAG + ".onRestart()", "mState:" + mState);
     }
 
     @Override
@@ -534,18 +552,18 @@ public class LoginActivity extends Activity {
         // We are pausing. Disregard all pending request.
         // Set state to either NOT_LOGIN or FACEBOOK_OK_STAY.
         if(mState != LoginState.NOT_LOGIN) {
-            Log.d(TAG+".onPause()", mState+" -> "+LoginState.FACEBOOK_OK_STAY);
+            Log.v(TAG+".onPause()", mState+" -> "+LoginState.FACEBOOK_OK_STAY);
             changeState(LoginState.FACEBOOK_OK_STAY);
         }
         else{
             // No-Op
-            Log.d(TAG+".onPause()", mState+" -> "+LoginState.NOT_LOGIN);
+            Log.v(TAG+".onPause()", mState+" -> "+LoginState.NOT_LOGIN);
         }
     }
 
     @Override
     protected void onStop(){
-        Log.d(TAG+".onStop()", "mState:" + mState);
+        Log.v(TAG+".onStop()", "mState:" + mState);
         spiceManager.shouldStop();
         super.onStop();
     }
@@ -553,7 +571,6 @@ public class LoginActivity extends Activity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG+".onDestroy()", "mState:" + mState);
+        Log.v(TAG+".onDestroy()", "mState:" + mState);
     }
 }
-

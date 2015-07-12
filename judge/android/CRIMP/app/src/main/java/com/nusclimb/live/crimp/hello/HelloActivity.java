@@ -2,8 +2,6 @@ package com.nusclimb.live.crimp.hello;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
@@ -17,21 +15,24 @@ import android.view.WindowManager;
 import com.facebook.FacebookSdk;
 import com.nusclimb.live.crimp.CrimpFragmentPagerAdapter;
 import com.nusclimb.live.crimp.R;
+import com.nusclimb.live.crimp.common.BusProvider;
+import com.nusclimb.live.crimp.common.busevent.RouteFinish;
+import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
+import com.nusclimb.live.crimp.common.busevent.ScanAcquireCamera;
+import com.nusclimb.live.crimp.common.busevent.ScanOnPause;
+import com.nusclimb.live.crimp.common.busevent.ScanOnResume;
+import com.squareup.otto.Subscribe;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Zhi on 7/6/2015.
+ * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class HelloActivity extends ActionBarActivity implements ActionBar.TabListener{
     private final String TAG = HelloActivity.class.getSimpleName();
 
     // Information retrieved from intent.
     private Bundle mBundle;
-    private String xUserId;
-    private String xAuthToken;
-    private List<SpinnerItem> categorySpinnerItemList;
 
     // For doing tab manipulation
     private ActionBar mActionBar;
@@ -39,17 +40,53 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     private CrimpFragmentPagerAdapter mCrimpFragmentPagerAdapter;
     private Handler mHandler;
 
-    // Tabs
-    private ActionBar.Tab routeTab;
-    private ActionBar.Tab scanTab;
-    private ActionBar.Tab scoreTab;
+    // Fragment State. For use with Bus.
+    private boolean isScanOnResume = false;
+    private boolean isScoreOnResume = false;
+    private boolean isRouteFinish = false;
+    private boolean isScanFinish = false;
+    private boolean isScoreFinish = false;
 
-    // RoboSpice stuff
-    //private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
 
-    public Bundle getBundle(){
-        return mBundle;
+
+    /*=========================================================================
+     * Bus methods
+     *=======================================================================*/
+    @Subscribe
+    public void onReceiveRouteNotFinish(RouteNotFinish event){
+        Log.d(TAG+".onReceiveRouteFinish()", "Received RouteNotFinish event.");
+
+        isRouteFinish = false;
+
+        mCrimpFragmentPagerAdapter.set_count(1);
     }
+
+    @Subscribe
+    public void onReceiveRouteFinish(RouteFinish event){
+        Log.d(TAG+".onReceiveRouteFinish()", "Received RouteFinish event.");
+
+        isRouteFinish = true;
+
+        mCrimpFragmentPagerAdapter.set_count(2);
+        mActionBar.setSelectedNavigationItem(1);
+    }
+
+    @Subscribe
+    public void onReceiveScanOnResume(ScanOnResume event){
+        Log.d(TAG + ".onReceiveScanOnResume", "Received ScanOnResume event.");
+
+        isScanOnResume = true;
+        if(isRouteFinish){
+            BusProvider.getInstance().post(new ScanAcquireCamera());
+        }
+    }
+
+    @Subscribe
+    public void onReceiveScanOnPause(ScanOnPause event){
+        Log.d(TAG + ".onReceiveScanOnResume", "Received ScanOnPause event.");
+        isScanOnResume = false;
+    }
+
 
 
     /*=========================================================================
@@ -67,35 +104,20 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_hello);
 
+        mHandler = new Handler();
+
         if(savedInstanceState == null){
             // Newly created activity
-            Log.d(TAG+".onCreate()", "Newly created.");
+            Log.v(TAG+".onCreate()", "Newly created.");
         }
         else{
             // Restored activity
-            Log.d(TAG+".onCreate()", "Restored.");
+            Log.v(TAG+".onCreate()", "Restored.");
         }
 
         // Get intent info.
         // TODO might want to shift to the if-else check above
-        mBundle = getIntent().getExtras();  // TODO using bundle?
-        xUserId = mBundle.getString(getString(R.string.package_name) +
-                getString(R.string.bundle_x_user_id));
-        xAuthToken = mBundle.getString(getString(R.string.package_name) +
-                getString(R.string.bundle_x_auth_token));
-        String[] categoryIdList = mBundle.getStringArray(getString(R.string.package_name) +
-                getString(R.string.bundle_category_id_list));
-        String[] categoryNameList = mBundle.getStringArray(getString(R.string.package_name) +
-                getString(R.string.bundle_category_name_list));
-        int[] categoryRouteCountList = mBundle.getIntArray(getString(R.string.package_name) +
-                getString(R.string.bundle_category_route_count_list));
-
-        // Combine category info into a list.
-        categorySpinnerItemList = new ArrayList<SpinnerItem>();
-        for (int i = 0; i < categoryIdList.length; i++) {
-            categorySpinnerItemList.add(new CategorySpinnerItem(categoryNameList[i],
-                    categoryIdList[i], categoryRouteCountList[i], false));
-        }
+        mBundle = getIntent().getExtras();
 
         // Instantiate object for tab manipulation
         mActionBar = getSupportActionBar();
@@ -107,71 +129,63 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         mViewPager.setAdapter(mCrimpFragmentPagerAdapter);
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             private final String TAG = ViewPager.SimpleOnPageChangeListener.class.getSimpleName();
+
             @Override
             public void onPageSelected(int position) {
                 // When swiping between different app sections, select the corresponding tab.
                 // We can also use ActionBar.Tab#select() to do this if we have a reference to the
                 // Tab.
-                Log.d(TAG+".onPageSelected", "called with position = "+position);
+                Log.d(TAG + ".onPageSelected", "called with position = " + position);
                 mActionBar.setSelectedNavigationItem(position);
             }
         });
 
-        mHandler = new Handler(Looper.getMainLooper()){
-            private final String TAG = Handler.class.getSimpleName();
-            public void handleMessager(Message inputMessage){
-                Log.d(TAG+".handleMessager", "HelloActivity handler receive message = "+inputMessage.what);
-                switch(inputMessage.what){
-                    // TODO implement message handling
-                    default:
-                        super.handleMessage(inputMessage);
-                        break;
-                }
-            }
-        };
-
         // Add route, scan, score tab to action bar.
-        routeTab = mActionBar.newTab()
+        ActionBar.Tab routeTab = mActionBar.newTab()
                 .setText(mCrimpFragmentPagerAdapter.getPageTitle(0))
                 .setTabListener(this);
         mActionBar.addTab(routeTab);
 
-        scanTab = mActionBar.newTab()
+        ActionBar.Tab scanTab = mActionBar.newTab()
                 .setText(mCrimpFragmentPagerAdapter.getPageTitle(1))
                 .setTabListener(this);
         mActionBar.addTab(scanTab);
 
-        scoreTab = mActionBar.newTab()
+        ActionBar.Tab scoreTab = mActionBar.newTab()
                 .setText(mCrimpFragmentPagerAdapter.getPageTitle(2))
                 .setTabListener(this);
         mActionBar.addTab(scoreTab);
+
+        // TODO
+        mCrimpFragmentPagerAdapter.set_count(1);
     }
 
     @Override
     protected void onStart(){
         super.onStart();
-        Log.d(TAG + ".onStart()", "Starting spiceManager");
-        //spiceManager.start(this);
+        Log.v(TAG+".onStart()", "start");
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        Log.d(TAG + ".onResume()", "");
+        BusProvider.getInstance().register(this);
+        Log.v(TAG + ".onResume()", "registered BusProvider");
     }
 
     @Override
     protected void onPause(){
         super.onPause();
-        Log.d(TAG+".onPause()", "");
+        BusProvider.getInstance().unregister(this);
+        Log.v(TAG + ".onPause()", "unregistered BusProvider");
     }
 
     @Override
     protected void onStop(){
+        Log.v(TAG + ".onStop()", "stop");
         super.onStop();
-        Log.d(TAG + ".onStop()", "Stopping spiceManager.");
-        //spiceManager.shouldStop();
     }
+
 
 
     /*=========================================================================
@@ -184,10 +198,26 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
     @Override
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        Log.d(TAG+".onTabSelected()", "tab.position = "+tab.getPosition());
+        Log.d(TAG + ".onTabSelected()", "tab.position = " + tab.getPosition());
 
-        // When the given tab is selected, switch to the corresponding page in the ViewPager.
-        mViewPager.setCurrentItem(tab.getPosition());
+        if(tab.getPosition() >= mCrimpFragmentPagerAdapter.getCount()) {
+            Log.d(TAG+".onTabSelected()", "selected "+tab.getPosition()+" >= count "+mCrimpFragmentPagerAdapter.getCount());
+
+            final int currentTabPosition = mViewPager.getCurrentItem();
+
+            mHandler.postAtFrontOfQueue(new Runnable() {
+                @Override
+                public void run() {
+                    getSupportActionBar().setSelectedNavigationItem(
+                            currentTabPosition);
+                }
+            });
+        }
+        else {
+            Log.d(TAG+".onTabSelected()", "selected "+tab.getPosition()+" < count "+mCrimpFragmentPagerAdapter.getCount());
+            // When the given tab is selected, switch to the corresponding page in the ViewPager.
+            mViewPager.setCurrentItem(tab.getPosition());
+        }
     }
 
     @Override
@@ -195,34 +225,49 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         Log.d(TAG + ".onTabReselected()", "tab.position = " + tab.getPosition());
     }
 
+
+
     /*=========================================================================
      * Button onClick methods
      *=======================================================================*/
     public void routeNext(View view){
-        Log.d(TAG + ".routeNext()", "Button clicked");
+        Log.v(TAG + ".routeNext()", "Button clicked");
         RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
         if(rf==null)
             Log.d(TAG+".routeNext()", "CANT FIND RF");
-        rf.next(view);
+        rf.next();
     }
 
     public void routeYes(View view){
-        Log.d(TAG+".routeYes()", "Button clicked");
+        Log.v(TAG+".routeYes()", "Button clicked");
         RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
-        rf.yes(view);
+        rf.yes();
     }
 
     public void routeNo(View view){
-        Log.d(TAG+".routeNo()", "Button clicked");
+        Log.v(TAG+".routeNo()", "Button clicked");
         RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
-        rf.no(view);
+        rf.no();
+    }
+
+    public void scanRescan(View view){
+        Log.v(TAG+".scanRescan()", "Button clicked");
+        ScanFragment sf = (ScanFragment) getFirstMatchingFragment(ScanFragment.class);
+        sf.rescan();
+    }
+
+    public void scanFlash(View view){
+        Log.v(TAG+".scanFlash()", "Button clicked");
+        ScanFragment sf = (ScanFragment) getFirstMatchingFragment(ScanFragment.class);
+        sf.flash();
     }
 
 
 
-
-
-    public Fragment getFirstMatchingFragment(Class clazz){
+    /*=========================================================================
+     * Other methods
+     *=======================================================================*/
+    private Fragment getFirstMatchingFragment(Class clazz){
         List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
         for(Fragment fr: fragmentList){
             if( fr.getClass().getSimpleName().equals(clazz.getSimpleName())){
@@ -232,11 +277,12 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         return null;
     }
 
-    public int getCurrentSelectedTab(){
-        return mViewPager.getCurrentItem();
+    /**
+     * Getter for mBundle.
+     *
+     * @return mBundle. Contain information from loginActivity.
+     */
+    public Bundle getBundle(){
+        return mBundle;
     }
-
-
-
-
 }
