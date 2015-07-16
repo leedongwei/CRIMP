@@ -24,7 +24,8 @@ Restivus.addRoute('judge/login', { authRequired: false }, {
     var fb, user;
 
     try {
-      // TODO: HTTP request will block. Find a better solution.
+      // TODO/Note: Apparently HTTP.call is async, but wrapped behave
+      // synchronously. It will come back after the callback.
       fb = HTTP.call('GET',
             'https://graph.facebook.com/v2.3/me?access_token=' + this.bodyParams.accessToken,
             { 'timeout': 333 });
@@ -64,43 +65,20 @@ Restivus.addRoute('judge/report',
       { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   post: function () {
     var route = this.bodyParams.route_id,
-        force = this.bodyParams.force;
-
-
+        force = this.bodyParams.force,
+        res;
 
     if (force) {
-      ActiveClimbers.upsert(
+      res = ActiveClimbers.upsert(
         { 'route_id': route },
         { $set: {
           'route_id': route,
           'admin_id': this.userId,
           'admin_name': this.user.profile.name
-        } },
-        function(error, results) {
-          // do nothing
-        }
-      );
-    } else {
-      var currentAdmin = ActiveClimbers.findOne({ route_id: route });
-      if (currentAdmin.length > 0) {
-        return {
-          'admin_id': currentAdmin._id,
-          'admin_name': currentAdmin.profile.name,
-          'route_id': route,
-          'state': 0
-        }
-      } else {
-        ActiveClimbers.insert(
-          {
-            'route_id': route,
-            'admin_id': this.userId,
-            'admin_name': this.user.profile.name
-          },
-          function(error, results) {
-            // do nothing
-          }
-        );
+        } }
+      )
 
+      if (res) {
         return {
           'admin_id': this.userId,
           'admin_name': this.user.profile.name,
@@ -108,9 +86,47 @@ Restivus.addRoute('judge/report',
           'state': 1
         }
       }
+    } else {
+      var currentAdmin = ActiveClimbers.findOne({ 'route_id': route });
+
+      if (!currentAdmin) {
+        res = ActiveClimbers.insert({
+          'admin_id': this.userId,
+          'admin_name': this.user.profile.name,
+          'route_id': route
+        });
+
+        if (res) {
+          return {
+            'admin_id': this.userId,
+            'admin_name': this.user.profile.name,
+            'route_id': route,
+            'state': 1
+          }
+        }
+      }
+
+      if (currentAdmin.admin_id != this.userId) {
+        return {
+          'admin_id': currentAdmin.admin_id,
+          'admin_name': currentAdmin.admin_name,
+          'route_id': currentAdmin.route_id,
+          'state': 0
+        }
+      } else {
+        return {
+          'admin_id': this.userId,
+          'admin_name': this.user.profile.name,
+          'route_id': route,
+          'state': 1
+        }
+      }
+
     }
 
-    return {};
+    return {
+      'error': 'DB operations failed'
+    }
   }
 });
 
