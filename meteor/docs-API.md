@@ -65,7 +65,7 @@ Body: {
 }
 ```
 * `admin_id` and `admin_name` refers to the active judge on that route
-* `state` 1 for successful request, 0 for failed request
+* `state` 1 for you're successfully set as judge, 0 if you're not the judge
 * `admin_id` and `admin_name` be your's if successful, someone else's if failed.
 * Request will fail when there is already a judge on that route
 
