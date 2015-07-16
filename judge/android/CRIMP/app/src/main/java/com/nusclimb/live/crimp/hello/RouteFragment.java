@@ -279,6 +279,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         switch (mState){
             case PICKING:
                 // Tell the world we are in picking stage.
+                Log.d(TAG+".doWork()", "Post RouteNotFinish to bus.");
                 BusProvider.getInstance().post(new RouteNotFinish());
                 break;
             case IN_FIRST_REQUEST:
@@ -329,6 +330,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 changeState(State.IN_SECOND_REQUEST);
                 break;
             case JUDGE_OK:
+                Log.d(TAG+".doWork()", "Post RouteFinish to bus.");
                 BusProvider.getInstance().post(new RouteFinish());
                 break;
         }
@@ -594,14 +596,6 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
 
 
 
-
-
-
-
-
-
-
-
     /**
      * RequestListener for receiving response of report request.
      *
@@ -665,5 +659,21 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     public void no(){
         if(mState == State.REPLACE_QUESTION)
             changeState(State.PICKING);
+    }
+
+
+
+
+
+
+    public void testSuccess(){
+        CategorySpinnerItem selectedCategory = (CategorySpinnerItem) mCategorySpinner.getSelectedItem();
+        RouteSpinnerItem selectedRoute = (RouteSpinnerItem) mRouteSpinner.getSelectedItem();
+        String routeId = selectedCategory.getCategoryId() + selectedRoute.getRouteNumber();
+
+        Log.d(TAG+".testSuccess()", routeId);
+
+        getArguments().putString(getString(R.string.bundle_route_id), routeId);
+        changeState(State.JUDGE_OK);
     }
 }

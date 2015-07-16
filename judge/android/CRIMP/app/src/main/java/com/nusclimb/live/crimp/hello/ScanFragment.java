@@ -23,10 +23,12 @@ import android.widget.TextView;
 
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.BusProvider;
-import com.nusclimb.live.crimp.common.busevent.RouteFinish;
+import com.nusclimb.live.crimp.common.busevent.InRouteTab;
+import com.nusclimb.live.crimp.common.busevent.InScanTab;
+import com.nusclimb.live.crimp.common.busevent.InScoreTab;
 import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
-import com.nusclimb.live.crimp.common.busevent.ScanAcquireCamera;
 import com.nusclimb.live.crimp.common.busevent.ScanOnResume;
+import com.nusclimb.live.crimp.common.busevent.StartScan;
 import com.nusclimb.live.crimp.qr.CameraManager;
 import com.nusclimb.live.crimp.qr.DecodeThread;
 import com.nusclimb.live.crimp.qr.PreviewView;
@@ -65,17 +67,15 @@ public class ScanFragment extends Fragment {
     private EditText mClimberNameEdit;
     private Button mNextButton;
 
-    private boolean isAcquire = false;//todo
-
     private int activityState;	// R.id.decode: previewView showing camera input. preview send
-                                //      to DecodeThread to be decoded. Default entry state.
-                                // R.id.decode_failed: Transitive state. Happens when DecodeThread
-                                //      fails to find QRCode. Will quickly transit to decode state
-                                //      to attempt to scan/decode again.
-                                // R.id.decode_succeeded: Camera resource released. previewView
-                                //      stop previewing. DecodeThread killed. qrResult not null.
-                                // R.id.quit: Prepare to quit. Camera resource released.
-                                //      previewView stop previewing. DecodeThread killed.
+    //      to DecodeThread to be decoded. Default entry state.
+    // R.id.decode_failed: Transitive state. Happens when DecodeThread
+    //      fails to find QRCode. Will quickly transit to decode state
+    //      to attempt to scan/decode again.
+    // R.id.decode_succeeded: Camera resource released. previewView
+    //      stop previewing. DecodeThread killed. qrResult not null.
+    // R.id.quit: Prepare to quit. Camera resource released.
+    //      previewView stop previewing. DecodeThread killed.
 
 
     /*=========================================================================
@@ -85,8 +85,8 @@ public class ScanFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        mDecodeThread = new DecodeThread(this);
         handler = new ScanFragmentHandler(this);
+        cameraManager = new CameraManager(this);
     }
 
     @Override
@@ -97,9 +97,6 @@ public class ScanFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_scan, container, false);
 
         activityState = R.id.decode;
-
-        previewResolution = calculatePreviewResolution();
-        cameraManager = new CameraManager(this);
 
         // Get initial info from arguments.
         Bundle args = getArguments();
@@ -117,8 +114,6 @@ public class ScanFragment extends Fragment {
         mClimberNameEdit = (EditText) rootView.findViewById(R.id.scan_climber_name_edit);
         mNextButton = (Button) rootView.findViewById(R.id.scan_next_button);
 
-        // Initialize UI
-        mCategoryIdEdit.setText(getArguments().getString(getString(R.string.bundle_route_id)));    // TODO
         // Update buttons.
         if(!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)){
             mFlashButton.setEnabled(false);
@@ -128,20 +123,36 @@ public class ScanFragment extends Fragment {
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState){
+        super.onActivityCreated(savedInstanceState);
+        previewResolution = calculatePreviewResolution();
+
+    }
+
+    @Override
     public void onResume(){
         super.onResume();
         Log.v(TAG + ".onResume()", "resume");
 
+        mCategoryIdEdit.setText(getArguments().getString(getString(R.string.bundle_route_id)));
+
+        // Register bus
         BusProvider.getInstance().register(this);
+        // Tell the world we are onResume and wait for callback.
         BusProvider.getInstance().post(new ScanOnResume());
+
+        // Will always perform these in onResume().
+        startThread();
+        acquireCamera();
+        acquirePreview();
     }
 
     @Override
     public void onPause(){
-        Log.v(TAG + ".onPause()", "pause");
-        super.onPause();
+        Log.d(TAG + ".onPause()", "pause");
         BusProvider.getInstance().unregister(this);
         releaseCamera();
+        super.onPause();
     }
 
 
@@ -165,6 +176,8 @@ public class ScanFragment extends Fragment {
      * This method calculate the size of preview surface view. We want the
      * width of preview view to be the entire display width. Aspect ratio
      * of the preview view is the inverse of device real resolution aspect ratio.
+     *
+     * Need to be attached to activity.
      */
     @SuppressLint("NewApi")
     private Point calculatePreviewResolution() {
@@ -264,84 +277,143 @@ public class ScanFragment extends Fragment {
 
 
     @Subscribe
-    public void onReceiveScanAcquireCamera(ScanAcquireCamera event){
-        Log.d(TAG + ".onReceiveRouteFinish()", "Received ScanAcquireCamera event.");
-        acquireCamera();
+    public void onReceiveStartScan(StartScan event){
+        Log.d(TAG + ".onReceiveStartScan()", "Received StartScan event.");
+        if(activityState == R.id.decode)
+            startScan();
+        else{
+            Log.d(TAG+".onReceivedStartScan()", "actvityState is not R.id.decode.");
+        }
     }
 
+    @Subscribe
+    public void onReceiveInRouteTab(InRouteTab event){
+        Log.d(TAG+".onReceiveInRouteTab()", "Received InRouteTab event.");
+        cameraManager.stopPreview();
+    }
+
+    @Subscribe
+    public void onReceiveInScoreTab(InScoreTab event){
+        Log.d(TAG + ".onReceiveInScoreTab()", "Received InScoreTab event.");
+        cameraManager.stopPreview();
+    }
+
+    @Subscribe
+    public void onReceiveInScanTab(InScanTab event){
+        Log.d(TAG + ".onReceiveInScoreTab()", "Received InScoreTab event.");
+
+        if(activityState == R.id.decode) {
+            cameraManager.startPreview(previewView.getHolder());
+            cameraManager.startScan();
+        }
+
+        mCategoryIdEdit.setText(getArguments().getString(getString(R.string.bundle_route_id)));
+    }
 
     @Subscribe
     public void onReceiveRouteNotFinish(RouteNotFinish event){
         Log.d(TAG + ".onReceiveRouteNotFinish()", "Received RouteNotFinish event.");
-        releaseCamera();
+        climberId = "";
+        climberName = "";
+
+        mClimberIdEdit.setText(climberId, TextView.BufferType.EDITABLE);
+        mClimberNameEdit.setText(climberName, TextView.BufferType.EDITABLE);
+        setState(R.id.decode);
     }
 
-    @Subscribe
-    public void onReceiveRouteFinish(RouteFinish event){
-        Log.d(TAG + ".onReceiveRouteNotFinish()", "Received RouteFinish event.");
-        acquireCamera();
-    }
-
-    // TODO
-    private void acquireCamera(){
-        if(isAcquire == false) {
-            isAcquire = true;
 
 
+    private void startThread() {
+        mDecodeThread = new DecodeThread(this);
+        if(mDecodeThread.getState() == Thread.State.NEW)
             mDecodeThread.start();
+        handler.setRunning(true);
+    }
 
+    private void acquireCamera(){
+        // We need camera resource. We will acquire camera in onResume and release in onPause.
+        // Check if we have camera resource first.
+        if (!cameraManager.hasCamera()) {
+            // No Camera resource.
+            Log.d(TAG + ".acquireCamera()", "No camera resource. Will attempt to acquire camera.");
 
-            handler.setRunning(true);
-
-            // We need camera resource. We will acquire camera in onResume and release in onPause.
-            // Check if we have camera resource first.
-            if (!cameraManager.hasCamera()) {
-                // No Camera resource.
-                Log.d(TAG + ".onResume()", "No camera resource. Will attempt to acquire camera.");
-
-                boolean temp = cameraManager.acquireCamera(previewResolution);
-                if (temp == false) {
-                    // Error handling. Fail to get camera resource.
-                    Log.e(TAG + ".onResume()", "Failed to get camera resource.");
-                }
+            boolean temp = cameraManager.acquireCamera(previewResolution);
+            if (temp == false) {
+                // Error handling. Fail to get camera resource.
+                Log.e(TAG + ".acquireCamera()", "Failed to get camera resource.");
             }
+        }
+    }
 
-            //TODO Not sure if we can assume camera acquired. Perform check for safety.
-            if (cameraManager.hasCamera()) {
-                Log.d(TAG + ".onResume()", "hasCamera");
-                createPreviewAndArrange();
+    private void acquirePreview(){
+        //TODO Not sure if we can assume camera acquired. Perform check for safety.
+        if (cameraManager.hasCamera()) {
+            Log.d(TAG + ".acquirePreview()", "hasCamera");
+            createPreviewAndArrange();
+        } else {
+            Log.d(TAG + ".acquirePreview()", "no camera");
+        }
+    }
+
+    private void startScan(){
+        if (getState() == R.id.decode) {
+            if (cameraManager.isSurfaceReady()) {
+                Log.d(TAG + ".startScan()", "here");
+                setState(R.id.decode);
+                cameraManager.startPreview(previewView.getHolder());
+                cameraManager.startScan();
             } else {
-                Log.d(TAG + ".onResume()", "no camera");
-            }
-
-            if (getState() == R.id.decode) {
-                if (cameraManager.isSurfaceReady()) {
-                    Log.d(TAG + ".onResume()", "here");
-                    setState(R.id.decode);
-                    cameraManager.startPreview(previewView.getHolder());
-                    cameraManager.startScan();
-                } else {
-                    Log.d(TAG + ".onResume()", "there");
-                }
+                Log.d(TAG + ".startScan()", "there");
             }
         }
     }
 
     private void releaseCamera(){
-        if(isAcquire) {
+        if(handler != null){
             handler.setRunning(false);
-
-            // Stop previewing and release camera. We will acquire camera in onResume.
-            if (cameraManager != null) {
-                cameraManager.stopPreview();
-                cameraManager.releaseCamera();
-            }
-
-            // TODO We will also need to kill DecodeThread.
-            handler.onPause();
-
-            isAcquire = false;
         }
+        else{
+            Log.e(TAG + ".releaseCamera()", "handler == null while trying to setRunning(false).");
+        }
+
+        if (cameraManager != null) {
+            cameraManager.stopPreview();
+            cameraManager.releaseCamera();
+        }
+        else{
+            Log.e(TAG+".releaseCamera()", "cameraManager == null while trying to stopPreview() and releaseCamera()");
+        }
+
+        handler.onPause();
+    }
+
+
+    /**
+     * This method reset activity state to "decode" and restart scanning.
+     * No-op if previewView surface is not ready.
+     */
+    public void rescan(){
+        climberId = "";
+        climberName = "";
+
+        mClimberIdEdit.setText(climberId, TextView.BufferType.EDITABLE);
+        mClimberNameEdit.setText(climberName, TextView.BufferType.EDITABLE);
+
+        if(cameraManager.isSurfaceReady()){
+            setState(R.id.decode);
+            cameraManager.startPreview(previewView.getHolder());
+            cameraManager.startScan();
+        }
+        else{
+            Log.w(TAG, "Rescan button failed due to previewView surface not ready.");
+        }
+    }
+
+    /**
+     * Method to toggle the camera flash.
+     */
+    public void toggleFlash(){
+        getCameraManager().setFlash(!getCameraManager().isTorchOn());
     }
 
     public Handler getDecodeHandler(){

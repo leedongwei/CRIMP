@@ -69,11 +69,14 @@ public class ScanFragmentHandler extends Handler{
         Message quit = Message.obtain(fragment.getDecodeHandler(), R.id.quit);
         quit.sendToTarget();
 
+        Log.d(TAG+".onPause()", "onPause");
+
         try {
             // Wait at most half a second; should be enough time, and onPause() will timeout quickly
             fragment.getDecodeThread().join(500L);
         } catch (InterruptedException e) {
             // continue
+            Log.e(TAG+".onPause()", "Exception while joining thread.");
         }
 
         // Be absolutely sure we don't send any queued up messages

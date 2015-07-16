@@ -16,11 +16,15 @@ import com.facebook.FacebookSdk;
 import com.nusclimb.live.crimp.CrimpFragmentPagerAdapter;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.BusProvider;
+import com.nusclimb.live.crimp.common.busevent.InRouteTab;
+import com.nusclimb.live.crimp.common.busevent.InScanTab;
+import com.nusclimb.live.crimp.common.busevent.InScoreTab;
 import com.nusclimb.live.crimp.common.busevent.RouteFinish;
 import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
 import com.nusclimb.live.crimp.common.busevent.ScanAcquireCamera;
 import com.nusclimb.live.crimp.common.busevent.ScanOnPause;
 import com.nusclimb.live.crimp.common.busevent.ScanOnResume;
+import com.nusclimb.live.crimp.common.busevent.StartScan;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
@@ -77,16 +81,9 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
         isScanOnResume = true;
         if(isRouteFinish){
-            BusProvider.getInstance().post(new ScanAcquireCamera());
+            BusProvider.getInstance().post(new StartScan());
         }
     }
-
-    @Subscribe
-    public void onReceiveScanOnPause(ScanOnPause event){
-        Log.d(TAG + ".onReceiveScanOnResume", "Received ScanOnPause event.");
-        isScanOnResume = false;
-    }
-
 
 
     /*=========================================================================
@@ -217,6 +214,23 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
             Log.d(TAG+".onTabSelected()", "selected "+tab.getPosition()+" < count "+mCrimpFragmentPagerAdapter.getCount());
             // When the given tab is selected, switch to the corresponding page in the ViewPager.
             mViewPager.setCurrentItem(tab.getPosition());
+
+            switch(tab.getPosition()){
+                case 0:
+                    Log.d(TAG+".onTabSelected()", "Posted InRouteTab to bus.");
+                    BusProvider.getInstance().post(new InRouteTab());
+                    break;
+                case 1:
+                    Log.d(TAG+".onTabSelected()", "Posted InScanTab to bus.");
+                    BusProvider.getInstance().post(new InScanTab());
+                    break;
+                case 2:
+                    Log.d(TAG+".onTabSelected()", "Posted InScoreTab to bus.");
+                    BusProvider.getInstance().post(new InScoreTab());
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -259,7 +273,13 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     public void scanFlash(View view){
         Log.v(TAG+".scanFlash()", "Button clicked");
         ScanFragment sf = (ScanFragment) getFirstMatchingFragment(ScanFragment.class);
-        sf.flash();
+        sf.toggleFlash();
+    }
+
+
+    public void testSuccess(View view){
+        RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
+        rf.testSuccess();
     }
 
 
