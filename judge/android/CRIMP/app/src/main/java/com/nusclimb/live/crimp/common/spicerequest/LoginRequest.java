@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.nusclimb.live.crimp.R;
+import com.nusclimb.live.crimp.common.Helper;
 import com.nusclimb.live.crimp.common.json.LoginResponse;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
@@ -51,7 +52,7 @@ public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponse> {
     @Override
     public LoginResponse loadDataFromNetwork() throws Exception {
         // Craft URL.
-        String address = baseUrl+context.getString(R.string.login_api);
+        String address = baseUrl+context.getString(R.string.login_api)+"?"+ Helper.nextAlphaNumeric(20);
 
         // Prepare message
         Map<String, String> parameters = new HashMap<String, String>();

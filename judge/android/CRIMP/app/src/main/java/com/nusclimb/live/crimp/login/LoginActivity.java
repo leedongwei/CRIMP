@@ -170,7 +170,7 @@ public class LoginActivity extends Activity {
         @Override
         public void onRequestSuccess(CategoriesResponse result) {
             Log.d(TAG + ".onRequestSuccess()", "CategoriesResponse=" + result.toString());
-            Log.i(TAG + ".onRequestSuccess()", "\n");
+            Log.i(TAG + ".onRequestSuccess()", "succeed");
 
             if (mState == LoginState.IN_REQUEST_CATEGORIES) {
                 categoryIdList.clear();

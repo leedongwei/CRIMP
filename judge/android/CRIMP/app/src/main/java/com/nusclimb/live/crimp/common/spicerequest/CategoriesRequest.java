@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.HeaderJSONInjector;
+import com.nusclimb.live.crimp.common.Helper;
 import com.nusclimb.live.crimp.common.KeyValuePair;
 import com.nusclimb.live.crimp.common.json.CategoriesResponse;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
@@ -40,7 +41,7 @@ public class CategoriesRequest extends SpringAndroidSpiceRequest<CategoriesRespo
     @Override
     public CategoriesResponse loadDataFromNetwork() throws Exception {
         // Craft URL.
-        String address = baseUrl+context.getString(R.string.categories_api);
+        String address = baseUrl+context.getString(R.string.categories_api)+"?"+ Helper.nextAlphaNumeric(20);
 
         // Prepare parameters
         ArrayList<KeyValuePair> parameters = new ArrayList<KeyValuePair>();

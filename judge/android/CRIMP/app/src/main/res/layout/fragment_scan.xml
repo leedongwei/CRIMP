@@ -59,7 +59,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="8dp"
-                android:textColor="@color/white"
                 android:text="@string/scan_fragment_rescan"
                 android:onClick="scanRescan"/>
 
@@ -67,7 +66,6 @@
                 android:id="@+id/scan_flash_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"
                 android:text="@string/scan_fragment_flash"
                 android:onClick="scanFlash"/>
 
@@ -91,9 +89,9 @@
             android:id="@+id/scan_next_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
             android:text="@string/scan_fragment_next"
-            android:onClick="scanNext"/>
+            android:onClick="scanNext"
+            android:enabled="false"/>
 
     </LinearLayout>
 

@@ -289,7 +289,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 String routeId = selectedCategory.getCategoryId() + selectedRoute.getRouteNumber();
 
                 ReportRequest mReportRequest1 = new ReportRequest(xUserId,xAuthToken
-                        , routeId, true, getActivity());
+                        , routeId, false, getActivity());
 
                 spiceManager.execute(mReportRequest1, mReportRequest1.createCacheKey(),
                         DurationInMillis.ALWAYS_EXPIRED,
@@ -551,8 +551,9 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
-        Log.d(TAG+".onItemSelected()", "parentId: " + parent.getId() + ", viewId:" + view.getId() +
-                ", pos:" + pos + ", id" + id);
+        // TODO there is a null pointer exception in this log.
+        //Log.d(TAG+".onItemSelected()", "parentId: " + parent.getId() + ", viewId:" + view.getId() +
+        //        ", pos:" + pos + ", id" + id);
 
         // If already in JUDGE_OK and user change the category/route, we need to enter picking state.
         if(mState == State.JUDGE_OK){
@@ -620,6 +621,8 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         public void onRequestSuccess(ReportResponse result) {
             Log.i(TAG+".onRequestSuccess()", "mState="+mState);
 
+            currentJudge = result.getAdminName();
+
             if(result.getState() == 1){
                 if(mState == State.IN_FIRST_REQUEST){
                     changeState(State.FIRST_REQUEST_OK);
@@ -659,21 +662,5 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     public void no(){
         if(mState == State.REPLACE_QUESTION)
             changeState(State.PICKING);
-    }
-
-
-
-
-
-
-    public void testSuccess(){
-        CategorySpinnerItem selectedCategory = (CategorySpinnerItem) mCategorySpinner.getSelectedItem();
-        RouteSpinnerItem selectedRoute = (RouteSpinnerItem) mRouteSpinner.getSelectedItem();
-        String routeId = selectedCategory.getCategoryId() + selectedRoute.getRouteNumber();
-
-        Log.d(TAG+".testSuccess()", routeId);
-
-        getArguments().putString(getString(R.string.bundle_route_id), routeId);
-        changeState(State.JUDGE_OK);
     }
 }

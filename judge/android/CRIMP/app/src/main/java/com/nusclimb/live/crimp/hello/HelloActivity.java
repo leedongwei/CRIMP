@@ -276,10 +276,14 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         sf.toggleFlash();
     }
 
+    public void scanNext(View view){
+        Log.v(TAG+".scanNext()", "Button clicked");
+        ScanFragment sf = (ScanFragment) getFirstMatchingFragment(ScanFragment.class);
+        sf.next();
 
-    public void testSuccess(View view){
-        RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
-        rf.testSuccess();
+        mCrimpFragmentPagerAdapter.set_count(3);
+        mActionBar.setSelectedNavigationItem(2);
+
     }
 
 

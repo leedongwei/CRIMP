@@ -26,9 +26,11 @@ import com.nusclimb.live.crimp.common.BusProvider;
 import com.nusclimb.live.crimp.common.busevent.InRouteTab;
 import com.nusclimb.live.crimp.common.busevent.InScanTab;
 import com.nusclimb.live.crimp.common.busevent.InScoreTab;
+import com.nusclimb.live.crimp.common.busevent.InvalidId;
 import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
 import com.nusclimb.live.crimp.common.busevent.ScanOnResume;
 import com.nusclimb.live.crimp.common.busevent.StartScan;
+import com.nusclimb.live.crimp.common.busevent.ValidId;
 import com.nusclimb.live.crimp.qr.CameraManager;
 import com.nusclimb.live.crimp.qr.DecodeThread;
 import com.nusclimb.live.crimp.qr.PreviewView;
@@ -113,6 +115,8 @@ public class ScanFragment extends Fragment {
         mFlashButton = (Button) rootView.findViewById(R.id.scan_flash_button);
         mClimberNameEdit = (EditText) rootView.findViewById(R.id.scan_climber_name_edit);
         mNextButton = (Button) rootView.findViewById(R.id.scan_next_button);
+
+        mClimberIdEdit.addTextChangedListener(new CrimpTextWatcher());
 
         // Update buttons.
         if(!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)){
@@ -321,6 +325,16 @@ public class ScanFragment extends Fragment {
         setState(R.id.decode);
     }
 
+    @Subscribe
+    public void onReceiveValidId(ValidId event){
+        mNextButton.setEnabled(true);
+    }
+
+    @Subscribe
+    public void onReceiveInvalidId(InvalidId event){
+        mNextButton.setEnabled(false);
+    }
+
 
 
     private void startThread() {
@@ -414,6 +428,10 @@ public class ScanFragment extends Fragment {
      */
     public void toggleFlash(){
         getCameraManager().setFlash(!getCameraManager().isTorchOn());
+    }
+
+    public void next(){
+
     }
 
     public Handler getDecodeHandler(){
