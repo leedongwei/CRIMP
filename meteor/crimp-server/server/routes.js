@@ -65,7 +65,7 @@ Restivus.addRoute('judge/report',
       { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   post: function () {
     var route = this.bodyParams.route_id,
-        force = this.bodyParams.force,
+        force = JSON.parse(this.bodyParams.force),
         res;
 
     if (force) {
@@ -173,7 +173,7 @@ Restivus.addRoute('judge/activeclimbers',
         climber_name = Climbers.findOne({
           'climber_id': this.bodyParams.climber_id
         }).name,
-        insert = this.bodyParams.insert;
+        insert = JSON.parse(this.bodyParams.insert);
 
     // TODO: Checks
 
