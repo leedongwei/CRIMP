@@ -3,13 +3,11 @@ package com.nusclimb.live.crimp;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
-import android.view.ViewGroup;
 
 import com.nusclimb.live.crimp.hello.HelloActivity;
 import com.nusclimb.live.crimp.hello.RouteFragment;
 import com.nusclimb.live.crimp.hello.ScanFragment;
-import com.nusclimb.live.crimp.hello.TestFrag3;
+import com.nusclimb.live.crimp.hello.ScoreFragment;
 
 /**
  * Created by user on 03-Jul-15.
@@ -43,7 +41,10 @@ public class CrimpFragmentPagerAdapter extends FragmentPagerAdapter {
                 return mScanFragment;
 
             case 2:
-                return new TestFrag3();
+                ScoreFragment mScoreFragment = new ScoreFragment();
+                mScoreFragment.setArguments(mActivity.getBundle());
+
+                return mScoreFragment;
 
             default:
                 return null;

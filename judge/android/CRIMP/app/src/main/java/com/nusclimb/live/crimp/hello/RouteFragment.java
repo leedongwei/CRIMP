@@ -122,6 +122,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
     private String currentJudge;
 
+    private String routeId;
 
 
     /*=========================================================================
@@ -286,10 +287,10 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 selectedCategory = (CategorySpinnerItem) mCategorySpinner.getSelectedItem();
                 selectedRoute = (RouteSpinnerItem) mRouteSpinner.getSelectedItem();
 
-                String routeId = selectedCategory.getCategoryId() + selectedRoute.getRouteNumber();
+                String rId = selectedCategory.getCategoryId() + selectedRoute.getRouteNumber();
 
                 ReportRequest mReportRequest1 = new ReportRequest(xUserId,xAuthToken
-                        , routeId, false, getActivity());
+                        , rId, false, getActivity());
 
                 spiceManager.execute(mReportRequest1, mReportRequest1.createCacheKey(),
                         DurationInMillis.ALWAYS_EXPIRED,
@@ -310,10 +311,10 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 selectedCategory = (CategorySpinnerItem) mCategorySpinner.getSelectedItem();
                 selectedRoute = (RouteSpinnerItem) mRouteSpinner.getSelectedItem();
 
-                routeId = selectedCategory.getCategoryId() + selectedRoute.getRouteNumber();
+                rId = selectedCategory.getCategoryId() + selectedRoute.getRouteNumber();
 
                 ReportRequest mReportRequest2 = new ReportRequest(xUserId, xAuthToken
-                        , routeId, true, getActivity());
+                        , rId, true, getActivity());
 
                 spiceManager.execute(mReportRequest2, mReportRequest2.createCacheKey(),
                         DurationInMillis.ALWAYS_EXPIRED,
@@ -330,8 +331,8 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 changeState(State.IN_SECOND_REQUEST);
                 break;
             case JUDGE_OK:
-                Log.d(TAG+".doWork()", "Post RouteFinish to bus.");
-                BusProvider.getInstance().post(new RouteFinish());
+                Log.d(TAG+".doWork()", "Post RouteFinish("+routeId+") to bus.");
+                BusProvider.getInstance().post(new RouteFinish(routeId));
                 break;
         }
     }
@@ -624,14 +625,13 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
             currentJudge = result.getAdminName();
 
             if(result.getState() == 1){
+                routeId = result.getRouteId();
                 if(mState == State.IN_FIRST_REQUEST){
                     changeState(State.FIRST_REQUEST_OK);
                 }
                 else if(mState == State.IN_SECOND_REQUEST){
                     changeState(State.SECOND_REQUEST_OK);
                 }
-
-                getArguments().putString(getString(R.string.bundle_route_id), result.getRouteId());//TODO
             }
             else{
                 if(mState == State.IN_FIRST_REQUEST){

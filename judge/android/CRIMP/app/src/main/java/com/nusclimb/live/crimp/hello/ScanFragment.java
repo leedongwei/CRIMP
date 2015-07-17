@@ -46,6 +46,7 @@ public class ScanFragment extends Fragment {
     // Information retrieved from intent.
     private String xUserId;
     private String xAuthToken;
+    private String routeId;
 
     // Decoding stuff
     private DecodeThread mDecodeThread;
@@ -62,7 +63,7 @@ public class ScanFragment extends Fragment {
 
     // UI references
     private FrameLayout mPreviewFrame;
-    private EditText mCategoryIdEdit;
+    private EditText mRouteIdEdit;
     private EditText mClimberIdEdit;
     private Button mRescanButton;
     private Button mFlashButton;
@@ -94,11 +95,18 @@ public class ScanFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
-        Log.v(TAG+".onCreateView()", "createview");
 
         View rootView = inflater.inflate(R.layout.fragment_scan, container, false);
 
-        activityState = R.id.decode;
+        if(savedInstanceState == null){
+            activityState = R.id.decode;
+
+
+        }
+        else{
+            activityState = savedInstanceState.getInt(getString(R.string.bundle_decode_state));
+        }
+
 
         // Get initial info from arguments.
         Bundle args = getArguments();
@@ -109,7 +117,7 @@ public class ScanFragment extends Fragment {
 
         // Get UI references.
         mPreviewFrame = (FrameLayout) rootView.findViewById(R.id.scan_frame_viewgroup);
-        mCategoryIdEdit = (EditText) rootView.findViewById(R.id.scan_category_edit);
+        mRouteIdEdit = (EditText) rootView.findViewById(R.id.scan_route_id_edit);
         mClimberIdEdit = (EditText) rootView.findViewById(R.id.scan_climber_id_edit);
         mRescanButton = (Button) rootView.findViewById(R.id.scan_rescan_button);
         mFlashButton = (Button) rootView.findViewById(R.id.scan_flash_button);
@@ -130,7 +138,6 @@ public class ScanFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
         previewResolution = calculatePreviewResolution();
-
     }
 
     @Override
@@ -138,7 +145,8 @@ public class ScanFragment extends Fragment {
         super.onResume();
         Log.v(TAG + ".onResume()", "resume");
 
-        mCategoryIdEdit.setText(getArguments().getString(getString(R.string.bundle_route_id)));
+        routeId = getArguments().getString(getString(R.string.bundle_route_id));
+        mRouteIdEdit.setText(routeId);
 
         // Register bus
         BusProvider.getInstance().register(this);
@@ -159,7 +167,16 @@ public class ScanFragment extends Fragment {
         super.onPause();
     }
 
-
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(activityState == R.id.decode_succeeded) {
+            outState.putInt(getString(R.string.bundle_decode_state), R.id.decode_succeeded);
+        }
+        else{
+            outState.putInt(getString(R.string.bundle_decode_state), R.id.decode);
+        }
+    }
     /**
      * This method takes in a result String, retrieve climber's id and name from
      * result String, and update the UI.
@@ -304,14 +321,15 @@ public class ScanFragment extends Fragment {
 
     @Subscribe
     public void onReceiveInScanTab(InScanTab event){
-        Log.d(TAG + ".onReceiveInScoreTab()", "Received InScoreTab event.");
+        Log.d(TAG + ".onReceiveInScoreTab()", "Received InScoreTab event. routeId="+event.getRouteId());
 
         if(activityState == R.id.decode) {
             cameraManager.startPreview(previewView.getHolder());
             cameraManager.startScan();
         }
 
-        mCategoryIdEdit.setText(getArguments().getString(getString(R.string.bundle_route_id)));
+        routeId = event.getRouteId();
+        mRouteIdEdit.setText(routeId);
     }
 
     @Subscribe
@@ -431,7 +449,9 @@ public class ScanFragment extends Fragment {
     }
 
     public void next(){
-
+        getArguments().putString(getString(R.string.bundle_route_id), routeId);
+        getArguments().putString(getString(R.string.bundle_climber_id), climberId);
+        getArguments().putString(getString(R.string.bundle_climber_name), climberName);
     }
 
     public Handler getDecodeHandler(){

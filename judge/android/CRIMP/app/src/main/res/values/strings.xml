@@ -71,6 +71,9 @@
     <string name="bundle_route_spinner_selection">bundle_routespinnerselection</string>
     <string name="bundle_route_state">bundle_routestate</string>
     <string name="bundle_route_id">bundle_routeid</string>
+    <string name="bundle_climber_id">bundle_climberid</string>
+    <string name="bundle_climber_name">bundle_climbername</string>
+    <string name="bundle_decode_state">bundle_decodestate</string>
 
 
 

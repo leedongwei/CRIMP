@@ -51,7 +51,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     private boolean isScanFinish = false;
     private boolean isScoreFinish = false;
 
-
+    private String routeId;
 
     /*=========================================================================
      * Bus methods
@@ -67,10 +67,10 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
     @Subscribe
     public void onReceiveRouteFinish(RouteFinish event){
-        Log.d(TAG+".onReceiveRouteFinish()", "Received RouteFinish event.");
+        Log.d(TAG+".onReceiveRouteFinish()", "Received RouteFinish event. routeId="+event.getRouteId());
 
         isRouteFinish = true;
-
+        routeId = event.getRouteId();
         mCrimpFragmentPagerAdapter.set_count(2);
         mActionBar.setSelectedNavigationItem(1);
     }
@@ -136,6 +136,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
                 mActionBar.setSelectedNavigationItem(position);
             }
         });
+        mViewPager.setOffscreenPageLimit(2);
 
         // Add route, scan, score tab to action bar.
         ActionBar.Tab routeTab = mActionBar.newTab()
@@ -221,8 +222,8 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
                     BusProvider.getInstance().post(new InRouteTab());
                     break;
                 case 1:
-                    Log.d(TAG+".onTabSelected()", "Posted InScanTab to bus.");
-                    BusProvider.getInstance().post(new InScanTab());
+                    Log.d(TAG+".onTabSelected()", "Posted InScanTab("+routeId+") to bus.");
+                    BusProvider.getInstance().post(new InScanTab(routeId));
                     break;
                 case 2:
                     Log.d(TAG+".onTabSelected()", "Posted InScoreTab to bus.");
