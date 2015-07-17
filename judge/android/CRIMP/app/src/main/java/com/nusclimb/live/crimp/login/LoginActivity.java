@@ -453,11 +453,11 @@ public class LoginActivity extends Activity {
         Intent intent = new Intent(getApplicationContext(), HelloActivity.class);
 
         Bundle mBundle = new Bundle();
-        mBundle.putString(getString(R.string.package_name) + getString(R.string.bundle_x_user_id), xUserId);
-        mBundle.putString(getString(R.string.package_name) + getString(R.string.bundle_x_auth_token), xAuthToken);
-        mBundle.putStringArray(getString(R.string.package_name) + getString(R.string.bundle_category_id_list), categoryIdListAsArray);
-        mBundle.putStringArray(getString(R.string.package_name) + getString(R.string.bundle_category_name_list), categoryNameListAsArray);
-        mBundle.putIntArray(getString(R.string.package_name) + getString(R.string.bundle_category_route_count_list), categoryRouteCountListAsArray);
+        mBundle.putString(getString(R.string.bundle_x_user_id), xUserId);
+        mBundle.putString(getString(R.string.bundle_x_auth_token), xAuthToken);
+        mBundle.putStringArray(getString(R.string.bundle_category_id_list), categoryIdListAsArray);
+        mBundle.putStringArray(getString(R.string.bundle_category_name_list), categoryNameListAsArray);
+        mBundle.putIntArray(getString(R.string.bundle_category_route_count_list), categoryRouteCountListAsArray);
 
         intent.putExtras(mBundle);
 

@@ -21,8 +21,6 @@ import com.nusclimb.live.crimp.common.busevent.InScanTab;
 import com.nusclimb.live.crimp.common.busevent.InScoreTab;
 import com.nusclimb.live.crimp.common.busevent.RouteFinish;
 import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
-import com.nusclimb.live.crimp.common.busevent.ScanAcquireCamera;
-import com.nusclimb.live.crimp.common.busevent.ScanOnPause;
 import com.nusclimb.live.crimp.common.busevent.ScanOnResume;
 import com.nusclimb.live.crimp.common.busevent.StartScan;
 import com.squareup.otto.Subscribe;
@@ -42,7 +40,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     private ActionBar mActionBar;
     private ViewPager mViewPager;
     private CrimpFragmentPagerAdapter mCrimpFragmentPagerAdapter;
-    private Handler mHandler;
+    private Handler activityHandler;
 
     // Fragment State. For use with Bus.
     private boolean isScanOnResume = false;
@@ -51,11 +49,22 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     private boolean isScanFinish = false;
     private boolean isScoreFinish = false;
 
+    // Info from fragments
+    private String xUserId;
+    private String xAuthToken;
     private String routeId;
+    private String climberId;
+    private String climberName;
+
+    private String[] categoryIdListAsArray;
+    private String[] categoryNameListAsArray;
+    private int[] categoryRouteCountListAsArray;
+
+
 
     /*=========================================================================
-     * Bus methods
-     *=======================================================================*/
+    * Bus methods
+    *=======================================================================*/
     @Subscribe
     public void onReceiveRouteNotFinish(RouteNotFinish event){
         Log.d(TAG+".onReceiveRouteFinish()", "Received RouteNotFinish event.");
@@ -101,20 +110,33 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_hello);
 
-        mHandler = new Handler();
+        activityHandler = new Handler();
 
         if(savedInstanceState == null){
             // Newly created activity
-            Log.v(TAG+".onCreate()", "Newly created.");
+            Log.d(TAG + ".onCreate()", "Newly created.");
+
+            xUserId = getIntent().getExtras().getString(getString(R.string.bundle_x_user_id));
+            xAuthToken = getIntent().getExtras().getString(getString(R.string.bundle_x_auth_token));
+            categoryIdListAsArray = getIntent().getExtras().getStringArray(getString(R.string.bundle_category_id_list));
+            categoryNameListAsArray = getIntent().getExtras().getStringArray(getString(R.string.bundle_category_name_list));
+            categoryRouteCountListAsArray = getIntent().getExtras().getIntArray(getString(R.string.bundle_category_route_count_list));
+
         }
         else{
             // Restored activity
-            Log.v(TAG+".onCreate()", "Restored.");
-        }
+            Log.d(TAG+".onCreate()", "Restored.");
 
-        // Get intent info.
-        // TODO might want to shift to the if-else check above
-        mBundle = getIntent().getExtras();
+            xUserId = savedInstanceState.getString(getString(R.string.bundle_x_user_id));
+            xAuthToken = savedInstanceState.getString(getString(R.string.bundle_x_auth_token));
+            routeId = savedInstanceState.getString(getString(R.string.bundle_route_id));
+            climberId = savedInstanceState.getString(getString(R.string.bundle_climber_id));
+            climberName = savedInstanceState.getString(getString(R.string.bundle_climber_name));
+
+            categoryIdListAsArray = savedInstanceState.getStringArray(getString(R.string.bundle_category_id_list));
+            categoryNameListAsArray = savedInstanceState.getStringArray(getString(R.string.bundle_category_name_list));
+            categoryRouteCountListAsArray = savedInstanceState.getIntArray(getString(R.string.bundle_category_route_count_list));
+        }
 
         // Instantiate object for tab manipulation
         mActionBar = getSupportActionBar();
@@ -168,20 +190,38 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     protected void onResume(){
         super.onResume();
         BusProvider.getInstance().register(this);
-        Log.v(TAG + ".onResume()", "registered BusProvider");
+        Log.d(TAG + ".onResume()", "registered BusProvider");
     }
 
     @Override
     protected void onPause(){
         super.onPause();
         BusProvider.getInstance().unregister(this);
-        Log.v(TAG + ".onPause()", "unregistered BusProvider");
+        Log.d(TAG + ".onPause()", "unregistered BusProvider");
     }
 
     @Override
     protected void onStop(){
         Log.v(TAG + ".onStop()", "stop");
         super.onStop();
+    }
+
+    @Override
+    protected void onSaveInstanceState (Bundle outState){
+        super.onSaveInstanceState(outState);
+
+        outState.putString(getString(R.string.bundle_x_user_id), xUserId);
+        outState.putString(getString(R.string.bundle_x_auth_token), xAuthToken);
+        outState.putStringArray(getString(R.string.bundle_category_id_list), categoryIdListAsArray);
+        outState.putStringArray(getString(R.string.bundle_category_name_list), categoryNameListAsArray);
+        outState.putIntArray(getString(R.string.bundle_category_route_count_list), categoryRouteCountListAsArray);
+
+        if(routeId != null)
+            outState.putString(getString(R.string.bundle_route_id), routeId);
+        if(climberId != null)
+            outState.putString(getString(R.string.bundle_climber_id), climberId);
+        if(climberName != null)
+            outState.putString(getString(R.string.bundle_climber_name), climberName);
     }
 
 
@@ -191,19 +231,16 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
      *=======================================================================*/
     @Override
     public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        Log.d(TAG + ".onTabUnselected()", "tab.position = " + tab.getPosition());
     }
 
     @Override
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        Log.d(TAG + ".onTabSelected()", "tab.position = " + tab.getPosition());
-
         if(tab.getPosition() >= mCrimpFragmentPagerAdapter.getCount()) {
             Log.d(TAG+".onTabSelected()", "selected "+tab.getPosition()+" >= count "+mCrimpFragmentPagerAdapter.getCount());
 
             final int currentTabPosition = mViewPager.getCurrentItem();
 
-            mHandler.postAtFrontOfQueue(new Runnable() {
+            activityHandler.postAtFrontOfQueue(new Runnable() {
                 @Override
                 public void run() {
                     getSupportActionBar().setSelectedNavigationItem(
