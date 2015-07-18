@@ -115,16 +115,16 @@ header: {
 Body: {
   categories: [
     {
-      category_name: 'NMQ001',
-      category_id: 'DongWei',
+      category_name: 'Novice Men Qualifiers',
+      category_id: 'NMQ',
       route_count: 6,
       scores_finalized: false,
       time_start: {format undecided},
       time_end: {format undecided},
     },
     {
-      category_name: 'NMQ001',
-      category_id: 'DongWei',
+      category_name: 'Novice Womens Qualifiers',
+      category_id: 'NWQ',
       route_count: 6,
       scores_finalized: false,
       time_start: {format undecided},
@@ -241,7 +241,7 @@ header: {
   x-auth-token: 'RCDBy6X3zS8...'
 }
 body: {
-  score: '11T'    // Important! See note 13 lines down.
+  score: '11T'    // Important! See note below.
 }
 ```
 
@@ -255,5 +255,5 @@ body: {
 ```
 
 * `score` should only cover climbs on that attempt
-  * e.g. sending in '11T' for DongWei makes his overall score to be '11B1111T'
+  * e.g. sending in '11T' for DongWei makes his overall score for this route to be '11B1111T'
 

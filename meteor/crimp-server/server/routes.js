@@ -150,15 +150,20 @@ Restivus.addRoute('judge/categories',
 Restivus.addRoute('judge/climbers/:category_id',
       { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   get: function () {
-    var category = this.urlParams.category_id;
+    var category = this.urlParams.category_id,
+        output = { category_id: this.urlParams.category_id };
 
     // TODO: More checks needed?
     if (category.length !== 3) {
       return { 'error': 'Bad syntax for :category_id' };
     }
 
-    // TODO: Clean up data, scores._id is being sent over
-    return Climbers.find({ category_id: category }).fetch();
+    output.climbers = Climbers.find({ 'category_id': category }, { fields: {
+      climber_id: 1,
+      climber_name: 1
+    }}).fetch();
+
+    return output;
   }
 });
 

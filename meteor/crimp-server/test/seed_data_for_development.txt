@@ -65,140 +65,140 @@ for (var i=0; i < categorydata.length; i++) {
 
 var climberdata = [
   {
-    name: 'Adam',
+    climber_name: 'Adam',
     category_id: 'NMQ',
     number: '001',
     climber_id: 'NMQ001',
     affliation: 'NTU'
   },
   {
-    name: 'Bran',
+    climber_name: 'Bran',
     category_id: 'NMQ',
     number: '002',
     climber_id: 'NMQ002',
     affliation: 'NUS'
   },
   {
-    name: 'Charlie',
+    climber_name: 'Charlie',
     category_id: 'NMQ',
     number: '003',
     climber_id: 'NMQ003',
     affliation: 'SMU'
   },
   {
-    name: 'Dan',
+    climber_name: 'Dan',
     category_id: 'NMQ',
     number: '004',
     climber_id: 'NMQ004',
     affliation: 'SMU'
   },
   {
-    name: 'Ernie',
+    climber_name: 'Ernie',
     category_id: 'NMQ',
     number: '005',
     climber_id: 'NMQ005',
     affliation: 'SMU'
   },
   {
-    name: 'Alice',
+    climber_name: 'Alice',
     category_id: 'NWQ',
     number: '001',
     climber_id: 'NWQ001',
     affliation: ''
   },
   {
-    name: 'Brenda',
+    climber_name: 'Brenda',
     category_id: 'NWQ',
     number: '002',
     climber_id: 'NWQ002',
     affliation: ''
   },
   {
-    name: 'Carol',
+    climber_name: 'Carol',
     category_id: 'NWQ',
     number: '003',
     climber_id: 'NWQ003',
     affliation: ''
   },
   {
-    name: 'Diana',
+    climber_name: 'Diana',
     category_id: 'NWQ',
     number: '004',
     climber_id: 'NWQ004',
     affliation: ''
   },
   {
-    name: 'Elaine',
+    climber_name: 'Elaine',
     category_id: 'NWQ',
     number: '005',
     climber_id: 'NWQ005',
     affliation: ''
   },
   {
-    name: 'Aaron',
+    climber_name: 'Aaron',
     category_id: 'IMQ',
     number: '001',
     climber_id: 'IMQ001',
     affliation: ''
   },
   {
-    name: 'Bernie',
+    climber_name: 'Bernie',
     category_id: 'IMQ',
     number: '002',
     climber_id: 'IMQ002',
     affliation: ''
   },
   {
-    name: 'Charles',
+    climber_name: 'Charles',
     category_id: 'IMQ',
     number: '003',
     climber_id: 'IMQ003',
     affliation: ''
   },
   {
-    name: 'David',
+    climber_name: 'David',
     category_id: 'IMQ',
     number: '004',
     climber_id: 'IMQ004',
     affliation: ''
   },
   {
-    name: 'Everitt',
+    climber_name: 'Everitt',
     category_id: 'IMQ',
     number: '005',
     climber_id: 'IMQ005',
     affliation: ''
   },
   {
-    name: 'Frank',
+    climber_name: 'Frank',
     category_id: 'IMQ',
     number: '006',
     climber_id: 'IMQ006',
     affliation: ''
   },
   {
-    name: 'Glen',
+    climber_name: 'Glen',
     category_id: 'IMQ',
     number: '007',
     climber_id: 'IMQ007',
     affliation: ''
   },
   {
-    name: 'Hank',
+    climber_name: 'Hank',
     category_id: 'IMQ',
     number: '008',
     climber_id: 'IMQ008',
     affliation: ''
   },
   {
-    name: 'Ian',
+    climber_name: 'Ian',
     category_id: 'IMQ',
     number: '009',
     climber_id: 'IMQ009',
     affliation: ''
   },
   {
-    name: 'Jake',
+    climber_name: 'Jake',
     category_id: 'IMQ',
     number: '010',
     climber_id: 'IMQ010',

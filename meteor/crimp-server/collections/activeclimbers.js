@@ -139,7 +139,7 @@ Meteor.methods({
         {
           'route_id': category.category_id + i.toString(),
           'climber_id': climbers[i].climber_id,
-          'climber_name': climbers[i].name,
+          'climber_name': climbers[i].climber_name,
           'admin_id': '0',
           'admin_name': '_insertActiveClimbers'
         }

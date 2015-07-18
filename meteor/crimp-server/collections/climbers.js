@@ -1,6 +1,6 @@
 Climbers = new Mongo.Collection('climbers');
 CRIMP.schema.climber = new SimpleSchema({
-  name: {
+  climber_name: {
     label: 'Name of climber',
     type: String
   },
