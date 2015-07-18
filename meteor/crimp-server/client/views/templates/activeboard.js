@@ -10,7 +10,6 @@ Template.activeboard.helpers({
                          .fetch();
   },
   nextCategoryTime: function() {
-
-    return '2pm';
+    return 'No idea';
   }
 });
