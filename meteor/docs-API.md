@@ -221,7 +221,7 @@ Body: {
   route_id: 'NMQ001'
   climber_id: 'NMQ001',
   climber_name: 'DongWei',
-  score: '11B11'
+  score_string: '11B11'
 }
 ```
 
@@ -241,7 +241,7 @@ header: {
   x-auth-token: 'RCDBy6X3zS8...'
 }
 body: {
-  score: '11T'    // Important! See note below.
+  score_string: '11T'    // Important! See note below.
 }
 ```
 

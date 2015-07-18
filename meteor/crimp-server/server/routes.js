@@ -212,20 +212,37 @@ Restivus.addRoute('judge/score/:route_id/:climber_id',
       { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
   get: function() {
     var route = this.urlParams.route_id,
-        climber = this.urlParams.climber_id;
+        climber = this.urlParams.climber_id,
+        score;
 
     // TODO: More checks needed?
     if (route.substring(0, 3) !== climber.substring(0, 3)) {
       return { 'error': 'Route/Climber is from the wrong category' };
     }
 
-    return Scores.findOne({
+    score = Scores.findOne({
       climber_id: climber,
       route_id: route
+    }, {
+      fields: {
+        route_id: 1,
+        climber_id: 1,
+        score_string: 1,
+      }
     });
+
+    score.climber_name = Climbers.findOne({
+      'climber_id': climber
+    }, {
+      fields: {
+        climber_name: 1
+      }
+    }).climber_name;
+
+    return score;
   },
   post: function() {
-    var score = this.bodyParams.score,
+    var score = this.bodyParams.score_string,
         category = this.urlParams.route_id.substring(0, 3),
         selector = {
           'route_id': this.urlParams.route_id,
