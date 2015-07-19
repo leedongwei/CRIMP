@@ -74,6 +74,7 @@
     <string name="bundle_climber_id">bundle_climberid</string>
     <string name="bundle_climber_name">bundle_climbername</string>
     <string name="bundle_decode_state">bundle_decodestate</string>
+    <string name="bundle_current_judge">bundle_currentjudge</string>
 
 
 

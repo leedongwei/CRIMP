@@ -5,4 +5,19 @@ package com.nusclimb.live.crimp.common.busevent;
  */
 public class ScanFinish {
     private final String TAG = ScanFinish.class.getSimpleName();
+    private final String climberId;
+    private final String climberName;
+
+    public ScanFinish(String climberId, String climberName){
+        this.climberId = climberId;
+        this.climberName = climberName;
+    }
+
+    public String getClimberId(){
+        return climberId;
+    }
+
+    public String getClimberName(){
+        return climberName;
+    }
 }

@@ -23,11 +23,14 @@ import android.widget.TextView;
 
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.BusProvider;
+import com.nusclimb.live.crimp.common.busevent.ClimberIdChange;
 import com.nusclimb.live.crimp.common.busevent.InRouteTab;
 import com.nusclimb.live.crimp.common.busevent.InScanTab;
 import com.nusclimb.live.crimp.common.busevent.InScoreTab;
 import com.nusclimb.live.crimp.common.busevent.InvalidId;
 import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
+import com.nusclimb.live.crimp.common.busevent.ScanFinish;
+import com.nusclimb.live.crimp.common.busevent.ScanNotFinish;
 import com.nusclimb.live.crimp.common.busevent.ScanOnResume;
 import com.nusclimb.live.crimp.common.busevent.StartScan;
 import com.nusclimb.live.crimp.common.busevent.ValidId;
@@ -46,7 +49,6 @@ public class ScanFragment extends Fragment {
     // Information retrieved from intent.
     private String xUserId;
     private String xAuthToken;
-    private String routeId;
 
     // Decoding stuff
     private DecodeThread mDecodeThread;
@@ -80,6 +82,8 @@ public class ScanFragment extends Fragment {
     // R.id.quit: Prepare to quit. Camera resource released.
     //      previewView stop previewing. DecodeThread killed.
 
+    private boolean cNameImmune = true;
+
 
     /*=========================================================================
      * Fragment lifecycle methods
@@ -90,6 +94,8 @@ public class ScanFragment extends Fragment {
 
         handler = new ScanFragmentHandler(this);
         cameraManager = new CameraManager(this);
+
+        Log.d(TAG+".onCreate()", "created");
     }
 
     @Override
@@ -97,23 +103,6 @@ public class ScanFragment extends Fragment {
                              Bundle savedInstanceState){
 
         View rootView = inflater.inflate(R.layout.fragment_scan, container, false);
-
-        if(savedInstanceState == null){
-            activityState = R.id.decode;
-
-
-        }
-        else{
-            activityState = savedInstanceState.getInt(getString(R.string.bundle_decode_state));
-        }
-
-
-        // Get initial info from arguments.
-        Bundle args = getArguments();
-        xUserId = args.getString(getString(R.string.package_name) +
-                getString(R.string.bundle_x_user_id));
-        xAuthToken = args.getString(getString(R.string.package_name) +
-                getString(R.string.bundle_x_auth_token));
 
         // Get UI references.
         mPreviewFrame = (FrameLayout) rootView.findViewById(R.id.scan_frame_viewgroup);
@@ -138,6 +127,21 @@ public class ScanFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
         previewResolution = calculatePreviewResolution();
+
+        if(savedInstanceState == null){
+            activityState = R.id.decode;
+        }
+        else{
+            activityState = savedInstanceState.getInt(getString(R.string.bundle_decode_state));
+
+            if(activityState == R.id.decode_succeeded){
+                climberId = savedInstanceState.getString(getString(R.string.bundle_climber_id));
+                climberName = savedInstanceState.getString(getString(R.string.bundle_climber_name));
+            }
+        }
+
+        xUserId = ((HelloActivity)getActivity()).getxUserId();
+        xAuthToken = ((HelloActivity)getActivity()).getxAuthToken();
     }
 
     @Override
@@ -145,18 +149,21 @@ public class ScanFragment extends Fragment {
         super.onResume();
         Log.v(TAG + ".onResume()", "resume");
 
-        routeId = getArguments().getString(getString(R.string.bundle_route_id));
-        mRouteIdEdit.setText(routeId);
-
-        // Register bus
-        BusProvider.getInstance().register(this);
-        // Tell the world we are onResume and wait for callback.
-        BusProvider.getInstance().post(new ScanOnResume());
+        mRouteIdEdit.setText(((HelloActivity) getActivity()).getRouteId());
+        if(climberId != null && climberId.length()>0)
+            mClimberIdEdit.setText(climberId);
+        if(climberName != null && climberName.length()>0)
+            mClimberNameEdit.setText(climberName);
 
         // Will always perform these in onResume().
         startThread();
         acquireCamera();
         acquirePreview();
+
+        // Register bus
+        BusProvider.getInstance().register(this);
+        // Tell the world we are onResume and wait for callback.
+        BusProvider.getInstance().post(new ScanOnResume());
     }
 
     @Override
@@ -172,6 +179,8 @@ public class ScanFragment extends Fragment {
         super.onSaveInstanceState(outState);
         if(activityState == R.id.decode_succeeded) {
             outState.putInt(getString(R.string.bundle_decode_state), R.id.decode_succeeded);
+            outState.putString(getString(R.string.bundle_climber_id), climberId);
+            outState.putString(getString(R.string.bundle_climber_name), climberName);
         }
         else{
             outState.putInt(getString(R.string.bundle_decode_state), R.id.decode);
@@ -184,6 +193,7 @@ public class ScanFragment extends Fragment {
      * @param result String containing climber's id and name.
      */
     public void updateStatusView(String result){
+        cNameImmune = true;
         String[] climberInfo = result.split(";");
         climberId = climberInfo[0];
         climberName = climberInfo[1];
@@ -321,15 +331,14 @@ public class ScanFragment extends Fragment {
 
     @Subscribe
     public void onReceiveInScanTab(InScanTab event){
-        Log.d(TAG + ".onReceiveInScoreTab()", "Received InScoreTab event. routeId="+event.getRouteId());
+        Log.d(TAG + ".onReceiveInScoreTab()", "Received InScoreTab event. routeId=" + event.getRouteId());
 
         if(activityState == R.id.decode) {
             cameraManager.startPreview(previewView.getHolder());
             cameraManager.startScan();
         }
 
-        routeId = event.getRouteId();
-        mRouteIdEdit.setText(routeId);
+        mRouteIdEdit.setText(((HelloActivity) getActivity()).getRouteId());
     }
 
     @Subscribe
@@ -344,15 +353,27 @@ public class ScanFragment extends Fragment {
     }
 
     @Subscribe
-    public void onReceiveValidId(ValidId event){
-        mNextButton.setEnabled(true);
-    }
+    public void onReceiveClimberIdChange(ClimberIdChange event){
+        Log.d(TAG+".onReceiveClimberIdChange()", "Received ClimberIdChange event. Length = "+event.getIdLength());
+        climberId = mClimberIdEdit.getText().toString();
 
-    @Subscribe
-    public void onReceiveInvalidId(InvalidId event){
-        mNextButton.setEnabled(false);
-    }
+        if(cNameImmune == false) {
+            climberName = "";
+            mClimberNameEdit.setText(climberName);
+        }
+        else{
+            cNameImmune = false;
+        }
 
+        BusProvider.getInstance().post(new ScanNotFinish());
+
+        if(event.getIdLength() == 3){
+            mNextButton.setEnabled(true);
+        }
+        else{
+            mNextButton.setEnabled(false);
+        }
+    }
 
 
     private void startThread() {
@@ -449,9 +470,7 @@ public class ScanFragment extends Fragment {
     }
 
     public void next(){
-        getArguments().putString(getString(R.string.bundle_route_id), routeId);
-        getArguments().putString(getString(R.string.bundle_climber_id), climberId);
-        getArguments().putString(getString(R.string.bundle_climber_name), climberName);
+        BusProvider.getInstance().post(new ScanFinish(climberId, climberName));
     }
 
     public Handler getDecodeHandler(){

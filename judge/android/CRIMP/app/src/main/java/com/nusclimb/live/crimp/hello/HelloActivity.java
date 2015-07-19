@@ -1,7 +1,9 @@
 package com.nusclimb.live.crimp.hello;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
@@ -21,10 +23,15 @@ import com.nusclimb.live.crimp.common.busevent.InScanTab;
 import com.nusclimb.live.crimp.common.busevent.InScoreTab;
 import com.nusclimb.live.crimp.common.busevent.RouteFinish;
 import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
+import com.nusclimb.live.crimp.common.busevent.RouteOnResume;
+import com.nusclimb.live.crimp.common.busevent.ScanFinish;
+import com.nusclimb.live.crimp.common.busevent.ScanNotFinish;
 import com.nusclimb.live.crimp.common.busevent.ScanOnResume;
+import com.nusclimb.live.crimp.common.busevent.ScoreOnResume;
 import com.nusclimb.live.crimp.common.busevent.StartScan;
 import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,6 +50,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     private Handler activityHandler;
 
     // Fragment State. For use with Bus.
+    private boolean isRouteOnResume = false;
     private boolean isScanOnResume = false;
     private boolean isScoreOnResume = false;
     private boolean isRouteFinish = false;
@@ -61,10 +69,43 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     private int[] categoryRouteCountListAsArray;
 
 
+    public String getxUserId(){
+        return xUserId;
+    }
+
+    public String getxAuthToken(){
+        return xAuthToken;
+    }
+
+    public String getRouteId(){
+        return routeId;
+    }
+
+    public String getClimberId(){
+        return climberId;
+    }
+
+    public String getClimberName(){
+        return climberName;
+    }
+
+    public List<SpinnerItem> getCategoryList(){
+        List<SpinnerItem> categorySpinnerItemList = new ArrayList<SpinnerItem>();
+        for(int i=0; i<categoryIdListAsArray.length; i++){
+            categorySpinnerItemList.add(new CategorySpinnerItem(categoryNameListAsArray[i],
+                    categoryIdListAsArray[i], categoryRouteCountListAsArray[i], false));
+        }
+
+        return categorySpinnerItemList;
+    }
+
+
 
     /*=========================================================================
-    * Bus methods
-    *=======================================================================*/
+   * Bus methods
+   *=======================================================================*/
+
+
     @Subscribe
     public void onReceiveRouteNotFinish(RouteNotFinish event){
         Log.d(TAG+".onReceiveRouteFinish()", "Received RouteNotFinish event.");
@@ -85,6 +126,34 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     }
 
     @Subscribe
+    public void onReceiveScanNotFinish(ScanNotFinish event){
+        Log.d(TAG+".onReceiveScanNotFinish()", "Received ScanNotFinish event.");
+        isScanFinish = false;
+        mCrimpFragmentPagerAdapter.set_count(2);
+    }
+
+    @Subscribe
+    public void onReceiveScanFinish(ScanFinish event){
+        Log.d(TAG+".onReceiveScanFinish()", "Received ScanFinish event. cid = "+event.getClimberId()+"; cname = "+event.getClimberName());
+        isScanFinish = true;
+        climberId = event.getClimberId();
+        climberName = event.getClimberName();
+        mCrimpFragmentPagerAdapter.set_count(3);
+        mActionBar.setSelectedNavigationItem(2);
+    }
+
+    @Subscribe
+    public void onReceiveRouteOnResume(RouteOnResume event){
+        Log.d(TAG + ".onReceiveRouteOnResume()", "Received RouteOnResume event.");
+
+        isRouteOnResume = true;
+
+        if(isRouteOnResume && isScanOnResume && isScoreOnResume){
+            mCrimpFragmentPagerAdapter.set_count(1);
+        }
+    }
+
+    @Subscribe
     public void onReceiveScanOnResume(ScanOnResume event){
         Log.d(TAG + ".onReceiveScanOnResume", "Received ScanOnResume event.");
 
@@ -92,7 +161,24 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         if(isRouteFinish){
             BusProvider.getInstance().post(new StartScan());
         }
+
+        if(isRouteOnResume && isScanOnResume && isScoreOnResume){
+            mCrimpFragmentPagerAdapter.set_count(1);
+        }
     }
+
+    @Subscribe
+    public void onReceiveScoreOnResume(ScoreOnResume event){
+        Log.d(TAG + ".onReceiveScoreOnResume()", "Received ScoreOnResume event.");
+
+        isScoreOnResume = true;
+
+        if(isRouteOnResume && isScanOnResume && isScoreOnResume){
+            mCrimpFragmentPagerAdapter.set_count(1);
+        }
+    }
+
+
 
 
     /*=========================================================================
@@ -175,9 +261,6 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
                 .setText(mCrimpFragmentPagerAdapter.getPageTitle(2))
                 .setTabListener(this);
         mActionBar.addTab(scoreTab);
-
-        // TODO
-        mCrimpFragmentPagerAdapter.set_count(1);
     }
 
     @Override
@@ -283,47 +366,86 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
      * Button onClick methods
      *=======================================================================*/
     public void routeNext(View view){
-        Log.v(TAG + ".routeNext()", "Button clicked");
+        Log.v(TAG + ".routeNext()", "Button clicked.");
         RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
-        if(rf==null)
-            Log.d(TAG+".routeNext()", "CANT FIND RF");
         rf.next();
     }
 
     public void routeYes(View view){
-        Log.v(TAG+".routeYes()", "Button clicked");
+        Log.v(TAG+".routeYes()", "Button clicked.");
         RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
         rf.yes();
     }
 
     public void routeNo(View view){
-        Log.v(TAG+".routeNo()", "Button clicked");
+        Log.v(TAG+".routeNo()", "Button clicked.");
         RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
         rf.no();
     }
 
     public void scanRescan(View view){
-        Log.v(TAG+".scanRescan()", "Button clicked");
+        Log.v(TAG+".scanRescan()", "Button clicked.");
         ScanFragment sf = (ScanFragment) getFirstMatchingFragment(ScanFragment.class);
         sf.rescan();
     }
 
     public void scanFlash(View view){
-        Log.v(TAG+".scanFlash()", "Button clicked");
+        Log.v(TAG+".scanFlash()", "Button clicked.");
         ScanFragment sf = (ScanFragment) getFirstMatchingFragment(ScanFragment.class);
         sf.toggleFlash();
     }
 
     public void scanNext(View view){
-        Log.v(TAG+".scanNext()", "Button clicked");
+        Log.v(TAG + ".scanNext()", "Button clicked.");
         ScanFragment sf = (ScanFragment) getFirstMatchingFragment(ScanFragment.class);
         sf.next();
-
-        mCrimpFragmentPagerAdapter.set_count(3);
-        mActionBar.setSelectedNavigationItem(2);
-
     }
 
+    public void scorePlusOne(View view){
+        Log.v(TAG+".scorePlusOne()", "Button clicked.");
+        // Get instance of Vibrator from current Context
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 50 milliseconds
+        v.vibrate(50);
+        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
+        sf.plusOne();
+    }
+
+    public void scoreBonus(View view){
+        Log.v(TAG+".scorePlusOne()", "Button clicked.");
+        // Get instance of Vibrator from current Context
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 50 milliseconds
+        v.vibrate(50);
+        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
+        sf.bonus();
+    }
+
+    public void scoreTop(View view){
+        Log.v(TAG + ".scorePlusOne()", "Button clicked.");
+        // Get instance of Vibrator from current Context
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 50 milliseconds
+        v.vibrate(50);
+        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
+        sf.top();
+    }
+
+    public void scoreBackspace(View view){
+        Log.v(TAG + ".scorePlusOne()", "Button clicked.");
+        // Get instance of Vibrator from current Context
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 50 milliseconds
+        v.vibrate(50);
+        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
+        sf.backspace();
+    }
+
+    public void scoreSubmit(View view){
+        Log.v(TAG + ".scoreSubmit()", "Button clicked.");
+        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
+        sf.submit();
+    }
 
 
     /*=========================================================================

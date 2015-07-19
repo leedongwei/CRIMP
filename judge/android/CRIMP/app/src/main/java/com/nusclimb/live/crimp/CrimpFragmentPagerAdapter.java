@@ -3,6 +3,7 @@ package com.nusclimb.live.crimp;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.util.Log;
 
 import com.nusclimb.live.crimp.hello.HelloActivity;
 import com.nusclimb.live.crimp.hello.RouteFragment;
@@ -13,6 +14,8 @@ import com.nusclimb.live.crimp.hello.ScoreFragment;
  * Created by user on 03-Jul-15.
  */
 public class CrimpFragmentPagerAdapter extends FragmentPagerAdapter {
+    private final String TAG = CrimpFragmentPagerAdapter.class.getSimpleName();
+
     private int crimpInternalCount;
     private HelloActivity mActivity;
     private int _count = 3;
@@ -59,6 +62,8 @@ public class CrimpFragmentPagerAdapter extends FragmentPagerAdapter {
 
 
     public void set_count(int i){
+        Log.d(TAG+".set_count()", "Set _count = "+i);
+
         _count = i;
         notifyDataSetChanged();
     }

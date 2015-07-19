@@ -22,6 +22,7 @@ import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.BusProvider;
 import com.nusclimb.live.crimp.common.busevent.RouteFinish;
 import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
+import com.nusclimb.live.crimp.common.busevent.RouteOnResume;
 import com.nusclimb.live.crimp.common.json.ReportResponse;
 import com.nusclimb.live.crimp.common.spicerequest.ReportRequest;
 import com.nusclimb.live.crimp.service.CrimpService;
@@ -115,13 +116,13 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     private LinearLayout mProgressForm;
     private TextView mStatusText;
 
-    // Activity state
+    // Fragment state
     private State mState;
 
     // RoboSpice info
     private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
-    private String currentJudge;
 
+    private String currentJudge;
     private String routeId;
 
 
@@ -344,54 +345,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-
-        if(savedInstanceState == null){
-            Log.v(TAG+".onCreate()", "No savedState. Recreating fragment.");
-
-            // Get initial info from arguments.
-            Bundle args = getArguments();
-            xUserId = args.getString(getString(R.string.package_name) +
-                    getString(R.string.bundle_x_user_id));
-            xAuthToken = args.getString(getString(R.string.package_name) +
-                    getString(R.string.bundle_x_auth_token));
-            String[] categoryIdList = args.getStringArray(getString(R.string.package_name) +
-                    getString(R.string.bundle_category_id_list));
-            String[] categoryNameList = args.getStringArray(getString(R.string.package_name) +
-                    getString(R.string.bundle_category_name_list));
-            int[] categoryRouteCountList = args.getIntArray(getString(R.string.package_name) +
-                    getString(R.string.bundle_category_route_count_list));
-
-            categorySpinnerItemList = new ArrayList<SpinnerItem>();
-            for(int i=0; i<categoryIdList.length; i++){
-                categorySpinnerItemList.add(new CategorySpinnerItem(categoryNameList[i],
-                        categoryIdList[i], categoryRouteCountList[i], false));
-            }
-
-            mState = State.PICKING;
-        }
-        else{
-            Log.v(TAG+".onCreate()", "SavedState found.");
-
-            // Get initial info from savedInstanceState
-            xUserId = savedInstanceState.getString(getString(R.string.package_name) +
-                    getString(R.string.bundle_x_user_id));
-            xAuthToken = savedInstanceState.getString(getString(R.string.package_name) +
-                    getString(R.string.bundle_x_auth_token));
-            String[] categoryIdList = savedInstanceState.getStringArray(getString(R.string.package_name) +
-                    getString(R.string.bundle_category_id_list));
-            String[] categoryNameList = savedInstanceState.getStringArray(getString(R.string.package_name) +
-                    getString(R.string.bundle_category_name_list));
-            int[] categoryRouteCountList = savedInstanceState.getIntArray(getString(R.string.package_name) +
-                    getString(R.string.bundle_category_route_count_list));
-
-            categorySpinnerItemList = new ArrayList<SpinnerItem>();
-            for(int i=0; i<categoryIdList.length; i++){
-                categorySpinnerItemList.add(new CategorySpinnerItem(categoryNameList[i],
-                        categoryIdList[i], categoryRouteCountList[i], false));
-            }
-
-            mState = State.toEnum(savedInstanceState.getInt(getString(R.string.bundle_route_state)));
-        }
+        Log.v(TAG+".onCreate()", "Created");
     }
 
     @Override
@@ -413,22 +367,38 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         mProgressForm = (LinearLayout) rootView.findViewById(R.id.route_progress_viewgroup);
         mStatusText = (TextView) rootView.findViewById(R.id.route_status_text);
 
+        return rootView;
+    }
+
+    @Override
+    public void onActivityCreated (Bundle savedInstanceState){
+        super.onActivityCreated(savedInstanceState);
+
+        xUserId = ((HelloActivity)getActivity()).getxUserId();
+        xAuthToken = ((HelloActivity)getActivity()).getxAuthToken();
+        categorySpinnerItemList = ((HelloActivity)getActivity()).getCategoryList();
+
         // Setup for spinners.
         setupCategorySpinner();
         setupRouteSpinner();
 
         if(savedInstanceState == null){
-            Log.v(TAG+".onCreateView()", "No savedState.");
+            Log.d(TAG+".onActivityCreated()", "Newly created.");
+
+            mState = State.PICKING;
         }
         else{
-            Log.v(TAG+".onCreateView()", "SavedState found.");
-            mCategorySpinner.setSelection(savedInstanceState.getInt(
-                    getString(R.string.bundle_category_spinner_selection)));
-            mRouteSpinner.setSelection(savedInstanceState.getInt(
-                    getString(R.string.bundle_route_spinner_selection)));
-        }
+            Log.d(TAG+".onActivityCreated()", "Restored.");
 
-        return rootView;
+            mState = State.toEnum(savedInstanceState.getInt(getString(R.string.bundle_route_state)));
+            mCategorySpinner.setSelection(savedInstanceState.getInt(getString(R.string.bundle_category_spinner_selection)));
+            updateRouteSpinner(((CategorySpinnerItem) mCategorySpinner.getSelectedItem()).getRouteCount());
+            mRouteSpinner.setSelection(savedInstanceState.getInt(getString(R.string.bundle_route_spinner_selection)));
+
+            currentJudge = savedInstanceState.getString(getString(R.string.bundle_current_judge));
+
+            changeState(State.toEnum(savedInstanceState.getInt(getString(R.string.bundle_route_state))));
+        }
     }
 
     @Override
@@ -445,7 +415,8 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onResume(){
         super.onResume();
-        Log.v(TAG+".onResume()", "mState: "+mState);
+        Log.v(TAG + ".onResume()", "mState: " + mState);
+        BusProvider.getInstance().post(new RouteOnResume());
     }
 
     @Override
@@ -476,12 +447,11 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        Bundle args = getArguments();
-        outState.putAll(args);
-
         outState.putInt(getString(R.string.bundle_category_spinner_selection), mCategorySpinner.getSelectedItemPosition());
         outState.putInt(getString(R.string.bundle_route_spinner_selection), mRouteSpinner.getSelectedItemPosition());
         outState.putInt(getString(R.string.bundle_route_state), mState.getValue());
+        if(currentJudge != null)
+            outState.putString(getString(R.string.bundle_current_judge), currentJudge);
     }
 
 
@@ -565,11 +535,11 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         if(parent.getId() == mCategorySpinner.getId()){
             CategorySpinnerItem selectedItem = (CategorySpinnerItem)(parent.getSelectedItem());
             if(selectedItem.isHint()){
-                Log.v(TAG+".onItemSelected()", "OnItemSelected. Category. Hint.");
+                Log.v(TAG+".onItemSelected()", "Selected category hint.");
                 ((TextView)view).setTextColor(getResources().getColor(R.color.hint_color));
             }
             else{
-                Log.v(TAG+".onItemSelected()", "OnItemSelected. Category. Not hint.");
+                Log.v(TAG+".onItemSelected()", "Selected category: "+selectedItem.getItemString());
                 updateRouteSpinner(selectedItem.getRouteCount());
             }
         }
@@ -578,13 +548,13 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         if(parent.getId() == mRouteSpinner.getId()){
             SpinnerItem selectedItem = (SpinnerItem)parent.getSelectedItem();
             if(selectedItem.isHint()) {
-                Log.v(TAG+".onItemSelected()", "OnItemSelected. Route. Hint.");
+                Log.v(TAG+".onItemSelected()", "Selected route hint.");
                 ((TextView) view).setTextColor(getResources().getColor(R.color.hint_color));
 
                 mNextButton.setEnabled(false);
             }
             else{
-                Log.v(TAG+".onItemSelected()", "OnItemSelected. Route. Not hint.");
+                Log.v(TAG+".onItemSelected()", "Selected route: "+selectedItem.getItemString());
                 mNextButton.setEnabled(true);
             }
         }
@@ -593,7 +563,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         // Another interface callback
-        Log.v(TAG+".onNothingSelected()", "parent:"+parent.getId());
+        Log.v(TAG+".onNothingSelected()", "Nothing selected.");
     }
 
 

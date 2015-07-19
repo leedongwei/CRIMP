@@ -41,7 +41,7 @@ public class ScanFragmentHandler extends Handler{
                 // Get instance of Vibrator from current Context
                 Vibrator v = (Vibrator) fragment.getActivity().getSystemService(Context.VIBRATOR_SERVICE);
 
-                // Vibrate for 300 milliseconds
+                // Vibrate for 100 milliseconds
                 v.vibrate(100);
 
                 //TODO should release camera?
