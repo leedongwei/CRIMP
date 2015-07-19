@@ -2,7 +2,7 @@ Meteor.publish('getCategories', function() {
   return Categories.find({}, {
     fields: {
       _id: 1,
-      name: 1,
+      category_name: 1,
       category_id: 1,
       scores_finalized: 1,
       time_start: 1,

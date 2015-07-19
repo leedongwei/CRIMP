@@ -140,7 +140,7 @@ Restivus.addRoute('judge/helpme',
 
 
 Restivus.addRoute('judge/categories',
-      { authRequired: true, roleRequired: CRIMP.roles.organizers }, {
+      { authRequired: true, roleRequired: CRIMP.roles.partners }, {
   get: function () {
     return Categories.find({}).fetch();
   }
@@ -278,3 +278,7 @@ Restivus.addRoute('judge/score/:route_id/:climber_id',
     }
   }
 });
+
+// Restivus.addRoute('judge/score/:route_id/:climber_id',
+//       { authRequired: true, roleRequired: CRIMP.roles.partners }, {
+//   get: function() {

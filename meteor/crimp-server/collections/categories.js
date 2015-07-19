@@ -1,6 +1,6 @@
 Categories = new Mongo.Collection('categories');
 CRIMP.schema.category = new SimpleSchema({
-  name: {
+  category_name: {
     label: 'Name of category',
     type: String,
   },
