@@ -41,3 +41,33 @@ Meteor.publish('getActiveClimbers', function() {
     }
   });
 });
+
+
+
+// ADMIN-ONLY PUBLICATIONS
+Meteor.publish('adminActiveClimbers', function() {
+  if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
+    return ActiveClimbers.find({});
+  } else {
+    this.stop();
+    return;
+  }
+});
+
+Meteor.publish('adminPendingJudges', function() {
+  if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
+    return Roles.getUsersInRole('pending');
+  } else {
+    this.stop();
+    return;
+  }
+});
+
+Meteor.publish('adminRecentScores', function() {
+  if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
+    return RecentScores.find({});
+  } else {
+    this.stop();
+    return;
+  }
+});

@@ -120,6 +120,22 @@ if (Meteor.isServer) {
 }
 
 Meteor.methods({
+  // data:string - route_id of any route on ActiveClimber
+  removeActiveJudge: function(data) {
+    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
+      throw new Meteor.Error(403, "Access denied");
+    }
+
+    // TODO: Check data is actually a route
+
+    ActiveClimbers.remove({ 'route_id': data });
+  },
+
+  removeActiveClimber: function(data) {
+    // TODO
+  },
+
+  // data:string - category_id of any valid category
   _insertActiveClimbers: function(data) {
     if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
       throw new Meteor.Error(403, "Access denied");
@@ -146,6 +162,8 @@ Meteor.methods({
       );
     }
   },
+
+  // data:string - category_id of any valid category
   _removeActiveClimbers: function(data) {
     if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
       throw new Meteor.Error(403, "Access denied");

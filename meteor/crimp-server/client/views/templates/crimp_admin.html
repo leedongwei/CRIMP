@@ -1,25 +1,165 @@
 <template name="crimp_admin">
+  <header class="admin-header">
+    <div class="contain-to-grid sticky">
+      <nav class="top-bar" data-topbar role="navigation">
+        <ul class="title-area">
+          <li class="name">
+            <h1><a>CRIMP Admin</a></h1>
 
-  <header>
-    <h1>CRIMP</h1>
+            {{ #if isNotProduction }}
+              <span class="crimp-env-marker crimp-env-production">DEVELOPMENT</span>
+            {{ /if }}
+            {{ #if isDemo }}
+              <span class="crimp-env-marker crimp-env-demo">DEMO</span>
+            {{ /if }}
+          </li>
+          <li class="toggle-topbar menu-icon"><a href="#"><span></span></a></li>
+        </ul>
 
-      {{ > conn_status }}
 
+
+        <section class="top-bar-section">
+          <ul class="right">
+            <li><span class="crimp-conn">{{ > conn_status }}</span></li>
+
+            {{ #if isVerified }}
+              <li><a>Dashboard</a></li>
+              <li><a>Database</a></li>
+              <li>{{ > loginButtons }}</li>
+            {{ /if }}
+          </ul>
+        </section>
+      </nav>
+    </div>
   </header>
 
-  <p>Admin area</p>
-
   {{ #if isVerified }}
-    {{ > loginButtons }}
-    {{ > admin_restricted }}
+    <div class="crimp-admin-section">
+      {{ > admin_restricted }}
+    </div>
   {{ else }}
-    {{ > loginButtons }}
+    <div class="crimp-admin-denied">
+      <p>Admin area. Please sign-in.</p>
+      {{ > loginButtons }}
+    </div>
   {{ /if }}
-
 </template>
 
 
 
 <template name="admin_restricted">
-  <p>restricted admin area</p>
+  {{ > admin_dashboard }}
+</template>
+
+
+
+<template name="admin_dashboard">
+  <section class="admin_dashboard">
+    <div class="row">
+      <section class="small-12 medium-4 columns">
+        <h2>Active Admins</h2>
+        <table class="admin-monitoring-table">
+          <tr class="admin-monitoring-header">
+            <td class="admin-activeboard-route">Route</td>
+            <td class="admin-activeboard-admin">Admin+Climber</td>
+            <td class="admin-activeboard-action"></td>
+          </tr>
+
+          {{ #each adminActiveClimbers }}
+            <tr>
+              <td class="admin-activeboard-route">
+                {{ route_id }}<br>{{ climber_id }}
+              </td>
+              <td class="admin-activeboard-admin">{{ admin_name }}<br>
+                {{ #if climber_id }}
+                  {{ climber_name }}
+                {{ else }}
+                  No climber on route
+                {{ /if }}
+              </td>
+              <td>
+                <a class="admin-activeboard-remove alert label" data-routeId="{{ route_id }}">Remove</a>
+              </td>
+            </tr>
+          {{ /each }}
+        </table>
+
+
+        <h2>Pending Admins</h2>
+        <table class="admin-monitoring-table">
+          <tr class="admin-monitoring-header">
+            <td>Name</td>
+            <td>New Role</td>
+            <td></td>
+          </tr>
+          {{ #each adminPendingJudges }}
+            <tr>
+              <td>{{ profile.name }}<br>{{ email }}</td>
+              <td>
+                <select class="admin-approvejudge-roles" id="admin-approvejudge-{{ _id }}">
+                  <option value="judge">judge</option>
+                  <option value="denied">denied</option>
+                  <option value="partner">partner</option>
+                  <option value="admin">admin</option>
+                </select>
+                </td>
+              <td>
+                <a class="admin-approvejudge-set success label" data-userId="{{ _id }}">Set</a>
+              </td>
+            </tr>
+          {{ /each }}
+        </table>
+      </section>
+
+
+      <section class="small-12 medium-4 columns">
+        <h2>Most Recent Scores</h2>
+
+        <table class="admin-monitoring-table">
+          <tr class="admin-monitoring-header">
+            <td class="admin-recentscore-cell-label">Route+Climber</td>
+            <td class="admin-recentscore-cell-score">Score</td>
+            <td class="admin-recentscore-cell-time"></td>
+          </tr>
+
+          {{ #each adminRecentScores }}
+            <tr>
+              <td class="admin-recentscore-cell-label">{{ _id }}</td>
+              <td class="admin-recentscore-cell-score">{{ score_id }}</td>
+              <td class="admin-recentscore-cell-time">{{ updated_at }}</td>
+            </tr>
+          {{ /each }}
+        </table>
+      </section>
+
+
+      <section class="small-12 medium-4 columns">
+        <h2>Overall Scores</h2>
+
+        <div>PICK CATEGORY</div>
+        {{ > scoreboard }}
+
+
+      </section>
+    </div>
+  </section>
+</template>
+
+
+
+<template name="admin_database">
+  <div class="row">
+    <section class="small-12 medium-2 columns">
+      <h2>Select Data to Edit</h2>
+      Admins
+      Categories
+      Climbers+Scores
+    </section>
+    <section class="small-12 medium-6 columns">
+    {{> quickForm collection="Scores" doc=getaScore id="updateScoreForm" type="update"}}
+    </section>
+
+    <section class="small-12 medium-4 columns">
+    </section>
+  </div>
 </template>

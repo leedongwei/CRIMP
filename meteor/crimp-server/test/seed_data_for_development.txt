@@ -1,5 +1,21 @@
 var categorydata = [
   {
+    category_name: 'U17 Men Qualifiers',
+    category_id: 'UMQ',
+    route_count: 6,
+    scores_finalized: false,
+    time_start: '',
+    time_end: ''
+  },
+  {
+    category_name: 'U17 Women Qualifiers',
+    category_id: 'UWQ',
+    route_count: 6,
+    scores_finalized: false,
+    time_start: '',
+    time_end: ''
+  },
+  {
     category_name: 'Novice Men Qualifiers',
     category_id: 'NMQ',
     route_count: 6,
@@ -34,7 +50,7 @@ var categorydata = [
   {
     category_name: 'Open Men Qualifiers',
     category_id: 'OMQ',
-    route_count: 4,
+    route_count: 5,
     scores_finalized: false,
     time_start: '',
     time_end: ''
@@ -42,7 +58,23 @@ var categorydata = [
   {
     category_name: 'Open Women Qualifiers',
     category_id: 'OWQ',
-    route_count: 4,
+    route_count: 5,
+    scores_finalized: false,
+    time_start: '',
+    time_end: ''
+  },
+  {
+    category_name: 'Invitational (Men)',
+    category_id: 'INM',
+    route_count: 5,
+    scores_finalized: false,
+    time_start: '',
+    time_end: ''
+  },
+  {
+    category_name: 'Invitational (Women)',
+    category_id: 'INW',
+    route_count: 5,
     scores_finalized: false,
     time_start: '',
     time_end: ''
