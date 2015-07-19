@@ -58,16 +58,16 @@ CRIMP.schema.climber = new SimpleSchema({
     label: 'Additional comment to reflect on scoreboard',
     optional: true
   },
-  // identity: {
-  //   type: String,
-  //   label: 'NRIC or driver license number',
-  //   optional: true
-  // },
-  // notes: {
-  //   type: String,
-  //   label: 'Notes on climber (i.e. payment status) that will be hidden',
-  //   optional: true
-  // }
+  identity: {
+    type: String,
+    label: 'NRIC or driver license number',
+    optional: true
+  },
+  notes: {
+    type: String,
+    label: 'Notes on climber (i.e. payment status) that will be hidden',
+    optional: true
+  }
 });
 
 
@@ -84,6 +84,10 @@ Meteor.methods({
                       .find({'category_id': data.category_id})
                       .fetch()[0].route_count;
     data.climber_id = data.category_id + data.number;
+
+    if (!routeCount) {
+      return console.error('Could not find category ' + data.category_id);
+    }
 
     // Step 1: Create the X number of scoring documents associated with
     // the climber
@@ -113,6 +117,7 @@ Meteor.methods({
     // Step 3: Insert climber document
     return Climbers.insert(data, function(error, results) {
       // TODO: Handle error
+      console.error(error);
     });
 
   },
