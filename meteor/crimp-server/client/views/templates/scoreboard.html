@@ -8,9 +8,9 @@
   <select class="scoreboard-categories">
     {{ #each categories }}
       {{ #if isCurrentCategory category_id }}
-        <option value="{{ category_id }}" selected>{{ name }}</option>
+        <option value="{{ category_id }}" selected>{{ category_name }}</option>
       {{ else }}
-        <option value="{{ category_id }}">{{ name }}</option>
+        <option value="{{ category_id }}">{{ category_name }}</option>
       {{ /if }}
     {{ /each }}
   </select>

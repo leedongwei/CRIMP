@@ -156,7 +156,7 @@ header: {
 ```
 Status: 200 OK
 Body: {
-  category_id: 'NWQ'
+  category_id: 'NMQ'
   climbers: [
     {
       climber_id: 'NMQ001'
