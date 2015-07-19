@@ -58,7 +58,7 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
 
         // Prepare message (body)
         Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("score", score);
+        parameters.put("score_string", score);
 
 
         // Prepare message (header)

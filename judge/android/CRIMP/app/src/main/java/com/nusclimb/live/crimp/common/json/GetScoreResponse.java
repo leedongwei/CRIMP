@@ -14,7 +14,7 @@ public class GetScoreResponse {
     private String climberId;
     @JsonProperty("climber_name")
     private String climberName;
-    @JsonProperty("score")
+    @JsonProperty("score_string")
     private String score;
 
     public String toString(){

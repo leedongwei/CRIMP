@@ -27,13 +27,11 @@ import com.nusclimb.live.crimp.common.busevent.ClimberIdChange;
 import com.nusclimb.live.crimp.common.busevent.InRouteTab;
 import com.nusclimb.live.crimp.common.busevent.InScanTab;
 import com.nusclimb.live.crimp.common.busevent.InScoreTab;
-import com.nusclimb.live.crimp.common.busevent.InvalidId;
 import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
 import com.nusclimb.live.crimp.common.busevent.ScanFinish;
 import com.nusclimb.live.crimp.common.busevent.ScanNotFinish;
 import com.nusclimb.live.crimp.common.busevent.ScanOnResume;
 import com.nusclimb.live.crimp.common.busevent.StartScan;
-import com.nusclimb.live.crimp.common.busevent.ValidId;
 import com.nusclimb.live.crimp.qr.CameraManager;
 import com.nusclimb.live.crimp.qr.DecodeThread;
 import com.nusclimb.live.crimp.qr.PreviewView;
@@ -113,7 +111,7 @@ public class ScanFragment extends Fragment {
         mClimberNameEdit = (EditText) rootView.findViewById(R.id.scan_climber_name_edit);
         mNextButton = (Button) rootView.findViewById(R.id.scan_next_button);
 
-        mClimberIdEdit.addTextChangedListener(new CrimpTextWatcher());
+        mClimberIdEdit.addTextChangedListener(new ClimberIdTextWatcher());
 
         // Update buttons.
         if(!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)){

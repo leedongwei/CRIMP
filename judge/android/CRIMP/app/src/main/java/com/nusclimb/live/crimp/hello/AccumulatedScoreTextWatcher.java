@@ -5,15 +5,15 @@ import android.text.TextWatcher;
 import android.util.Log;
 
 import com.nusclimb.live.crimp.common.BusProvider;
+import com.nusclimb.live.crimp.common.busevent.AccumulatedScoreChange;
 import com.nusclimb.live.crimp.common.busevent.ClimberIdChange;
-import com.nusclimb.live.crimp.common.busevent.InvalidId;
-import com.nusclimb.live.crimp.common.busevent.ValidId;
 
 /**
  * Created by weizhi on 16/7/2015.
  */
-public class CrimpTextWatcher implements TextWatcher {
-    private final String TAG = CrimpTextWatcher.class.getSimpleName();
+public class AccumulatedScoreTextWatcher implements TextWatcher {
+    private final String TAG = AccumulatedScoreTextWatcher.class.getSimpleName();
+
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         Log.v(TAG+".beforeTextChanged()", "CharSequence="+s+", start="+start+", count="+count+", after="+after);
@@ -26,8 +26,8 @@ public class CrimpTextWatcher implements TextWatcher {
 
     @Override
     public void afterTextChanged(Editable s) {
-        Log.d(TAG+".afterTextChanged()", "afterTextChanged");
+        Log.d(TAG + ".afterTextChanged()", "afterTextChanged");
 
-        BusProvider.getInstance().post(new ClimberIdChange(s.length()));
+        BusProvider.getInstance().post(new AccumulatedScoreChange());
     }
 }
