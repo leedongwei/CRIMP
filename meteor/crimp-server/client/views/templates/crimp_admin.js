@@ -1,5 +1,18 @@
 Template.crimp_admin.onCreated(function() {
   document.title = "CRIMP Admin";
+
+  // Shorten strings used by Moment.js
+  moment.locale('en', {
+    relativeTime : {
+      future: "in %s",  past:   "%s ago",
+      s:  "%dsec",
+      m:  "a min",      mm: "%dmin",
+      h:  "an hr",      hh: "%dhrs",
+      d:  "a day",      dd: "%ddays",
+      M:  "a mth",      MM: "%dmths",
+      y:  "a yr",       yy: "%dyrs"
+    }
+  });
 });
 
 Template.crimp_admin.helpers({
@@ -20,24 +33,7 @@ Template.admin_dashboard.onCreated(function() {
     Meteor.subscribe('adminRecentScores');
   });
 
-  // Shorten strings used by Moment.js
-  moment.locale('en', {
-    relativeTime : {
-      future: "in %s",
-      past:   "%s ago",
-      s:  "%dsec",
-      m:  "a min",
-      mm: "%dmin",
-      h:  "an hr",
-      hh: "%d hrs",
-      d:  "a day",
-      dd: "%d days",
-      M:  "a mth",
-      MM: "%d mths",
-      y:  "a yr",
-      yy: "%d yrs"
-    }
-  });
+
 });
 
 
@@ -49,11 +45,20 @@ Template.admin_dashboard.helpers({
     return Roles.getUsersInRole('pending');
   },
   adminRecentScores: function() {
-    var rs = RecentScores.find({}).fetch();
+    var rs = RecentScores.find({}).fetch(),
+        score;
+
 
     for (var i=0; i < rs.length; i++) {
-      rs[i].updated_at = moment(rs[i].updated_at).fromNow();
+      score = Scores.findOne({ '_id': rs[i].score_id });
+      if (score) {
+        rs[i]['route'] = score.route_id;
+        rs[i]['climber'] = score.climber_id;
+        rs[i]['score_string'] = score.score_string;
+        rs[i]['updated'] = moment(rs[i].updated_at).fromNow();
+      }
     }
+
     return rs;
   }
 });
