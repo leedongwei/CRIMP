@@ -104,7 +104,7 @@
                 </select>
                 </td>
               <td>
-                <a class="admin-approvejudge-set success label" data-userId="{{ _id }}">Set</a>
+                <a class="admin-approvejudge-set success label" data-userId="{{ _id }}"><i class="material-icons">check</i></a>
               </td>
             </tr>
           {{ /each }}
@@ -151,16 +151,19 @@
 <template name="admin_database">
   <div class="row">
     <section class="small-12 medium-2 columns">
-      <h2>Select Data to Edit</h2>
-      Admins
-      Categories
-      Climbers+Scores
+      <h2>Databases</h2>
+
+      <ul>
+        <li><a>Admins</a></li>
+        <li><a>Categories</a></li>
+        <li><a>Climbers &amp; Scores</a></li>
+      </ul>
+
     </section>
-    <section class="small-12 medium-6 columns">
-    {{> quickForm collection="Scores" doc=getaScore id="updateScoreForm" type="update"}}
+    <section class="small-12 medium-5 columns">
     </section>
 
-    <section class="small-12 medium-4 columns">
+    <section class="small-12 medium-5 columns">
     </section>
   </div>
 </template>

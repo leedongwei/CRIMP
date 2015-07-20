@@ -4,12 +4,70 @@ select.scoreboard-categories {
   font-size: 1.9rem;
   text-decoration: underline;
 
-  background-color: transparent;
+
+  option {
+    font-size: 1rem;
+  }
+}
+
+.scoreboard-categories {
+  position: relative;
   border: 0;
   padding: 0;
   margin: 0;
 
-  option {
+  i {
+    display: block;
+    position: absolute;
+    font-size: 30px;
+    top: 50%;
+    right: 0;
+    margin-top: -15px;
+
+    color: #757575;
+  }
+
+  #scoreboard-categories-link {
+    margin: 0;
+    padding: 5px 0;
+    font-family: League Gothic, sans-serif;
+    font-size: 1.6875rem;
+    text-align: left;
+    color: #000;
+    background-color: transparent;
+  }
+}
+@media only screen and (min-width: 40.0625em) {
+  #scoreboard-categories-link {
+    font-size: 2.3125rem;
+  }
+}
+.scoreboard-categories-dropdown {
+  table {
+    width: 100%;
+    margin: 0 auto;
+    border: 0;
+  }
+
+
+  td:nth-child(1) {
+    text-align: right;
+    font-weight: 700;
+    font-family: League Spartan, sans-serif;
+
+    word-wrap: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  td:nth-child(2) {
+    text-align: right;
+    font-size: 1rem;
+  }
+
+  td:nth-child(3) {
+    text-align: left;
     font-size: 1rem;
   }
 }

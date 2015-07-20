@@ -22,9 +22,94 @@ Template.scoreboard_header.helpers({
   }
 });
 
+Template.scoreboard_header.rendered = function() {
+  var displayCategory = $.cookie('currentCategory') || 'UMQ',
+      displayName;
+
+  // TODO: Bloody hack because of some sync issues at pageload
+  // No time to figure out, hack first think later :X
+  switch(displayCategory) {
+    case 'UMQ':
+      displayName = 'U-17 Men Qualifer';
+      break;
+    case 'UMF':
+      displayName = 'U-17 Men Final';
+      break;
+    case 'UWQ':
+      displayName = 'U-17 Women Qualifer';
+      break;
+    case 'UWF':
+      displayName = 'U-17 Women Final';
+      break;
+    case 'NMQ':
+      displayName = 'Novice Men Qualifer';
+      break;
+    case 'NMF':
+      displayName = 'Novice Men Final';
+      break;
+    case 'NWQ':
+      displayName = 'Novice Women Qualifer';
+      break;
+    case 'NWF':
+      displayName = 'Novice Women Final';
+      break;
+    case 'IMQ':
+      displayName = 'Intermediate Men Qualifer';
+      break;
+    case 'IMF':
+      displayName = 'Intermediate Men Final';
+      break;
+    case 'IWQ':
+      displayName = 'Intermediate Women Qualifer';
+      break;
+    case 'IWF':
+      displayName = 'Intermediate Women Final';
+      break;
+    case 'OMQ':
+      displayName = 'Open Men Qualifer';
+      break;
+    case 'OMF':
+      displayName = 'Open Men Final';
+      break;
+    case 'OWQ':
+      displayName = 'Open Women Qualifer';
+      break;
+    case 'OWF':
+      displayName = 'Open Women Final';
+      break;
+    case 'VMQ':
+      displayName = 'Invitational Men Qualifer';
+      break;
+    case 'VMF':
+      displayName = 'Invitational Men Final';
+      break;
+    case 'VWQ':
+      displayName = 'Invitational Women Qualifer';
+      break;
+    case 'VWF':
+      displayName = 'Invitational Women Final';
+      break;
+  }
+
+  $('#scoreboard-categories-link').html(
+    displayName + '<i class="material-icons">more_vert</i>'
+  );
+
+  // Initialize Foundation plugin
+  $(document).foundation('dropdown', 'reflow');
+}
+
 Template.scoreboard_header.events({
-  'change .scoreboard-categories': function(event, template) {
-    Session.set('currentCategory', event.target.value);
+  'click .scoreboard-categories-options': function(event, template) {
+    var category = event.target.getAttribute('data-categoryId');
+
+    Session.set('currentCategory', category);
+    $.cookie('currentCategory', category);
+
+    $('#scoreboard-categories-link').html(
+      Categories.findOne({ 'category_id': category }).category_name +
+      '<i class="material-icons">more_vert</i>'
+    )
   }
 });
 

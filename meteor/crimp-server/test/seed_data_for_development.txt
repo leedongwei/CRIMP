@@ -64,16 +64,16 @@ var categorydata = [
     time_end: ''
   },
   {
-    category_name: 'Invitational (Men)',
-    category_id: 'INM',
+    category_name: 'Invitational Men Qualifiers',
+    category_id: 'VMF',
     route_count: 5,
     scores_finalized: false,
     time_start: '',
     time_end: ''
   },
   {
-    category_name: 'Invitational (Women)',
-    category_id: 'INW',
+    category_name: 'Invitational Women Qualifiers',
+    category_id: 'VWQ',
     route_count: 5,
     scores_finalized: false,
     time_start: '',

@@ -29,7 +29,7 @@
 
 .crimp-admin-section {
   .columns {
-    // border: 1px solid #000;
+    border: 1px solid #000;
   }
 }
 
@@ -64,6 +64,10 @@
       height: 30px;
       padding: 0rem 0.6rem 0rem 0.3rem;
       margin: 0 auto;
+    }
+
+    .admin-approvejudge-set i {
+      font-size: 1rem;
     }
 
     .admin-recentscore-cell-score {

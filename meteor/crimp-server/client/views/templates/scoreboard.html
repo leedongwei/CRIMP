@@ -5,7 +5,7 @@
 
 
 <template name="scoreboard_header">
-  <select class="scoreboard-categories">
+  <!-- <select class="scoreboard-categories">
     {{ #each categories }}
       {{ #if isCurrentCategory category_id }}
         <option value="{{ category_id }}" selected>{{ category_name }}</option>
@@ -13,7 +13,69 @@
         <option value="{{ category_id }}">{{ category_name }}</option>
       {{ /if }}
     {{ /each }}
-  </select>
+  </select> -->
+
+
+  <!-- Custom category selection for Boulderactive -->
+  <div class="scoreboard-categories">
+    <a href="" class="button expand" id="scoreboard-categories-link" data-dropdown="drop">Click for Categories<i class="material-icons">more_vert</i></a>
+  </div>
+  <div id="drop" class="mega content f-dropdown scoreboard-categories-dropdown" data-dropdown-content>
+    <table>
+      <tr>
+        <td>U17 Men</td>
+        <td><a class="scoreboard-categories-options" data-categoryId="UMQ">Qualifiers</a></td>
+        <td><a class="scoreboard-categories-options" data-categoryId="UMF">Final</a></td>
+      </tr>
+      <tr>
+        <td>U17 Women</td>
+        <td><a class="scoreboard-categories-options" data-categoryId="UWQ">Qualifiers</a></td>
+        <td><a class="scoreboard-categories-options" data-categoryId="UWF">Final</a></td>
+      </tr>
+      <tr>
+        <td>Novice Men</td>
+        <td><a class="scoreboard-categories-options" data-categoryId="NMQ">Qualifiers</a></td>
+        <td><a class="scoreboard-categories-options" data-categoryId="NMF">Final</a></td>
+      </tr>
+      <tr>
+        <td>Novice Women</td>
+        <td><a class="scoreboard-categories-options" data-categoryId="NWQ">Qualifiers</a></td>
+        <td><a class="scoreboard-categories-options" data-categoryId="NWF">Final</a></td>
+      </tr>
+      <tr>
+        <td>Intermediate Men</td>
+        <td><a class="scoreboard-categories-options" data-categoryId="IMQ">Qualifiers</a></td>
+        <td><a class="scoreboard-categories-options" data-categoryId="IMF">Final</a></td>
+      </tr>
+      <tr>
+        <td>Intermediate Women</td>
+        <td><a class="scoreboard-categories-options" data-categoryId="IWQ">Qualifiers</a></td>
+        <td><a class="scoreboard-categories-options" data-categoryId="IWF">Final</a></td>
+      </tr>
+      <tr>
+        <td>Open Men</td>
+        <td><a class="scoreboard-categories-options" data-categoryId="OMQ">Qualifiers</a></td>
+        <td><a class="scoreboard-categories-options" data-categoryId="OMF">Final</a></td>
+      </tr>
+      <tr>
+        <td>Open Women</td>
+        <td><a class="scoreboard-categories-options" data-categoryId="OWQ">Qualifiers</a></td>
+        <td><a class="scoreboard-categories-options" data-categoryId="OWF">Final</a></td>
+      </tr>
+      <tr>
+        <td>Invitational Men</td>
+        <td><a class="scoreboard-categories-options" data-categoryId="VMQ">Qualifiers</a></td>
+        <td><a class="scoreboard-categories-options" data-categoryId="VMF">Final</a></td>
+      </tr>
+      <tr>
+        <td>Invitational Women</td>
+        <td><a class="scoreboard-categories-options" data-categoryId="VWQ">Qualifiers</a></td>
+        <td><a class="scoreboard-categories-options" data-categoryId="VWF">Final</a></td>
+      </tr>
+    </table>
+  </div>
+
+
 
   <div class="scoreboard-header clearfix">
     TODO: Fill in this with something
