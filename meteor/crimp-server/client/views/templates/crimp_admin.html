@@ -68,7 +68,7 @@
           {{ #each adminActiveClimbers }}
             <tr>
               <td class="admin-activeboard-route">
-                {{ route_id }}<br>{{ climber_id }}
+                <b>{{ route_id }}</b><br>{{ climber_id }}
               </td>
               <td class="admin-activeboard-admin">{{ admin_name }}<br>
                 {{ #if climber_id }}
@@ -135,13 +135,12 @@
       </section>
 
 
-      <section class="small-12 medium-4 columns">
+      <section class="small-12 medium-4 columns admin-scoreboard-overflow-parent">
         <h2>Overall Scores</h2>
 
-        <div>PICK CATEGORY</div>
-        {{ > scoreboard }}
-
-
+        <div class="admin-scoreboard-overflow">
+          {{ > scoreboard }}
+        </div>
       </section>
     </div>
   </section>

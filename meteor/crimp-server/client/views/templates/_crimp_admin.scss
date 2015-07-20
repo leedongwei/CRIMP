@@ -29,7 +29,7 @@
 
 .crimp-admin-section {
   .columns {
-    border: 1px solid #000;
+    // border: 1px solid #000;
   }
 }
 
@@ -76,6 +76,17 @@
       white-space: nowrap;
       text-align: center;
     }
+  }
+
+  .admin-scoreboard-overflow {
+    height: calc(100vh - 125px);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border: 1px solid #ddd;
+  }
+
+  .admin-scoreboard-overflow-parent {
+    padding: 0;
   }
 }
 
