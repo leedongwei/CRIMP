@@ -463,6 +463,7 @@ public class LoginActivity extends Activity {
 
         intent.putExtras(mBundle);
 
+        finish();
         Log.v(TAG + ".launchHelloActivity()", "mState: " + mState);
         startActivity(intent);
     }

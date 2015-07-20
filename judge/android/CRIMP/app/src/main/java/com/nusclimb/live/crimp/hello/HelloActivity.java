@@ -1,6 +1,7 @@
 package com.nusclimb.live.crimp.hello;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
@@ -10,11 +11,15 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
 import com.nusclimb.live.crimp.CrimpFragmentPagerAdapter;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.BusProvider;
@@ -33,6 +38,7 @@ import com.nusclimb.live.crimp.common.busevent.ScoreFinish;
 import com.nusclimb.live.crimp.common.busevent.ScoreOnPause;
 import com.nusclimb.live.crimp.common.busevent.ScoreOnResume;
 import com.nusclimb.live.crimp.common.busevent.StartScan;
+import com.nusclimb.live.crimp.login.LoginActivity;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -554,4 +560,45 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         return null;
     }
 
+    @Override
+    public void onBackPressed()
+    {
+        switch(currentTab){
+            case 0:
+                super.onBackPressed();
+                break;
+            case 1:
+                currentTab = 0;
+                mActionBar.setSelectedNavigationItem(currentTab);
+                break;
+            case 2:
+                // TODO prompt user
+                currentTab = 1;
+                mActionBar.setSelectedNavigationItem(currentTab);
+                break;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_hello, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case R.id.action_logout:
+                LoginManager.getInstance().logOut();
+                Intent mIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                finish();
+                startActivity(mIntent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

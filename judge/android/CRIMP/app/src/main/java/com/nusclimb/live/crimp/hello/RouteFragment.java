@@ -95,10 +95,13 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         }
     }
 
-    // Information retrieved from intent.
+    // Information guaranteed to be present from previous activity/fragment.
     private String xUserId;
     private String xAuthToken;
     private List<SpinnerItem> categorySpinnerItemList;
+    // Information from this fragment.
+    private String currentJudge;
+    private String routeId;
 
     // UI references (spinner form)
     private LinearLayout mSpinnerForm;
@@ -106,13 +109,11 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     private Spinner mCategorySpinner;
     private Spinner mRouteSpinner;
     private Button mNextButton;
-
     // UI references (replace form)
     private RelativeLayout mReplaceForm;
     private TextView mReplaceText;
     private Button mYesButton;
     private Button mNoButton;
-
     // UI references (progress form)
     private LinearLayout mProgressForm;
     private TextView mStatusText;
@@ -122,9 +123,6 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
 
     // RoboSpice info
     private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
-
-    private String currentJudge;
-    private String routeId;
 
 
     /*=========================================================================
@@ -386,7 +384,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     }
 
     @Override
-    public void onActivityCreated (Bundle savedInstanceState){
+    public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
         xUserId = ((HelloActivity)getActivity()).getxUserId();
@@ -431,7 +429,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         Log.v(TAG + ".onResume()", "mState: " + mState);
         BusProvider.getInstance().post(new RouteOnResume());

@@ -222,12 +222,12 @@ public class ScoreFragment extends Fragment {
             if(bonus == 0)
                 mBText.setText("-");
             else
-                mBText.setText(bonus);
+                mBText.setText(""+bonus);
 
             if(top == 0)
                 mTText.setText("-");
             else
-                mTText.setText(top);
+                mTText.setText(""+top);
 
         }
         else{
