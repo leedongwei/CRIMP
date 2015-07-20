@@ -54,22 +54,12 @@
             android:windowSoftInputMode="adjustPan">
         </activity>
 
-        <activity android:name=".test.TestActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait">
-        </activity>
-
-
 
         <activity
             android:name=".uploadlist.UploadListActivity"
             android:label="@string/app_name" >
         </activity>
 
-        <activity
-            android:name=".scoring.ScoringActivity"
-            android:label="@string/app_name" >
-        </activity>
     </application>
 
 </manifest>
