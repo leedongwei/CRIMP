@@ -18,6 +18,7 @@ import com.nusclimb.live.crimp.common.BusProvider;
 import com.nusclimb.live.crimp.common.QueueObject;
 import com.nusclimb.live.crimp.common.busevent.AccumulatedScoreChange;
 import com.nusclimb.live.crimp.common.busevent.InScoreTab;
+import com.nusclimb.live.crimp.common.busevent.ScanFinish;
 import com.nusclimb.live.crimp.common.busevent.ScoreFinish;
 import com.nusclimb.live.crimp.common.busevent.ScoreOnResume;
 import com.nusclimb.live.crimp.common.json.ActiveClimbersResponse;
@@ -109,6 +110,15 @@ public class ScoreFragment extends Fragment {
                 Log.e(TAG+".onRequestSuccess()", result.getClimberId()+" != "+mClimberIdEdit.getText().toString());
             }
         }
+    }
+
+    @Subscribe
+    public void onReceiveScanFinish(ScanFinish event){
+        Log.d(TAG+".onReceiveScanFinish()", "Received ScanFinish event.");
+
+        mClimberNameEdit.setText("");
+        mAccumulatedEdit.setText("");
+        mCurrentSessionEdit.setText("");
     }
 
     @Subscribe

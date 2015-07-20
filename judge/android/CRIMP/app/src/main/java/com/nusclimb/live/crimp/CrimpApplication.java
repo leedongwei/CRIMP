@@ -57,19 +57,6 @@ public class CrimpApplication extends Application {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     private NetworkStateReceiver receiver;
 	
 	/*=========================================================================
@@ -230,7 +217,7 @@ public class CrimpApplication extends Application {
         }
 
         //TODO
-        //tryProcessRequest();
+        tryProcessRequest();
     }
 
     public void modifyUploadTotalCount(int i){

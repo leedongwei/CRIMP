@@ -70,7 +70,7 @@ public class UploadListActivity extends ListActivity {
 
     @Override
     protected void onListItemClick (ListView l, View v, int position, long id){
-        /*
+
         // Only react to first item.
         if(position == 0){
             QueueObject element = (QueueObject) getListAdapter().getItem(position);
@@ -82,24 +82,20 @@ public class UploadListActivity extends ListActivity {
 
                 // Preparing to start QRScanActivity
                 Intent intent = new Intent(this, UploadEditActivity.class);
-                intent.putExtra(packageName + getString(R.string.intent_dl_url),
-                        element.getRequest().getBaseUrl());
-                intent.putExtra(packageName + getString(R.string.intent_ul_url),
-                        element.getSubmit().getBaseUrl());
-                intent.putExtra(packageName + getString(R.string.intent_j_name),
-                        element.getSubmit().getUploadContent().getJ_name());
-                intent.putExtra(packageName + getString(R.string.intent_auth_code),
-                        element.getSubmit().getUploadContent().getAuth_code());
-                intent.putExtra(packageName + getString(R.string.intent_r_id),
-                        element.getSubmit().getUploadContent().getR_id());
-                intent.putExtra(packageName + getString(R.string.intent_c_id),
-                        element.getSubmit().getUploadContent().getC_id());
-                intent.putExtra(packageName + getString(R.string.intent_score_append),
-                        element.getSubmit().getUploadContent().getCurrentScore());
+                intent.putExtra(getString(R.string.intent_x_user_id),
+                        element.getRequest().getxUserId());
+                intent.putExtra(getString(R.string.intent_x_auth_token),
+                        element.getRequest().getxAuthToken());
+                intent.putExtra(getString(R.string.intent_cid),
+                        element.getRequest().getClimberId());
+                intent.putExtra(getString(R.string.intent_rid),
+                        element.getRequest().getRouteId());
+                intent.putExtra(getString(R.string.intent_score),
+                        element.getRequest().getScore());
 
                 startActivity(intent);
             }
         }
-        */
+
     }
 }

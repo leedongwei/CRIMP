@@ -80,9 +80,42 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
         return climberId;
     }
 
+    public void setClimberId(String climberId){
+        this.climberId = climberId;
+    }
+
     public String getRouteId(){
         return routeId;
     }
+
+    public void setRouteId(String routeId){
+        this.routeId = routeId;
+    }
+
+    public String getScore(){
+        return score;
+    }
+
+    public void setScore(String score){
+        this.score = score;
+    }
+
+    public String getxUserId(){
+        return xUserId;
+    }
+
+    public void setxUserId(String xUserId){
+        this.xUserId = xUserId;
+    }
+
+    public String getxAuthToken(){
+        return xAuthToken;
+    }
+
+    public void setxAuthToken(String xAuthToken){
+        this.xAuthToken = xAuthToken;
+    }
+
 
     public String createCacheKey() {
         // CacheKey too long will cause exception.

@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/grey_light" >
+    android:orientation="vertical">
 
     <FrameLayout android:id="@+id/scan_frame_viewgroup"
         android:layout_width="match_parent"
@@ -17,8 +16,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="16dp"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -50,8 +50,6 @@
                 android:background="@color/white"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:paddingRight="8dp"
-                android:layout_marginRight="8dp"
                 android:inputType="number"/>
 
             <Button

@@ -60,6 +60,13 @@
     <string name="upload_activity_status">"Status: "</string>
 
 
+    <!-- UploadEdit Activity UI -->
+    <string name="uploadedit_activity_save">Save changes</string>
+    <string name="uploadedit_activity_no_save">Don\'t save changes</string>
+    <string name="uploadedit_activity_cancel_task">Cancel task</string>
+    <string name="uploadedit_activity_no_cancel_task">Don\'t cancel task</string>
+
+
 
 
 
@@ -93,6 +100,15 @@
     <string name="preference_category_id">preference_catid</string>
     <string name="preference_category_name">preference_catname</string>
     <string name="preference_route_count">preference_routecount</string>
+
+
+    <!-- UploadEdit intent -->
+    <string name="intent_x_user_id">intent_xuserid</string>
+    <string name="intent_x_auth_token">intent_xauthtoken</string>
+    <string name="intent_cid">intent_cid</string>
+    <string name="intent_rid">intent_rid</string>
+    <string name="intent_score">intent_score</string>
+
 
 
 
