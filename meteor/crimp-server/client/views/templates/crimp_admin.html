@@ -125,10 +125,10 @@
           {{ #each adminRecentScores }}
             <tr>
               <td class="admin-recentscore-cell-label">
-                <b>{{ route }}</b> {{ climber }}
+                <b>{{ route_id }}</b> {{ climber_id }}
               </td>
               <td class="admin-recentscore-cell-score">{{ score_string }}</td>
-              <td class="admin-recentscore-cell-time">{{ updated }}</td>
+              <td class="admin-recentscore-cell-time">{{ updated_at }}</td>
             </tr>
           {{ /each }}
         </table>

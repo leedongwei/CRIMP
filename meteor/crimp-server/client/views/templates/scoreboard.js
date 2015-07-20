@@ -101,7 +101,7 @@ function climberTabulateScores(climberData) {
   return climberData
 }
 
-function climberSort(a, b) {;
+function climberSort(a, b) {
   if (a.tops !== b.tops)
     return a.tops > b.tops ? -1 : 1;
 

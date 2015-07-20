@@ -100,11 +100,6 @@ if (Meteor.isServer) {
     removeActiveClimber: function(selector, modifier) {
       modifier.climber_id = '';
       modifier.climber_name = '';
-
-      if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
-        throw new Meteor.Error(403, "Access denied");
-      }
-
       // TODO: do checks
 
 

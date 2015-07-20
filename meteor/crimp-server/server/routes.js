@@ -249,6 +249,10 @@ Restivus.addRoute('judge/score/:route_id/:climber_id',
           'climber_id': this.urlParams.climber_id
         };
 
+    if (!score) {
+      return { 'error': 'score_string is invalid' }
+    }
+
     var isFinalized = Categories.findOne({
       'category_id': category
     }).scores_finalized;
@@ -272,6 +276,8 @@ Restivus.addRoute('judge/score/:route_id/:climber_id',
         'admin_id': this.userId,
         'admin_name': this.user.profile.name
       });
+
+      Meteor.call('updateRecentScores', Scores.findOne(selector));
       return {};
     } else {
       return { 'error': 'Updated 0 scores' };

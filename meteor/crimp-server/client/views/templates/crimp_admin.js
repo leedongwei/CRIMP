@@ -45,21 +45,16 @@ Template.admin_dashboard.helpers({
     return Roles.getUsersInRole('pending');
   },
   adminRecentScores: function() {
-    var rs = RecentScores.find({}).fetch(),
-        score;
+    var rs = RecentScores.find({}).fetch();
 
+    // Most recent on top
+    rs.sort(recentScoreSort);
 
     for (var i=0; i < rs.length; i++) {
-      score = Scores.findOne({ '_id': rs[i].score_id });
-      if (score) {
-        rs[i]['route'] = score.route_id;
-        rs[i]['climber'] = score.climber_id;
-        rs[i]['score_string'] = score.score_string;
-        rs[i]['updated'] = moment(rs[i].updated_at).fromNow();
-      }
+      rs[i]['updated_at'] = moment(rs[i].updated_at).fromNow();
     }
 
-    return rs;
+    return rs
   }
 });
 
@@ -82,3 +77,12 @@ Template.admin_database.helpers({
     return Scores.findOne({});
   }
 });
+
+
+
+/*
+ * Utility functions
+ */
+function recentScoreSort(a, b) {
+  return a.updated_at >= b.updated_at ? -1 : 1;
+}
