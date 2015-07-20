@@ -1,5 +1,5 @@
 ENVIRONMENT = {
-  'production': false,
+  'production': true,
   'demo': true,
-  'eventName': 'CRIMP Demonstration'
+  'eventName': 'CRIMP'
 }

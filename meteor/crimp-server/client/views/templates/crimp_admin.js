@@ -16,6 +16,9 @@ Template.crimp_admin.onCreated(function() {
 });
 
 Template.crimp_admin.helpers({
+  isLoggedIn: function() {
+    return Roles.userIsInRole(Meteor.user(), CRIMP.roles.getAll);
+  },
   isVerified: function() {
     // Note: A user can modify CRIMP.roles values in the client console
     // and get access to the template, but he will not be able to pull data
