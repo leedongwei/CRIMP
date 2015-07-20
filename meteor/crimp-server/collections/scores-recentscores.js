@@ -19,7 +19,8 @@ CRIMP.schema.recentscore = new SimpleSchema({
   score_string: {
     label: 'Raw scoring string',
     type: String,
-    trim: false
+    trim: false,
+    optional: true
   },
   updated_at: {
     label: 'Update time of score-record',
@@ -40,18 +41,13 @@ Meteor.methods({
                   .fetch(),
         data = {};
 
+    // Delete everything in recentscores
+    RecentScores.remove({}, function(error, results){
+      // do nothing
+    });
+
     for (var i=0; i < scores.length; i++) {
-      data['score_id'] = scores[i]._id;
-      data['climber_id'] = scores[i].climber_id;
-      data['route_id'] = scores[i].route_id;
-      data['score_string'] = scores[i].score_string || '';
-      data['updated_at'] = scores[i].updated_at;
-
-      console.log(data)
-
-      RecentScores.insert(data, function(error, insertedId) {
-        if (error)  throw error;
-      });
+      Meteor.call('updateRecentScores', scores[i]);
     }
   },
   updateRecentScores: function(data) {
