@@ -12,10 +12,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.nusclimb.live.crimp.CrimpApplication;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.BusProvider;
+import com.nusclimb.live.crimp.common.QueueObject;
 import com.nusclimb.live.crimp.common.busevent.AccumulatedScoreChange;
 import com.nusclimb.live.crimp.common.busevent.InScoreTab;
+import com.nusclimb.live.crimp.common.busevent.ScoreFinish;
 import com.nusclimb.live.crimp.common.busevent.ScoreOnResume;
 import com.nusclimb.live.crimp.common.json.ActiveClimbersResponse;
 import com.nusclimb.live.crimp.common.json.Category;
@@ -23,6 +26,7 @@ import com.nusclimb.live.crimp.common.json.Climber;
 import com.nusclimb.live.crimp.common.json.ClimbersResponse;
 import com.nusclimb.live.crimp.common.json.GetScoreResponse;
 import com.nusclimb.live.crimp.common.spicerequest.ClimbersRequest;
+import com.nusclimb.live.crimp.common.spicerequest.GetScoreRequest;
 import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.DurationInMillis;
@@ -79,7 +83,7 @@ public class ScoreFragment extends Fragment {
     }
 
     /**
-     * RequestListener for receiving response of active climber request.
+     * RequestListener for receiving response of get score request.
      *
      * @author Lin Weizhi (ecc.weizhi@gmail.com)
      */
@@ -93,41 +97,19 @@ public class ScoreFragment extends Fragment {
 
         @Override
         public void onRequestSuccess(GetScoreResponse result) {
-            Log.i(TAG + ".onRequestSuccess()", "success");
+            Log.i(TAG + ".onRequestSuccess()", "Received score for cid:"+result.getClimberId());
 
-            if(result.getClimberId().compareTo(mClimberIdEdit.getText().toString()) == 0)
+            if(result.getClimberId().compareTo(mClimberIdEdit.getText().toString()) == 0) {
                 mAccumulatedEdit.setText(result.getScore());
-        }
-    }
 
-    /**
-     * RequestListener for receiving response of active climber request.
-     *
-     * @author Lin Weizhi (ecc.weizhi@gmail.com)
-     */
-    private class ClimbersRequestListener implements RequestListener<ClimbersResponse> {
-        private final String TAG = ClimbersRequestListener.class.getSimpleName();
-
-        @Override
-        public void onRequestFailure(SpiceException e) {
-            Log.i(TAG+".onRequestFailure()", "fail");
-        }
-
-        @Override
-        public void onRequestSuccess(ClimbersResponse result) {
-            Log.i(TAG+".onRequestSuccess()", "success");
-
-            List<Climber> climberList = result.getClimbers();
-            for(Climber c : climberList){
-                if(c.getClimberId().compareTo(mClimberIdEdit.getText().toString()) == 0){
-                    mClimberNameEdit.setText(c.getClimberName());
-                    break;
-                }
+                if(mClimberNameEdit.getText().length() == 0)
+                    mClimberNameEdit.setText(result.getClimberName());
+            }
+            else{
+                Log.e(TAG+".onRequestSuccess()", result.getClimberId()+" != "+mClimberIdEdit.getText().toString());
             }
         }
     }
-
-
 
     @Subscribe
     public void onReceiveInScoreTab(InScoreTab event){
@@ -141,27 +123,16 @@ public class ScoreFragment extends Fragment {
         if(climberName!= null && climberName.length()>0){
             mClimberNameEdit.setText(climberName);
         }
-        else{
-            // Make a request to get climber name
-            ClimbersRequest mClimbersRequest = new ClimbersRequest(((HelloActivity) getActivity()).getxUserId(),
-                    ((HelloActivity) getActivity()).getxAuthToken(),
-                    ((HelloActivity) getActivity()).getRouteId(),
-                    getActivity());
-            spiceManager.execute(mClimbersRequest, mClimbersRequest.createCacheKey(),
-                    DurationInMillis.ALWAYS_EXPIRED,
-                    new ClimbersRequestListener());
-        }
 
-        //TODO
-        ClimbersRequest mClimbersRequest = new ClimbersRequest(((HelloActivity) getActivity()).getxUserId(),
+        // Make a request to get climber score
+        GetScoreRequest mGetScoreRequest = new GetScoreRequest(((HelloActivity) getActivity()).getxUserId(),
                 ((HelloActivity) getActivity()).getxAuthToken(),
                 ((HelloActivity) getActivity()).getRouteId(),
+                mClimberIdEdit.getText().toString(),
                 getActivity());
-        spiceManager.execute(mClimbersRequest, mClimbersRequest.createCacheKey(),
+        spiceManager.execute(mGetScoreRequest, mGetScoreRequest.createCacheKey(),
                 DurationInMillis.ALWAYS_EXPIRED,
-                new ClimbersRequestListener());
-
-        // Make a request to get climber score.
+                new GetScoreRequestListener());
 
         // Update title
         String rid = ((HelloActivity) getActivity()).getRouteId();
@@ -315,6 +286,7 @@ public class ScoreFragment extends Fragment {
 
     @Override
     public void onPause(){
+        BusProvider.getInstance().unregister(this);
         super.onPause();
     }
 
@@ -377,7 +349,20 @@ public class ScoreFragment extends Fragment {
     }
 
     public void submit(){
+        // Make QueueObject
+        QueueObject mQueueObject = new QueueObject(((HelloActivity)getActivity()).getxUserId(),
+                ((HelloActivity)getActivity()).getxAuthToken(),
+                ((HelloActivity)getActivity()).getRouteId(),
+                mClimberIdEdit.getText().toString(),
+                mCurrentSessionEdit.getText().toString(),
+                CrimpService.nextRequestId(),
+                getActivity());
 
+        // Add to a queue of QueueObject request.
+        ((CrimpApplication)getActivity().getApplicationContext()).addRequest(mQueueObject);
+
+        // Navigate up from this activity.
+        BusProvider.getInstance().post(new ScoreFinish());
     }
 
 

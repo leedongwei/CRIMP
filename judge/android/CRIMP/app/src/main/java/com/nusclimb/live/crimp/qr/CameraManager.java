@@ -244,11 +244,11 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
             Camera.Parameters param = camera.getParameters();
             List<Camera.Size> supportedSize = param.getSupportedPreviewSizes();
 
-            String temp = "Available preview size: ";
-            for(Camera.Size s: supportedSize ){
-                temp = temp + s.height + "x" + s.width + ";\n";
-            }
-            Log.v(TAG, temp);
+            //String temp = "Available preview size: ";
+            //for(Camera.Size s: supportedSize ){
+            //    temp = temp + s.height + "x" + s.width + ";\n";
+            //}
+            //Log.v(TAG, temp);
 
             // Find available preview size with height closest to
             // targetResolution's width.

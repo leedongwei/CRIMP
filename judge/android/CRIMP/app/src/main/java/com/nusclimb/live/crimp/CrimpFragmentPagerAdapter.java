@@ -33,19 +33,16 @@ public class CrimpFragmentPagerAdapter extends FragmentPagerAdapter {
         switch (i) {
             case 0:
                 RouteFragment mRouteFragment = new RouteFragment();
-                mRouteFragment.setArguments(mActivity.getBundle());
 
                 return mRouteFragment;
 
             case 1:
                 ScanFragment mScanFragment = new ScanFragment();
-                mScanFragment.setArguments(mActivity.getBundle());
 
                 return mScanFragment;
 
             case 2:
                 ScoreFragment mScoreFragment = new ScoreFragment();
-                mScoreFragment.setArguments(mActivity.getBundle());
 
                 return mScoreFragment;
 

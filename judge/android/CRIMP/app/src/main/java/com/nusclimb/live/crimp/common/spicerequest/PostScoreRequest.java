@@ -76,6 +76,14 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
         return content;
     }
 
+    public String getClimberId(){
+        return climberId;
+    }
+
+    public String getRouteId(){
+        return routeId;
+    }
+
     public String createCacheKey() {
         // CacheKey too long will cause exception.
         return xUserId+routeId;

@@ -3,13 +3,12 @@ package com.nusclimb.live.crimp;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import com.nusclimb.live.crimp.common.json.PostScoreResponse;
+import com.nusclimb.live.crimp.common.spicerequest.PostScoreRequest;
 import com.nusclimb.live.crimp.uploadlist.UploadListActivity;
 import com.nusclimb.live.crimp.common.QueueObject;
-import com.nusclimb.live.crimp.common.UploadStatus;
-import com.nusclimb.live.crimp.common.json.Score;
-import com.nusclimb.live.crimp.common.spicerequest.UploadScoreRequest;
-import com.nusclimb.live.crimp.common.spicerequest.UploadScoreSubmit;
 import com.nusclimb.live.crimp.service.CrimpService;
+import com.nusclimb.live.crimp.uploadlist.UploadStatus;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.exception.NoNetworkException;
 import com.octo.android.robospice.persistence.DurationInMillis;
@@ -53,8 +52,25 @@ public class CrimpApplication extends Application {
     private NotificationCompat.Builder mBuilder;
     private Runnable checkSpiceManagerRunnable;
 
-    //TODO
-    //private NetworkStateReceiver receiver;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private NetworkStateReceiver receiver;
 	
 	/*=========================================================================
 	 * Inner class
@@ -66,7 +82,6 @@ public class CrimpApplication extends Application {
      * @author Lin Weizhi (ecc.weizhi@gmail.com)
      *
      */
-    /* TODO
     public class NetworkStateReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(final Context context, final Intent intent) {
@@ -87,7 +102,7 @@ public class CrimpApplication extends Application {
             }
         }
     }
-    */
+
 
     /**
      * RequestListener for UploadScoreSubmit.
@@ -95,8 +110,7 @@ public class CrimpApplication extends Application {
      * @author Lin Weizhi (ecc.weizhi@gmail.com)
      *
      */
-    /* TODO
-    private class UploadScoreSubmitListener implements RequestListener<Object> {
+    private class PostScoreRequestListener implements RequestListener<PostScoreResponse> {
         @Override
         public void onRequestFailure(SpiceException e) {
             if(e instanceof NoNetworkException){
@@ -107,8 +121,8 @@ public class CrimpApplication extends Application {
                 }
 
                 // Cancel just in case.
-                UploadScoreSubmit newScoreSubmit = getQueue().peek().getSubmit();
-                spiceManager.cancel(Object.class, newScoreSubmit.createCacheKey());
+                PostScoreRequest request = getQueue().peek().getRequest();
+                spiceManager.cancel(PostScoreResponse.class, request.createCacheKey());
 
                 // Register receiver
                 registerReceiver(getNetworkStateReceiver(), new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
@@ -124,13 +138,10 @@ public class CrimpApplication extends Application {
                     queueAdapter.notifyDataSetChanged();
                 }
             }
-
-            Log.w(TAG, "[UploadScoreSubmitListener fails:"+e+"]\n[Pending uploads:"+
-                    uploadQueue.size()+"] [isUploading:"+isUploading+"] [isPause:"+isPause+"]");
         }
 
         @Override
-        public void onRequestSuccess(Object result) {
+        public void onRequestSuccess(PostScoreResponse result) {
             isUploading = false;
             getQueue().poll().setStatus(UploadStatus.FINISHED);
             modifyUploadSuccessCount(1);
@@ -138,78 +149,10 @@ public class CrimpApplication extends Application {
                 queueAdapter.notifyDataSetChanged();
             }
 
-            Log.i(TAG, "[UploadScoreSubmitListener succeed]\n[Pending uploads:"+
-                    uploadQueue.size()+"] [isUploading:"+isUploading+"] [isPause:"+isPause+"]");
-
             // Chain up next request.
             tryProcessRequest();
         }
     }
-    */
-
-    /**
-     * RequestListener for UploadScoreRequest. Set climber score in
-     * UploadScoreSubmit when succeed.
-     *
-     * @author Lin Weizhi (ecc.weizhi@gmail.com)
-     *
-     */
-    /* TODO
-    private class UploadScoreRequestListener implements RequestListener<Score> {
-        @Override
-        public void onRequestFailure(SpiceException e) {
-            if(e instanceof NoNetworkException){
-                // Update status
-                getQueue().peek().setStatus(UploadStatus.ERROR_NO_NETWORK);
-                if(queueAdapter != null){
-                    queueAdapter.notifyDataSetChanged();
-                }
-
-                // Cancel just in case.
-                UploadScoreRequest oldScoreRequest = getQueue().peek().getRequest();
-                spiceManager.cancel(Score.class, oldScoreRequest.createCacheKey());
-
-                // Register receiver
-                registerReceiver(getNetworkStateReceiver(), new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
-            }
-            else{
-                getQueue().peek().setStatus(UploadStatus.ERROR_DOWNLOAD);
-                isPause = true;
-                if(uploadListActivity != null){
-                    uploadListActivity.setButtonState(isPause);
-                }
-                if(queueAdapter != null){
-                    queueAdapter.notifyDataSetChanged();
-                }
-            }
-
-            Log.w(TAG, "[UploadScoreRequestListener fails:"+e+"]\n[Pending uploads:"+
-                    uploadQueue.size()+"] [isUploading:"+isUploading+"] [isPause:"+isPause+"]");
-        }
-
-        @Override
-        public void onRequestSuccess(Score result) {
-            // Update status
-            getQueue().peek().setStatus(UploadStatus.UPLOAD);
-            if(queueAdapter != null){
-                queueAdapter.notifyDataSetChanged();
-            }
-
-            // Update score
-            getQueue().peek().getSubmit().updateScoreWithOld(result.getC_score());
-
-            Log.i(TAG, "[UploadScoreRequestListener succeed]\n[Pending uploads:"+
-                    uploadQueue.size()+"] [isUploading:"+isUploading+"] [isPause:"+isPause+"]");
-
-            // Execute upload new score.
-            UploadScoreSubmit newScoreSubmit = getQueue().peek().getSubmit();
-            spiceManager.execute(newScoreSubmit, newScoreSubmit.createCacheKey(),
-                    DurationInMillis.ALWAYS_EXPIRED, new UploadScoreSubmitListener());
-        }
-    }
-    */
-
-
 
     /*=========================================================================
      * Public methods
@@ -229,7 +172,6 @@ public class CrimpApplication extends Application {
      *
      * @param request Request to be added.
      */
-    /* TODO
     public void addRequest(QueueObject request){
         // Start the spiceManager if it is not started.
         if(!isSpiceManagerStarted && spiceManagerToken > 0){
@@ -252,7 +194,6 @@ public class CrimpApplication extends Application {
 
         tryProcessRequest();
     }
-    */
 
     /**
      * Get upload request queue. Create one if it does not exist.
@@ -292,7 +233,6 @@ public class CrimpApplication extends Application {
         //tryProcessRequest();
     }
 
-    /* TODO
     public void modifyUploadTotalCount(int i){
         uploadTotalCount += i;
 
@@ -324,9 +264,7 @@ public class CrimpApplication extends Application {
         // Builds the notification and issues it.
         mNotifyMgr.notify(NOTIFICATION_ID, getNotificationBuilder().build());
     }
-    */
 
-    /* TODO
     public void modifyUploadSuccessCount(int i){
         uploadSuccessCount += i;
 
@@ -358,7 +296,7 @@ public class CrimpApplication extends Application {
         // Builds the notification and issues it.
         mNotifyMgr.notify(NOTIFICATION_ID, getNotificationBuilder().build());
     }
-	*/
+
 
 	
 	
@@ -370,7 +308,6 @@ public class CrimpApplication extends Application {
      *
      * @return Notification builder used for displaying upload status.
      */
-    /*TODO
     private NotificationCompat.Builder getNotificationBuilder(){
         if(mBuilder == null){
             // Creates an Intent for the Activity
@@ -397,33 +334,26 @@ public class CrimpApplication extends Application {
 
         return mBuilder;
     }
-    */
 
     /**
      * Test and process request if possible. No-op if 1) already uploading
      * and/or 2) queue is empty and/or 3) spiceManager not started.
      */
-    /* TODO
     private void tryProcessRequest(){
         if(!isUploading && !getQueue().isEmpty() && isSpiceManagerStarted && !isPause){
-            UploadScoreRequest oldScoreRequest = getQueue().peek().getRequest();
-
             // Update status
-            getQueue().peek().setStatus(UploadStatus.DOWNLOAD);
+            getQueue().peek().setStatus(UploadStatus.UPLOAD);
             if(queueAdapter != null){
                 queueAdapter.notifyDataSetChanged();
             }
 
-            // Execute download old score.
+            // Execute upload new score.
             isUploading = true;
-            spiceManager.execute(oldScoreRequest, oldScoreRequest.createCacheKey(),
-                    DurationInMillis.ALWAYS_EXPIRED, new UploadScoreRequestListener());
-
-            Log.d(TAG, "Execute request.\n[Pending uploads:"+
-                    uploadQueue.size()+"] [isUploading:"+isUploading+"] [isPause:"+isPause+"]");
+            PostScoreRequest request = getQueue().peek().getRequest();
+            spiceManager.execute(request, request.createCacheKey(),
+                    DurationInMillis.ALWAYS_EXPIRED, new PostScoreRequestListener());
         }
     }
-    */
 
     /**
      * Get the runnable object for checking spiceManager. Create one if it
@@ -431,7 +361,6 @@ public class CrimpApplication extends Application {
      *
      * @return A runnable object that checks spiceManager for state change.
      */
-    /* TODO
     private Runnable getCheckSpiceManagerRunnable(){
         if(checkSpiceManagerRunnable == null){
             checkSpiceManagerRunnable = new Runnable() {
@@ -451,7 +380,6 @@ public class CrimpApplication extends Application {
 
         return checkSpiceManagerRunnable;
     }
-    */
 
     /**
      * Check for spiceManager toggle between start and not started.
@@ -474,7 +402,6 @@ public class CrimpApplication extends Application {
      *
      * @return A NetworkStateReceiver.
      */
-    /* TODO
     private NetworkStateReceiver getNetworkStateReceiver(){
         if(receiver == null){
             receiver = new NetworkStateReceiver();
@@ -482,5 +409,4 @@ public class CrimpApplication extends Application {
 
         return receiver;
     }
-    */
 }

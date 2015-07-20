@@ -1,17 +1,20 @@
 package com.nusclimb.live.crimp.common;
 
+import android.content.Context;
+
 import com.nusclimb.live.crimp.common.json.SessionUpload;
+import com.nusclimb.live.crimp.common.spicerequest.PostScoreRequest;
 import com.nusclimb.live.crimp.common.spicerequest.UploadScoreRequest;
 import com.nusclimb.live.crimp.common.spicerequest.UploadScoreSubmit;
+import com.nusclimb.live.crimp.uploadlist.UploadStatus;
 
 public class QueueObject {
-    private UploadScoreRequest request;
-    private UploadScoreSubmit submit;
+    private PostScoreRequest request;
     private UploadStatus status;
     private String timeStamp;
 
-    public QueueObject(String j_name, String auth_code,
-                       String r_id, String c_id, String currentScore, int msgId){
+    public QueueObject(String xUserId, String xAuthToken,
+                       String r_id, String c_id, String currentScore, int msgId, Context context){
         // Time stamp
         this.timeStamp = Helper.getCurrentTimeStamp();
 
@@ -19,25 +22,11 @@ public class QueueObject {
         this.status = UploadStatus.PAUSED;
 
         // Score request
-        this.request = new UploadScoreRequest(msgId, c_id, r_id);
-        //this.request.setRetryPolicy(new UploadRetryPolicy());
-
-        // Score submit
-        // Make POJO.
-        SessionUpload uploadPOJO = new SessionUpload();
-        uploadPOJO.setAll_current(j_name, auth_code,
-                r_id, c_id, currentScore);
-        // Prepare request.
-        this.submit = new UploadScoreSubmit(uploadPOJO, msgId);
-        //this.submit.setRetryPolicy(new UploadRetryPolicy());
+        this.request = new PostScoreRequest(xUserId, xAuthToken, r_id, c_id, currentScore, context);
     }
 
-    public UploadScoreRequest getRequest(){
+    public PostScoreRequest getRequest(){
         return request;
-    }
-
-    public UploadScoreSubmit getSubmit(){
-        return submit;
     }
 
     public String getTimeStamp(){

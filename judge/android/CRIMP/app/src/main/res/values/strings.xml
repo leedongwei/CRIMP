@@ -54,6 +54,10 @@
     <string name="scan_fragment_next">Next</string>
 
 
+    <!-- UploadList Activity UI -->
+    <string name="upload_activity_climber">"Climber: "</string>
+    <string name="upload_activity_route">"Route: "</string>
+    <string name="upload_activity_status">"Status: "</string>
 
 
 
@@ -77,10 +81,18 @@
     <string name="bundle_climber_name">bundle_climbername</string>
     <string name="bundle_decode_state">bundle_decodestate</string>
     <string name="bundle_current_judge">bundle_currentjudge</string>
+    <string name="bundle_tab_count">bundle_tabcount</string>
+    <string name="bundle_current_tab">bundle_currenttab</string>
 
 
 
-
+    <!-- SharedPreferences key -->
+    <string name="preference_is_login">preference_islogin</string>
+    <string name="preference_x_user_id">preference_xuserid</string>
+    <string name="preference_x_auth_token">preference_xauthtoken</string>
+    <string name="preference_category_id">preference_catid</string>
+    <string name="preference_category_name">preference_catname</string>
+    <string name="preference_route_count">preference_routecount</string>
 
 
 

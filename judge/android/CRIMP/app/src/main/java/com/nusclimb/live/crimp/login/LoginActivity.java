@@ -248,6 +248,7 @@ public class LoginActivity extends Activity {
     public void cancel(View view){
         Log.v(TAG + ".cancel()", "mState: " + mState);
         LoginManager.getInstance().logOut();
+
         changeState(LoginState.NOT_LOGIN);
     }
 
@@ -449,6 +450,7 @@ public class LoginActivity extends Activity {
             categoryRouteCountListAsArray[i] = categoryRouteCountList.get(i);
         }
 
+        // Putting stuff into intent.
         // Putting stuff into intent.
         Intent intent = new Intent(getApplicationContext(), HelloActivity.class);
 

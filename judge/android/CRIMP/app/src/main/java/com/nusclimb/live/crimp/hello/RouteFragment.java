@@ -1,6 +1,7 @@
 package com.nusclimb.live.crimp.hello;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -132,6 +133,8 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     /**
      * Initialize the category spinner. Create a spinner adapter, populate adapter with
      * categories and hint, attach it to spinner and set initial selection.
+     *
+     * Requires categorySpinnerItemList to have items.
      */
     private void setupCategorySpinner(){
         categorySpinnerItemList.add(0, new CategorySpinnerItem(
@@ -184,7 +187,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         ((SpinnerAdapterWithHint)mRouteSpinner.getAdapter()).addAll(mRouteList);
 
         mRouteSpinner.setSelection(((SpinnerAdapterWithHint) mRouteSpinner.getAdapter()).getFirstHintPosition());
-        ((TextView)mRouteSpinner.getSelectedView()).setTextColor(getResources().getColor(R.color.hint_color));
+        //((TextView) mRouteSpinner.getSelectedView()).setTextColor(getResources().getColor(R.color.hint_color)); //TODO getselectedview return null
         mRouteSpinner.setEnabled(true);
     }
 
@@ -345,12 +348,24 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        Log.v(TAG+".onCreate()", "Created");
+        if(savedInstanceState == null){
+            Log.v(TAG+".onCreate()", "Newly created.");
+        }
+        else{
+            Log.v(TAG+".onCreate()", "Recreated.");
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
+        if(savedInstanceState == null){
+            Log.v(TAG+".onCreateView()", "Newly created.");
+        }
+        else{
+            Log.v(TAG+".onCreateView()", "Recreated.");
+        }
+
         // Inflating rootView.
         View rootView = inflater.inflate(R.layout.fragment_route, container, false);
 
@@ -384,7 +399,6 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
 
         if(savedInstanceState == null){
             Log.d(TAG+".onActivityCreated()", "Newly created.");
-
             mState = State.PICKING;
         }
         else{
@@ -395,9 +409,13 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
             updateRouteSpinner(((CategorySpinnerItem) mCategorySpinner.getSelectedItem()).getRouteCount());
             mRouteSpinner.setSelection(savedInstanceState.getInt(getString(R.string.bundle_route_spinner_selection)));
 
-            currentJudge = savedInstanceState.getString(getString(R.string.bundle_current_judge));
+            if(mState == State.REPLACE_QUESTION)
+                currentJudge = savedInstanceState.getString(getString(R.string.bundle_current_judge));
 
-            changeState(State.toEnum(savedInstanceState.getInt(getString(R.string.bundle_route_state))));
+            if(mState == State.JUDGE_OK)
+                routeId = savedInstanceState.getString(getString(R.string.bundle_route_id));
+
+            changeState(mState);
         }
     }
 
@@ -406,7 +424,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         super.onStart();
 
         // Guaranteed to have an activity here.
-        Log.v(TAG+".onStart()", "Starting spiceManager");
+        Log.v(TAG + ".onStart()", "Starting spiceManager");
         spiceManager.start(getActivity());
 
         initHelloText();
@@ -421,7 +439,6 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
 
     @Override
     public void onPause(){
-        super.onPause();
         Log.v(TAG + ".onPause()", "mState: " + mState);
 
         switch(mState){
@@ -433,6 +450,8 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
             default:
                 changeState(State.PICKING);
         }
+        BusProvider.getInstance().unregister(this);
+        super.onPause();
     }
 
     @Override
@@ -447,11 +466,16 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        outState.putInt(getString(R.string.bundle_route_state), mState.getValue());
+
+
         outState.putInt(getString(R.string.bundle_category_spinner_selection), mCategorySpinner.getSelectedItemPosition());
         outState.putInt(getString(R.string.bundle_route_spinner_selection), mRouteSpinner.getSelectedItemPosition());
-        outState.putInt(getString(R.string.bundle_route_state), mState.getValue());
-        if(currentJudge != null)
+        if(mState == State.REPLACE_QUESTION)
             outState.putString(getString(R.string.bundle_current_judge), currentJudge);
+
+        if(mState == State.JUDGE_OK)
+            outState.putString(getString(R.string.bundle_route_id), routeId);
     }
 
 
@@ -522,12 +546,14 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
-        // TODO there is a null pointer exception in this log.
-        //Log.d(TAG+".onItemSelected()", "parentId: " + parent.getId() + ", viewId:" + view.getId() +
-        //        ", pos:" + pos + ", id" + id);
+        // TODO view maybe null. dunno how to solve.
+
+        if(view == null)
+            return;
 
         // If already in JUDGE_OK and user change the category/route, we need to enter picking state.
         if(mState == State.JUDGE_OK){
+            Log.d(TAG+".onItemSelected()", "changing to picking.");
             changeState(State.PICKING);
         }
 
@@ -548,7 +574,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         if(parent.getId() == mRouteSpinner.getId()){
             SpinnerItem selectedItem = (SpinnerItem)parent.getSelectedItem();
             if(selectedItem.isHint()) {
-                Log.v(TAG+".onItemSelected()", "Selected route hint.");
+                Log.v(TAG + ".onItemSelected()", "Selected route hint.");
                 ((TextView) view).setTextColor(getResources().getColor(R.color.hint_color));
 
                 mNextButton.setEnabled(false);

@@ -31,6 +31,7 @@ import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
 import com.nusclimb.live.crimp.common.busevent.ScanFinish;
 import com.nusclimb.live.crimp.common.busevent.ScanNotFinish;
 import com.nusclimb.live.crimp.common.busevent.ScanOnResume;
+import com.nusclimb.live.crimp.common.busevent.ScoreFinish;
 import com.nusclimb.live.crimp.common.busevent.StartScan;
 import com.nusclimb.live.crimp.qr.CameraManager;
 import com.nusclimb.live.crimp.qr.DecodeThread;
@@ -342,6 +343,17 @@ public class ScanFragment extends Fragment {
     @Subscribe
     public void onReceiveRouteNotFinish(RouteNotFinish event){
         Log.d(TAG + ".onReceiveRouteNotFinish()", "Received RouteNotFinish event.");
+        climberId = "";
+        climberName = "";
+
+        mClimberIdEdit.setText(climberId, TextView.BufferType.EDITABLE);
+        mClimberNameEdit.setText(climberName, TextView.BufferType.EDITABLE);
+        setState(R.id.decode);
+    }
+
+    @Subscribe
+    public void onReceiveScoreFinish(ScoreFinish event){
+        Log.d(TAG + ".onReceiveScoreFinish()", "Received ScoreFinish event.");
         climberId = "";
         climberName = "";
 

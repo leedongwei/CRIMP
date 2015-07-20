@@ -167,7 +167,8 @@
                 android:clickable="false"
                 android:cursorVisible="false"
                 android:focusable="false"
-                android:focusableInTouchMode="false" />
+                android:focusableInTouchMode="false"
+                android:hint="loading..."/>
 
         </TableRow>
 
@@ -207,7 +208,6 @@
                 android:id="@+id/scoring_score_history_edit"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"
                 android:clickable="false"
                 android:cursorVisible="false"
                 android:focusable="false"
