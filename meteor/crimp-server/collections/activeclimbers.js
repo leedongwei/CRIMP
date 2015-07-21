@@ -48,13 +48,13 @@ ActiveClimbers.attachSchema(CRIMP.schema.activeclimber);
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
-    // Meteor.setInterval(function() {
 
-    //   // TODO: Clean up
-    //   console.log('   --- interval AC ---');
-    //   ActiveClimbers.find({})
-    //                 .forEach(checkActiveClimberExpiry);
-    // }, 90000);
+    Meteor.setInterval(function() {
+      // TODO: Clean up
+      console.log('--- Refresh ActiveClimbers ---');
+      ActiveClimbers.find({})
+                    .forEach(checkActiveClimberExpiry);
+    }, 90000);
   });
 
 
@@ -122,7 +122,6 @@ Meteor.methods({
     }
 
     // TODO: Check data is actually a route
-
     ActiveClimbers.remove({ 'route_id': data });
   },
 

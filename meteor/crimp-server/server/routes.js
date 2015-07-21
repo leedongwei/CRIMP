@@ -177,28 +177,47 @@ Restivus.addRoute('judge/activeclimbers',
         climber_id = this.bodyParams.climber_id,
         climber_name = Climbers.findOne({
           'climber_id': this.bodyParams.climber_id
-        }).name,
+        }).climber_name,
         insert = JSON.parse(this.bodyParams.insert);
 
     // TODO: Checks
 
     if (insert) {
-      CRIMP.activeclimbers.insertActiveClimber(
+      ActiveClimbers.upsert(
         { 'route_id': route_id },
-        {
+        { $set: {
           'route_id': route_id,
           'admin_id': admin_id,
           'admin_name': admin_name,
           'climber_id': climber_id,
           'climber_name': climber_name
+        }},
+        function(error, result) {
+          // do nothing, prevents ActiveClimber.update from blocking
+          if (error)  console.error(error);
         }
-      )
+      );
+
     } else {
       CRIMP.activeclimbers.removeActiveClimber(
         { 'route_id': route_id },
         {
           'admin_id': admin_id,
           'admin_name': admin_name
+        }
+      );
+
+      ActiveClimbers.update(
+        { 'route_id': route_id },
+        { $set: {
+          'admin_id': admin_id,
+          'admin_name': admin_name,
+          'climber_id': '',
+          'climber_name': ''
+        }},
+        function(error, result) {
+          // do nothing, prevents ActiveClimber.update from blocking
+          if (error)  console.error(error);
         }
       );
     }
