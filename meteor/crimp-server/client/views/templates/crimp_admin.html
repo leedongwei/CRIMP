@@ -23,8 +23,8 @@
             <li><span class="crimp-conn">{{ > conn_status }}</span></li>
 
             {{ #if isVerified }}
-              <li><a>Dashboard</a></li>
-              <li><a>Database</a></li>
+              <li><a id="crimp-admin-link-dashboard">Dashboard</a></li>
+              <li><a id="crimp-admin-link-database">Database</a></li>
               <li>{{ > loginButtons }}</li>
             {{ /if }}
           </ul>
@@ -37,7 +37,11 @@
   {{ #if isLoggedIn }}
     {{ #if isVerified }}
       <div class="crimp-admin-section">
-        {{ > admin_restricted }}
+        {{ #if isDashboardView }}
+          {{ > admin_dashboard }}
+        {{ else }}
+          {{ > admin_database }}
+        {{ /if }}
       </div>
     {{ else }}
       <div class="crimp-admin-denied">
@@ -51,14 +55,6 @@
     </div>
   {{ /if }}
 </template>
-
-
-
-<template name="admin_restricted">
-  {{ > admin_dashboard }}
-  {{ > admin_database }}
-</template>
-
 
 
 <template name="admin_dashboard">

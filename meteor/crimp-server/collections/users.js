@@ -2,8 +2,7 @@
 
 Meteor.methods({
   changeUserRole: function(data) {
-    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted) ||
-        data.user_role == 'hukkataival') {
+    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
       throw new Meteor.Error(403, "Access denied");
     }
 

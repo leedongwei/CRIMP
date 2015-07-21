@@ -13,6 +13,11 @@ Template.crimp_admin.onCreated(function() {
       y:  "a yr",       yy: "%dyrs"
     }
   });
+
+  // For switching between templates
+  var self = this;
+  self.vars = new ReactiveDict();
+  self.vars.setDefault('isDashboard', true);
 });
 
 Template.crimp_admin.helpers({
@@ -25,8 +30,23 @@ Template.crimp_admin.helpers({
     // from the server. This is not a security concern, just the way Meteor
     // is designed.
     return Roles.userIsInRole(Meteor.user(), CRIMP.roles.partners);
+  },
+  isDashboardView: function() {
+    var instance = Template.instance();
+    return instance.vars.get('isDashboard');
   }
 });
+
+Template.crimp_admin.events({
+  'click #crimp-admin-link-dashboard': function(event, template) {
+    var instance = Template.instance();
+    instance.vars.set('isDashboard', true);
+  },
+  'click #crimp-admin-link-database': function(event, template) {
+    var instance = Template.instance();
+    instance.vars.set('isDashboard', false);
+  }
+})
 
 
 Template.admin_dashboard.onCreated(function() {
@@ -35,8 +55,6 @@ Template.admin_dashboard.onCreated(function() {
     Meteor.subscribe('adminPendingJudges');
     Meteor.subscribe('adminRecentScores');
   });
-
-
 });
 
 
@@ -70,9 +88,9 @@ Template.admin_dashboard.events({
   },
   'click .admin-approvejudge-set': function(event, template) {
     var data = {};
-        data['user_id'] = event.target.getAttribute('data-userId');
-        data['user_role'] = $('#admin-approvejudge-' + data.user_id).val();
 
+    data['user_id'] = event.target.getAttribute('data-userId');
+    data['user_role'] = $('#admin-approvejudge-' + data.user_id).val();
     Meteor.call('changeUserRole', data);
   }
 });
