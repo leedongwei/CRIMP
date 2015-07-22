@@ -2,6 +2,7 @@ package com.nusclimb.live.crimp.hello;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
@@ -17,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
@@ -105,6 +107,18 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         return categorySpinnerItemList;
     }
 
+    private void updateTabEnableView(){
+        for(int i=0; i<3; i++){
+            if(i<tabCount){
+                mActionBar.getTabAt(i).setCustomView(null);
+            }
+            else{
+                TextView tv = new TextView(this);
+                tv.setBackgroundColor(Color.BLACK);
+                mActionBar.getTabAt(i).setCustomView(tv);
+            }
+        }
+    }
 
 
     /*=========================================================================
@@ -115,6 +129,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         Log.d(TAG+".onReceiveRouteFinish()", "Received RouteNotFinish event. Set tab count to 1.");
 
         tabCount = 1;
+        updateTabEnableView();
         mCrimpFragmentPagerAdapter.set_count(tabCount);
     }
 
@@ -123,8 +138,10 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         Log.d(TAG+".onReceiveRouteFinish()", "Received RouteFinish event. Set tab count to 2. Select tab 1. routeId="+event.getRouteId());
 
         routeId = event.getRouteId();
+
         tabCount = 2;
         currentTab = 1;
+        updateTabEnableView();
         mCrimpFragmentPagerAdapter.set_count(tabCount);
         mActionBar.setSelectedNavigationItem(currentTab);
     }
@@ -137,6 +154,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         else {
             Log.d(TAG + ".onReceiveScanNotFinish()", "Received ScanNotFinish event. Set tab count to 2.");
             tabCount = 2;
+            updateTabEnableView();
             mCrimpFragmentPagerAdapter.set_count(tabCount);
         }
     }
@@ -149,6 +167,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
         tabCount = 3;
         currentTab = 2;
+        updateTabEnableView();
         mCrimpFragmentPagerAdapter.set_count(tabCount);
         mActionBar.setSelectedNavigationItem(currentTab);
     }
@@ -163,6 +182,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         tabCount = 2;
         currentTab = 1;
         mActionBar.setSelectedNavigationItem(currentTab);
+        updateTabEnableView();
         mCrimpFragmentPagerAdapter.set_count(tabCount);
     }
 
@@ -171,7 +191,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         isRouteOnResume = true;
 
         if(isRouteOnResume && isScanOnResume && isScoreOnResume){
-
+            updateTabEnableView();
             mCrimpFragmentPagerAdapter.set_count(tabCount);
             mActionBar.setSelectedNavigationItem(currentTab);
             Log.d(TAG + ".onReceiveRouteOnResume()", "Received RouteOnResume event. Set tab count to " + tabCount);
@@ -200,6 +220,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
         if(isRouteOnResume && isScanOnResume && isScoreOnResume){
             Log.d(TAG + ".onReceiveScanOnResume", "Set tab count to "+tabCount);
+            updateTabEnableView();
             mCrimpFragmentPagerAdapter.set_count(tabCount);
             mActionBar.setSelectedNavigationItem(currentTab);
         }
@@ -216,6 +237,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
         if(isRouteOnResume && isScanOnResume && isScoreOnResume){
             Log.d(TAG + ".onReceiveScoreOnResume()", "Received ScoreOnResume event. Set tab count to "+tabCount);
+            updateTabEnableView();
             mCrimpFragmentPagerAdapter.set_count(tabCount);
             mActionBar.setSelectedNavigationItem(currentTab);
         }
@@ -565,7 +587,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     {
         switch(currentTab){
             case 0:
-                super.onBackPressed();
+                //super.onBackPressed();
                 break;
             case 1:
                 currentTab = 0;

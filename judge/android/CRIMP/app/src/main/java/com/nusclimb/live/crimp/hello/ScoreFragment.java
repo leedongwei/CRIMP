@@ -26,6 +26,7 @@ import com.nusclimb.live.crimp.common.json.Category;
 import com.nusclimb.live.crimp.common.json.Climber;
 import com.nusclimb.live.crimp.common.json.ClimbersResponse;
 import com.nusclimb.live.crimp.common.json.GetScoreResponse;
+import com.nusclimb.live.crimp.common.spicerequest.ActiveClimbersRequest;
 import com.nusclimb.live.crimp.common.spicerequest.ClimbersRequest;
 import com.nusclimb.live.crimp.common.spicerequest.GetScoreRequest;
 import com.nusclimb.live.crimp.service.CrimpService;
@@ -119,6 +120,17 @@ public class ScoreFragment extends Fragment {
         mClimberNameEdit.setText("");
         mAccumulatedEdit.setText("");
         mCurrentSessionEdit.setText("");
+
+        // Make a active climber request
+        String cid = ((HelloActivity)getActivity()).getRouteId().substring(0,3)+
+                ((HelloActivity)getActivity()).getClimberId();
+        ActiveClimbersRequest mActiveCimberRequest = new ActiveClimbersRequest(((HelloActivity) getActivity()).getxUserId(),
+                ((HelloActivity) getActivity()).getxAuthToken(),
+                ((HelloActivity) getActivity()).getRouteId(),
+                cid,true, getActivity());
+        spiceManager.execute(mActiveCimberRequest, mActiveCimberRequest.createCacheKey(),
+                DurationInMillis.ALWAYS_EXPIRED,
+                new ActiveClimbersRequestListener());
     }
 
     @Subscribe
