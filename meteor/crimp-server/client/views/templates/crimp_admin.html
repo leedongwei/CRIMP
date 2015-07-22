@@ -37,11 +37,7 @@
   {{ #if isLoggedIn }}
     {{ #if isVerified }}
       <div class="crimp-admin-section">
-        {{ #if isDashboardView }}
-          {{ > admin_dashboard }}
-        {{ else }}
-          {{ > admin_database }}
-        {{ /if }}
+        {{ > UI.dynamic template=adminSectionView}}
       </div>
     {{ else }}
       <div class="crimp-admin-denied">
@@ -106,7 +102,7 @@
                   <option value="partner">partner</option>
                   <option value="admin">admin</option>
                 </select>
-                </td>
+              </td>
               <td>
                 <a class="admin-approvejudge-set success label" data-userId="{{ _id }}"><i class="material-icons">check</i></a>
               </td>
@@ -158,16 +154,53 @@
       <h2>Databases</h2>
 
       <ul>
-        <li><a>Admins</a></li>
         <li><a>Categories</a></li>
         <li><a>Climbers &amp; Scores</a></li>
+        <li><a>Admins</a></li>
       </ul>
 
     </section>
     <section class="small-12 medium-5 columns">
+      {{ > admin_db_categories }}
     </section>
 
     <section class="small-12 medium-5 columns">
+      {{ > admin_db_categories_form }}
     </section>
   </div>
+</template>
+
+<template name="admin_db_categories">
+  <h2>List of Categories</h2>
+  <table>
+    <tr>
+      <td>ID</td>
+      <td>Category</td>
+      <td>Finalized<br>Scores?</td>
+      <td></td>
+    </tr>
+    {{ #each categories }}
+      <tr>
+        <td>{{ category_id }}</td>
+        <td>{{ category_name }}</td>
+        <td>
+          {{ #if scores_finalized }}
+            Yes
+          {{ else }}
+            No
+          {{ /if }}
+        </td>
+        <td>
+          <a class="label admin-categories-edit" data-categoryId="{{ category_id }}">
+            Edit
+          </a>
+        </td>
+      </tr>
+    {{ /each }}
+  </table>
+</template>
+
+<template name="admin_db_categories_form">
+  <h2>Editing Category</h2>
+  {{ > quickForm collection="Categories" doc=updateDocCategory id="updateCategories" type="update" }}
 </template>

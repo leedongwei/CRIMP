@@ -10,27 +10,31 @@ CRIMP.schema.category = new SimpleSchema({
     index: true,
     unique: true,
     min: 3,
-    max: 3
+    max: 3,
+    denyUpdate: true
   },
   route_count: {
     label: 'Number of routes',
     type: Number,
-    min: 1
+    min: 1,
+    denyUpdate: true
   },
   scores_finalized: {
-    label: 'Check if chief judge validates scores',
+    label: 'Check if scores are finalized by Chief Judge',
     type: Boolean,
     autoValue: function() {
-      return false;
+      if (this.isInsert) {
+        return false;
+      }
     }
   },
   time_start: {
-    label: 'Starting date and time',
+    label: 'Starting date and time (Optional)',
     type: Date,
     optional: true
   },
   time_end: {
-    label: 'Ending date and time',
+    label: 'Ending date and time (Optional)',
     type: Date,
     optional: true
   }
@@ -38,6 +42,7 @@ CRIMP.schema.category = new SimpleSchema({
 
 
 Categories.attachSchema(CRIMP.schema.category);
+
 
 // Use audit-argument-checks for checks?
 Meteor.methods({

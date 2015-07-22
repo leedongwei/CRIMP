@@ -15,9 +15,7 @@ Template.crimp_admin.onCreated(function() {
   });
 
   // For switching between templates
-  var self = this;
-  self.vars = new ReactiveDict();
-  self.vars.setDefault('isDashboard', true);
+  Session.setDefault('adminSectionView', 'admin_dashboard');
 });
 
 Template.crimp_admin.helpers({
@@ -31,20 +29,17 @@ Template.crimp_admin.helpers({
     // is designed.
     return Roles.userIsInRole(Meteor.user(), CRIMP.roles.partners);
   },
-  isDashboardView: function() {
-    var instance = Template.instance();
-    return instance.vars.get('isDashboard');
+  adminSectionView: function() {
+    return Session.get('adminSectionView');
   }
 });
 
 Template.crimp_admin.events({
   'click #crimp-admin-link-dashboard': function(event, template) {
-    var instance = Template.instance();
-    instance.vars.set('isDashboard', true);
+    Session.set('adminSectionView', 'admin_dashboard');
   },
   'click #crimp-admin-link-database': function(event, template) {
-    var instance = Template.instance();
-    instance.vars.set('isDashboard', false);
+    Session.set('adminSectionView', 'admin_database');
   }
 })
 
@@ -98,6 +93,26 @@ Template.admin_dashboard.events({
 Template.admin_database.helpers({
   getaScore: function() {
     return Scores.findOne({});
+  }
+});
+
+Template.admin_db_categories.helpers({
+  categories: function() {
+    return Categories.find({}).fetch();
+  },
+});
+Template.admin_db_categories.events({
+  'click .admin-categories-edit': function(event, template) {
+    var category = event.target.getAttribute('data-categoryId');
+    Session.set('adminCategoryForm', category)
+
+  },
+});
+Template.admin_db_categories_form.helpers({
+  updateDocCategory: function() {
+    return Categories.findOne({
+      'category_id': Session.get('adminCategoryForm') || 'UMQ'
+    });
   }
 });
 

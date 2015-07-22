@@ -1,7 +1,3 @@
-Meteor.startup(function () {
-
-});
-
 Accounts.onCreateUser(function(options, user) {
   // Build the user's profile
   if (options.profile) {
