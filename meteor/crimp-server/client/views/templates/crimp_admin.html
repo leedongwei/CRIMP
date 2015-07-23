@@ -53,6 +53,7 @@
 </template>
 
 
+
 <template name="admin_dashboard">
   <section class="admin_dashboard">
     <div class="row">
@@ -149,26 +150,91 @@
 
 
 <template name="admin_database">
-  <div class="row">
-    <section class="small-12 medium-2 columns">
-      <h2>Databases</h2>
+  <section class="admin_database">
+    <div class="row">
+      <section class="small-12 medium-2 columns">
+        <h2>Databases</h2>
 
-      <ul>
-        <li><a>Categories</a></li>
-        <li><a>Climbers &amp; Scores</a></li>
-        <li><a>Admins</a></li>
-      </ul>
+        <ul>
+          <li><a>Categories</a></li>
+          <li><a>Climbers &amp; Scores</a></li>
+          <li><a>Admins</a></li>
+        </ul>
 
-    </section>
-    <section class="small-12 medium-5 columns">
-      {{ > admin_db_categories }}
-    </section>
+      </section>
+      <section class="small-12 medium-6 columns">
+        {{ > admin_db_users }}
 
-    <section class="small-12 medium-5 columns">
-      {{ > admin_db_categories_form }}
-    </section>
-  </div>
+        {{ > admin_db_climbers }}
+      </section>
+
+      <section class="small-12 medium-4 columns">
+        {{ > admin_db_users_form }}
+
+        {{ > admin_db_climbers_form }}
+        {{ > admin_db_scores_form }}
+      </section>
+    </div>
+  </section>
 </template>
+
+
+
+<template name="admin_db_users">
+  <h2>List of Users</h2>
+  <p><b>Explanation of Roles:</b><br>
+  Pending - No permissions yet<br>
+  Denied - Stranger tried to login, deny him access<br>
+  Partner - Can read data in admin area, cannot edit<br>
+  Judge - Can read data in admin area, can only edit scores<br>
+  Admin - Hopefully that's you, can do everything<br>
+  Hukkataival - God mode with 100% access</p>
+
+  <table class="admin-data-table">
+    <tr class="admin-data-header">
+      <td>Name</td>
+      <td>Role</td>
+      <td> </td>
+    </tr>
+  {{ #each users }}
+    <tr>
+      <td>{{ profile.name }}</td>
+      <td>{{ roles }}</td>
+      <td><a class="label admin-users-edit" data-userId="{{ _id }}">Edit</a> </td>
+    </tr>
+  {{ /each }}
+  </table>
+</template>
+
+<template name="admin_db_users_form">
+  <h2>Editing CRIMP Users</h2>
+  {{ #autoForm schema=userSchema id="updateUserForm" type="method" meteormethod="changeUserRole" doc=targetUser }}
+    <fieldset>
+      {{ > afQuickField name="name" label="Name (Will not be edited)" }}
+      {{ > afQuickField name="user_role" options=userRoleOptions }}
+      {{ > afQuickField name="user_id" class="hide" label=false }}
+      <div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </fieldset>
+  {{ /autoForm }}
+</template>
+
+
+
+<template name="admin_db_climbers">
+  <h2>List of Climbers</h2>
+</template>
+
+<template name="admin_db_climbers_form">
+  <h2>Editing Category</h2>
+</template>
+
+<template name="admin_db_scores_form">
+  <h2>Editing Score</h2>
+</template>
+
+
 
 <template name="admin_db_categories">
   <h2>List of Categories</h2>
@@ -202,5 +268,6 @@
 
 <template name="admin_db_categories_form">
   <h2>Editing Category</h2>
-  {{ > quickForm collection="Categories" doc=updateDocCategory id="updateCategories" type="update" }}
+
+  {{ > quickForm collection="Categories" doc=targetCategory id="updateCategories" type="update" }}
 </template>

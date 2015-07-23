@@ -1,4 +1,19 @@
-// Note: This file contains functions that CRUD on the Meteor.user collection
+// Note: This file deals with the Meteor.users collection
+
+// Note: This is used to generate forms, it is not the full schema
+// Form is at crimp_admin.html, template='admin_db_users_form'
+CRIMP.schema.user = new SimpleSchema({
+  user_id: {
+    type: String
+  },
+  name: {
+    type: String
+  },
+  user_role: {
+    type: String
+  }
+});
+
 
 Meteor.methods({
   changeUserRole: function(data) {

@@ -71,3 +71,17 @@ Meteor.publish('adminRecentScores', function() {
     return;
   }
 });
+
+Meteor.publish('adminAllUsers', function() {
+  if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
+    return Meteor.users.find({}, {
+      fields: {
+        roles: 1,
+        profile: 1
+      }
+    });
+  } else {
+    this.stop();
+    return;
+  }
+});

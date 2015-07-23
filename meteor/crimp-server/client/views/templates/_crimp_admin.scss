@@ -94,3 +94,17 @@
   }
 }
 
+.admin_database {
+  .hide {
+    visibility: hidden;
+  }
+
+  table.admin-data-table {
+    width: 100%;
+
+    .admin-data-header {
+      font-weight: 700;
+      padding: 5px 0;
+    }
+  }
+}

@@ -49,6 +49,7 @@ Template.admin_dashboard.onCreated(function() {
     Meteor.subscribe('adminActiveClimbers');
     Meteor.subscribe('adminPendingJudges');
     Meteor.subscribe('adminRecentScores');
+    Meteor.subscribe('adminAllUsers');
   });
 });
 
@@ -90,11 +91,82 @@ Template.admin_dashboard.events({
   }
 });
 
+
+
+Template.admin_database.onCreated(function() {
+  Session.setDefault('adminUserForm', Meteor.userId());
+  Session.setDefault('adminClimberCategory', 'UMQ');
+  Session.setDefault('adminClimberForm', 'UMQ001');
+  Session.setDefault('adminCategoryForm', 'UMQ');
+});
 Template.admin_database.helpers({
   getaScore: function() {
     return Scores.findOne({});
   }
 });
+
+
+
+Template.admin_db_users.helpers({
+  users: function() {
+    return Meteor.users
+            .find({}, { sort: ['profile.name', 'asc'] });
+  }
+});
+Template.admin_db_users.events({
+  'click .admin-users-edit': function(event, template) {
+    var user = event.target.getAttribute('data-userId');
+    Session.set('adminUserForm', user);
+  },
+});
+Template.admin_db_users_form.helpers({
+  targetUser: function() {
+    var user = Meteor.users.findOne(Session.get('adminUserForm'));
+
+    return {
+      'user_id': user._id,
+      'name': user.profile.name,
+      'user_role': user.roles[0]
+    }
+  },
+  userSchema: function() {
+    return CRIMP.schema.user;
+  },
+  userRoleOptions: function() {
+    return [
+      { label: 'Pending', value: 'pending' },
+      { label: 'Denied', value: 'denied' },
+      { label: 'Partner', value: 'partner' },
+      { label: 'Judge', value: 'judge' },
+      { label: 'Admin', value: 'admin' }
+    ];
+  }
+});
+
+
+
+Template.admin_db_climbers.helpers({
+  categories: function() {
+    return Climbers.find({
+      'category_id': Session.get('adminClimberCategory')
+    }).fetch();
+  },
+});
+// Template.admin_db_climbers.events({
+//   'click .admin-categories-edit': function(event, template) {
+//     var category = event.target.getAttribute('data-categoryId');
+//     Session.set('adminCategoryForm', category);
+//   },
+// });
+// Template.admin_db_climbers_form.helpers({
+//   updateDocClimber: function() {
+//     return Categories.findOne({
+//       'category_id': Session.get('adminCategoryForm') || 'UMQ'
+//     });
+//   }
+// });
+
+
 
 Template.admin_db_categories.helpers({
   categories: function() {
@@ -104,14 +176,13 @@ Template.admin_db_categories.helpers({
 Template.admin_db_categories.events({
   'click .admin-categories-edit': function(event, template) {
     var category = event.target.getAttribute('data-categoryId');
-    Session.set('adminCategoryForm', category)
-
+    Session.set('adminCategoryForm', category);
   },
 });
 Template.admin_db_categories_form.helpers({
-  updateDocCategory: function() {
+  targetCategory: function() {
     return Categories.findOne({
-      'category_id': Session.get('adminCategoryForm') || 'UMQ'
+      'category_id': Session.get('adminCategoryForm')
     });
   }
 });

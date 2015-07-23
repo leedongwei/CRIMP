@@ -4,6 +4,11 @@ CRIMP.schema.recentscore = new SimpleSchema({
     label: 'ID of score-record',
     type: String
   },
+  admin_id: {
+    label: 'ID of admin',
+    type: String,
+    optional: true
+  },
   climber_id: {
     label: 'ID of climber',
     type: String,
@@ -31,6 +36,7 @@ CRIMP.schema.recentscore = new SimpleSchema({
 
 RecentScores.attachSchema(CRIMP.schema.recentscore);
 
+
 Meteor.methods({
   initRecentScores: function(data) {
     if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
@@ -51,6 +57,10 @@ Meteor.methods({
     }
   },
   updateRecentScores: function(data) {
+    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
+      throw new Meteor.Error(403, "Access denied");
+    }
+
     while (RecentScores.find({}).fetch().length > 12) {
       var oldestRecord = findOldestRecord();
       RecentScores.remove({ '_id': oldestRecord._id }, function(error, removedCount) {
@@ -60,10 +70,11 @@ Meteor.methods({
 
     RecentScores.insert({
       'score_id': data._id,
+      'admin_id': data.admin_id || '',
       'climber_id': data.climber_id,
       'route_id': data.route_id,
       'score_string': data.score_string,
-      'updated_at': data.updated_at
+      'updated_at': data.updated_at || ''
     }, function(error, insertedId) {
       if (error)  throw error;
     });
