@@ -2,10 +2,7 @@ package com.nusclimb.live.crimp.common;
 
 import android.content.Context;
 
-import com.nusclimb.live.crimp.common.json.SessionUpload;
 import com.nusclimb.live.crimp.common.spicerequest.PostScoreRequest;
-import com.nusclimb.live.crimp.common.spicerequest.UploadScoreRequest;
-import com.nusclimb.live.crimp.common.spicerequest.UploadScoreSubmit;
 import com.nusclimb.live.crimp.uploadlist.UploadStatus;
 
 public class QueueObject {

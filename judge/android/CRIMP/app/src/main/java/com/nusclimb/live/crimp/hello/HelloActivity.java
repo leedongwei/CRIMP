@@ -41,6 +41,8 @@ import com.nusclimb.live.crimp.common.busevent.ScoreOnPause;
 import com.nusclimb.live.crimp.common.busevent.ScoreOnResume;
 import com.nusclimb.live.crimp.common.busevent.StartScan;
 import com.nusclimb.live.crimp.login.LoginActivity;
+import com.nusclimb.live.crimp.service.CrimpService;
+import com.octo.android.robospice.SpiceManager;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -75,7 +77,11 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     private String climberId;                       // From ScanFragment
     private String climberName;                     // From ScanFragment (optional)
 
+    private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
 
+    public SpiceManager getSpiceManager(){
+        return spiceManager;
+    }
 
     public String getxUserId(){
         return xUserId;
@@ -368,6 +374,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     protected void onStart(){
         super.onStart();
         Log.v(TAG + ".onStart()", "start");
+        spiceManager.start(this);
     }
 
     @Override
@@ -387,6 +394,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     @Override
     protected void onStop(){
         Log.v(TAG + ".onStop()", "stop");
+        spiceManager.shouldStop();
         super.onStop();
     }
 

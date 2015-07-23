@@ -122,7 +122,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     private State mState;
 
     // RoboSpice info
-    private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
+    //private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
 
 
     /*=========================================================================
@@ -294,7 +294,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 ReportRequest mReportRequest1 = new ReportRequest(xUserId,xAuthToken
                         , rId, false, getActivity());
 
-                spiceManager.execute(mReportRequest1, mReportRequest1.createCacheKey(),
+                ((HelloActivity)getActivity()).getSpiceManager().execute(mReportRequest1, mReportRequest1.createCacheKey(),
                         DurationInMillis.ALWAYS_EXPIRED,
                         new ReportRequestListener());
                 break;
@@ -318,7 +318,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 ReportRequest mReportRequest2 = new ReportRequest(xUserId, xAuthToken
                         , rId, true, getActivity());
 
-                spiceManager.execute(mReportRequest2, mReportRequest2.createCacheKey(),
+                ((HelloActivity)getActivity()).getSpiceManager().execute(mReportRequest2, mReportRequest2.createCacheKey(),
                         DurationInMillis.ALWAYS_EXPIRED,
                         new ReportRequestListener());
 
@@ -422,8 +422,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         super.onStart();
 
         // Guaranteed to have an activity here.
-        Log.v(TAG + ".onStart()", "Starting spiceManager");
-        spiceManager.start(getActivity());
+        Log.v(TAG + ".onStart()", "Start");
 
         initHelloText();
     }
@@ -454,8 +453,7 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
 
     @Override
     public void onStop() {
-        Log.v(TAG + ".onStop()", "Stopping spiceManager.");
-        spiceManager.shouldStop();
+        Log.v(TAG + ".onStop()", "Stop");
 
         super.onStop();
     }

@@ -62,7 +62,7 @@ public class ScoreFragment extends Fragment {
     private Button mBackspaceButton;
 
     // RoboSpice info
-    private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
+    //private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
 
 
     /**
@@ -128,7 +128,7 @@ public class ScoreFragment extends Fragment {
                 ((HelloActivity) getActivity()).getxAuthToken(),
                 ((HelloActivity) getActivity()).getRouteId(),
                 cid,true, getActivity());
-        spiceManager.execute(mActiveCimberRequest, mActiveCimberRequest.createCacheKey(),
+        ((HelloActivity)getActivity()).getSpiceManager().execute(mActiveCimberRequest, mActiveCimberRequest.createCacheKey(),
                 DurationInMillis.ALWAYS_EXPIRED,
                 new ActiveClimbersRequestListener());
     }
@@ -152,7 +152,7 @@ public class ScoreFragment extends Fragment {
                 ((HelloActivity) getActivity()).getRouteId(),
                 mClimberIdEdit.getText().toString(),
                 getActivity());
-        spiceManager.execute(mGetScoreRequest, mGetScoreRequest.createCacheKey(),
+        ((HelloActivity)getActivity()).getSpiceManager().execute(mGetScoreRequest, mGetScoreRequest.createCacheKey(),
                 DurationInMillis.ALWAYS_EXPIRED,
                 new GetScoreRequestListener());
 
@@ -292,7 +292,6 @@ public class ScoreFragment extends Fragment {
     @Override
     public void onStart(){
         super.onStart();
-        spiceManager.start(getActivity());
     }
 
     @Override
@@ -314,7 +313,6 @@ public class ScoreFragment extends Fragment {
 
     @Override
     public void onStop(){
-        spiceManager.shouldStop();
         super.onStop();
     }
 

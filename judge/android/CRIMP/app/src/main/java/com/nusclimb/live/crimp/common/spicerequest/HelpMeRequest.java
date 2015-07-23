@@ -61,7 +61,7 @@ public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponse>{
         // Actual network calls.
         HelpMeResponse content = getRestTemplate().postForObject(address, request, HelpMeResponse.class);
 
-        Log.v(TAG, "Address=" + address + "\ncontent=" + content.toString());
+        Log.v(TAG+".loadDataFromNetwork()", "Address=" + address + "\ncontent=" + content.toString());
 
         return content;
     }

@@ -66,7 +66,7 @@ public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponse> {
         // Actual network calls.
         LoginResponse content = getRestTemplate().postForObject(address, request, LoginResponse.class);
 
-        Log.v(TAG, "Address=" + address + "\ncontent=" + content.toString());
+        Log.v(TAG+".loadDataFromNetwork()", "Address=" + address + "\ncontent=" + content.toString());
 
         return content;
     }

@@ -29,7 +29,6 @@ import java.util.Map;
 public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreResponse> {
     private static final String TAG = GetScoreRequest.class.getSimpleName();
 
-    // Information needed to craft a LoginRequest
     private String xUserId;
     private String xAuthToken;
     private String routeId;
@@ -65,14 +64,14 @@ public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreResponse>
 
         // Actual network calls.
         GetScoreResponse content = mRestTemplate.getForObject(address, GetScoreResponse.class);
-        Log.v(TAG, "Address=" + address + "\ncontent=" + content.toString());
+        Log.v(TAG+".loadDataFromNetwork()", "Address=" + address + "\ncontent=" + content.toString());
 
         return content;
     }
 
     public String createCacheKey() {
         // CacheKey too long will cause exception.
-        return xUserId+routeId;
+        return xUserId+routeId+climberId+Helper.nextAlphaNumeric(20);
     }
 
 }

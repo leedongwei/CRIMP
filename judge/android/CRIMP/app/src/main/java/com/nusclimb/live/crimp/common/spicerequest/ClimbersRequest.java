@@ -58,13 +58,13 @@ public class ClimbersRequest extends SpringAndroidSpiceRequest<ClimbersResponse>
         // Actual network calls.
         ClimbersResponse content = mRestTemplate.getForObject(address, ClimbersResponse.class);
 
-        Log.v(TAG, "Address=" + address + "\ncontent=" + content.toString());
+        Log.v(TAG+".loadDataFromNetwork()", "Address=" + address + "\ncontent=" + content.toString());
 
         return content;
     }
 
     public String createCacheKey() {
-        return xUserId + xAuthToken;
+        return xUserId + categoryId;
     }
 
     public String getxUserId() {

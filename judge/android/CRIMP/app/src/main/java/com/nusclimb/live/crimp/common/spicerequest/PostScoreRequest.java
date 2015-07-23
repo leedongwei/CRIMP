@@ -71,7 +71,7 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
         // Actual network calls.
         PostScoreResponse content = getRestTemplate().postForObject(address, request, PostScoreResponse.class);
 
-        Log.v(TAG, "Address=" + address + "\ncontent=" + content.toString());
+        Log.v(TAG+".loadDataFromNetwork()", "Address=" + address + "\ncontent=" + content.toString());
 
         return content;
     }
@@ -119,7 +119,7 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
 
     public String createCacheKey() {
         // CacheKey too long will cause exception.
-        return xUserId+routeId;
+        return xUserId+routeId+climberId+Helper.nextAlphaNumeric(20);
     }
 
 }

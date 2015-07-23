@@ -65,14 +65,14 @@ public class ActiveClimbersRequest extends SpringAndroidSpiceRequest<ActiveClimb
         // Actual network calls.
         ActiveClimbersResponse content = getRestTemplate().postForObject(address, request, ActiveClimbersResponse.class);
 
-        Log.v(TAG, "Address=" + address + "\ncontent=" + content.toString());
+        Log.v(TAG+".loadDataFromNetwork()", "Address=" + address + "\ncontent=" + content.toString());
 
         return content;
     }
 
     public String createCacheKey() {
         // CacheKey too long will cause exception.
-        return xUserId+routeId;
+        return routeId + climberId;
     }
 
 }

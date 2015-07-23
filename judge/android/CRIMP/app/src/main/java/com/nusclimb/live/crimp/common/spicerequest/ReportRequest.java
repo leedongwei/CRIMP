@@ -61,7 +61,7 @@ public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponse>{
         // Actual network calls.
         ReportResponse content = getRestTemplate().postForObject(address, request, ReportResponse.class);
 
-        Log.v(TAG, "Address=" + address + "\ncontent=" + content.toString());
+        Log.v(TAG+".loadDataFromNetwork()", "Address=" + address + "\ncontent=" + content.toString());
 
         return content;
     }

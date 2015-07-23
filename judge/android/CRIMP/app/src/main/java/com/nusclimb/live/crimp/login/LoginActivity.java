@@ -96,7 +96,7 @@ public class LoginActivity extends Activity {
 
         @Override
         public void onRequestFailure(SpiceException e) {
-            Log.i(TAG+".onRequestFailure()", "mState="+mState);
+            Log.d(TAG+".onRequestFailure()", "mState="+mState);
 
             // We only changeState if mState == IN_VERIFYING
             if(mState == LoginState.IN_VERIFYING)
@@ -105,9 +105,10 @@ public class LoginActivity extends Activity {
 
         @Override
         public void onRequestSuccess(LoginResponse result) {
-            Log.d(TAG+".onRequestSuccess()", "LoginResponse="+result.toString());
+            Log.d(TAG+".onRequestSuccess()", "mState="+mState+" LoginResponse="+result.toString());
 
             if (mState != LoginState.IN_VERIFYING) {
+                Log.w(TAG+".onRequestSuccess()", "mState !=IN_VERIFYING. Not doing anything.");
                 return;
             }
 
@@ -138,12 +139,12 @@ public class LoginActivity extends Activity {
 
             // roles need to contain "judge" to be verified ok.
             if(isContainJudgeOrAbove) {
-                Log.i(TAG+".onRequestSuccess()", "Roles contain judge or above. "
+                Log.d(TAG+".onRequestSuccess()", "Roles contain judge or above. "
                         +mState+" -> "+LoginState.VERIFIED_OK);
                 changeState(LoginState.VERIFIED_OK);
             }
             else{
-                Log.i(TAG+".onRequestSuccess()", "Roles don't contain judge or above. "
+                Log.d(TAG+".onRequestSuccess()", "Roles don't contain judge or above. "
                         +mState+" -> "+LoginState.VERIFIED_NOT_OK);
                 changeState(LoginState.VERIFIED_NOT_OK);
             }
@@ -160,7 +161,7 @@ public class LoginActivity extends Activity {
 
         @Override
         public void onRequestFailure(SpiceException e) {
-            Log.i(TAG+".onRequestFailure()", "mState="+mState);
+            Log.d(TAG+".onRequestFailure()", "mState="+mState);
 
             // We only changeState if mState == IN_REQUEST_CATEGORIES.
             if(mState == LoginState.IN_REQUEST_CATEGORIES)
@@ -169,8 +170,7 @@ public class LoginActivity extends Activity {
 
         @Override
         public void onRequestSuccess(CategoriesResponse result) {
-            Log.d(TAG + ".onRequestSuccess()", "CategoriesResponse=" + result.toString());
-            Log.i(TAG + ".onRequestSuccess()", "succeed");
+            Log.d(TAG + ".onRequestSuccess()", "mState="+mState+" CategoriesResponse=" + result.toString());
 
             if (mState == LoginState.IN_REQUEST_CATEGORIES) {
                 categoryIdList.clear();
@@ -248,7 +248,6 @@ public class LoginActivity extends Activity {
     public void cancel(View view){
         Log.v(TAG + ".cancel()", "mState: " + mState);
         LoginManager.getInstance().logOut();
-
         changeState(LoginState.NOT_LOGIN);
     }
 
@@ -257,7 +256,7 @@ public class LoginActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG + ".onActivityResult()", "mState: " + mState + "; resultcode: " + resultCode + "; ok is " + RESULT_OK);
+        Log.v(TAG + ".onActivityResult()", "mState: " + mState + "; resultcode: " + resultCode + "; ok is " + RESULT_OK);
 
         if(resultCode == RESULT_OK)
             changeState(LoginState.FACEBOOK_OK);
@@ -388,7 +387,7 @@ public class LoginActivity extends Activity {
                 break;
             case VERIFIED_OK:
                 if((xUserId == null) || (xAuthToken == null) ){
-                    Log.d(TAG+".doVerification()", "xUserId/xAuthToken is null. mState: "+mState );
+                    Log.w(TAG+".doVerification()", "xUserId/xAuthToken is null. mState: "+mState );
                     changeState(LoginState.FACEBOOK_OK);
                 }
                 else {
@@ -409,7 +408,7 @@ public class LoginActivity extends Activity {
             case CATEGORIES_OK:
                 if((xUserId == null) || (xAuthToken == null) || (categoryIdList.size() == 0) ||
                         (categoryNameList.size() == 0) || (categoryRouteCountList.size() == 0) ){
-                    Log.d(TAG+".doVerification()", "xUserId/xAuthToken is null or category is empty. mState: "+mState );
+                    Log.w(TAG+".doVerification()", "xUserId/xAuthToken is null or category is empty. mState: "+mState );
                     changeState(LoginState.FACEBOOK_OK);
                 }
                 else {
@@ -450,22 +449,28 @@ public class LoginActivity extends Activity {
             categoryRouteCountListAsArray[i] = categoryRouteCountList.get(i);
         }
 
-        // Putting stuff into intent.
-        // Putting stuff into intent.
-        Intent intent = new Intent(getApplicationContext(), HelloActivity.class);
+        if(xUserId!=null && xAuthToken!=null && categoryIdListAsArray.length>0 &&
+                categoryIdListAsArray.length==categoryNameListAsArray.length &&
+                categoryNameListAsArray.length==categoryRouteCountListAsArray.length) {
+            // Putting stuff into bundle to put into intent.
+            Intent intent = new Intent(getApplicationContext(), HelloActivity.class);
 
-        Bundle mBundle = new Bundle();
-        mBundle.putString(getString(R.string.bundle_x_user_id), xUserId);
-        mBundle.putString(getString(R.string.bundle_x_auth_token), xAuthToken);
-        mBundle.putStringArray(getString(R.string.bundle_category_id_list), categoryIdListAsArray);
-        mBundle.putStringArray(getString(R.string.bundle_category_name_list), categoryNameListAsArray);
-        mBundle.putIntArray(getString(R.string.bundle_category_route_count_list), categoryRouteCountListAsArray);
+            Bundle mBundle = new Bundle();
+            mBundle.putString(getString(R.string.bundle_x_user_id), xUserId);
+            mBundle.putString(getString(R.string.bundle_x_auth_token), xAuthToken);
+            mBundle.putStringArray(getString(R.string.bundle_category_id_list), categoryIdListAsArray);
+            mBundle.putStringArray(getString(R.string.bundle_category_name_list), categoryNameListAsArray);
+            mBundle.putIntArray(getString(R.string.bundle_category_route_count_list), categoryRouteCountListAsArray);
 
-        intent.putExtras(mBundle);
+            intent.putExtras(mBundle);
 
-        finish();
-        Log.v(TAG + ".launchHelloActivity()", "mState: " + mState);
-        startActivity(intent);
+            finish();
+            Log.v(TAG + ".launchHelloActivity()", "mState: " + mState);
+            startActivity(intent);
+        }
+        else{
+            Log.e(TAG+".launchHelloActivity()", "Not all info present.");
+        }
     }
 
 
@@ -495,12 +500,12 @@ public class LoginActivity extends Activity {
 
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG + ".onSuccess()", "Facebook login succeeded.");
+                Log.v(TAG + ".onSuccess()", "Facebook login succeeded.");
             }
 
             @Override
             public void onCancel() {
-                Log.d(TAG + ".onCancel()", "Facebook login cancelled.");
+                Log.v(TAG + ".onCancel()", "Facebook login cancelled.");
             }
 
             @Override
@@ -554,13 +559,14 @@ public class LoginActivity extends Activity {
 
         // We are pausing. Disregard all pending request.
         // Set state to either NOT_LOGIN or FACEBOOK_OK_STAY.
-        if(mState != LoginState.NOT_LOGIN) {
+        if(mState != LoginState.NOT_LOGIN && mState != LoginState.IN_FACEBOOK) {
             Log.v(TAG+".onPause()", mState+" -> "+LoginState.FACEBOOK_OK_STAY);
             changeState(LoginState.FACEBOOK_OK_STAY);
         }
         else{
             // No-Op
             Log.v(TAG+".onPause()", mState+" -> "+LoginState.NOT_LOGIN);
+            changeState(LoginState.NOT_LOGIN);
         }
     }
 

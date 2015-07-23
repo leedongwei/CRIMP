@@ -55,13 +55,13 @@ public class CategoriesRequest extends SpringAndroidSpiceRequest<CategoriesRespo
         // Actual network calls.
         CategoriesResponse content = mRestTemplate.getForObject(address, CategoriesResponse.class);
 
-        Log.v(TAG, "Address=" + address + "\ncontent=" + content.toString());
+        Log.v(TAG+".loadDataFromNetwork()", "Address=" + address + "\ncontent=" + content.toString());
 
         return content;
     }
 
     public String createCacheKey() {
-        return xUserId + xAuthToken;
+        return xUserId;
     }
 
     public String getxUserId() {
