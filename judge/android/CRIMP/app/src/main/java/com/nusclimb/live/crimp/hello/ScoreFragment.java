@@ -1,7 +1,10 @@
 package com.nusclimb.live.crimp.hello;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -131,6 +134,13 @@ public class ScoreFragment extends Fragment {
         ((HelloActivity)getActivity()).getSpiceManager().execute(mActiveCimberRequest, mActiveCimberRequest.createCacheKey(),
                 DurationInMillis.ALWAYS_EXPIRED,
                 new ActiveClimbersRequestListener());
+
+        mPlusOneButton.setEnabled(true);
+        mBonusButton.setEnabled(true);
+        mTopButton.setEnabled(true);
+        mBackspaceButton.setEnabled(false);
+        isTBStart = false;
+        updateTB();
     }
 
     @Subscribe
@@ -173,6 +183,7 @@ public class ScoreFragment extends Fragment {
                 routeFullName = "Route "+rid.substring(3, rid.length());
                 isTitleOk = true;
             }
+            i++; // I FORGOT TO INCREMENT I. THIS LITTLE INFINITE LOOP COST ME 18 HRS.
         }
 
         if(isTitleOk){
@@ -369,23 +380,35 @@ public class ScoreFragment extends Fragment {
     }
 
     public void submit(){
-        // Make QueueObject
-        QueueObject mQueueObject = new QueueObject(((HelloActivity)getActivity()).getxUserId(),
-                ((HelloActivity)getActivity()).getxAuthToken(),
-                ((HelloActivity)getActivity()).getRouteId(),
-                mClimberIdEdit.getText().toString(),
-                mCurrentSessionEdit.getText().toString(),
-                CrimpService.nextRequestId(),
-                getActivity());
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Submit score")
+                .setMessage("Are you sure you want to submit score?")
+                .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do stuff
+                        // Make QueueObject
+                        QueueObject mQueueObject = new QueueObject(((HelloActivity)getActivity()).getxUserId(),
+                                ((HelloActivity)getActivity()).getxAuthToken(),
+                                ((HelloActivity)getActivity()).getRouteId(),
+                                mClimberIdEdit.getText().toString(),
+                                mCurrentSessionEdit.getText().toString(),
+                                CrimpService.nextRequestId(),
+                                getActivity());
 
-        // Add to a queue of QueueObject request.
-        ((CrimpApplication)getActivity().getApplicationContext()).addRequest(mQueueObject);
+                        // Add to a queue of QueueObject request.
+                        ((CrimpApplication)getActivity().getApplicationContext()).addRequest(mQueueObject);
 
-        // Navigate up from this activity.
-        BusProvider.getInstance().post(new ScoreFinish());
+                        // Navigate up from this activity.
+                        BusProvider.getInstance().post(new ScoreFinish());
+                    }
+                })
+                .setNegativeButton("Don\'t submit", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
-
-
-
 
 }

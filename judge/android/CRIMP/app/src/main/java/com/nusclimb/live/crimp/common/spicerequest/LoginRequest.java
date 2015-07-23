@@ -58,6 +58,7 @@ public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponse> {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("accessToken", accessToken);
         parameters.put("expiresAt", expiresAt);
+        parameters.put("isProductionApp", "true");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
