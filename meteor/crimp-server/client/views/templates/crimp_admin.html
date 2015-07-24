@@ -167,11 +167,15 @@
       </section>
 
       <section class="small-12 medium-6 columns">
-        {{ > UI.dynamic template=templateMiddleColumn}}
+        <div class="admin-data-column-overflow">
+          {{ > UI.dynamic template=templateMiddleColumn}}
+        </div>
       </section>
 
       <section class="small-12 medium-4 columns">
-        {{ > UI.dynamic template=templateRightColumn}}
+        <!-- <div class="admin-data-column-overflow"> -->
+          {{ > UI.dynamic template=templateRightColumn}}
+        <!-- </div> -->
       </section>
     </div>
   </section>

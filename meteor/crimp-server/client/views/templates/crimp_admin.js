@@ -41,7 +41,12 @@ Template.crimp_admin.events({
   'click #crimp-admin-link-database': function(event, template) {
     Session.set('adminSectionView', 'admin_database');
   }
-})
+});
+
+Template.crimp_admin.rendered = function () {
+  $(document).foundation('topbar');
+}
+
 
 
 Template.admin_dashboard.onCreated(function() {

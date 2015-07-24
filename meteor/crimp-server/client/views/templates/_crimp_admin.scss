@@ -99,6 +99,12 @@
     visibility: hidden;
   }
 
+  .admin-data-column-overflow {
+    height: calc(100vh - 55px);
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+
   table.admin-data-table {
     width: 100%;
 
