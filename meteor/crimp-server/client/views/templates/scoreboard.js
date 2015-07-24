@@ -17,8 +17,16 @@ Template.scoreboard_header.helpers({
   categories: function() {
     return Categories.find({}).fetch();
   },
+  currentCategory: function(category_id) {
+    return Session.get('currentCategory');
+  },
   isCurrentCategory: function(category_id) {
     return Session.equals('currentCategory', category_id);
+  },
+  isCurrentCategoryFinalized: function() {
+    return Categories.findOne({
+      'category_id': Session.get('currentCategory')
+    }).scores_finalized;
   }
 });
 

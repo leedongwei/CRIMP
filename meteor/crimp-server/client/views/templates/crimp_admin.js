@@ -91,6 +91,7 @@ Template.admin_dashboard.events({
 
     data['user_id'] = event.target.getAttribute('data-userId');
     data['user_role'] = $('#admin-approvejudge-' + data.user_id).val();
+    data['currentUser'] = Meteor.user();
     Meteor.call('changeUserRole', data);
   }
 });

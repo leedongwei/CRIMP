@@ -137,6 +137,13 @@ ul.scoreboard-climbers {
   }
 }
 
+.scoreboard-header {
+
+  p {
+    position: absolute;
+  }
+}
+
 // Keep this outside ul.scoreboard-climbers to reuse in .scoreboard-header
 .climber-scoretotal {
   // border: 1px solid green;

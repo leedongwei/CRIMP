@@ -78,7 +78,9 @@
 
 
   <div class="scoreboard-header clearfix">
-    <!-- TODO: Fill in this with something -->
+    {{ #if isCurrentCategoryFinalized }}
+      <p>Scores for {{ currentCategory }} have been finalized</p>
+    {{ /if }}
     <div class="climber-scoretotal right"><b>Bonus</b></div>
     <div class="climber-scoretotal right"><b>Top</b></div>
   </div>

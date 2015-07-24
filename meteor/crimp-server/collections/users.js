@@ -17,7 +17,8 @@ CRIMP.schema.user = new SimpleSchema({
 
 Meteor.methods({
   changeUserRole: function(data) {
-    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
+    var editingUser = Meteor.user() || data['currentUser'];
+    if (!Roles.userIsInRole(editingUser, CRIMP.roles.trusted)) {
       throw new Meteor.Error(403, "Access denied");
     }
 
