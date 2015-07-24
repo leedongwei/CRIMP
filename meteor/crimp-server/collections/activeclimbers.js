@@ -103,7 +103,7 @@ if (Meteor.isServer) {
       // TODO: do checks
 
 
-      ActiveClimbers.update(selector,
+      ActiveClimbers.upsert(selector,
         { $set: modifier },
         function(error, result) {
           // do nothing, prevents ActiveClimber.update from blocking

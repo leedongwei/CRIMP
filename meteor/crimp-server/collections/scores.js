@@ -51,6 +51,36 @@ CRIMP.schema.score = new SimpleSchema({
   }
 });
 
+// Note: This is used to generate forms
+// Form is at crimp_admin.html, template='admin_db_users_form'
+CRIMP.schema.scoreForm = new SimpleSchema({
+  category_id: {
+    label: 'ID of category',
+    type: String
+  },
+  climber_id: {
+    label: 'ID of climber',
+    type: String
+  },
+  route_id: {
+    label: 'ID of route',
+    type: String
+  },
+  unique_id: {
+    label: 'Unique identifier (climber_id+route_id)',
+    type: String,
+  },
+  admin_id: {
+    label: 'ID of admin doing updates',
+    type: String
+  },
+  score_string: {
+    label: 'Raw scoring string',
+    type: String,
+    trim: false
+  }
+});
+
 
 Scores.attachSchema(CRIMP.schema.score);
 

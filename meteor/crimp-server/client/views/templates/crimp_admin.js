@@ -49,7 +49,6 @@ Template.admin_dashboard.onCreated(function() {
     Meteor.subscribe('adminActiveClimbers');
     Meteor.subscribe('adminPendingJudges');
     Meteor.subscribe('adminRecentScores');
-    Meteor.subscribe('adminAllUsers');
   });
 });
 
@@ -94,17 +93,44 @@ Template.admin_dashboard.events({
 
 
 Template.admin_database.onCreated(function() {
+  Session.setDefault('templateMiddleColumn', 'admin_db_blank');
+  Session.setDefault('templateRightColumn', 'admin_db_blank');
+
   Session.setDefault('adminUserForm', Meteor.userId());
   Session.setDefault('adminClimberCategory', 'UMQ');
   Session.setDefault('adminClimberForm', 'UMQ001');
   Session.setDefault('adminCategoryForm', 'UMQ');
-});
-Template.admin_database.helpers({
-  getaScore: function() {
-    return Scores.findOne({});
-  }
+  Session.setDefault('adminScoreForm', '');
+
+
+  Tracker.autorun(function() {
+    Meteor.subscribe('getClimbers',
+        { category_id: Session.get('adminClimberCategory') });
+    Meteor.subscribe('adminAllScores',
+        { category_id: Session.get('adminClimberCategory') });
+  });
+  Meteor.subscribe('adminAllUsers');
+  Meteor.subscribe('getCategories');
 });
 
+Template.admin_database.helpers({
+  // getaScore: function() {
+  //   return Scores.findOne({});
+  // }
+  templateMiddleColumn: function() {
+    return Session.get('templateMiddleColumn');
+  },
+  templateRightColumn: function() {
+    return Session.get('templateRightColumn');
+  },
+});
+Template.admin_database.events({
+  'click .admin-middleColumn': function(event, template) {
+    var template = event.target.getAttribute('data-templateId');
+    Session.set('templateMiddleColumn', template);
+    Session.set('templateRightColumn', 'admin_db_blank');
+  },
+});
 
 
 Template.admin_db_users.helpers({
@@ -117,6 +143,7 @@ Template.admin_db_users.events({
   'click .admin-users-edit': function(event, template) {
     var user = event.target.getAttribute('data-userId');
     Session.set('adminUserForm', user);
+    Session.set('templateRightColumn', 'admin_db_users_form');
   },
 });
 Template.admin_db_users_form.helpers({
@@ -147,24 +174,52 @@ Template.admin_db_users_form.helpers({
 
 Template.admin_db_climbers.helpers({
   categories: function() {
-    return Climbers.find({
+    return Categories.find({}).fetch();
+  },
+  climbers: function() {
+    var climberData = Climbers.find({
       'category_id': Session.get('adminClimberCategory')
     }).fetch();
+
+    return climberRetrieveScores(climberData);
   },
 });
-// Template.admin_db_climbers.events({
-//   'click .admin-categories-edit': function(event, template) {
-//     var category = event.target.getAttribute('data-categoryId');
-//     Session.set('adminCategoryForm', category);
-//   },
-// });
-// Template.admin_db_climbers_form.helpers({
-//   updateDocClimber: function() {
-//     return Categories.findOne({
-//       'category_id': Session.get('adminCategoryForm') || 'UMQ'
-//     });
-//   }
-// });
+Template.admin_db_climbers.events({
+  'click .admin-categories-select': function(event, template) {
+    var category = event.target.value;
+    Session.set('adminClimberCategory', category);
+  },
+  'click .admin-climbers-edit': function(event, template) {
+    var climber = event.target.getAttribute('data-climberId');
+    Session.set('templateRightColumn', 'admin_db_climbers_form');
+    Session.set('adminClimberForm', climber);
+  },
+  'click .admin-scores-edit': function(event, template) {
+    var score = event.target.getAttribute('data-scoreId');
+    Session.set('templateRightColumn', 'admin_db_scores_form');
+    Session.set('adminScoreForm', score);
+  },
+});
+Template.admin_db_climbers_form.helpers({
+  targetClimber: function() {
+    return Climbers.findOne({
+      '_id': Session.get('adminClimberForm')
+    });
+  }
+});
+Template.admin_db_scores_form.helpers({
+  scoreSchema: function() {
+    return CRIMP.schema.scoreForm;
+  },
+  targetScore: function() {
+    return Scores.findOne({
+      '_id': Session.get('adminScoreForm')
+    });
+  },
+  currentAdminId: function() {
+    return Meteor.userId();
+  }
+});
 
 
 
@@ -176,6 +231,7 @@ Template.admin_db_categories.helpers({
 Template.admin_db_categories.events({
   'click .admin-categories-edit': function(event, template) {
     var category = event.target.getAttribute('data-categoryId');
+    Session.set('templateRightColumn', 'admin_db_categories_form');
     Session.set('adminCategoryForm', category);
   },
 });
@@ -197,4 +253,21 @@ function adminActiveClimberSort (a, b) {
 }
 function recentScoreSort(a, b) {
   return a.updated_at >= b.updated_at ? -1 : 1;
+}
+function climberRetrieveScores(climberData) {
+  climberData.forEach(function(climber, index) {
+    var scoreArray = [];
+
+    for (var i=1; i < Object.keys(climber.scores).length+1; i++) {
+      var cs = Scores.findOne(climber.scores[i]);
+
+      if (!cs)  continue;
+      scoreArray.push(cs);
+    }
+
+    // Replace the scores._id array with the score documents array
+    climber.scores = scoreArray;
+  });
+
+  return climberData
 }

@@ -1,12 +1,12 @@
 
 <template name="crimp_spectator">
   <header>
-    <div class="contain-to-grid sticky">
-      <nav class="top-bar" data-topbar role="navigation">
+    <div class="contain-to-grid">
+      <nav class="top-bar sticky" data-topbar role="navigation">
         <ul class="title-area">
           <li class="name">
-            <h1 class="hide-for-medium-up"><a>CRIMP</a></h1>
-            <h1 class="show-for-medium-up"><a>CRIMP - Put a longer name here</a></h1>
+            <h1 class="hide-for-medium-up"><a>NUS-DB Boulderactive</a></h1>
+            <h1 class="show-for-medium-up"><a>NUS - Black Diamond Boulderactive</a></h1>
 
             {{ #if isNotProduction }}
               <span class="crimp-env-marker crimp-env-production">DEVELOPMENT</span>
@@ -14,18 +14,20 @@
             {{ #if isDemo }}
               <span class="crimp-env-marker crimp-env-demo">DEMO</span>
             {{ /if }}
-          </li>
-          <li class="toggle-topbar menu-icon"><a href="#"><span></span></a></li>
-        </ul>
 
+            <span class="hide-for-medium-up spectator-crimp-conn">{{ > conn_status }}</span>
+          </li>
+          <!-- <li class="toggle-topbar menu-icon"><a href="#"><span></span></a></li> -->
+        </ul>
 
 
         <section class="top-bar-section">
           <ul class="right">
-            <li><span class="crimp-conn">{{ > conn_status }}</span></li>
-
-            <li class="hide-for-medium-up"><a>ACC</a></li>
-            <li><a>Search</a></li>
+            <li>
+              <span class="crimp-conn">{{ > conn_status }}</span>
+            </li>
+            <!-- <li class="hide-for-medium-up"><a>ACC</a></li>
+            <li><a>Search</a></li> -->
           </ul>
         </section>
       </nav>

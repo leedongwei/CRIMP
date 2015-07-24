@@ -63,6 +63,11 @@ Meteor.publish('adminPendingJudges', function() {
   }
 });
 
+Meteor.publish('adminAllScores', function(category) {
+  category = typeof category !== 'undefined' ? category : {};
+  return Scores.find(category);
+});
+
 Meteor.publish('adminRecentScores', function() {
   if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
     return RecentScores.find({});

@@ -57,10 +57,6 @@ Meteor.methods({
     }
   },
   updateRecentScores: function(data) {
-    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
-      throw new Meteor.Error(403, "Access denied");
-    }
-
     while (RecentScores.find({}).fetch().length > 12) {
       var oldestRecord = findOldestRecord();
       RecentScores.remove({ '_id': oldestRecord._id }, function(error, removedCount) {

@@ -49,12 +49,12 @@
     &.status-connected {
 
       &::after {
-        content: 'Connected';
-        opacity: 0;
-        -webkit-animation: status-fade 6s 0s 1 ease-in;
-        -moz-animation:    status-fade 6s 0s 1 ease-in;
-        -o-animation:      status-fade 6s 0s 1 ease-in;
-        animation:         status-fade 6s 0s 1 ease-in;
+        content: 'Live!';
+        // opacity: 0;
+        // -webkit-animation: status-fade 6s 0s 1 ease-in;
+        // -moz-animation:    status-fade 6s 0s 1 ease-in;
+        // -o-animation:      status-fade 6s 0s 1 ease-in;
+        // animation:         status-fade 6s 0s 1 ease-in;
       }
     }
 

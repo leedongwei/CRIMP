@@ -78,9 +78,9 @@
 
 
   <div class="scoreboard-header clearfix">
-    TODO: Fill in this with something
-    <div class="climber-scoretotal right">Bonus</div>
-    <div class="climber-scoretotal right">Top</div>
+    <!-- TODO: Fill in this with something -->
+    <div class="climber-scoretotal right"><b>Bonus</b></div>
+    <div class="climber-scoretotal right"><b>Top</b></div>
   </div>
 </template>
 
@@ -90,13 +90,13 @@
     {{ #each climbers }}
       <li>
         <div class="climber-row clearfix">
-            <div class="climber-rank left" data-tiebreak="{{ scores_tiebreak }}">{{ rank }}</div>
-            <div class="climber-id show-for-large-up left">{{ climber_id }}</div>
-            <div class="climber-name left">
-              {{ climber_name }}
-              {{ standard_status }}
-              {{ additonal_status }}
-            </div>
+          <div class="climber-rank left" data-tiebreak="{{ scores_tiebreak }}">{{ rank }}</div>
+          <div class="climber-id show-for-large-up left">{{ climber_id }}</div>
+          <div class="climber-name left">
+            {{ climber_name }}
+            {{ standard_status }}
+            {{ additional_status }}
+          </div>
 
 
           <div class="climber-scoretotal right">
@@ -115,7 +115,7 @@
           <table class="climber-scores">
             <tr>
               {{ #each scores }}
-                <td data-route="{{ route_id }} ">
+                <td data-route="{{ route_id }}">
                 t{{ score_top }} b{{ score_bonus }}
                 </td>
               {{ /each }}

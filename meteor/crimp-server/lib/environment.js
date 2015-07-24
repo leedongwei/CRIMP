@@ -1,1 +1,1 @@
-ENVIRONMENT = {  'production': false,  'demo': true,  'eventName': 'CRIMP'}
+ENVIRONMENT = {  'production': true,  'demo': false,  'eventName': 'CRIMP'}

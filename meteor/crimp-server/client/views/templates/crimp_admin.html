@@ -98,7 +98,7 @@
               <td>{{ profile.name }}<br>{{ email }}</td>
               <td>
                 <select class="admin-approvejudge-roles" id="admin-approvejudge-{{ _id }}">
-                  <option value="judge">judge</option>
+                  <option value="judge" selected="true">judge</option>
                   <option value="denied">denied</option>
                   <option value="partner">partner</option>
                   <option value="admin">admin</option>
@@ -110,6 +110,8 @@
             </tr>
           {{ /each }}
         </table>
+
+        <p>To change a user's permission again, go to <i>Database</i>, click on <i>Admins</i> and change from there.</p>
       </section>
 
 
@@ -156,23 +158,18 @@
         <h2>Databases</h2>
 
         <ul>
-          <li><a>Categories</a></li>
-          <li><a>Climbers &amp; Scores</a></li>
-          <li><a>Admins</a></li>
+          <li><a class="admin-middleColumn" data-templateId="admin_db_categories">Categories</a></li>
+          <li><a class="admin-middleColumn" data-templateId="admin_db_climbers">Climbers &amp; Scores</a></li>
+          <li><a class="admin-middleColumn" data-templateId="admin_db_users">Admins</a></li>
         </ul>
 
       </section>
       <section class="small-12 medium-6 columns">
-        {{ > admin_db_users }}
-
-        {{ > admin_db_climbers }}
+        {{ > UI.dynamic template=templateMiddleColumn}}
       </section>
 
       <section class="small-12 medium-4 columns">
-        {{ > admin_db_users_form }}
-
-        {{ > admin_db_climbers_form }}
-        {{ > admin_db_scores_form }}
+        {{ > UI.dynamic template=templateRightColumn}}
       </section>
     </div>
   </section>
@@ -189,6 +186,8 @@
   Judge - Can read data in admin area, can only edit scores<br>
   Admin - Hopefully that's you, can do everything<br>
   Hukkataival - God mode with 100% access</p>
+
+  <p>There will be names that repeat twice: one login for Android app, the other login for the admin interface. Set both to admin if they are admins.</p>
 
   <table class="admin-data-table">
     <tr class="admin-data-header">
@@ -208,7 +207,7 @@
 
 <template name="admin_db_users_form">
   <h2>Editing CRIMP Users</h2>
-  {{ #autoForm schema=userSchema id="updateUserForm" type="method" meteormethod="changeUserRole" doc=targetUser }}
+  {{ #autoForm schema=userSchema doc=targetUser id="updateUserForm" type="method" meteormethod="changeUserRole" }}
     <fieldset>
       {{ > afQuickField name="name" label="Name (Will not be edited)" }}
       {{ > afQuickField name="user_role" options=userRoleOptions }}
@@ -224,14 +223,77 @@
 
 <template name="admin_db_climbers">
   <h2>List of Climbers</h2>
+
+  <b>Category</b>
+  <select class="admin-categories-select">
+    {{ #each categories }}
+      <option value="{{ category_id }}">{{ category_name }}</option>
+    {{ /each }}
+  </select>
+
+  <br><br>
+
+  <b>Climbers</b>
+  <ul class="scoreboard-climbers">
+    {{ #each climbers }}
+      <li>
+        <div class="climber-row clearfix">
+          <div class="climber-id show-for-large-up left">{{ climber_id }}</div>
+          <div class="climber-name left">
+            {{ climber_name }}
+            {{ standard_status }}
+            {{ additional_status }}
+          </div>
+
+          <div class="climber-scoretotal right">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </div>
+          <div class="climber-scoretotal right">
+            <a class="label admin-climbers-edit" data-climberId="{{ _id }}">Edit Name</a>
+          </div>
+        </div>
+
+
+
+        <div class="climber-row">
+          <table class="climber-scores">
+            <tr>
+              {{ #each scores }}
+                <td data-route="{{ route_id }}">
+                  <a class="label admin-scores-edit" data-scoreId="{{ _id }}">t{{ score_top }} b{{ score_bonus }}</a>
+                </td>
+              {{ /each }}
+            </tr>
+          </table>
+        </div>
+
+      </li>
+    {{ /each }}
+  </ul>
 </template>
 
 <template name="admin_db_climbers_form">
-  <h2>Editing Category</h2>
+  <h2>Editing Climbers</h2>
+  {{ > quickForm collection="Climbers" doc=targetClimber id="updateClimbers" type="update" }}
 </template>
 
 <template name="admin_db_scores_form">
-  <h2>Editing Score</h2>
+  <h2>Editing Scores</h2>
+
+  <p><b>
+  Climber: {{ targetScore.climber_id }}<br>
+  Route: {{ targetScore.route_id }}
+  </b></p>
+
+  {{ #autoForm collection="Scores" doc=targetScore id="updateScores2" type="update" }}
+    {{ > afQuickField name='score_string' }}
+    {{ > afQuickField name='score_top' }}
+    {{ > afQuickField name='score_bonus' }}
+    {{ > afQuickField name='admin_id' value=currentAdminId class="hide" label=false }}
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+  {{ /autoForm }}
+
 </template>
 
 
@@ -270,4 +332,8 @@
   <h2>Editing Category</h2>
 
   {{ > quickForm collection="Categories" doc=targetCategory id="updateCategories" type="update" }}
+</template>
+
+<template name="admin_db_blank">
+
 </template>

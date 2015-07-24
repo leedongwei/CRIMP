@@ -2,9 +2,9 @@ Template.scoreboard.onCreated(function() {
   Tracker.autorun(function() {
     Meteor.subscribe('getCategories');
     Meteor.subscribe('getClimbers',
-                     { category_id: Session.get('currentCategory') });
+        { category_id: Session.get('currentCategory') });
     Meteor.subscribe('getScores',
-                     { category_id: Session.get('currentCategory') });
+        { category_id: Session.get('currentCategory') });
   });
 });
 
