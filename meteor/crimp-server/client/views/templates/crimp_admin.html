@@ -163,7 +163,9 @@
           <li><a class="admin-middleColumn" data-templateId="admin_db_users">Admins</a></li>
         </ul>
 
+        <p>You can click all the blue buttons here. It will not change data unless the button says 'Submit'</p>
       </section>
+
       <section class="small-12 medium-6 columns">
         {{ > UI.dynamic template=templateMiddleColumn}}
       </section>
@@ -300,7 +302,7 @@
 
 <template name="admin_db_categories">
   <h2>List of Categories</h2>
-  <table>
+  <table class="admin-data-table">
     <tr>
       <td>ID</td>
       <td>Category</td>
