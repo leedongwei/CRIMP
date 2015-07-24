@@ -65,7 +65,7 @@ var categorydata = [
   },
   {
     category_name: 'Invitational Men Qualifiers',
-    category_id: 'VMF',
+    category_id: 'VMQ',
     route_count: 5,
     scores_finalized: false,
     time_start: '',
