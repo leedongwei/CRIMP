@@ -179,7 +179,7 @@ Template.admin_db_climbers.helpers({
   climbers: function() {
     var climberData = Climbers.find({
       'category_id': Session.get('adminClimberCategory')
-    }).fetch();
+    }).fetch().sort(adminDbClimberSort);
 
     return climberRetrieveScores(climberData);
   },
@@ -250,6 +250,9 @@ Template.admin_db_categories_form.helpers({
  */
 function adminActiveClimberSort (a, b) {
   return a.route_id > b.route_id ? 1 : -1;
+}
+function adminDbClimberSort (a, b) {
+  return a.climber_id > b.climber_id ? 1 : -1;
 }
 function recentScoreSort(a, b) {
   return a.updated_at >= b.updated_at ? -1 : 1;

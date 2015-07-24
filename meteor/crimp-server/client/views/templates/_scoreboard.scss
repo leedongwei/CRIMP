@@ -110,7 +110,7 @@ ul.scoreboard-climbers {
         height: 24px;
         top: 0;
         left: 0;
-        padding: 0 90px 0 20px;   // Hack to add space on side
+        padding: 0 90px 0 30px;   // Hack to add space on side
                                   // Note: @media below
 
         word-wrap: break-word;
@@ -128,7 +128,7 @@ ul.scoreboard-climbers {
 
 @media only screen and (min-width: 64.063em) {
   ul.scoreboard-climbers li .climber-row .climber-name {
-    padding: 0 90px 0 80px;
+    padding: 0 90px 0 85px;
   }
 }
 

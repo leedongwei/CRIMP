@@ -6,3 +6,6 @@ Template.crimp_spectator.helpers({
     return ENVIRONMENT.demo;
   }
 });
+Template.crimp_spectator.rendered = function() {
+  $(document).foundation('topbar');
+};
