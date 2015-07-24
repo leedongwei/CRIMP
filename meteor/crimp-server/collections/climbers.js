@@ -50,7 +50,7 @@ CRIMP.schema.climber = new SimpleSchema({
   },
   standard_status: {
     type: String,
-    label: '1st/2nd/3rd/Qualified',
+    label: 'Qualified for Finals? Enter "check_circle"',
     optional: true
   },
   additional_status: {

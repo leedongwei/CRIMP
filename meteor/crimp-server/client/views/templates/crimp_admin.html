@@ -246,9 +246,10 @@
         <div class="climber-row clearfix">
           <div class="climber-id show-for-large-up left">{{ climber_id }}</div>
           <div class="climber-name left">
-            {{ climber_name }}
+            {{ #if standard_status }}
+              <i class="material-icons">{{ standard_status }}</i>
+            {{ /if }}
             {{ standard_status }}
-            {{ additional_status }}
           </div>
 
           <div class="climber-scoretotal right">

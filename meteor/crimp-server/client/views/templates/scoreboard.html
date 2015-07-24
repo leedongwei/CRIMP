@@ -93,9 +93,10 @@
           <div class="climber-rank left" data-tiebreak="{{ scores_tiebreak }}">{{ rank }}</div>
           <div class="climber-id show-for-large-up left">{{ climber_id }}</div>
           <div class="climber-name left">
+            {{ #if standard_status }}
+              <i class="material-icons">{{ standard_status }}</i>
+            {{ /if }}
             {{ climber_name }}
-            {{ standard_status }}
-            {{ additional_status }}
           </div>
 
 
