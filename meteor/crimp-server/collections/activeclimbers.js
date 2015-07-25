@@ -18,8 +18,8 @@ CRIMP.schema.activeclimber = new SimpleSchema({
     label: 'Time to delete document',
     type: Date,
     autoValue: function() {
-      // expires in 10mins
-      return new Date(Date.now() + 600000);
+      // expires in 15mins
+      return new Date(Date.now() + 900000);
     }
   },
   climber_id: {
@@ -37,8 +37,8 @@ CRIMP.schema.activeclimber = new SimpleSchema({
     type: Date,
     optional: true,
     autoValue: function() {
-      // expires in 6mins
-      return new Date(Date.now() + 360000);
+      // expires in 10mins
+      return new Date(Date.now() + 600000);
     }
   }
 });
