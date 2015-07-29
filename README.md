@@ -1,43 +1,35 @@
 # Comprehensive Real-time Index of Monkey Points (CRIMP)
 ### A real-time scoring and ranking system for climbing events
 
-
-## Interface
-### Spectators
-
-### Judges
-
-### Admin
-
 ## Scoring systems available
 * IFSC Top/Bonus
 
 
 ## System Components
-### web
-Mobile-supported web application for spectators to display real-time information. There are 2 key features:
+### web dashboard
+Interface for admins to have a quick overview of the system.
 
-1. A list of climbers who are currently on the wall
-2. Sorted and ranked list of climbers with their scores on each route
-
+### web scoreboard
+Web application for spectators that displays scoring data in real-time.
 
 ### judge
-Android app for judges to submit scores. Emphasis placed on a simple and easy-to-use interface to reduce judges' workload. App uses QR code to identify climbers, but the keypad is available to manually enter the climber's ID as a backup. The app is fail-safe even if there is no internet connection - scores will be stored in a queue and sent out in sequence when connection is re-established.
-
+Android app for judges to submit scores.
 
 ### paper
-Generator for physical scoresheets with unique QR codes for every climber. Produces a single PDF file to send for printing. It would be nice if you have a few minions to cut and sort them for distribution. Distributing the scoresheets in the call-zone will prevent climbers from losing them.
+Generator for physical scoresheets with unique QR codes for every climber.
 
 
 ## Technical Support & Development
-* Currently ongoing!
-* [Git branching model](http://nvie.com/posts/a-successful-git-branching-model/)
-
+* Currently ongoing! Contact Dongwei for more information!
 
 
 ## Users
+#### v0.2
 * [NUS - Black Diamond Boulderactive 2014](http://boulderactive.nusclimb.com)
 * [Asian University Climbing Championship 2014](http://nus.edu.sg/osa/src/competitive/competitions/aucc)
+
+#### v1.0.0
+* NUS - Black Diamond Boulderactive 2015
 
 
 ## License
