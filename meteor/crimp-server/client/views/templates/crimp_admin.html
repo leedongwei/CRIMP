@@ -34,7 +34,7 @@
   </header>
 
 
-  {{ #if isLoggedIn }}
+  {{ #if currentUser }}
     {{ #if isVerified }}
       <div class="crimp-admin-section">
         {{ > UI.dynamic template=adminSectionView}}
@@ -93,7 +93,7 @@
             <td>New Role</td>
             <td></td>
           </tr>
-          {{ #each adminPendingJudges }}
+          {{ #each adminPendingUsers }}
             <tr>
               <td>{{ profile.name }}<br>{{ email }}</td>
               <td>
