@@ -1,6 +1,7 @@
-// Initialize all global variables here
-// Note: Collections are stored as global variables too
+// Initialize all global variables in CRIMP namespace
 CRIMP = {};
+
+// Schemas for collections
 CRIMP.schema = {};
 
 
@@ -17,7 +18,7 @@ CRIMP.roles = {
   // partners have read-only access to climbers and scores
   'partners': ['partner', 'judge', 'admin', 'hukkataival'],
 
-  // organizers have read+write access to climbers and scores
+  // organizers have read+write access to scores
   'organizers' : ['judge', 'admin', 'hukkataival'],
 
   // trusted have read+write access to categories, climbers, scores and users

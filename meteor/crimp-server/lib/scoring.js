@@ -8,7 +8,7 @@
   systems in the future
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-CRIMP.scoring = {
+var ifscTopBonus = {
   calculateTop: function(scoreString) {
     for (var i=0; i < scoreString.length; i++) {
       scoreString = scoreString.toUpperCase();
@@ -29,3 +29,5 @@ CRIMP.scoring = {
     return 0;
   }
 }
+
+CRIMP.scoring = ifscTopBonus;

@@ -1,1 +1,1 @@
-ENVIRONMENT = {  'production': true,  'demo': false,  'eventName': 'CRIMP'}
+ENVIRONMENT = {  'production': true,  // Note: Demo mode will automatically set all new users as admins  // See server/application.js  'demo': false}
