@@ -19,9 +19,6 @@ Template.crimp_admin.onCreated(function() {
 });
 
 Template.crimp_admin.helpers({
-  isLoggedIn: function() {
-    return Roles.userIsInRole(Meteor.user(), CRIMP.roles.getAll);
-  },
   isVerified: function() {
     // Note: A user can modify CRIMP.roles values in the client console
     // and get access to the template, but he will not be able to pull data
@@ -50,11 +47,9 @@ Template.crimp_admin.rendered = function () {
 
 
 Template.admin_dashboard.onCreated(function() {
-  Tracker.autorun(function() {
-    Meteor.subscribe('adminActiveClimbers');
-    Meteor.subscribe('adminPendingJudges');
-    Meteor.subscribe('adminRecentScores');
-  });
+  Meteor.subscribe('adminActiveClimbers');
+  Meteor.subscribe('adminAllUsers');
+  Meteor.subscribe('adminRecentScores');
 });
 
 
@@ -64,7 +59,7 @@ Template.admin_dashboard.helpers({
             .fetch()
             .sort(adminActiveClimberSort);
   },
-  adminPendingJudges: function() {
+  adminPendingUsers: function() {
     return Roles.getUsersInRole('pending');
   },
   adminRecentScores: function() {
@@ -112,7 +107,7 @@ Template.admin_database.onCreated(function() {
   Tracker.autorun(function() {
     Meteor.subscribe('getClimbers',
         { category_id: Session.get('adminClimberCategory') });
-    Meteor.subscribe('adminAllScores',
+    Meteor.subscribe('adminScores',
         { category_id: Session.get('adminClimberCategory') });
   });
   Meteor.subscribe('adminAllUsers');

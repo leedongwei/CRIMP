@@ -1,3 +1,4 @@
+// Spectator scoreboard publications
 Meteor.publish('getCategories', function() {
   return Categories.find({}, {
     fields: {
@@ -12,24 +13,30 @@ Meteor.publish('getCategories', function() {
 });
 
 Meteor.publish('getClimbers', function(category) {
-  category = typeof category !== 'undefined' ? category : {};
-  return Climbers.find(category, {
-    fields: {
-      number: 0
-    }
-  });
+  if (category) {
+    return Climbers.find(category, {
+      fields: {
+        number: 0
+      }
+    });
+  }
+
+  return;
 });
 
 Meteor.publish('getScores', function(category) {
-  category = typeof category !== 'undefined' ? category : {};
-  return Scores.find(category, {
-    fields: {
-      category_id: 0,
-      unique_id: 0,
-      admin_id: 0,
-      updated_at: 0
-    }
-  });
+  if (category) {
+    return Scores.find(category, {
+      fields: {
+        category_id: 0,
+        unique_id: 0,
+        admin_id: 0,
+        updated_at: 0
+      }
+    });
+  }
+
+  return;
 });
 
 Meteor.publish('getActiveClimbers', function() {
@@ -44,37 +51,13 @@ Meteor.publish('getActiveClimbers', function() {
 
 
 
-// ADMIN-ONLY PUBLICATIONS
+// Admin-exclusive publications
 Meteor.publish('adminActiveClimbers', function() {
   if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
     return ActiveClimbers.find({});
-  } else {
-    this.stop();
-    return;
   }
-});
 
-Meteor.publish('adminPendingJudges', function() {
-  if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
-    return Roles.getUsersInRole('pending');
-  } else {
-    this.stop();
-    return;
-  }
-});
-
-Meteor.publish('adminAllScores', function(category) {
-  category = typeof category !== 'undefined' ? category : {};
-  return Scores.find(category);
-});
-
-Meteor.publish('adminRecentScores', function() {
-  if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
-    return RecentScores.find({});
-  } else {
-    this.stop();
-    return;
-  }
+  return;
 });
 
 Meteor.publish('adminAllUsers', function() {
@@ -85,8 +68,24 @@ Meteor.publish('adminAllUsers', function() {
         profile: 1
       }
     });
-  } else {
-    this.stop();
-    return;
   }
+
+  return;
+});
+
+Meteor.publish('adminScores', function(category) {
+  if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted) &&
+      category) {
+    return Scores.find(category);
+  }
+
+  return;
+});
+
+Meteor.publish('adminRecentScores', function() {
+  if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
+    return RecentScores.find({});
+  }
+
+  return;
 });
