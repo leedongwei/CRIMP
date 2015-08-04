@@ -1,4 +1,4 @@
-/*
+/**
  *  Note: files in lib folders are loaded before other js files
  */
 
