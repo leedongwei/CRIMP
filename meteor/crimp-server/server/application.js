@@ -9,7 +9,7 @@ Accounts.onCreateUser(function(options, user) {
     user.roles = ['hukkataival'];
   } else {
     // Set users as admin if this is a demo
-    user.roles = ENVIRONMENT.demo ? ['admin'] : ['pending'];
+    user.roles = ENVIRONMENT.DEMO_MODE ? ['admin'] : ['pending'];
   }
 
   return user;

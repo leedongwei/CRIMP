@@ -1,11 +1,12 @@
 Template.crimp_spectator.helpers({
   isNotProduction: function() {
-    return !ENVIRONMENT.production;
+    return ENVIRONMENT.NODE_ENV === 'production' ? true : false;
   },
   isDemo: function() {
-    return ENVIRONMENT.demo;
+    return ENVIRONMENT.DEMO_MODE;
   }
 });
+
 Template.crimp_spectator.rendered = function() {
   $(document).foundation('topbar');
 };
