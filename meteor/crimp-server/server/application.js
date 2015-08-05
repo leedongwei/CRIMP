@@ -1,7 +1,7 @@
 /**
  *  Triggered AFTER creation of user account to add properties to the user
  *
- *  @params
+ *  @param
  *    {object} options - should contain data from FB about the user
  *    {object} user - reference to the user object that was created
  */

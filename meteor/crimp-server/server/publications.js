@@ -28,7 +28,7 @@ Meteor.publish('getCategories', function() {
 });
 
 /**
- *  @params
+ *  @param
  *    {string} category - category_id of any category
  */
 Meteor.publish('getClimbers', function(category) {
@@ -44,7 +44,7 @@ Meteor.publish('getClimbers', function(category) {
 });
 
 /**
- *  @params
+ *  @param
  *    {string} category - category_id of any category
  */
 Meteor.publish('getScores', function(category) {
@@ -95,7 +95,7 @@ Meteor.publish('adminAllUsers', function() {
  *  Admin version of 'getScore' publication above that exposes more
  *  data from the Score document
  *
- *  @params
+ *  @param
  *    {string} category - category_id of any category
  */
 Meteor.publish('adminScores', function(category) {
