@@ -75,6 +75,17 @@
     <!-- Bundle Key -->
     <string name="bundle_x_user_id">bundle_xuserid</string>
     <string name="bundle_x_auth_token">bundle_xauthtoken</string>
+    <string name="bundle_access_token">bundle_access_token</string>
+    <string name="bundle_user_name">bundle_user_name</string>
+    <string name="bundle_login_state">bundle_login_state</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="bundle_category_id_list">bundle_categoryidlist</string>
     <string name="bundle_category_name_list">bundle_categorynamelist</string>
     <string name="bundle_category_route_count_list">bundle_categoryroutecountlist</string>

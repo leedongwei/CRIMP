@@ -1,11 +1,8 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.HeaderJSONInjector;
-import com.nusclimb.live.crimp.common.Helper;
 import com.nusclimb.live.crimp.common.KeyValuePair;
 import com.nusclimb.live.crimp.common.json.ActiveClimbersResponse;
 import com.nusclimb.live.crimp.common.json.CategoriesResponse;
@@ -18,13 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Spice request for GET '/api/judge/score/:category_id/:route_id/:climber_id'
