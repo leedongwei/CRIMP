@@ -46,73 +46,9 @@ CRIMP.schema.activeclimber = new SimpleSchema({
 
 ActiveClimbers.attachSchema(CRIMP.schema.activeclimber);
 
-if (Meteor.isServer) {
-  Meteor.startup(function () {
-
-    Meteor.setInterval(function() {
-      // TODO: Clean up
-      console.log('--- Refresh ActiveClimbers ---');
-      ActiveClimbers.find({})
-                    .forEach(checkActiveClimberExpiry);
-    }, 90000);
-  });
-
-
-  function checkActiveClimberExpiry(ac) {
-    var timeNow = Date.now();
-
-    // TODO: Clean up
-    console.log(Date(timeNow) + ' checking ActiveClimber\r\n'
-      + ac.climber_expiry + ' | ' + ac.admin_expiry + '\r\n\r\n');
-
-    if (ac.admin_expiry < timeNow) {
-      ActiveClimbers.remove(ac._id, function(error, results) {
-        // do nothing, prevents ActiveClimber.update from blocking
-        if (error)  console.error(error);
-      });
-      return;
-    }
-
-    if (ac.climber_expiry < timeNow) {
-      CRIMP.activeclimbers.removeActiveClimber(ac._id);
-      return;
-    }
-  }
-
-  CRIMP.activeclimbers = {
-    insertActiveClimber: function(selector, modifier) {
-      if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
-        throw new Meteor.Error(403, "Access denied");
-      }
-
-      if (!modifier.climber_name) {
-
-      }
-
-      ActiveClimbers.upsert(selector,
-        { $set: modifier },
-        function(error, result) {
-          // do nothing, prevents ActiveClimber.update from blocking
-          if (error)  console.error(error);
-        }
-      );
-    },
-    removeActiveClimber: function(selector, modifier) {
-      modifier.climber_id = '';
-      modifier.climber_name = '';
-      // TODO: do checks
-
-
-      ActiveClimbers.upsert(selector,
-        { $set: modifier },
-        function(error, result) {
-          // do nothing, prevents ActiveClimber.update from blocking
-          if (error)  console.error(error);
-        }
-      );
-    }
-  }
-}
+// if (Meteor.isServer) {
+//   Methods at ../server/activeclimbers.js
+// }
 
 Meteor.methods({
   // data:string - route_id of any route on ActiveClimber
@@ -125,15 +61,49 @@ Meteor.methods({
     ActiveClimbers.remove({ 'route_id': data });
   },
 
+
   removeActiveClimber: function(data) {
     // TODO
   },
 
-  // data:string - category_id of any valid category
-  _insertActiveClimbers: function(data) {
-    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
-      throw new Meteor.Error(403, "Access denied");
+  /**
+   *
+   *
+   *  @param
+   *    {string} data - category_id of any category
+   */
+  _initializeActiveAdmins: function(data) {
+    CRIMP.checkPermission(CRIMP.roles.trusted);
+
+    var category = Categories.findOne({category_id: data});
+    if (!category) {
+      console.info("category ${data} does not exist");
+      return;
     }
+
+    for (var i=1; i < category.route_count+1; i++) {
+      CRIMP.activeclimbers.insertActiveClimber(
+        {
+          'route_id': category.category_id + i.toString()
+        },
+        {
+          'route_id': category.category_id + i.toString(),
+          'climber_id': '',
+          'climber_name': '',
+          'admin_id': '0',
+          'admin_name': '_insertActiveClimbers'
+        }
+      );
+    }
+  },
+
+  /**
+   *
+   *  @param
+   *    data:string - category_id of any valid category
+   */
+  _insertActiveClimbers: function(data) {
+    CRIMP.checkPermission(CRIMP.roles.trusted);
 
     var category = Categories.findOne({ 'category_id': data }),
         climbers = Climbers.find({}).fetch();
@@ -152,32 +122,6 @@ Meteor.methods({
           'climber_name': climbers[i].climber_name,
           'admin_id': '0',
           'admin_name': '_insertActiveClimbers'
-        }
-      );
-    }
-  },
-
-  // data:string - category_id of any valid category
-  _removeActiveClimbers: function(data) {
-    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
-      throw new Meteor.Error(403, "Access denied");
-    }
-
-    var category = Categories.findOne({ 'category_id': data });
-
-    if (!category)
-      return { 'error': 'category_id \"' + data + '\" does not exist' };
-
-    for (var i=1; i < category.route_count+1; i++) {
-      CRIMP.activeclimbers.removeActiveClimber(
-        {
-          'route_id': category.category_id + i.toString()
-        },
-        {
-          'climber_id': '',
-          'climber_name': '',
-          'admin_id': '0',
-          'admin_name': '_removeActiveClimbers'
         }
       );
     }
