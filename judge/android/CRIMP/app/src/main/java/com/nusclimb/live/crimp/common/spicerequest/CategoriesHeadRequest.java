@@ -1,14 +1,9 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.HeaderJSONInjector;
-import com.nusclimb.live.crimp.common.Helper;
-import com.nusclimb.live.crimp.common.KeyValuePair;
-import com.nusclimb.live.crimp.common.json.CategoriesResponse;
-import com.nusclimb.live.crimp.common.json.CategoriesResponseBody;
+import com.nusclimb.live.crimp.common.json.CategoriesHeadResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.springframework.http.HttpEntity;
@@ -16,34 +11,30 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 /**
- * Spice request for GET '/api/judge/categories'
+ * Spice request for GET '/api/judge/categories_head'
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class CategoriesRequest extends SpringAndroidSpiceRequest<CategoriesResponseBody> {
-    private static final String TAG = CategoriesRequest.class.getSimpleName();
+public class CategoriesHeadRequest extends SpringAndroidSpiceRequest<CategoriesHeadResponseBody> {
+    private static final String TAG = CategoriesHeadRequest.class.getSimpleName();
 
     private String xUserId;
     private String xAuthToken;
     private String url;
 
-    public CategoriesRequest(String xUserId, String xAuthToken, Context context) {
-        super(CategoriesResponseBody.class);
+    public CategoriesHeadRequest(String xUserId, String xAuthToken, Context context) {
+        super(CategoriesHeadResponseBody.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
 
-        url = context.getString(R.string.crimp_url)+context.getString(R.string.categories_api);
+        url = context.getString(R.string.crimp_url)+context.getString(R.string.categorieshead_api);
     }
 
     @Override
-    public CategoriesResponseBody loadDataFromNetwork() throws Exception {
+    public CategoriesHeadResponseBody loadDataFromNetwork() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Cache-Control", "no-cache");
@@ -53,8 +44,8 @@ public class CategoriesRequest extends SpringAndroidSpiceRequest<CategoriesRespo
         HttpEntity request = new HttpEntity(headers);
 
         RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<CategoriesResponseBody> response = mRestTemplate.exchange(url,
-                HttpMethod.GET, request, CategoriesResponseBody.class);
+        ResponseEntity<CategoriesHeadResponseBody> response = mRestTemplate.exchange(url,
+                HttpMethod.GET, request, CategoriesHeadResponseBody.class);
 
         return response.getBody();
     }

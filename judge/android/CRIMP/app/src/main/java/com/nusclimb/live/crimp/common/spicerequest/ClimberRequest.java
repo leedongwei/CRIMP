@@ -1,14 +1,9 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.HeaderJSONInjector;
-import com.nusclimb.live.crimp.common.Helper;
-import com.nusclimb.live.crimp.common.KeyValuePair;
-import com.nusclimb.live.crimp.common.json.CategoriesResponse;
-import com.nusclimb.live.crimp.common.json.CategoriesResponseBody;
+import com.nusclimb.live.crimp.common.json.ClimberResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.springframework.http.HttpEntity;
@@ -16,34 +11,33 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 /**
- * Spice request for GET '/api/judge/categories'
+ * Spice request for GET '/api/judge/climber/:climber_id'
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class CategoriesRequest extends SpringAndroidSpiceRequest<CategoriesResponseBody> {
-    private static final String TAG = CategoriesRequest.class.getSimpleName();
+public class ClimberRequest extends SpringAndroidSpiceRequest<ClimberResponseBody> {
+    private static final String TAG = ClimberRequest.class.getSimpleName();
 
     private String xUserId;
     private String xAuthToken;
+    private String climberId;
     private String url;
 
-    public CategoriesRequest(String xUserId, String xAuthToken, Context context) {
-        super(CategoriesResponseBody.class);
+    public ClimberRequest(String xUserId, String xAuthToken, String climberId, Context context) {
+        super(ClimberResponseBody.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
+        this.climberId = climberId;
 
-        url = context.getString(R.string.crimp_url)+context.getString(R.string.categories_api);
+        url = context.getString(R.string.crimp_url)+context.getString(R.string.climber_api)
+                +climberId;
     }
 
     @Override
-    public CategoriesResponseBody loadDataFromNetwork() throws Exception {
+    public ClimberResponseBody loadDataFromNetwork() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Cache-Control", "no-cache");
@@ -53,8 +47,8 @@ public class CategoriesRequest extends SpringAndroidSpiceRequest<CategoriesRespo
         HttpEntity request = new HttpEntity(headers);
 
         RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<CategoriesResponseBody> response = mRestTemplate.exchange(url,
-                HttpMethod.GET, request, CategoriesResponseBody.class);
+        ResponseEntity<ClimberResponseBody> response = mRestTemplate.exchange(url,
+                HttpMethod.GET, request, ClimberResponseBody.class);
 
         return response.getBody();
     }
@@ -66,7 +60,7 @@ public class CategoriesRequest extends SpringAndroidSpiceRequest<CategoriesRespo
      * @return Cache key for this request.
      */
     public String createCacheKey() {
-        return xUserId;
+        return climberId;
     }
 
 }

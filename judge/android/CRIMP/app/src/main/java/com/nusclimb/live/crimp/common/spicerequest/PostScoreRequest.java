@@ -10,11 +10,15 @@ import com.nusclimb.live.crimp.common.KeyValuePair;
 import com.nusclimb.live.crimp.common.json.ActiveClimbersResponse;
 import com.nusclimb.live.crimp.common.json.GetScoreResponse;
 import com.nusclimb.live.crimp.common.json.PostScoreResponse;
+import com.nusclimb.live.crimp.common.json.PostScoreResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,102 +28,80 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by user on 17-Jul-15.
+ * Spice request for POST '/api/judge/score/:category_id/:route_id/:climber_id'
+ *
+ * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreResponse> {
+public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreResponseBody> {
     private static final String TAG = PostScoreRequest.class.getSimpleName();
 
-    // Information needed to craft a LoginRequest
     private String xUserId;
     private String xAuthToken;
+    private String categoryId;
     private String routeId;
     private String climberId;
-    private String score;
-    private Context context;
+    private String scoreString;
+    private String url;
 
-    private String baseUrl;
-
-    public PostScoreRequest(String xUserId, String xAuthToken, String routeId, String climberId, String score, Context context) {
-        super(PostScoreResponse.class);
+    public PostScoreRequest(String xUserId, String xAuthToken, String categoryId,
+                            String routeId, String climberId, String scoreString, Context context) {
+        super(PostScoreResponseBody.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
+        this.categoryId = categoryId;
         this.routeId = routeId;
         this.climberId = climberId;
-        this.score = score;
-        this.context = context;
+        this.scoreString = scoreString;
 
-        baseUrl = context.getString(R.string.crimp_url);
+        url = context.getString(R.string.crimp_url) + context.getString(R.string.post_score_api)
+                + categoryId + "/" + routeId + "/" + climberId;
     }
 
     @Override
-    public PostScoreResponse loadDataFromNetwork() throws Exception {
-        // Craft URL.
-        String address = baseUrl+context.getString(R.string.post_score_api)+routeId+"/"+climberId+"?"+ Helper.nextAlphaNumeric(20);
-
-        // Prepare message (body)
-        Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("score_string", score);
-
-
-        // Prepare message (header)
+    public PostScoreResponseBody loadDataFromNetwork() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("x-user-id", xUserId);
-        headers.add("x-auth-token", xAuthToken);
-        HttpEntity<Map<String,String>> request = new HttpEntity<Map<String, String>>(parameters, headers);
+        headers.set("Cache-Control", "no-cache");
+        headers.set("x-user-id", xUserId);
+        headers.set("x-auth-token", xAuthToken);
 
-        // Actual network calls.
-        PostScoreResponse content = getRestTemplate().postForObject(address, request, PostScoreResponse.class);
+        HttpBody body = new HttpBody(scoreString);
+        HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
 
-        Log.v(TAG+".loadDataFromNetwork()", "Address=" + address + "\ncontent=" + content.toString());
+        RestTemplate mRestTemplate = getRestTemplate();
+        ResponseEntity<PostScoreResponseBody> response = mRestTemplate.exchange(url,
+                HttpMethod.POST, request, PostScoreResponseBody.class);
 
-        return content;
+        return response.getBody();
     }
 
-    public String getClimberId(){
-        return climberId;
+    /**
+     * Jackson POJO for PostScore request body.
+     */
+    private static class HttpBody {
+        @JsonProperty("score_string")
+        private String scoreString;
+
+        public HttpBody(String scoreString) {
+            this.scoreString = scoreString;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("{\n");
+            sb.append("\tscore_string: " + scoreString + "\n");
+            sb.append("}");
+
+            return sb.toString();
+        }
+
+        public String getScoreString() {
+            return scoreString;
+        }
+
+        public void setScoreString(String scoreString) {
+            this.scoreString = scoreString;
+        }
     }
-
-    public void setClimberId(String climberId){
-        this.climberId = climberId;
-    }
-
-    public String getRouteId(){
-        return routeId;
-    }
-
-    public void setRouteId(String routeId){
-        this.routeId = routeId;
-    }
-
-    public String getScore(){
-        return score;
-    }
-
-    public void setScore(String score){
-        this.score = score;
-    }
-
-    public String getxUserId(){
-        return xUserId;
-    }
-
-    public void setxUserId(String xUserId){
-        this.xUserId = xUserId;
-    }
-
-    public String getxAuthToken(){
-        return xAuthToken;
-    }
-
-    public void setxAuthToken(String xAuthToken){
-        this.xAuthToken = xAuthToken;
-    }
-
-
-    public String createCacheKey() {
-        // CacheKey too long will cause exception.
-        return xUserId+routeId+climberId+Helper.nextAlphaNumeric(20);
-    }
-
 }

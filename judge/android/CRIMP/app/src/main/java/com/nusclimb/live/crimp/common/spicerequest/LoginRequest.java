@@ -1,79 +1,93 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.Helper;
-import com.nusclimb.live.crimp.common.json.LoginResponse;
+import com.nusclimb.live.crimp.common.json.LoginResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 /**
- * Spice request for score of a climber for a route.
+ * Spice request for POST '/api/judge/login'
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
- *
  */
-public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponse> {
+public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponseBody> {
     private static final String TAG = LoginRequest.class.getSimpleName();
 
-    // Information needed to craft a LoginRequest
     private String accessToken;
-    private String expiresAt;
-    private String userId;
-    private Context context;
+    private boolean isProductionApp;
+    private String url;
 
-    private String baseUrl;
-
-    /**
-     *
-     * @param accessToken
-     * @param expiresAt
-     */
-    public LoginRequest(String accessToken, String expiresAt, String userId, Context context) {
-        super(LoginResponse.class);
+    public LoginRequest(String accessToken, Context context) {
+        super(LoginResponseBody.class);
         this.accessToken = accessToken;
-        this.expiresAt = expiresAt;
-        this.userId = userId;
-        this.context = context;
-
-        baseUrl = context.getString(R.string.crimp_url);
+        this.isProductionApp = context.getString(R.string.is_production_app);
+        this.url = context.getString(R.string.crimp_url)+context.getString(R.string.login_api);
     }
 
     @Override
-    public LoginResponse loadDataFromNetwork() throws Exception {
-        // Craft URL.
-        String address = baseUrl+context.getString(R.string.login_api)+"?"+ Helper.nextAlphaNumeric(20);
-
-        // Prepare message
-        Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("accessToken", accessToken);
-        parameters.put("expiresAt", expiresAt);
-        parameters.put("isProductionApp", "true");
-
+    public LoginResponseBody loadDataFromNetwork() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Map<String,String>> request = new HttpEntity<Map<String, String>>(parameters, headers);
+        headers.set("Cache-Control", "no-cache");
 
-        // Actual network calls.
-        LoginResponse content = getRestTemplate().postForObject(address, request, LoginResponse.class);
+        HttpBody body = new HttpBody(accessToken, isProductionApp);
+        HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
 
-        Log.v(TAG+".loadDataFromNetwork()", "Address=" + address + "\ncontent=" + content.toString());
+        RestTemplate mRestTemplate = getRestTemplate();
+        ResponseEntity<LoginResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,
+                request, LoginResponseBody.class);
 
-        return content;
+        return response.getBody();
     }
 
-    public String createCacheKey() {
-        // CacheKey too long will cause exception.
-        return userId+expiresAt;
+    /**
+     * Jackson POJO for Login request body.
+     */
+    private static class HttpBody {
+        @JsonProperty("accessToken")
+        private String accessToken;
+        @JsonProperty("isProductionApp")
+        private boolean isProductionApp;
+
+        public HttpBody(String accessToken, boolean isProductionApp){
+            this.accessToken = accessToken;
+            this.isProductionApp = isProductionApp;
+        }
+
+        @Override
+        public String toString(){
+            StringBuilder sb = new StringBuilder();
+            sb.append("{\n");
+            sb.append("\taccessToken: "+accessToken+",\n");
+            sb.append("\tisProductionApp: "+isProductionApp+"\n");
+            sb.append("}");
+
+            return sb.toString();
+        }
+
+        public String getAccessToken() {
+            return accessToken;
+        }
+
+        public void setAccessToken(String accessToken) {
+            this.accessToken = accessToken;
+        }
+
+        public boolean isProductionApp() {
+            return isProductionApp;
+        }
+
+        public void setIsProductionApp(boolean isProductionApp) {
+            this.isProductionApp = isProductionApp;
+        }
     }
 }
