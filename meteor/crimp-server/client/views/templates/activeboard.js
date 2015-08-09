@@ -1,15 +1,16 @@
 Template.activeboard.onCreated(function() {
-  Tracker.autorun(function() {
-    Meteor.subscribe('getActiveClimbers');
-  });
+  Meteor.subscribe('getActiveClimbers');
 });
 
 Template.activeboard.helpers({
   activeClimbers: function() {
-    return ActiveClimbers.find({}, { sort: ['route_id', 'asc'] })
-                         .fetch();
+    return ActiveMonitor.find({}, { sort: ['route_id', 'asc'] })
+                        .fetch();
+  },
+  nextCategory: function() {
+    return '';
   },
   nextCategoryTime: function() {
-    return 'No idea';
+    return '';
   }
 });
