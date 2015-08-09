@@ -1,5 +1,5 @@
-ActiveClimbers = new Mongo.Collection('activeclimbers');
-CRIMP.schema.activeclimber = new SimpleSchema({
+ActiveMonitor = new Mongo.Collection('activemonitor');
+CRIMP.schema.activemonitor = new SimpleSchema({
   route_id: {
     label: 'ID of route',
     type: String,
@@ -44,10 +44,10 @@ CRIMP.schema.activeclimber = new SimpleSchema({
 });
 
 
-ActiveClimbers.attachSchema(CRIMP.schema.activeclimber);
+ActiveMonitor.attachSchema(CRIMP.schema.activemonitor);
 
 // if (Meteor.isServer) {
-//   Methods at ../server/activeclimbers.js
+//   Server-side methods at ../server/activemonitor.js
 // }
 
 Meteor.methods({
@@ -58,7 +58,7 @@ Meteor.methods({
     }
 
     // TODO: Check data is actually a route
-    ActiveClimbers.remove({ 'route_id': data });
+    ActiveMonitor.remove({ 'route_id': data });
   },
 
 
@@ -82,7 +82,7 @@ Meteor.methods({
     }
 
     for (var i=1; i < category.route_count+1; i++) {
-      CRIMP.activeclimbers.insertActiveClimber(
+      CRIMP.activemonitor.insertActiveClimber(
         {
           'route_id': category.category_id + i.toString()
         },
@@ -91,7 +91,7 @@ Meteor.methods({
           'climber_id': '',
           'climber_name': '',
           'admin_id': '0',
-          'admin_name': '_insertActiveClimbers'
+          'admin_name': '_initializeActiveMonitor'
         }
       );
     }
@@ -102,7 +102,7 @@ Meteor.methods({
    *  @param
    *    data:string - category_id of any valid category
    */
-  _insertActiveClimbers: function(data) {
+  _insertActiveMonitor: function(data) {
     CRIMP.checkPermission(CRIMP.roles.trusted);
 
     var category = Categories.findOne({ 'category_id': data }),
@@ -112,7 +112,7 @@ Meteor.methods({
       return { 'error': 'category_id \"' + data + '\" does not exist' };
 
     for (var i=1; i < category.route_count+1; i++) {
-      CRIMP.activeclimbers.insertActiveClimber(
+      CRIMP.activemonitor.insertActiveMonitor(
         {
           'route_id': category.category_id + i.toString()
         },
@@ -121,7 +121,7 @@ Meteor.methods({
           'climber_id': climbers[i].climber_id,
           'climber_name': climbers[i].climber_name,
           'admin_id': '0',
-          'admin_name': '_insertActiveClimbers'
+          'admin_name': '_insertActiveMonitor'
         }
       );
     }

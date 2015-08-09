@@ -5,7 +5,7 @@
  */
 
 Meteor.publish('getActiveClimbers', () => {
-  return ActiveClimbers.find({}, {
+  return ActiveMonitor.find({}, {
     fields: {
       route_id: 1,
       climber_id: 1,
@@ -75,11 +75,11 @@ Meteor.publish('getScores', (category) => {
  */
 
 /**
- *  Admin publication for ActiveClimbers that exposes the ActiveAdmins too
+ *  Admin publication for ActiveMonitor that exposes the ActiveAdmins too
  */
-Meteor.publish('adminActiveClimbers', function() {
+Meteor.publish('adminActiveMonitor', function() {
   if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
-    return ActiveClimbers.find({});
+    return ActiveMonitor.find({});
   }
 
   return;

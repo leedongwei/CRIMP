@@ -10,7 +10,7 @@ function checkActiveClimber() {
     // TODO: Remember to clean up
     // Frequency for testing async functions during development
     console.log('--- ' + Date.now() + ' ---');
-    ActiveClimbers.find({})
+    ActiveMonitor.find({})
                   .forEach(checkActiveClimberExpiry);
   }, 50000);
 }
@@ -20,7 +20,7 @@ function checkActiveClimber() {
  *  them from the document
  *
  *  @param
- *    {object} ac - 1 document from ActiveClimbers
+ *    {object} ac - 1 document from ActiveMonitor
  */
 function checkActiveClimberExpiry(ac) {
   var timeNow = Date.now();
@@ -28,21 +28,21 @@ function checkActiveClimberExpiry(ac) {
   if (ac.admin_expiry < timeNow) {
     console.log('Removed ActiveAdmin: ${ac.admin_name}');
 
-    ActiveClimbers.remove(ac._id, function(error, results) {
+    ActiveMonitor.remove(ac._id, function(error, results) {
       if (error)  console.error(error);
     });
     return;
   }
 
   if (ac.climber_expiry < timeNow) {
-    console.log('Removed ActiveClimber: ${ac.climber_name}');
-    CRIMP.activeclimbers.removeActiveClimber(ac._id);
+    console.log('Removed ActiveMonitor: ${ac.climber_name}');
+    CRIMP.activemonitor.removeActiveMonitor(ac._id);
     return;
   }
 }
 
-CRIMP.activeclimbers = {
-  insertActiveClimber: function(selector, modifier) {
+CRIMP.activemonitor = {
+  insertActiveMonitor: function(selector, modifier) {
     if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
       throw new Meteor.Error(403, "Access denied");
     }
@@ -51,7 +51,7 @@ CRIMP.activeclimbers = {
 
     }
 
-    ActiveClimbers.upsert(selector,
+    ActiveMonitor.upsert(selector,
       { $set: modifier },
       function(error, result) {
         // do nothing, prevents ActiveClimber.update from blocking
@@ -59,13 +59,13 @@ CRIMP.activeclimbers = {
       }
     );
   },
-  removeActiveClimber: function(selector, modifier) {
+  removeActiveMonitor: function(selector, modifier) {
     modifier.climber_id = '';
     modifier.climber_name = '';
     // TODO: do checks
 
 
-    ActiveClimbers.upsert(selector,
+    ActiveMonitor.upsert(selector,
       { $set: modifier },
       function(error, result) {
         // do nothing, prevents ActiveClimber.update from blocking

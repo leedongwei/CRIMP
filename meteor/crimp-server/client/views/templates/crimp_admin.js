@@ -47,17 +47,17 @@ Template.crimp_admin.rendered = function () {
 
 
 Template.admin_dashboard.onCreated(function() {
-  Meteor.subscribe('adminActiveClimbers');
+  Meteor.subscribe('adminActiveMonitor');
   Meteor.subscribe('adminAllUsers');
   Meteor.subscribe('adminRecentScores');
 });
 
 
 Template.admin_dashboard.helpers({
-  adminActiveClimbers: function() {
-    return ActiveClimbers.find({})
+  adminActiveMonitor: function() {
+    return ActiveMonitor.find({})
             .fetch()
-            .sort(adminActiveClimberSort);
+            .sort(adminActiveMonitorSort);
   },
   adminPendingUsers: function() {
     return Roles.getUsersInRole('pending');
@@ -249,7 +249,7 @@ Template.admin_db_categories_form.helpers({
 /*
  * Utility functions
  */
-function adminActiveClimberSort (a, b) {
+function adminActiveMonitorSort (a, b) {
   return a.route_id > b.route_id ? 1 : -1;
 }
 function adminDbClimberSort (a, b) {

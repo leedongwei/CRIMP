@@ -15,6 +15,6 @@ Climbers.permit(['insert', 'update', 'remove'])
 Scores.permit(['insert', 'update', 'remove'])
           .ifHasRole(CRIMP.roles.trusted)
           .apply();
-ActiveClimbers.permit(['insert', 'update', 'remove'])
+ActiveMonitor.permit(['insert', 'update', 'remove'])
           .ifHasRole(CRIMP.roles.trusted)
           .apply();

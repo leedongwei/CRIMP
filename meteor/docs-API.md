@@ -226,8 +226,8 @@ Body: {
 <br><br><br>
 
 
-## POST '/api/judge/activeclimber'
-* Insert/remove a climber from ActiveClimbers
+## POST '/api/judge/activemonitor'
+* Insert/remove a climber from ActiveMonitor
 
 #### Request
 ```

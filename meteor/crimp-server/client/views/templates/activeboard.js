@@ -4,8 +4,8 @@ Template.activeboard.onCreated(function() {
 
 Template.activeboard.helpers({
   activeClimbers: function() {
-    return ActiveClimbers.find({}, { sort: ['route_id', 'asc'] })
-                         .fetch();
+    return ActiveMonitor.find({}, { sort: ['route_id', 'asc'] })
+                        .fetch();
   },
   nextCategory: function() {
     return '';
