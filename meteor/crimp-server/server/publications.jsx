@@ -4,7 +4,7 @@
  *
  */
 
-Meteor.publish('getActiveClimbers', function() {
+Meteor.publish('getActiveClimbers', () => {
   return ActiveClimbers.find({}, {
     fields: {
       route_id: 1,
@@ -14,7 +14,7 @@ Meteor.publish('getActiveClimbers', function() {
   });
 });
 
-Meteor.publish('getCategories', function() {
+Meteor.publish('getCategories', () => {
   return Categories.find({}, {
     fields: {
       _id: 1,
@@ -31,7 +31,7 @@ Meteor.publish('getCategories', function() {
  *  @param
  *    {string} category - category_id of any category
  */
-Meteor.publish('getClimbers', function(category) {
+Meteor.publish('getClimbers', (category) => {
   if (category) {
     return Climbers.find(category, {
       fields: {
@@ -47,7 +47,7 @@ Meteor.publish('getClimbers', function(category) {
  *  @param
  *    {string} category - category_id of any category
  */
-Meteor.publish('getScores', function(category) {
+Meteor.publish('getScores', (category) => {
   if (category) {
     return Scores.find(category, {
       fields: {
@@ -68,8 +68,15 @@ Meteor.publish('getScores', function(category) {
  *
  *  Admin-exclusive publications
  *
+ *  Note: Do not use ES6 arrow functions for publications which require the
+ *  use of this.userId to get user identity.
+ *
+ *  Refer to https://github.com/babel/babel/issues/730
  */
 
+/**
+ *  Admin publication for ActiveClimbers that exposes the ActiveAdmins too
+ */
 Meteor.publish('adminActiveClimbers', function() {
   if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
     return ActiveClimbers.find({});
@@ -78,6 +85,9 @@ Meteor.publish('adminActiveClimbers', function() {
   return;
 });
 
+/**
+ *  Users refers to the admin accounts, not the climbers
+ */
 Meteor.publish('adminAllUsers', function() {
   if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
     return Meteor.users.find({}, {
