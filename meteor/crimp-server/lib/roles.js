@@ -42,6 +42,6 @@ CRIMP.roles = {
 CRIMP.checkPermission = function(roles) {
   if (!Meteor.user() ||
       !Roles.userIsInRole(Meteor.user(), roles)) {
-    throw new Meteor.Error(403, "Access denied");
+    throw new Meteor.Error(403, 'Access denied');
   }
 };

@@ -7,3 +7,6 @@ CRIMP = {};
 
 // Schemas for collections
 CRIMP.schema = {};
+
+// Set a module for Scoring
+// CRIMP.scoring =
