@@ -136,6 +136,8 @@ header: {
 #### Response
 ```
 Body: {
+  signature: 'HDKfe58S...',
+  time_stamp:
   categories: [
     {
       category_name: 'Novice Men Qualifiers',
