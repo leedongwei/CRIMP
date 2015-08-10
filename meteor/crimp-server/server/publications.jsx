@@ -32,6 +32,8 @@ Meteor.publish('getCategories', () => {
  *    {string} category - category_id of any category
  */
 Meteor.publish('getClimbers', (category) => {
+  check(category, String)
+
   if (category) {
     return Climbers.find(category, {
       fields: {
@@ -48,6 +50,8 @@ Meteor.publish('getClimbers', (category) => {
  *    {string} category - category_id of any category
  */
 Meteor.publish('getScores', (category) => {
+  check(category, String)
+
   if (category) {
     return Scores.find(category, {
       fields: {
@@ -109,6 +113,8 @@ Meteor.publish('adminAllUsers', function() {
  *    {string} category - category_id of any category
  */
 Meteor.publish('adminScores', function(category) {
+  check(category, String)
+
   if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted) &&
       category) {
     return Scores.find(category);
