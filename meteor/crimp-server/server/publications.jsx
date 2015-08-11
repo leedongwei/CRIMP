@@ -73,7 +73,7 @@ Meteor.publish('getScores', (category) => {
  *  Admin-exclusive publications
  *
  *  Note: Do not use ES6 arrow functions for publications which require the
- *  use of this.userId to get user identity. We are not using
+ *  use of this.userId to get user identity. In addition, we are not using
  *  CRIMP.checkPermissions for this as I do not want to throw an error for bad
  *  subscriptions.
  *

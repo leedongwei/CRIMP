@@ -269,7 +269,7 @@ Meteor.methods({
    *  @param
    *    {string} categoryId - category_id of any category
    */
-  _initializeActiveMonitor: function(categoryId) {
+  _initializeActiveMonitor(categoryId) {
     CRIMP.checkPermission(CRIMP.roles.trusted);
     check(categoryId, String);
 
@@ -290,15 +290,16 @@ Meteor.methods({
     }
   },
 
+
   /**
-   *  Essentially _initializeActiveMonitor, but with climbers.
+   *  Essentially _initializeActiveMonitor, but with random climbers.
    *  Primarily used for UI testing. It may throw an error if the number of
    *  climbers is less than the number of routes.
    *
    *  @param
    *    {string} categoryId - category_id of any category
    */
-  _initializeActiveClimbers: function(categoryId) {
+  _initializeActiveClimbers(categoryId) {
     CRIMP.checkPermission(CRIMP.roles.trusted);
     check(categoryId, String)
 
@@ -310,14 +311,14 @@ Meteor.methods({
       return;
     }
 
-    for (let i=1; i < category.route_count+1; i++) {
+    for (let i=0; i < category.route_count; i++) {
       Meteor.call('insertActiveClimber',
         {
-          route_id: category.category_id + i.toString()
+          route_id: category.category_id + (i+1).toString()
         },
         {
-          climber_id: climbers[i-1].climber_id,
-          climber_name: climbers[i-1].climber_name,
+          climber_id: climbers[i].climber_id,
+          climber_name: climbers[i].climber_name,
           admin_id: '0',
           admin_name: '_initializeActiveMonitorExpanded'
         }
