@@ -3,8 +3,6 @@ package com.nusclimb.live.crimp.common.spicerequest;
 import android.content.Context;
 
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.KeyValuePair;
-import com.nusclimb.live.crimp.common.json.CategoriesResponse;
 import com.nusclimb.live.crimp.common.json.CategoriesResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 

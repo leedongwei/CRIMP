@@ -94,6 +94,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"/>
+
+        <Button
+            android:id="@+id/route_retry_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/route_fragment_retry"
+            android:visibility="gone"/>
     </LinearLayout>
 
 </LinearLayout>

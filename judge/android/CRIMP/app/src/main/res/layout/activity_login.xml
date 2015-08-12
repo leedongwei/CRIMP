@@ -14,7 +14,7 @@
         android:src="@drawable/event_logo"
         android:adjustViewBounds="true" />
 
-    <ScrollView android:id="@+id/login_form"
+    <ScrollView android:id="@+id/login_viewgroup"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -33,7 +33,7 @@
                 android:layout_marginBottom="30dp" />
 
             <LinearLayout
-                android:id="@+id/verifying_view"
+                android:id="@+id/verifying_viewgroup"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"

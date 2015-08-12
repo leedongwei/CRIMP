@@ -1,12 +1,8 @@
 package com.nusclimb.live.crimp.hello;
 
-import android.content.Intent;
-import android.graphics.Color;
+import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,94 +10,53 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.facebook.Profile;
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.BusProvider;
-import com.nusclimb.live.crimp.common.busevent.RouteFinish;
-import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
-import com.nusclimb.live.crimp.common.busevent.RouteOnResume;
-import com.nusclimb.live.crimp.common.json.ReportResponse;
+import com.nusclimb.live.crimp.common.Categories;
+import com.nusclimb.live.crimp.common.User;
+import com.nusclimb.live.crimp.common.json.CategoriesHeadResponseBody;
+import com.nusclimb.live.crimp.common.json.CategoriesResponseBody;
+import com.nusclimb.live.crimp.common.json.ReportResponseBody;
+import com.nusclimb.live.crimp.common.spicerequest.CategoriesHeadRequest;
+import com.nusclimb.live.crimp.common.spicerequest.CategoriesRequest;
 import com.nusclimb.live.crimp.common.spicerequest.ReportRequest;
-import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
-import com.squareup.otto.Bus;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
+ * Fragment for category and route selection. Activity containing this Fragment must implement
+ * FragmentToActivityMethods interface to allow this fragment to communicate with the attached
+ * Activity and possibly other Fragments. Information from the Activity is passed to this Fragment
+ * through arguments.
+ *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class RouteFragment extends Fragment implements AdapterView.OnItemSelectedListener{
+public class RouteFragment extends Fragment implements View.OnClickListener{
     private final String TAG = RouteFragment.class.getSimpleName();
 
-    private enum State{
-        PICKING(0),                // Picking category and route. Can stay in this state.
-        IN_FIRST_REQUEST(1),       // Sending request to be judge. Force=false.
-        FIRST_REQUEST_OK(2),       // CRIMP server reply ok.
-        FIRST_REQUEST_NOT_OK(3),   // CRIMP server reply not ok.
-        FIRST_REQUEST_FAILED(4),   // No/unknown response from CRIMP server.
-        REPLACE_QUESTION(5),       // Ask user to force replace. Can stay in this state.
-        IN_SECOND_REQUEST(6),      // Sending request to be judge. Force=true.
-        SECOND_REQUEST_OK(7),      // CRIMP server reply ok.
-        SECOND_REQUEST_NOT_OK(8),  // CRIMP server reply not ok.
-        SECOND_REQUEST_FAILED(9),  // No/unknown response from CRIMP server.
-        JUDGE_OK(10);              // User become judge. Can stay in this state.
-
-        private final int value;
-
-        State(int value){
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public static State toEnum(int i){
-            switch(i){
-                case 0:
-                    return PICKING;
-                case 1:
-                    return IN_FIRST_REQUEST;
-                case 2:
-                    return FIRST_REQUEST_OK;
-                case 3:
-                    return FIRST_REQUEST_NOT_OK;
-                case 4:
-                    return FIRST_REQUEST_FAILED;
-                case 5:
-                    return REPLACE_QUESTION;
-                case 6:
-                    return IN_SECOND_REQUEST;
-                case 7:
-                    return SECOND_REQUEST_OK;
-                case 8:
-                    return SECOND_REQUEST_NOT_OK;
-                case 9:
-                    return SECOND_REQUEST_FAILED;
-                case 10:
-                    return JUDGE_OK;
-                default:
-                    return null;
-            }
-        }
-    }
-
-    // Information guaranteed to be present from previous activity/fragment.
-    private String xUserId;
-    private String xAuthToken;
-    private List<SpinnerItem> categorySpinnerItemList;
-    // Information from this fragment.
+    private User mUser = null;
+    private State mState = State.START;
+    private State shouldState = State.PICKING;      // State that mState should change to after
+                                                    // categories is ready.
+    private Categories categoryInfo;
     private String currentJudge;
-    private String routeId;
+
+    private HintableArrayAdapter categoryAdapter;
+    private HintableArrayAdapter routeAdapter;
 
     // UI references (spinner form)
     private LinearLayout mSpinnerForm;
@@ -116,81 +71,195 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
     private Button mNoButton;
     // UI references (progress form)
     private LinearLayout mProgressForm;
+    private ProgressBar mProgressBar;
     private TextView mStatusText;
+    private Button mRetryButton;
 
-    // Fragment state
-    private State mState;
-
-    // RoboSpice info
-    //private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
-
-
-    /*=========================================================================
-     * Spinner Setup/update methods
-     *=======================================================================*/
-    /**
-     * Initialize the category spinner. Create a spinner adapter, populate adapter with
-     * categories and hint, attach it to spinner and set initial selection.
-     *
-     * Requires categorySpinnerItemList to have items.
-     */
-    private void setupCategorySpinner(){
-        categorySpinnerItemList.add(0, new CategorySpinnerItem(
-                getResources().getString(R.string.route_fragment_category_hint), true));
-
-        // Create adapter using the list of categories
-        SpinnerAdapterWithHint categoryAdapter= new SpinnerAdapterWithHint(
-                getActivity(), android.R.layout.simple_spinner_item, categorySpinnerItemList);
-
-        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // Apply the adapter to the spinner, initialize selection to hint and attach listener.
-        mCategorySpinner.setAdapter(categoryAdapter);
-        mCategorySpinner.setSelection(categoryAdapter.getFirstHintPosition());
-        mCategorySpinner.setOnItemSelectedListener(this);
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.route_next_button:
+                changeState(State.IN_FIRST_REQUEST);
+                break;
+            case R.id.route_yes_button:
+                changeState(State.IN_SECOND_REQUEST);
+                break;
+            case R.id.route_no_button:
+                changeState(State.PICKING);
+                break;
+            case R.id.route_retry_button:
+                if(mState == State.VERIFY_SIGNATURE_FAIL)
+                    changeState(State.VERIFY_SIGNATURE);
+                if(mState == State.REQUEST_CATEGORIES_FAIL)
+                    changeState(State.REQUEST_CATEGORIES);
+                break;
+        }
     }
 
-    /**
-     * Initialize the route spinner. Create a spinner adapter, populate adapter with
-     * only the hint, attach it to spinner, set initial selection and disable spinner.
-     */
-    private void setupRouteSpinner(){
-        // Create adapter using the list of categories
-        SpinnerAdapterWithHint routeAdapter= new SpinnerAdapterWithHint(
-                getActivity(), android.R.layout.simple_spinner_item);
-        routeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        routeAdapter.add(new RouteSpinnerItem(getString(R.string.route_fragment_route_hint)));
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState){
+        // Create the view for this fragment. Set references for view object that we will be
+        // using in this class.
 
-        // Apply the adapter to the spinner, initialize selection to hint and attach listener.
-        mRouteSpinner.setAdapter(routeAdapter);
-        mRouteSpinner.setSelection(routeAdapter.getFirstHintPosition());
-        mRouteSpinner.setOnItemSelectedListener(this);
-        mRouteSpinner.setEnabled(false);
+        // Inflating rootView.
+        View rootView = inflater.inflate(R.layout.fragment_route, container, false);
+
+        // Get UI references.
+        mSpinnerForm = (LinearLayout) rootView.findViewById(R.id.route_spinner_viewgroup);
+        mHelloText = (TextView) rootView.findViewById(R.id.route_hello_text);
+        mCategorySpinner = (Spinner) rootView.findViewById(R.id.route_category_spinner);
+        mRouteSpinner = (Spinner) rootView.findViewById(R.id.route_route_spinner);
+        mNextButton = (Button) rootView.findViewById(R.id.route_next_button);
+        mReplaceForm = (RelativeLayout) rootView.findViewById(R.id.route_replace_viewgroup);
+        mReplaceText = (TextView) rootView.findViewById(R.id.route_replace_text);
+        mYesButton = (Button) rootView.findViewById(R.id.route_yes_button);
+        mNoButton = (Button) rootView.findViewById(R.id.route_no_button);
+        mProgressForm = (LinearLayout) rootView.findViewById(R.id.route_progress_viewgroup);
+        mProgressBar = (ProgressBar) rootView.findViewById(R.id.route_wheel_progressbar);
+        mStatusText = (TextView) rootView.findViewById(R.id.route_status_text);
+        mRetryButton = (Button) rootView.findViewById(R.id.route_retry_button);
+
+        // Set button on click listener
+        mNextButton.setOnClickListener(this);
+        mNoButton.setOnClickListener(this);
+        mRetryButton.setOnClickListener(this);
+        mRetryButton.setOnClickListener(this);
+
+        return rootView;
     }
 
-    /**
-     * Populate route spinner with hint and routes name (i.e route 1, route 2, ... ) base
-     * on number of routes for the category.
-     *
-     * @param routeCount Number of routes for selected category in category spinner.
-     */
-    private void updateRouteSpinner(int routeCount){
-        List<RouteSpinnerItem> mRouteList = new ArrayList<RouteSpinnerItem>();
-        mRouteList.add(new RouteSpinnerItem(getResources().getString(R.string.route_fragment_route_hint)));
-        for(int i=1; i<=routeCount; i++){
-            mRouteList.add(new RouteSpinnerItem(i));
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        // This is the final lifecycle state before fragment is visible.
+        // Initialize all objects here.
+
+        super.onActivityCreated(savedInstanceState);
+
+        if(savedInstanceState == null){
+            shouldState = State.PICKING;
+        }
+        else{
+            shouldState = State.toEnum(savedInstanceState.getInt(
+                    getString(R.string.bundle_route_state)));
         }
 
-        ((SpinnerAdapterWithHint)mRouteSpinner.getAdapter()).clear();
-        ((SpinnerAdapterWithHint)mRouteSpinner.getAdapter()).addAll(mRouteList);
+        // Initialize mUser
+        if(mUser == null) {
+            Bundle args = getArguments();
+            mUser = new User();
+            mUser.setUserId(args.getString(getString(R.string.bundle_x_user_id)));
+            mUser.setAuthToken(args.getString(getString(R.string.bundle_x_auth_token)));
+            mUser.setUserName(args.getString(getString(R.string.bundle_user_name)));
+            mUser.setFacebookAccessToken(args.getString(getString(R.string.bundle_access_token)));
+        }
 
-        mRouteSpinner.setSelection(((SpinnerAdapterWithHint) mRouteSpinner.getAdapter()).getFirstHintPosition());
-        //((TextView) mRouteSpinner.getSelectedView()).setTextColor(getResources().getColor(R.color.hint_color)); //TODO getselectedview return null
-        mRouteSpinner.setEnabled(true);
+        // Read Categories information from persistent storage
+        String FILENAME = getString(R.string.categories_file);
+        FileInputStream fis = null;
+        CategoriesResponseBody mCategoriesResponseBody = null;
+        try {
+            fis = getActivity().openFileInput(FILENAME);
+            ObjectMapper mapper = new ObjectMapper();
+            mCategoriesResponseBody =
+                    mapper.readValue(fis, CategoriesResponseBody.class);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            mCategoriesResponseBody = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            mCategoriesResponseBody = null;
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {}
+            }
+        }
+
+        // Initialize categoryInfo
+        if (mCategoriesResponseBody == null) {
+            categoryInfo = null;
+        } else {
+            categoryInfo = new Categories(mCategoriesResponseBody);
+        }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        changeState(State.START);
+    }
 
+    @Override
+    public void onPause() {
+        switch(shouldState){
+            case PICKING:
+            case IN_FIRST_REQUEST:
+            case FIRST_REQUEST_NOT_OK:
+            case FIRST_REQUEST_FAILED:
+                shouldState = State.PICKING;
+                break;
+            case REPLACE_QUESTION:
+            case IN_SECOND_REQUEST:
+            case SECOND_REQUEST_OK:
+            case SECOND_REQUEST_FAILED:
+                shouldState = State.REPLACE_QUESTION;
+                break;
+            case JUDGE_OK:
+                shouldState = State.JUDGE_OK;
+                break;
+        }
 
+        if(categoryInfo != null) {
+            String FILENAME = getString(R.string.categories_file);
+
+            FileOutputStream fos = null;
+            try {
+                fos = getActivity().openFileOutput(FILENAME, Context.MODE_PRIVATE);
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.writeValue(fos, categoryInfo.getJSON());
+            } catch(FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (JsonGenerationException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    fos.close();
+                }catch(IOException e) {}
+            }
+
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        switch(shouldState){
+            case PICKING:
+            case IN_FIRST_REQUEST:
+            case FIRST_REQUEST_NOT_OK:
+            case FIRST_REQUEST_FAILED:
+                shouldState = State.PICKING;
+                break;
+            case REPLACE_QUESTION:
+            case IN_SECOND_REQUEST:
+            case SECOND_REQUEST_OK:
+            case SECOND_REQUEST_FAILED:
+                shouldState = State.REPLACE_QUESTION;
+                break;
+            case JUDGE_OK:
+                shouldState = State.JUDGE_OK;
+                break;
+        }
+
+        outState.putInt(getString(R.string.bundle_route_state), shouldState.getValue());
+    }
 
     /**
      * Set {@code mState} to {@code state}. Changes to {@code mState} must
@@ -211,7 +280,88 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
      */
     private void updateUI(){
         switch (mState){
+            case START:
+                showRetryButton(false);
+                showProgressBar(true);
+                showProgressForm(true);
+                showSpinnerForm(false);
+                showReplaceForm(false);
+                break;
+            case NO_CATEGORIES:
+                showRetryButton(false);
+                showProgressBar(true);
+                updateStatusText(R.string.route_fragment_status_no_categories);
+                showProgressForm(true);
+                showSpinnerForm(false);
+                showReplaceForm(false);
+                break;
+            case HAS_CATEGORIES:
+                showRetryButton(false);
+                showProgressBar(true);
+                updateStatusText(R.string.route_fragment_status_has_categories);
+                showProgressForm(true);
+                showSpinnerForm(false);
+                showReplaceForm(false);
+                break;
+            case VERIFY_SIGNATURE:
+                showRetryButton(false);
+                showProgressBar(true);
+                updateStatusText(R.string.route_fragment_status_verify_signature);
+                showProgressForm(true);
+                showSpinnerForm(false);
+                showReplaceForm(false);
+                break;
+            case VERIFY_SIGNATURE_FAIL:
+                showRetryButton(true);
+                showProgressBar(false);
+                updateStatusText(R.string.route_fragment_status_signature_fail);
+                showProgressForm(true);
+                showSpinnerForm(false);
+                showReplaceForm(false);
+                break;
+            case SIGNATURE_EXPIRE:
+                showRetryButton(false);
+                showProgressBar(true);
+                updateStatusText(R.string.route_fragment_status_expire);
+                showProgressForm(true);
+                showSpinnerForm(false);
+                showReplaceForm(false);
+                break;
+            case SIGNATURE_NOT_EXPIRE:
+                showRetryButton(false);
+                showProgressBar(true);
+                updateStatusText(R.string.route_fragment_status_not_expire);
+                showProgressForm(true);
+                showSpinnerForm(false);
+                showReplaceForm(false);
+                break;
+            case REQUEST_CATEGORIES:
+                showRetryButton(false);
+                showProgressBar(true);
+                updateStatusText(R.string.route_fragment_status_request_category);
+                showProgressForm(true);
+                showSpinnerForm(false);
+                showReplaceForm(false);
+                break;
+            case REQUEST_CATEGORIES_FAIL:
+                showRetryButton(true);
+                showProgressBar(false);
+                updateStatusText(R.string.login_activity_categories_fail);
+                showProgressForm(true);
+                showSpinnerForm(false);
+                showReplaceForm(false);
+                break;
+            case CATEGORIES_READY:
+                showRetryButton(false);
+                showProgressBar(true);
+                updateStatusText(R.string.route_fragment_status_ready);
+                showProgressForm(true);
+                showSpinnerForm(false);
+                showReplaceForm(false);
+                break;
             case PICKING:
+                initHelloText();
+                enableRouteSpinner(false);
                 showSpinnerForm(true);
                 showReplaceForm(false);
                 showProgressForm(false);
@@ -221,19 +371,19 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 showSpinnerForm(true);
                 showReplaceForm(false);
                 updateStatusText(R.string.route_fragment_status_report_in);
+                showRetryButton(false);
+                showProgressBar(true);
                 showProgressForm(true);
                 enableNextButtonIfPossible(false);
-                break;
-            case FIRST_REQUEST_OK:
-                break;
-            case FIRST_REQUEST_NOT_OK:
                 break;
             case FIRST_REQUEST_FAILED:
                 showSpinnerForm(true);
                 showReplaceForm(false);
                 updateStatusText(R.string.route_fragment_status_report_in_fail);
+                showRetryButton(false);
+                showProgressBar(false);
                 showProgressForm(true);
-                enableNextButtonIfPossible(false);
+                enableNextButtonIfPossible(true);
                 break;
             case REPLACE_QUESTION:
                 showSpinnerForm(false);
@@ -247,27 +397,28 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 updateReplaceText();
                 showReplaceForm(true);
                 updateStatusText(R.string.route_fragment_status_report_in);
+                showRetryButton(false);
+                showProgressBar(true);
                 showProgressForm(true);
                 enableYesNo(false);
-                break;
-            case SECOND_REQUEST_OK:
-                break;
-            case SECOND_REQUEST_NOT_OK:
-                Log.e(TAG+".onUpdateUI()", "mState = "+mState);
                 break;
             case SECOND_REQUEST_FAILED:
                 showSpinnerForm(false);
                 updateReplaceText();
                 showReplaceForm(true);
                 updateStatusText(R.string.route_fragment_status_report_in_fail);
+                showRetryButton(false);
+                showProgressBar(false);
                 showProgressForm(true);
-                enableYesNo(false);
+                enableYesNo(true);
                 break;
             case JUDGE_OK:
                 showSpinnerForm(true);
                 showReplaceForm(false);
                 showProgressForm(false);
                 enableNextButtonIfPossible(false);
+                break;
+            default:
                 break;
         }
     }
@@ -276,27 +427,89 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
      * Method to control what is performed at different state.
      */
     private void doWork(){
-        CategorySpinnerItem selectedCategory;
-        RouteSpinnerItem selectedRoute;
+        String selectedCategoryId;
+        String selectedRouteId;
 
         switch (mState){
+            case START:
+                if(categoryInfo == null)
+                    changeState(State.NO_CATEGORIES);
+                else
+                    changeState(State.HAS_CATEGORIES);
+                break;
+            case NO_CATEGORIES:
+                changeState(State.REQUEST_CATEGORIES);
+                break;
+            case HAS_CATEGORIES:
+                if(((FragmentToActivityMethods)getActivity()).isOfflineMode()) {
+                    changeState(State.CATEGORIES_READY);
+                }
+                else{
+                    changeState(State.VERIFY_SIGNATURE);
+                }
+                break;
+            case VERIFY_SIGNATURE:
+                CategoriesHeadRequest mCategoriesHeadRequest =
+                        new CategoriesHeadRequest(mUser.getUserId(),
+                                mUser.getAuthToken(), getActivity());
+
+                ((FragmentToActivityMethods) getActivity()).getSpiceManager().
+                        execute(mCategoriesHeadRequest, new CategoriesHeadRequestListener());
+                break;
+            case VERIFY_SIGNATURE_FAIL:
+                break;
+            case SIGNATURE_EXPIRE:
+                changeState(State.REQUEST_CATEGORIES);
+                break;
+            case SIGNATURE_NOT_EXPIRE:
+                changeState(State.CATEGORIES_READY);
+                break;
+            case REQUEST_CATEGORIES:
+                shouldState = State.PICKING;
+
+                CategoriesRequest mCategoriesRequest =
+                        new CategoriesRequest(mUser.getUserId(),
+                                mUser.getAuthToken(), getActivity());
+
+                ((FragmentToActivityMethods) getActivity()).getSpiceManager().
+                        execute(mCategoriesRequest, new CategoriesRequestListener());
+                break;
+            case REQUEST_CATEGORIES_FAIL:
+                break;
+            case CATEGORIES_READY:
+                String categoryHint = getString(R.string.route_fragment_category_hint);
+                String routeHint = getString(R.string.route_fragment_route_hint);
+
+                categoryAdapter = new HintableArrayAdapter(getActivity(),
+                        android.R.layout.simple_spinner_item,
+                        categoryInfo.getCategoriesSpinnerListCopy(categoryHint, routeHint));
+                categoryAdapter.setDropDownViewResource(
+                        android.R.layout.simple_spinner_dropdown_item);
+                mCategorySpinner.setAdapter(categoryAdapter);
+                mCategorySpinner.setOnItemSelectedListener(new CategoriesSpinnerListener());
+
+                routeAdapter = new HintableArrayAdapter(getActivity(),
+                        android.R.layout.simple_spinner_item,
+                        categoryInfo.getCategorySpinnerItem(0).getRoutes());
+                routeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                mRouteSpinner.setAdapter(routeAdapter);
+                mRouteSpinner.setOnItemSelectedListener(new RouteSpinnerListener());
+
+                changeState(shouldState);
+                break;
             case PICKING:
-                // Tell the world we are in picking stage.
-                Log.d(TAG+".doWork()", "Post RouteNotFinish to bus.");
-                BusProvider.getInstance().post(new RouteNotFinish());
+
                 break;
             case IN_FIRST_REQUEST:
-                selectedCategory = (CategorySpinnerItem) mCategorySpinner.getSelectedItem();
-                selectedRoute = (RouteSpinnerItem) mRouteSpinner.getSelectedItem();
+                selectedCategoryId = ((HintableSpinnerItem) mCategorySpinner.getSelectedItem()).getId();
+                selectedRouteId = ((HintableSpinnerItem) mRouteSpinner.getSelectedItem()).getId();
 
-                String rId = selectedCategory.getCategoryId() + selectedRoute.getRouteNumber();
+                ReportRequest mReportRequest1 = new ReportRequest(mUser.getUserId(),
+                        mUser.getAuthToken(), selectedCategoryId, selectedRouteId,
+                        false, getActivity());
 
-                ReportRequest mReportRequest1 = new ReportRequest(xUserId,xAuthToken
-                        , rId, false, getActivity());
-
-                ((HelloActivity)getActivity()).getSpiceManager().execute(mReportRequest1, mReportRequest1.createCacheKey(),
-                        DurationInMillis.ALWAYS_EXPIRED,
-                        new ReportRequestListener());
+                ((FragmentToActivityMethods)getActivity()).getSpiceManager().execute(
+                        mReportRequest1, new ReportRequestListener());
                 break;
             case FIRST_REQUEST_OK:
                 changeState(State.JUDGE_OK);
@@ -305,202 +518,51 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                 changeState(State.REPLACE_QUESTION);
                 break;
             case FIRST_REQUEST_FAILED:
-                changeState(State.IN_FIRST_REQUEST);
                 break;
             case REPLACE_QUESTION:
                 break;
             case IN_SECOND_REQUEST:
-                selectedCategory = (CategorySpinnerItem) mCategorySpinner.getSelectedItem();
-                selectedRoute = (RouteSpinnerItem) mRouteSpinner.getSelectedItem();
+                selectedCategoryId = ((HintableSpinnerItem) mCategorySpinner.getSelectedItem()).getId();
+                selectedRouteId = ((HintableSpinnerItem) mRouteSpinner.getSelectedItem()).getId();
 
-                rId = selectedCategory.getCategoryId() + selectedRoute.getRouteNumber();
+                ReportRequest mReportRequest2 = new ReportRequest(mUser.getUserId(),
+                        mUser.getAuthToken(), selectedCategoryId, selectedRouteId,
+                        false, getActivity());
 
-                ReportRequest mReportRequest2 = new ReportRequest(xUserId, xAuthToken
-                        , rId, true, getActivity());
-
-                ((HelloActivity)getActivity()).getSpiceManager().execute(mReportRequest2, mReportRequest2.createCacheKey(),
-                        DurationInMillis.ALWAYS_EXPIRED,
-                        new ReportRequestListener());
+                ((FragmentToActivityMethods)getActivity()).getSpiceManager().execute(
+                        mReportRequest2, new ReportRequestListener());
 
                 break;
             case SECOND_REQUEST_OK:
                 changeState(State.JUDGE_OK);
                 break;
-            case SECOND_REQUEST_NOT_OK:
-                Log.e(TAG + ".doWork()", "mState = " + mState);
-                break;
             case SECOND_REQUEST_FAILED:
-                changeState(State.IN_SECOND_REQUEST);
                 break;
             case JUDGE_OK:
-                Log.d(TAG+".doWork()", "Post RouteFinish("+routeId+") to bus.");
-                BusProvider.getInstance().post(new RouteFinish(routeId));
                 break;
         }
     }
 
 
-    /*=========================================================================
-     * Fragment lifecycle methods
-     *=======================================================================*/
-    @Override
-    public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
-        if(savedInstanceState == null){
-            Log.v(TAG+".onCreate()", "Newly created.");
-        }
-        else{
-            Log.v(TAG+".onCreate()", "Recreated.");
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState){
-        if(savedInstanceState == null){
-            Log.v(TAG+".onCreateView()", "Newly created.");
-        }
-        else{
-            Log.v(TAG+".onCreateView()", "Recreated.");
-        }
-
-        // Inflating rootView.
-        View rootView = inflater.inflate(R.layout.fragment_route, container, false);
-
-        // Get UI references.
-        mSpinnerForm = (LinearLayout) rootView.findViewById(R.id.route_spinner_viewgroup);
-        mHelloText = (TextView) rootView.findViewById(R.id.route_hello_text);
-        mCategorySpinner = (Spinner) rootView.findViewById(R.id.route_category_spinner);
-        mRouteSpinner = (Spinner) rootView.findViewById(R.id.route_route_spinner);
-        mNextButton = (Button) rootView.findViewById(R.id.route_next_button);
-        mReplaceForm = (RelativeLayout) rootView.findViewById(R.id.route_replace_viewgroup);
-        mReplaceText = (TextView) rootView.findViewById(R.id.route_replace_text);
-        mYesButton = (Button) rootView.findViewById(R.id.route_yes_button);
-        mNoButton = (Button) rootView.findViewById(R.id.route_no_button);
-        mProgressForm = (LinearLayout) rootView.findViewById(R.id.route_progress_viewgroup);
-        mStatusText = (TextView) rootView.findViewById(R.id.route_status_text);
-
-        return rootView;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState){
-        super.onActivityCreated(savedInstanceState);
-
-        xUserId = ((HelloActivity)getActivity()).getxUserId();
-        xAuthToken = ((HelloActivity)getActivity()).getxAuthToken();
-        categorySpinnerItemList = ((HelloActivity)getActivity()).getCategoryList();
-
-        // Setup for spinners.
-        setupCategorySpinner();
-        setupRouteSpinner();
-
-        if(savedInstanceState == null){
-            Log.d(TAG+".onActivityCreated()", "Newly created.");
-            mState = State.PICKING;
-        }
-        else{
-            Log.d(TAG+".onActivityCreated()", "Restored.");
-
-            mState = State.toEnum(savedInstanceState.getInt(getString(R.string.bundle_route_state)));
-            mCategorySpinner.setSelection(savedInstanceState.getInt(getString(R.string.bundle_category_spinner_selection)));
-            updateRouteSpinner(((CategorySpinnerItem) mCategorySpinner.getSelectedItem()).getRouteCount());
-            mRouteSpinner.setSelection(savedInstanceState.getInt(getString(R.string.bundle_route_spinner_selection)));
-
-            if(mState == State.REPLACE_QUESTION)
-                currentJudge = savedInstanceState.getString(getString(R.string.bundle_current_judge));
-
-            if(mState == State.JUDGE_OK)
-                routeId = savedInstanceState.getString(getString(R.string.bundle_route_id));
-
-            changeState(mState);
-        }
-    }
-
-    @Override
-    public void onStart(){
-        super.onStart();
-
-        // Guaranteed to have an activity here.
-        Log.v(TAG + ".onStart()", "Start");
-
-        initHelloText();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.v(TAG + ".onResume()", "mState: " + mState);
-        BusProvider.getInstance().post(new RouteOnResume());
-    }
-
-    @Override
-    public void onPause(){
-        Log.v(TAG + ".onPause()", "mState: " + mState);
-
-        switch(mState){
-            case PICKING:
-            case REPLACE_QUESTION:
-            case JUDGE_OK:
-                break;
-
-            default:
-                changeState(State.PICKING);
-        }
-        BusProvider.getInstance().unregister(this);
-        super.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        Log.v(TAG + ".onStop()", "Stop");
-
-        super.onStop();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putInt(getString(R.string.bundle_route_state), mState.getValue());
-
-
-        outState.putInt(getString(R.string.bundle_category_spinner_selection), mCategorySpinner.getSelectedItemPosition());
-        outState.putInt(getString(R.string.bundle_route_spinner_selection), mRouteSpinner.getSelectedItemPosition());
-        if(mState == State.REPLACE_QUESTION)
-            outState.putString(getString(R.string.bundle_current_judge), currentJudge);
-
-        if(mState == State.JUDGE_OK)
-            outState.putString(getString(R.string.bundle_route_id), routeId);
-    }
 
 
 
-    /*=========================================================================
-     * UI methods
-     *=======================================================================*/
     private void showSpinnerForm(boolean show){
         mSpinnerForm.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void initHelloText(){
-        if(mHelloText == null){
-            Log.d(TAG+".initHelloText()", "mHelloText is null.");
-            return;
-        }
-
-        if(getActivity() == null){
-            Log.d(TAG+".initHelloText()", "getActivity() is null.");
-            return;
-        }
-
         mHelloText.setText(getActivity().getString(R.string.route_fragment_greeting) +
-                Profile.getCurrentProfile().getName() +
+                getArguments().getString(getString(R.string.bundle_user_name)) +
                 getActivity().getString(R.string.route_fragment_question));
     }
 
+    private void enableRouteSpinner(boolean enable){
+        mRouteSpinner.setEnabled(enable);
+    }
+
     private void enableNextButtonIfPossible(boolean enable){
-        boolean isHint = ((RouteSpinnerItem)mRouteSpinner.getSelectedItem()).isHint();
+        boolean isHint = ((Categories.RouteItem)mRouteSpinner.getSelectedItem()).isHint();
         if(!enable)
             mNextButton.setEnabled(false);
         else
@@ -513,9 +575,9 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
 
     private void updateReplaceText(){
         String question = currentJudge+getString(R.string.route_fragment_replace_question1)+
-                ((CategorySpinnerItem)mCategorySpinner.getSelectedItem()).getItemString()+
+                ((Categories.CategoryItem)mCategorySpinner.getSelectedItem()).toString()+
                 getString(R.string.route_fragment_replace_question2)+
-                ((RouteSpinnerItem)mRouteSpinner.getSelectedItem()).getItemString()+
+                ((Categories.RouteItem)mRouteSpinner.getSelectedItem()).toString()+
                 getString(R.string.route_fragment_replace_question3)+
                 currentJudge+
                 getString(R.string.route_fragment_replace_question4);
@@ -532,76 +594,80 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         mProgressForm.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    private void showProgressBar(boolean show){
+        mProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
     private void updateStatusText(int resId){
         mStatusText.setText(resId);
     }
 
-    /*=========================================================================
-     * AdapterView.OnItemSelectedListener methods
-     *=======================================================================*/
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view,
-                               int pos, long id) {
-        // TODO view maybe null. dunno how to solve.
-
-        if(view == null)
-            return;
-
-        // If already in JUDGE_OK and user change the category/route, we need to enter picking state.
-        if(mState == State.JUDGE_OK){
-            Log.d(TAG+".onItemSelected()", "changing to picking.");
-            changeState(State.PICKING);
-        }
-
-        // Called from category spinner
-        if(parent.getId() == mCategorySpinner.getId()){
-            CategorySpinnerItem selectedItem = (CategorySpinnerItem)(parent.getSelectedItem());
-            if(selectedItem.isHint()){
-                Log.v(TAG+".onItemSelected()", "Selected category hint.");
-                ((TextView)view).setTextColor(getResources().getColor(R.color.hint_color));
-            }
-            else{
-                Log.v(TAG+".onItemSelected()", "Selected category: "+selectedItem.getItemString());
-                updateRouteSpinner(selectedItem.getRouteCount());
-            }
-        }
-
-        // Called from route spinner
-        if(parent.getId() == mRouteSpinner.getId()){
-            SpinnerItem selectedItem = (SpinnerItem)parent.getSelectedItem();
-            if(selectedItem.isHint()) {
-                Log.v(TAG + ".onItemSelected()", "Selected route hint.");
-                ((TextView) view).setTextColor(getResources().getColor(R.color.hint_color));
-
-                mNextButton.setEnabled(false);
-            }
-            else{
-                Log.v(TAG+".onItemSelected()", "Selected route: "+selectedItem.getItemString());
-                mNextButton.setEnabled(true);
-            }
-        }
+    private void showRetryButton(boolean show){
+        mRetryButton.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-        // Another interface callback
-        Log.v(TAG+".onNothingSelected()", "Nothing selected.");
-    }
+
 
 
 
     /**
-     * RequestListener for receiving response of report request.
-     *
-     * @author Lin Weizhi (ecc.weizhi@gmail.com)
+     * Listener for CategoriesHeadRequest
      */
-    private class ReportRequestListener implements RequestListener<ReportResponse> {
+    private class CategoriesHeadRequestListener implements
+            RequestListener<CategoriesHeadResponseBody> {
+        private final String TAG = CategoriesHeadRequestListener.class.getSimpleName();
+
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            if(mState == State.VERIFY_SIGNATURE)
+                changeState(State.VERIFY_SIGNATURE_FAIL);
+        }
+
+        @Override
+        public void onRequestSuccess(CategoriesHeadResponseBody result) {
+            if(mState == State.VERIFY_SIGNATURE) {
+                String mySignature = categoryInfo.getJSON().getSignature();
+                String serverSignature = result.getSignature();
+                if (mySignature.equals(serverSignature)) {
+                    changeState(State.SIGNATURE_NOT_EXPIRE);
+                }
+                else {
+                    changeState(State.SIGNATURE_EXPIRE);
+                }
+            }
+        }
+    }
+
+    /**
+     * Listener for CategoriesRequest.
+     */
+    private class CategoriesRequestListener implements
+            RequestListener<CategoriesResponseBody> {
+        private final String TAG = CategoriesRequestListener.class.getSimpleName();
+
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            if(mState == State.REQUEST_CATEGORIES)
+                changeState(State.REQUEST_CATEGORIES_FAIL);
+        }
+
+        @Override
+        public void onRequestSuccess(CategoriesResponseBody result) {
+            if(mState == State.REQUEST_CATEGORIES) {
+                categoryInfo = new Categories(result);
+                changeState(State.CATEGORIES_READY);
+            }
+        }
+    }
+
+    /**
+     * Listener for ReportRequest.
+     */
+    private class ReportRequestListener implements RequestListener<ReportResponseBody> {
         private final String TAG = ReportRequestListener.class.getSimpleName();
 
         @Override
         public void onRequestFailure(SpiceException e) {
-            Log.i(TAG+".onRequestFailure()", "mState="+mState);
-
             if(mState == State.IN_FIRST_REQUEST){
                 changeState(State.FIRST_REQUEST_FAILED);
             }
@@ -611,13 +677,10 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
         }
 
         @Override
-        public void onRequestSuccess(ReportResponse result) {
-            Log.i(TAG+".onRequestSuccess()", "mState="+mState);
-
+        public void onRequestSuccess(ReportResponseBody result) {
             currentJudge = result.getAdminName();
 
             if(result.getState() == 1){
-                routeId = result.getRouteId();
                 if(mState == State.IN_FIRST_REQUEST){
                     changeState(State.FIRST_REQUEST_OK);
                 }
@@ -630,29 +693,173 @@ public class RouteFragment extends Fragment implements AdapterView.OnItemSelecte
                     changeState(State.FIRST_REQUEST_NOT_OK);
                 }
                 else if(mState == State.IN_SECOND_REQUEST){
-                    changeState(State.SECOND_REQUEST_NOT_OK);
+                    changeState(State.SECOND_REQUEST_FAILED);
                 }
             }
         }
     }
 
+    private class CategoriesSpinnerListener implements AdapterView.OnItemSelectedListener{
 
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            Categories.CategoryItem selectedCategory =
+                    (Categories.CategoryItem)parent.getAdapter().getItem(position);
 
-    /*=========================================================================
-     * Button onClick methods
-     *=======================================================================*/
-    public void next(){
-        if(mState == State.PICKING)
-            changeState(State.IN_FIRST_REQUEST);
+            if(selectedCategory.isHint()){
+                enableRouteSpinner(false);
+                mRouteSpinner.setSelection(routeAdapter.getFirstHintPosition());
+            }
+            else{
+                enableRouteSpinner(true);
+
+                // Clear mRouteSpinner list, repopulate with updated route list and set selection
+                // to first hint item.
+                HintableArrayAdapter routeAdapter = (HintableArrayAdapter)mRouteSpinner.getAdapter();
+                routeAdapter.clear();
+                routeAdapter.addAll(selectedCategory.getRoutes());
+                routeAdapter.notifyDataSetChanged();
+                mRouteSpinner.setSelection(routeAdapter.getFirstHintPosition());
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
     }
 
-    public void yes(){
-        if(mState == State.REPLACE_QUESTION)
-            changeState(State.IN_SECOND_REQUEST);
+    private class RouteSpinnerListener implements AdapterView.OnItemSelectedListener{
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            Categories.RouteItem selectedRoute =
+                    (Categories.RouteItem)parent.getAdapter().getItem(position);
+
+            // Find out if selected route is a hint. Enable next button if selectedRoute is not
+            // hint.
+            if(selectedRoute.isHint()){
+                enableNextButtonIfPossible(false);
+            }
+            else{
+                enableNextButtonIfPossible(true);
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
     }
 
-    public void no(){
-        if(mState == State.REPLACE_QUESTION)
-            changeState(State.PICKING);
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface FragmentToActivityMethods {
+        public SpiceManager getSpiceManager();
+        public boolean isOfflineMode();
     }
+
+    private enum State{
+        START(0),
+        NO_CATEGORIES(1),
+        HAS_CATEGORIES(2),
+        VERIFY_SIGNATURE(3),
+        VERIFY_SIGNATURE_FAIL(4),
+        //REQUEST_SIGNATURE_NOT_OK(5),
+        //REQUEST_SIGNATURE_OK(6),
+        SIGNATURE_EXPIRE(7),
+        SIGNATURE_NOT_EXPIRE(8),
+        REQUEST_CATEGORIES(9),
+        REQUEST_CATEGORIES_FAIL(10),
+        //REQUEST_CATEGORIES_NOT_OK(11),
+        //REQUEST_CATEGORIES_OK(12),
+        CATEGORIES_READY(13),
+        PICKING(14),                // Picking category and route. Can stay in this state.
+        IN_FIRST_REQUEST(15),       // Sending request to be judge. Force=false.
+        FIRST_REQUEST_OK(16),       // CRIMP server reply ok.
+        FIRST_REQUEST_NOT_OK(17),   // CRIMP server reply not ok.
+        FIRST_REQUEST_FAILED(18),   // No/unknown response from CRIMP server.
+        REPLACE_QUESTION(19),       // Ask user to force replace. Can stay in this state.
+        IN_SECOND_REQUEST(20),      // Sending request to be judge. Force=true.
+        SECOND_REQUEST_OK(21),      // CRIMP server reply ok.
+        //SECOND_REQUEST_NOT_OK(22),  // CRIMP server reply not ok.
+        SECOND_REQUEST_FAILED(23),  // No/unknown response from CRIMP server.
+        JUDGE_OK(24);              // User become judge. Can stay in this state.
+
+        private final int value;
+
+        State(int value){
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static State toEnum(int i){
+            switch(i){
+                case 0:
+                    return START;
+                case 1:
+                    return NO_CATEGORIES;
+                case 2:
+                    return HAS_CATEGORIES;
+                case 3:
+                    return VERIFY_SIGNATURE;
+                case 4:
+                    return VERIFY_SIGNATURE_FAIL;
+                case 5:
+                    return null;
+                //case 6:
+                //    return REQUEST_SIGNATURE_OK;
+                case 7:
+                    return SIGNATURE_EXPIRE;
+                case 8:
+                    return SIGNATURE_NOT_EXPIRE;
+                case 9:
+                    return REQUEST_CATEGORIES;
+                case 10:
+                    return REQUEST_CATEGORIES_FAIL;
+                case 11:
+                    return null;
+                //case 12:
+                //    return REQUEST_CATEGORIES_OK;
+                case 13:
+                    return CATEGORIES_READY;
+                case 14:
+                    return PICKING;
+                case 15:
+                    return IN_FIRST_REQUEST;
+                case 16:
+                    return FIRST_REQUEST_OK;
+                case 17:
+                    return FIRST_REQUEST_NOT_OK;
+                case 18:
+                    return FIRST_REQUEST_FAILED;
+                case 19:
+                    return REPLACE_QUESTION;
+                case 20:
+                    return IN_SECOND_REQUEST;
+                case 21:
+                    return SECOND_REQUEST_OK;
+                //case 22:
+                //    return SECOND_REQUEST_NOT_OK;
+                case 23:
+                    return SECOND_REQUEST_FAILED;
+                case 24:
+                    return JUDGE_OK;
+                default:
+                    return null;
+            }
+        }
+    }
+
 }

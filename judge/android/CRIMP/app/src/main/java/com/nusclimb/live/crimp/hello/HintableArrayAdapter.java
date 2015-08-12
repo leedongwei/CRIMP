@@ -11,7 +11,12 @@ import java.util.List;
 
 /**
  * ArrayAdapter that display hint item with different text color and hide hint
- * item from dropdown list.
+ * item from dropdown list. HintableArrayAdapter is backed by an array of
+ * {@link HintableSpinnerItem} objects. HintableArrayAdapter has a reference to
+ * the array. In order for modification to the array to be reflected properly in the associated
+ * {@link android.widget.AdapterView AdapterView}, we should call methods (i.e. add, addAll, clear,
+ * insert, remove, sort) provided by this class and then call notifyDataSetChanged. The array
+ * should not be modified directly.
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
@@ -51,5 +56,21 @@ public class HintableArrayAdapter extends ArrayAdapter<HintableSpinnerItem> {
 
         parent.setVerticalScrollBarEnabled(false);
         return mView;
+    }
+
+    public int getFirstHintPosition(){
+        int position = -1;
+        int i=0;
+        boolean isFoundFirstHint = false;
+        while(!isFoundFirstHint && i<getCount()){
+            if(getItem(i).isHint()){
+                isFoundFirstHint = true;
+                position = i;
+            }
+
+            i++;
+        }
+
+        return position;
     }
 }

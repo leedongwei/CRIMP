@@ -17,7 +17,7 @@ public class ReportResponseBody {
     @JsonProperty("route_id")
     private String routeId;
     @JsonProperty("state")
-    private String state;
+    private int state;
 
     @Override
     public String toString(){
@@ -33,11 +33,11 @@ public class ReportResponseBody {
         return sb.toString();
     }
 
-    public String getState() {
+    public int getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(int state) {
         this.state = state;
     }
 

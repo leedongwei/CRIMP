@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">CRIMP</string>
     <string name="package_name">com.nusclimb.live</string>
+    <string name="categories_file">categories_file</string>
 
     <!-- QR Code prefix -->
     <string name="qr_prefix">&lt;BA2015&gt;</string>
@@ -13,6 +14,7 @@
     <string name="login_api">/api/judge/login</string>
     <string name="report_api">/api/judge/report</string>
     <string name="helpme_api">/api/judge/helpme</string>
+    <string name="categorieshead_api">/api/judge/categories_head</string>
     <string name="categories_api">/api/judge/categories</string>
     <string name="climbers_api">/api/judge/climbers/</string>
     <string name="activeclimbers_api">/api/judge/activeclimbers</string>
@@ -43,6 +45,17 @@
     <string name="route_fragment_replace_question4">"?"</string>
     <string name="route_fragment_yes">Yes</string>
     <string name="route_fragment_no">No</string>
+    <string name="route_fragment_retry">Retry</string>
+    <string name="route_fragment_status_no_categories">No categories information</string>
+    <string name="route_fragment_status_has_categories">Categories information found</string>
+    <string name="route_fragment_status_verify_signature">Verifying categories signature…</string>
+    <string name="route_fragment_status_expire">Categories information outdated</string>
+    <string name="route_fragment_status_not_expire">Categories information is up to date</string>
+    <string name="route_fragment_status_signature_fail">No/Wrong response from server.</string>
+    <string name="route_fragment_status_request_category">Requesting categories information…</string>
+    <string name="route_fragment_status_category_ok">Categories information received</string>
+    <string name="route_fragment_status_category_fail">Fail to get categories information</string>
+    <string name="route_fragment_status_ready">Done!</string>
     <string name="route_fragment_status_report_in">Judge reporting in…</string>
     <string name="route_fragment_status_report_in_fail">No/Wrong response from server. Retrying…</string>
 

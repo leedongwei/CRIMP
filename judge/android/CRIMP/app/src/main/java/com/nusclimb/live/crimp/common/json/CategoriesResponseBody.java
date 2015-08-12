@@ -1,5 +1,7 @@
 package com.nusclimb.live.crimp.common.json;
 
+import com.nusclimb.live.crimp.common.Categories;
+
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.ArrayList;
@@ -10,13 +12,29 @@ import java.util.ArrayList;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class CategoriesResponseBody{
+    @JsonProperty("signature")
+    private String signature;
+    @JsonProperty("time_stamp")
+    private String timeStamp;
     @JsonProperty("categories")
     private ArrayList<Category> categories;
+
+    public CategoriesResponseBody(){}
+
+    public CategoriesResponseBody(CategoriesResponseBody mCategoriesResponseBody){
+        setSignature(mCategoriesResponseBody.getSignature());
+        setTimeStamp(mCategoriesResponseBody.getTimeStamp());
+        ArrayList<Category> mCategories = new ArrayList<Category>(mCategoriesResponseBody.getCategories());
+        setCategories(mCategories);
+    }
+
 
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
         sb.append("{\n");
+        sb.append("\tsignature: "+signature+",\n");
+        sb.append("\ttimeStamp: "+timeStamp+",\n");
         sb.append("\tcategories: [\n");
 
         if(categories.size()<=1){
@@ -38,6 +56,22 @@ public class CategoriesResponseBody{
         return sb.toString();
     }
 
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
     public ArrayList<Category> getCategories() {
         return categories;
     }
@@ -46,7 +80,7 @@ public class CategoriesResponseBody{
         this.categories = categories;
     }
 
-    private class Category{
+    public class Category{
         @JsonProperty("category_name")
         private String categoryName;
         @JsonProperty("category_id")
@@ -136,18 +170,21 @@ public class CategoriesResponseBody{
             this.timeEnd = timeEnd;
         }
 
-        private class Route{
+        public class Route{
             @JsonProperty("route_id")
             private String routeId;
             @JsonProperty("route_name")
             private String routeName;
+            @JsonProperty("score")
+            private String score;
 
             @Override
             public String toString(){
                 StringBuilder sb = new StringBuilder();
                 sb.append("{\n");
                 sb.append("\troute_id: "+routeId+",\n");
-                sb.append("\troute_name: "+routeName+"\n");
+                sb.append("\troute_name: "+routeName+",\n");
+                sb.append("\tscore: "+score+"\n");
                 sb.append("}");
 
                 return sb.toString();
@@ -167,6 +204,14 @@ public class CategoriesResponseBody{
 
             public void setRouteName(String routeName) {
                 this.routeName = routeName;
+            }
+
+            public String getScore() {
+                return score;
+            }
+
+            public void setScore(String score) {
+                this.score = score;
             }
         }
     }

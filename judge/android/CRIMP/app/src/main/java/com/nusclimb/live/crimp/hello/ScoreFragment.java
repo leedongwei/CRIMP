@@ -4,13 +4,11 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -33,13 +31,11 @@ import com.nusclimb.live.crimp.common.spicerequest.ActiveClimbersRequest;
 import com.nusclimb.live.crimp.common.spicerequest.ClimbersRequest;
 import com.nusclimb.live.crimp.common.spicerequest.GetScoreRequest;
 import com.nusclimb.live.crimp.service.CrimpService;
-import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import com.squareup.otto.Subscribe;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -169,14 +165,14 @@ public class ScoreFragment extends Fragment {
         // Update title
         String rid = ((HelloActivity) getActivity()).getRouteId();
         String categoryId = rid.substring(0, 3);
-        List<SpinnerItem> categoryList = ((HelloActivity) getActivity()).getCategoryList();
+        List<HintableSpinnerItem> categoryList = ((HelloActivity) getActivity()).getCategoryList();
 
         String categoryFullName = null;
         String routeFullName = null;
         boolean isTitleOk = false;
         int i=0;
         while(!isTitleOk && i<categoryList.size()){
-            CategorySpinnerItem s = (CategorySpinnerItem) categoryList.get(i);
+            CategoryHintableSpinnerItem s = (CategoryHintableSpinnerItem) categoryList.get(i);
 
             if( s.getCategoryId().compareTo(categoryId) == 0 ){
                 categoryFullName = s.getItemString();

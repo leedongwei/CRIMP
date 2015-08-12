@@ -1,8 +1,6 @@
 package com.nusclimb.live.crimp.hello;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -105,14 +103,14 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         return climberName;
     }
 
-    public List<SpinnerItem> getCategoryList(){
-        List<SpinnerItem> categorySpinnerItemList = new ArrayList<SpinnerItem>();
+    public List<HintableSpinnerItem> getCategoryList(){
+        List<HintableSpinnerItem> categoryHintableSpinnerItemList = new ArrayList<HintableSpinnerItem>();
         for(int i=0; i<categoryIdListAsArray.length; i++){
-            categorySpinnerItemList.add(new CategorySpinnerItem(categoryNameListAsArray[i],
+            categoryHintableSpinnerItemList.add(new CategoryHintableSpinnerItem(categoryNameListAsArray[i],
                     categoryIdListAsArray[i], categoryRouteCountListAsArray[i], false));
         }
 
-        return categorySpinnerItemList;
+        return categoryHintableSpinnerItemList;
     }
 
     private void updateTabEnableView(){

@@ -358,7 +358,7 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.activity_login);
 
         // Assign views to references
-        mViewVerifying = findViewById(R.id.verifying_view);
+        mViewVerifying = findViewById(R.id.verifying_viewgroup);
         mViewLoginButton = (LoginButton) findViewById(R.id.login_button);
         mViewLoadingWheel = findViewById(R.id.loading_wheel);
         mViewResponseText = findViewById(R.id.response_text);
