@@ -74,7 +74,7 @@ Meteor.publish('getScores', (category) => {
  *
  *  Note: Do not use ES6 arrow functions for publications which require the
  *  use of this.userId to get user identity. In addition, we are not using
- *  CRIMP.checkPermissions for this as I do not want to throw an error for bad
+ *  CRIMP.checkPermission for this as I do not want to throw an error for bad
  *  subscriptions.
  *
  *  Refer to https://github.com/babel/babel/issues/730
