@@ -53,7 +53,8 @@ ActiveMonitor.attachSchema(CRIMP.schema.activemonitor);
 
 
 // Future is used to return values from callbacks
-var Future = Meteor.npmRequire('fibers/future');
+if (Meteor.isServer)
+  var Future = Meteor.npmRequire('fibers/future');
 
 Meteor.methods({
   /**
@@ -71,6 +72,9 @@ Meteor.methods({
    *    {number} - number of documents affected
    */
   insertActiveJudge(selector, modifier) {
+    // Future is available server-side only
+    if (!Meteor.isServer)   return;
+
     CRIMP.checkPermission(CRIMP.roles.trusted);
     check(selector, Object);
     check(modifier, Object);
@@ -125,6 +129,9 @@ Meteor.methods({
    *    {number} - number of documents affected
    */
   removeActiveJudge(selector) {
+    // Future is available server-side only
+    if (!Meteor.isServer)   return;
+
     CRIMP.checkPermission(CRIMP.roles.trusted);
     check(selector, Object);
 
@@ -169,6 +176,9 @@ Meteor.methods({
    *    {number} - number of documents affected
    */
   insertActiveClimber(selector, modifier) {
+    // Future is available server-side only
+    if (!Meteor.isServer)   return;
+
     CRIMP.checkPermission(CRIMP.roles.trusted);
     check(selector, Object);
     check(modifier, Object);
@@ -226,6 +236,9 @@ Meteor.methods({
    *    {number} - number of documents affected
    */
   removeActiveClimber(selector) {
+    // Future is available server-side only
+    if (!Meteor.isServer)   return;
+
     CRIMP.checkPermission(CRIMP.roles.trusted);
     check(selector, Object);
 
