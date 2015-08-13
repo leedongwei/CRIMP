@@ -17,7 +17,7 @@ CRIMP.schema.activemonitor = new SimpleSchema({
   admin_expiry: {
     label: 'Time to delete document',
     type: Date,
-    autoValue: function() {
+    autoValue() {
       // expires in 15mins
       return new Date(Date.now() + 10000);
     }
@@ -36,7 +36,7 @@ CRIMP.schema.activemonitor = new SimpleSchema({
     label: 'Time to remove climber',
     type: Date,
     optional: true,
-    autoValue: function() {
+    autoValue() {
       // expires in 10mins
       return new Date(Date.now() + 5000);
     }
