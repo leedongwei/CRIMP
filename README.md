@@ -1,27 +1,36 @@
 # Comprehensive Real-time Index of Monkey Points (CRIMP)
 ### A real-time scoring and ranking system for climbing events
 
-## Scoring systems available
-* IFSC Top/Bonus
+<br><br><br>
 
+*Development is currently on hold. We will continue in December 2015.*
+
+<br><br><br>
 
 ## System Components
-### web dashboard
-Interface for admins to have a quick overview of the system.
+#### spectator scoreboard (web)
+Web app for spectators that displays scoring data in real-time.
 
-### web scoreboard
-Web application for spectators that displays scoring data in real-time.
+#### admin dashboard (web)
+Interface for admins to have a quick overview of the system and edit the data.
 
-### judge
-Android app for judges to submit scores.
+#### judging app (android)
+App for judges to submit scores. We're looking for an iOS developer to help us work on this!
 
-### paper
+#### climber scoresheets (paper)
 Generator for physical scoresheets with unique QR codes for every climber.
 
+<br><br>
+
+## Scoring systems
+* IFSC Top/Bonus
+
+<br><br>
 
 ## Technical Support & Development
-* Currently ongoing! Contact Dongwei for more information!
+* Currently ongoing! Contact <a href="https://github.com/leedongwei">Dongwei</a> for more information!
 
+<br><br>
 
 ## Users
 #### v0.2
