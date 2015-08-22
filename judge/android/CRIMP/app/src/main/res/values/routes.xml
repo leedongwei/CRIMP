@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="NMQualifier">
+        <item>Route 1</item>
+    </string-array>
+
+    <string-array name="IMQualifier">
+        <item>Route 1</item>
+        <item>Route 2</item>
+    </string-array>
+
+    <string-array name="NWQualifier">
+        <item>Route 1</item>
+        <item>Route 2</item>
+        <item>Route 3</item>
+    </string-array>
+
+    <string-array name="IWQualifier">
+        <item>Route 1</item>
+        <item>Route 2</item>
+        <item>Route 3</item>
+        <item>Route 4</item>
+    </string-array>
+
+    <string-array name="U17MQualifier">
+        <item>Route 1</item>
+        <item>Route 2</item>
+        <item>Route 3</item>
+        <item>Route 4</item>
+        <item>Route 5</item>
+    </string-array>
+
+    <string-array name="U17WQualifier">
+        <item>Route 1</item>
+        <item>Route 2</item>
+        <item>Route 3</item>
+        <item>Route 4</item>
+        <item>Route 5</item>
+        <item>Route 6</item>
+    </string-array>
+
+</resources>
