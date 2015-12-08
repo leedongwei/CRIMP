@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="event_name_long">"Boulderactive 2015"</string>
+    <string name="event_name_short">"BA2015"</string>
+    <string name="crimp_production">"http://live.nusclimb.com"</string>
+    <string name="crimp_staging">"http://live.nusclimb.com"</string>
     <bool name="is_production_app">false</bool>
 </resources>

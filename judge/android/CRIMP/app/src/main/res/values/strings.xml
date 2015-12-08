@@ -10,7 +10,6 @@
     <string name="facebook_app_id">1448790512098965</string>
 
     <!-- URL -->
-    <string name="crimp_url">"http://live.nusclimb.com"</string>
     <string name="login_api">/api/judge/login</string>
     <string name="report_api">/api/judge/report</string>
     <string name="helpme_api">/api/judge/helpme</string>

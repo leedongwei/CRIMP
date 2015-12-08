@@ -27,7 +27,16 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 /**
- * Login activity of CRIMP.
+ * Login activity of CRIMP. This activity will handle login to facebook
+ * and CRIMP server. There are 4 states corresponding to stages in the
+ * login process.
+ *
+ * NOT_LOGIN(0):        Not login to facebook. Not login to CRIMP server.
+ * IN_VERIFYING(1):     Trying to login to CRIMP server. After successfully return from
+ *                      facebook login, a request is immediately send to CRIMP server. This
+ *                      state waits for reply from CRIMP server.
+ * VERIFIED_OK(2):      CRIMP server reply ok.
+ * VERIFIED_FAILED(3):  No response or unknown response from CRIMP server.
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
@@ -37,13 +46,9 @@ public class LoginActivity extends Activity {
     // Various state of activity.
     private enum State {
         NOT_LOGIN(0),               // Not login to facebook. Not login to CRIMP server.
-        IN_FACEBOOK(1),             // In facebook login activity.
-        FACEBOOK_OK(2),             // Successfully login to facebook.
-        FACEBOOK_NOT_OK(3),         // Fail to login to facebook.
-        IN_VERIFYING(4),            // Trying to login to CRIMP server.
-        VERIFIED_OK(5),             // CRIMP server reply ok.
-        VERIFIED_NOT_OK(6),         // CRIMP server reject user.
-        VERIFIED_FAILED(7);         // No response or unknown response from CRIMP server.
+        IN_VERIFYING(1),            // Trying to login to CRIMP server.
+        VERIFIED_OK(2),             // CRIMP server reply ok.
+        VERIFIED_FAILED(3);         // No response or unknown response from CRIMP server.
 
         private final int value;
 
@@ -60,18 +65,10 @@ public class LoginActivity extends Activity {
                 case 0:
                     return NOT_LOGIN;
                 case 1:
-                    return IN_FACEBOOK;
-                case 2:
-                    return FACEBOOK_OK;
-                case 3:
-                    return FACEBOOK_NOT_OK;
-                case 4:
                     return IN_VERIFYING;
-                case 5:
+                case 2:
                     return VERIFIED_OK;
-                case 6:
-                    return VERIFIED_NOT_OK;
-                case 7:
+                case 3:
                     return VERIFIED_FAILED;
                 default:
                     return null;
@@ -109,8 +106,6 @@ public class LoginActivity extends Activity {
         public void onRequestFailure(SpiceException e) {
             Log.w(TAG, "Login request fail. mState: " + mState + ", SpiceException: " + e.toString());
 
-            // TODO do something about the exception
-
             // No-op if mState != IN_VERIFYING
             if(mState == State.IN_VERIFYING) {
                 changeState(State.VERIFIED_FAILED);
@@ -136,6 +131,7 @@ public class LoginActivity extends Activity {
             }
         }
     }
+
 
 
     /*=========================================================================
@@ -170,32 +166,26 @@ public class LoginActivity extends Activity {
 
 
 
-
     /*=========================================================================
      * Button methods and facebook login callback
      *=======================================================================*/
     /**
-     * This method is called when user clicked on retry button. Log out from
-     * facebook (if user is not already logged out). Change state to NOT_LOGIN.
+     * This method is called when user clicked on retry button.
+     * Change state to NOT_LOGIN.
      *
      * @param view Button view object
      */
     public void retry(View view) {
-        // TODO i should cancel all pending request and wait for the current midflight request to return
-
-        LoginManager.getInstance().logOut();
         changeState(State.NOT_LOGIN);
     }
 
     /**
-     * This method is called when user clicked on cancel button. Log out from
-     * facebook (if user is not already logged out). Change state to NOT_LOGIN.
+     * This method is called when user clicked on cancel button.
+     * Change state to NOT_LOGIN.
      *
      * @param view Button view object.
      */
     public void cancel(View view){
-        // TODO i should cancel all pending request and wait for the current midflight request to return
-        LoginManager.getInstance().logOut();
         changeState(State.NOT_LOGIN);
     }
 
@@ -209,10 +199,10 @@ public class LoginActivity extends Activity {
         if(resultCode == RESULT_OK) {
             mUser.setFacebookAccessToken(AccessToken.getCurrentAccessToken().getToken());
             mUser.setUserName(Profile.getCurrentProfile().getName());
-            changeState(State.FACEBOOK_OK);
+            changeState(State.IN_VERIFYING);
         }
         else{
-            changeState(State.FACEBOOK_NOT_OK);
+            changeState(State.NOT_LOGIN);
         }
     }
 
@@ -233,18 +223,6 @@ public class LoginActivity extends Activity {
                 showFacebookButton(true);
                 showVerifyingView(false);
                 break;
-            case IN_FACEBOOK:
-                showFacebookButton(false);
-                showVerifyingView(false);
-                break;
-            case FACEBOOK_OK:
-                showFacebookButton(false);
-                showVerifyingView(false);
-                break;
-            case FACEBOOK_NOT_OK:   // TODO should provide feedback to user
-                showFacebookButton(false);
-                showVerifyingView(false);
-                break;
             case IN_VERIFYING:
                 showFacebookButton(false);
                 showLoadingWheel(true);
@@ -255,17 +233,6 @@ public class LoginActivity extends Activity {
             case VERIFIED_OK:
                 showFacebookButton(false);
                 showVerifyingView(false);
-                break;
-            case VERIFIED_NOT_OK:   // TODO use spiceexception for error message
-                showFacebookButton(false);
-                showLoadingWheel(false);
-                responseText = getString(R.string.login_activity_login_hey)+
-                        mUser.getUserName()+
-                        getString(R.string.login_activity_login_exclamation)+
-                        getString(R.string.login_activity_verification_fail);
-                showResponseText(responseText);
-                showCancelButton(false);
-                showVerifyingView(true);
                 break;
             case VERIFIED_FAILED:
                 showFacebookButton(false);
@@ -288,27 +255,20 @@ public class LoginActivity extends Activity {
         Log.v(TAG + ".doVerification()", "mState:" + mState);
         switch (mState){
             case NOT_LOGIN:
+                // Try to logout of facebook
+                LoginManager.getInstance().logOut();
                 mUser.clearAll();
                 break;
-            case IN_FACEBOOK:
-                break;
-            case FACEBOOK_OK:
+            case IN_VERIFYING:
                 mUser.clearAll();
                 mUser.setUserName(Profile.getCurrentProfile().getName());
                 mUser.setFacebookAccessToken(AccessToken.getCurrentAccessToken().getToken());
-                changeState(State.IN_VERIFYING);
-                break;
-            case FACEBOOK_NOT_OK:
-                changeState(State.NOT_LOGIN);
-                break;
-            case IN_VERIFYING:
+
                 LoginRequest mLoginRequest = new LoginRequest(mUser.getFacebookAccessToken(), this);
                 spiceManager.execute(mLoginRequest, new LoginRequestListener());
                 break;
             case VERIFIED_OK:
                 launchHelloActivity();
-                break;
-            case VERIFIED_NOT_OK:
                 break;
             case VERIFIED_FAILED:
                 break;
@@ -397,24 +357,19 @@ public class LoginActivity extends Activity {
                             getString(R.string.bundle_x_user_id)));
                     mUser.setAuthToken(savedInstanceState.getString(
                             getString(R.string.bundle_x_auth_token)));
-                case VERIFIED_NOT_OK:
                 case VERIFIED_FAILED:
                 case IN_VERIFYING:
-                case FACEBOOK_OK:
                     mUser.setUserName(savedInstanceState.getString(
                             getString(R.string.bundle_user_name)));
                     mUser.setFacebookAccessToken(savedInstanceState.getString(
                             getString(R.string.bundle_access_token)));
                     break;
-
-                default:
-                    break;
             }
         }
         else{
             mState = State.NOT_LOGIN;
-            mUser.clearAll();
         }
+        Log.v(TAG, "mState at end of onCreate:" + mState);
     }
 
     @Override
@@ -430,16 +385,15 @@ public class LoginActivity extends Activity {
             case VERIFIED_OK:
                 changeState(State.VERIFIED_OK);
                 break;
-            case VERIFIED_NOT_OK:
             case VERIFIED_FAILED:
-            case IN_VERIFYING:
-            case FACEBOOK_OK:
-                changeState(State.FACEBOOK_OK);
+                changeState(State.VERIFIED_FAILED);
                 break;
-            case FACEBOOK_NOT_OK:
-            case IN_FACEBOOK:
+            case IN_VERIFYING:
+                changeState(State.IN_VERIFYING);
+                break;
             case NOT_LOGIN:
                 changeState(State.NOT_LOGIN);
+                break;
         }
     }
 
@@ -459,15 +413,13 @@ public class LoginActivity extends Activity {
                 outState.putString(getString(R.string.bundle_x_auth_token), mUser.getAuthToken());
             case IN_VERIFYING:
             case VERIFIED_FAILED:
-            case VERIFIED_NOT_OK:
-            case FACEBOOK_OK:
                 outState.putString(getString(R.string.bundle_access_token), mUser.getFacebookAccessToken());
                 outState.putString(getString(R.string.bundle_user_name), mUser.getUserName());
             case NOT_LOGIN:
-            case IN_FACEBOOK:
-            case FACEBOOK_NOT_OK:
                 outState.putInt(getString(R.string.bundle_login_state), mState.getValue());
                 break;
         }
+
+        Log.v(TAG, "mState at end of onSaveInstanceState:" + mState);
     }
 }

@@ -30,7 +30,11 @@ public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponseBody> {
         super(LoginResponseBody.class);
         this.accessToken = accessToken;
         this.isProductionApp = context.getResources().getBoolean(R.bool.is_production_app);
-        this.url = context.getString(R.string.crimp_url)+context.getString(R.string.login_api);
+        if(this.isProductionApp)
+            this.url = context.getString(R.string.crimp_production)+context.getString(R.string.login_api);
+        else
+            this.url = context.getString(R.string.crimp_staging)+context.getString(R.string.login_api);
+
     }
 
     @Override
