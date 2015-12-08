@@ -8,6 +8,9 @@ public class User {
     private String userName;
     private String userId;
     private String authToken;
+    private String categoryId;
+    private String routeId;
+    private String climberId;
 
     public void clearAll(){
         facebookAccessToken = null;
@@ -46,5 +49,29 @@ public class User {
 
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
+    }
+
+    public String getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public String getRouteId() {
+        return routeId;
+    }
+
+    public void setRouteId(String routeId) {
+        this.routeId = routeId;
+    }
+
+    public String getClimberId() {
+        return climberId;
+    }
+
+    public void setClimberId(String climberId) {
+        this.climberId = climberId;
     }
 }

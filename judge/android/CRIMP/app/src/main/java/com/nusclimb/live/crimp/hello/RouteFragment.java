@@ -539,6 +539,7 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
             case SECOND_REQUEST_FAILED:
                 break;
             case JUDGE_OK:
+                ((FragmentToActivityMethods)getActivity()).setUser(mUser);
                 break;
         }
     }
@@ -682,9 +683,13 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
 
             if(result.getState() == 1){
                 if(mState == State.IN_FIRST_REQUEST){
+                    mUser.setCategoryId(result.getCategoryId());
+                    mUser.setRouteId(result.getRouteId());
                     changeState(State.FIRST_REQUEST_OK);
                 }
                 else if(mState == State.IN_SECOND_REQUEST){
+                    mUser.setCategoryId(result.getCategoryId());
+                    mUser.setRouteId(result.getRouteId());
                     changeState(State.SECOND_REQUEST_OK);
                 }
             }
@@ -765,6 +770,7 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
     public interface FragmentToActivityMethods {
         public SpiceManager getSpiceManager();
         public boolean isOfflineMode();
+        public void setUser(User user);
     }
 
     private enum State{
