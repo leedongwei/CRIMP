@@ -3,7 +3,7 @@ package com.nusclimb.live.crimp;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.nusclimb.live.crimp.common.json.PostScoreResponse;
+import com.nusclimb.live.crimp.common.json.PostScoreResponseBody;
 import com.nusclimb.live.crimp.common.spicerequest.PostScoreRequest;
 import com.nusclimb.live.crimp.uploadlist.UploadListActivity;
 import com.nusclimb.live.crimp.common.QueueObject;
@@ -97,7 +97,7 @@ public class CrimpApplication extends Application {
      * @author Lin Weizhi (ecc.weizhi@gmail.com)
      *
      */
-    private class PostScoreRequestListener implements RequestListener<PostScoreResponse> {
+    private class PostScoreRequestListener implements RequestListener<PostScoreResponseBody> {
         @Override
         public void onRequestFailure(SpiceException e) {
             if(e instanceof NoNetworkException){
@@ -108,8 +108,8 @@ public class CrimpApplication extends Application {
                 }
 
                 // Cancel just in case.
-                PostScoreRequest request = getQueue().peek().getRequest();
-                spiceManager.cancel(PostScoreResponse.class, request.createCacheKey());
+                //PostScoreRequest request = getQueue().peek().getRequest();
+                //spiceManager.cancel(PostScoreResponseBody.class, request.createCacheKey());
 
                 // Register receiver
                 registerReceiver(getNetworkStateReceiver(), new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
@@ -128,7 +128,7 @@ public class CrimpApplication extends Application {
         }
 
         @Override
-        public void onRequestSuccess(PostScoreResponse result) {
+        public void onRequestSuccess(PostScoreResponseBody result) {
             isUploading = false;
             getQueue().poll().setStatus(UploadStatus.FINISHED);
             modifyUploadSuccessCount(1);
@@ -337,8 +337,7 @@ public class CrimpApplication extends Application {
             // Execute upload new score.
             isUploading = true;
             PostScoreRequest request = getQueue().peek().getRequest();
-            spiceManager.execute(request, request.createCacheKey(),
-                    DurationInMillis.ALWAYS_EXPIRED, new PostScoreRequestListener());
+            spiceManager.execute(request, new PostScoreRequestListener());
         }
     }
 

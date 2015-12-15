@@ -3,8 +3,6 @@ package com.nusclimb.live.crimp.hello;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,34 +13,31 @@ import android.widget.TextView;
 
 import com.nusclimb.live.crimp.CrimpApplication;
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.BusProvider;
+import com.nusclimb.live.crimp.common.Categories;
+import com.nusclimb.live.crimp.common.Climber;
 import com.nusclimb.live.crimp.common.QueueObject;
-import com.nusclimb.live.crimp.common.busevent.AccumulatedScoreChange;
-import com.nusclimb.live.crimp.common.busevent.InScoreTab;
-import com.nusclimb.live.crimp.common.busevent.ScanFinish;
-import com.nusclimb.live.crimp.common.busevent.ScoreFinish;
-import com.nusclimb.live.crimp.common.busevent.ScoreOnResume;
-import com.nusclimb.live.crimp.common.json.ActiveClimbersResponse;
-import com.nusclimb.live.crimp.common.json.Category;
-import com.nusclimb.live.crimp.common.json.Climber;
-import com.nusclimb.live.crimp.common.json.ClimbersResponse;
-import com.nusclimb.live.crimp.common.json.GetScoreResponse;
-import com.nusclimb.live.crimp.common.spicerequest.ActiveClimbersRequest;
-import com.nusclimb.live.crimp.common.spicerequest.ClimbersRequest;
-import com.nusclimb.live.crimp.common.spicerequest.GetScoreRequest;
+import com.nusclimb.live.crimp.common.User;
+import com.nusclimb.live.crimp.common.json.ActiveMonitorResponseBody;
+import com.nusclimb.live.crimp.common.json.GetScoreResponseBody;
+import com.nusclimb.live.crimp.common.spicerequest.ActiveMonitorRequest;
 import com.nusclimb.live.crimp.service.CrimpService;
-import com.octo.android.robospice.persistence.DurationInMillis;
+import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
-import com.squareup.otto.Subscribe;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by weizhi on 16/7/2015.
  */
-public class ScoreFragment extends Fragment {
+public class ScoreFragment extends CrimpFragment {
     private final String TAG = ScoreFragment.class.getSimpleName();
+
+    private State mState;
+    private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
+    private User mUser = null;
+    private Categories mCategories = null;
+    private Climber mClimber = null;
 
     private boolean isTBStart;
 
@@ -60,8 +55,6 @@ public class ScoreFragment extends Fragment {
     private Button mSubmitButton;
     private Button mBackspaceButton;
 
-    // RoboSpice info
-    //private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
 
 
     /**
@@ -69,8 +62,8 @@ public class ScoreFragment extends Fragment {
      *
      * @author Lin Weizhi (ecc.weizhi@gmail.com)
      */
-    private class ActiveClimbersRequestListener implements RequestListener<ActiveClimbersResponse> {
-        private final String TAG = ActiveClimbersRequestListener.class.getSimpleName();
+    private class ActiveMonitorRequestListener implements RequestListener<ActiveMonitorResponseBody> {
+        private final String TAG = ActiveMonitorRequestListener.class.getSimpleName();
 
         @Override
         public void onRequestFailure(SpiceException e) {
@@ -78,7 +71,7 @@ public class ScoreFragment extends Fragment {
         }
 
         @Override
-        public void onRequestSuccess(ActiveClimbersResponse result) {
+        public void onRequestSuccess(ActiveMonitorResponseBody result) {
             Log.i(TAG+".onRequestSuccess()", "success");
         }
     }
@@ -88,7 +81,7 @@ public class ScoreFragment extends Fragment {
      *
      * @author Lin Weizhi (ecc.weizhi@gmail.com)
      */
-    private class GetScoreRequestListener implements RequestListener<GetScoreResponse> {
+    private class GetScoreRequestListener implements RequestListener<GetScoreResponseBody> {
         private final String TAG = GetScoreRequestListener.class.getSimpleName();
 
         @Override
@@ -97,14 +90,12 @@ public class ScoreFragment extends Fragment {
         }
 
         @Override
-        public void onRequestSuccess(GetScoreResponse result) {
+        public void onRequestSuccess(GetScoreResponseBody result) {
             Log.i(TAG + ".onRequestSuccess()", "Received score for cid:"+result.getClimberId());
 
-            if(result.getClimberId().compareTo(mClimberIdEdit.getText().toString()) == 0) {
-                mAccumulatedEdit.setText(result.getScore());
-
-                if(mClimberNameEdit.getText().length() == 0)
-                    mClimberNameEdit.setText(result.getClimberName());
+            if(result.getClimberId().compareTo(mClimber.getClimberId()) == 0){
+                mClimber.setTotalScore(result.getScoreString());
+                mClimber.setClimberName(result.getClimberName());
             }
             else{
                 Log.e(TAG+".onRequestSuccess()", result.getClimberId()+" != "+mClimberIdEdit.getText().toString());
@@ -112,6 +103,7 @@ public class ScoreFragment extends Fragment {
         }
     }
 
+    /*
     @Subscribe
     public void onReceiveScanFinish(ScanFinish event){
         Log.d(TAG+".onReceiveScanFinish()", "Received ScanFinish event.");
@@ -264,7 +256,11 @@ public class ScoreFragment extends Fragment {
             mBText.setText("-");
         }
     }
+    */
 
+    private void calculateAndUpdateBT(){
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -284,6 +280,12 @@ public class ScoreFragment extends Fragment {
         mBackspaceButton = (Button) rootView.findViewById(R.id.scoring_backspace_button);
         mAccumulatedEdit = (EditText) rootView.findViewById(R.id.scoring_score_history_edit);
 
+        mBackspaceButton.setOnClickListener(this);
+        mBonusButton.setOnClickListener(this);
+        mPlusOneButton.setOnClickListener(this);
+        mSubmitButton.setOnClickListener(this);
+        mTopButton.setOnClickListener(this);
+
         mAccumulatedEdit.addTextChangedListener(new AccumulatedScoreTextWatcher());
 
         return rootView;
@@ -293,35 +295,128 @@ public class ScoreFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
+        if(savedInstanceState == null){
+            // Initialize mState
+            mState = State.QUERYING;
+            Bundle args = getArguments();
 
+            // Initialize mUser
+            if(mUser == null)
+                mUser = new User();
+            mUser.setUserId(args.getString(getString(R.string.bundle_x_user_id)));
+            mUser.setAuthToken(args.getString(getString(R.string.bundle_x_auth_token)));
+            mUser.setUserName(args.getString(getString(R.string.bundle_user_name)));
+            mUser.setFacebookAccessToken(args.getString(getString(R.string.bundle_access_token)));
+            mUser.setCategoryId(args.getString(getString(R.string.bundle_category_id)));
+            mUser.setRouteId(args.getString(getString(R.string.bundle_route_id)));
+            //mUser.setClimberId(args.getString(getString(R.string.bundle_climber_id)));
+
+            // Initialize mCategories
+            ArrayList<String> cNameList = args.getStringArrayList(getString(R.string.bundle_category_name_list));
+            ArrayList<String> cIdList = args.getStringArrayList(getString(R.string.bundle_category_id_list));
+            ArrayList<Integer> cCountList = args.getIntegerArrayList(getString(R.string.bundle_category_route_count_list));
+            ArrayList<String> rNameList = args.getStringArrayList(getString(R.string.bundle_route_name_list));
+            ArrayList<String> rIdList = args.getStringArrayList(getString(R.string.bundle_route_id_list));
+            ArrayList<String> rScoreList = args.getStringArrayList(getString(R.string.bundle_route_score_list));
+            byte[] cFinalizeArray = args.getByteArray(getString(R.string.bundle_category_finalize_list));
+            ArrayList<String> cStartList = args.getStringArrayList(getString(R.string.bundle_category_start_list));
+            ArrayList<String> cEndList = args.getStringArrayList(getString(R.string.bundle_category_end_list));
+            mCategories = new Categories(cNameList, cIdList, cCountList, rNameList, rIdList,
+                    rScoreList, cFinalizeArray, cStartList, cEndList);
+
+            // Initialize mClimber
+            if(mClimber == null)
+                mClimber = new Climber();
+            mClimber.setClimberId(args.getString(getString(R.string.bundle_climber_id)));
+            mClimber.setClimberName(args.getString(getString(R.string.bundle_climber_name)));
+            mClimber.setTotalScore(args.getString(getString(R.string.bundle_total_score)));
+        }
+        else{
+            mState = State.toEnum(savedInstanceState.getInt(getString(R.string.bundle_scan_state)));
+
+            // Initialize mUser
+            if(mUser == null)
+                mUser = new User();
+            mUser.setUserId(savedInstanceState.getString(getString(R.string.bundle_x_user_id)));
+            mUser.setAuthToken(savedInstanceState.getString(getString(R.string.bundle_x_auth_token)));
+            mUser.setUserName(savedInstanceState.getString(getString(R.string.bundle_user_name)));
+            mUser.setFacebookAccessToken(savedInstanceState.getString(getString(R.string.bundle_access_token)));
+            mUser.setCategoryId(savedInstanceState.getString(getString(R.string.bundle_category_id)));
+            mUser.setRouteId(savedInstanceState.getString(getString(R.string.bundle_route_id)));
+            //mUser.setClimberId(savedInstanceState.getString(getString(R.string.bundle_climber_id)));mUser.setCategoryId(args.getString(getString(R.string.bundle_category_id)));
+
+            // Initialize mCategories
+            ArrayList<String> cNameList = savedInstanceState.getStringArrayList(getString(R.string.bundle_category_name_list));
+            ArrayList<String> cIdList = savedInstanceState.getStringArrayList(getString(R.string.bundle_category_id_list));
+            ArrayList<Integer> cCountList = savedInstanceState.getIntegerArrayList(getString(R.string.bundle_category_route_count_list));
+            ArrayList<String> rNameList = savedInstanceState.getStringArrayList(getString(R.string.bundle_route_name_list));
+            ArrayList<String> rIdList = savedInstanceState.getStringArrayList(getString(R.string.bundle_route_id_list));
+            ArrayList<String> rScoreList = savedInstanceState.getStringArrayList(getString(R.string.bundle_route_score_list));
+            byte[] cFinalizeArray = savedInstanceState.getByteArray(getString(R.string.bundle_category_finalize_list));
+            ArrayList<String> cStartList = savedInstanceState.getStringArrayList(getString(R.string.bundle_category_start_list));
+            ArrayList<String> cEndList = savedInstanceState.getStringArrayList(getString(R.string.bundle_category_end_list));
+            mCategories = new Categories(cNameList, cIdList, cCountList, rNameList, rIdList,
+                    rScoreList, cFinalizeArray, cStartList, cEndList);
+
+            // Initialize mClimber
+            if(mClimber == null)
+                mClimber = new Climber();
+            mClimber.setClimberId(savedInstanceState.getString(getString(R.string.bundle_climber_id)));
+            mClimber.setClimberName(savedInstanceState.getString(getString(R.string.bundle_climber_name)));
+            mClimber.setTotalScore(savedInstanceState.getString(getString(R.string.bundle_total_score)));
+        }
     }
 
     @Override
     public void onStart(){
         super.onStart();
+        spiceManager.start(getActivity());
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        Log.d(TAG + ".onResume()", "Send ScoreOnResume event to bus.");
 
-        // Register bus
-        BusProvider.getInstance().register(this);
-        // Tell the world we are onResume.
-        BusProvider.getInstance().post(new ScoreOnResume());
+        ActiveMonitorRequest mActiveMonitorRequest = new ActiveMonitorRequest(mUser.getUserId(),
+                mUser.getAuthToken(), mUser.getCategoryId(), mUser.getRouteId(),
+                mClimber.getClimberId(), true, getActivity());
+        spiceManager.execute(mActiveMonitorRequest, new ActiveMonitorRequestListener());
     }
 
     @Override
     public void onPause(){
-        BusProvider.getInstance().unregister(this);
         super.onPause();
     }
 
     @Override
     public void onStop(){
+        spiceManager.shouldStop();
         super.onStop();
     }
+
+
+    @Override
+    public CharSequence getPageTitle() {
+        return "Score";
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.scoring_b_button:
+                break;
+            case R.id.scoring_backspace_button:
+                break;
+            case R.id.scoring_submit_button:
+                break;
+            case R.id.scoring_t_button:
+                break;
+            case R.id.scoring_plus_one_button:
+                break;
+        }
+    }
+
+
 
     /*=========================================================================
      * Button press methods
@@ -330,7 +425,7 @@ public class ScoreFragment extends Fragment {
         mCurrentSessionEdit.append("1");
 
         mBackspaceButton.setEnabled(true);
-        updateTB();
+        calculateAndUpdateBT();
     }
 
     public void bonus(){
@@ -338,7 +433,7 @@ public class ScoreFragment extends Fragment {
 
         mBonusButton.setEnabled(false);
         mBackspaceButton.setEnabled(true);
-        updateTB();
+        calculateAndUpdateBT();
     }
 
     public void top(){
@@ -348,7 +443,7 @@ public class ScoreFragment extends Fragment {
         mBonusButton.setEnabled(false);
         mTopButton.setEnabled(false);
 
-        updateTB();
+        calculateAndUpdateBT();
     }
 
     public void backspace(){
@@ -372,7 +467,7 @@ public class ScoreFragment extends Fragment {
             mCurrentSessionEdit.getText().delete(mCurrentSessionEdit.getText().length()-1, mCurrentSessionEdit.getText().length());
         }
 
-        updateTB();
+        calculateAndUpdateBT();
     }
 
     public void submit(){
@@ -383,10 +478,11 @@ public class ScoreFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         // Do stuff
                         // Make QueueObject
-                        QueueObject mQueueObject = new QueueObject(((HelloActivity)getActivity()).getxUserId(),
-                                ((HelloActivity)getActivity()).getxAuthToken(),
-                                ((HelloActivity)getActivity()).getRouteId(),
-                                mClimberIdEdit.getText().toString(),
+                        QueueObject mQueueObject = new QueueObject(mUser.getUserId(),
+                                mUser.getAuthToken(),
+                                mUser.getCategoryId(),
+                                mUser.getRouteId(),
+                                mClimber.getClimberId(),
                                 mCurrentSessionEdit.getText().toString(),
                                 CrimpService.nextRequestId(),
                                 getActivity());
@@ -394,8 +490,8 @@ public class ScoreFragment extends Fragment {
                         // Add to a queue of QueueObject request.
                         ((CrimpApplication)getActivity().getApplicationContext()).addRequest(mQueueObject);
 
-                        // Navigate up from this activity.
-                        BusProvider.getInstance().post(new ScoreFinish());
+                        //TODO destroy this fragment
+
                     }
                 })
                 .setNegativeButton("Don\'t submit", new DialogInterface.OnClickListener() {
@@ -405,6 +501,90 @@ public class ScoreFragment extends Fragment {
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+
+
+    /**
+     * Set {@code mState} to {@code state}. Changes to {@code mState} must
+     * go through this method.
+     *
+     * @param state Hello state to set {@code mState} to.
+     */
+    private void changeState(State state) {
+        Log.d(TAG + ".changeState()", mState + " -> " + state);
+
+        mState = state;
+        updateUI();
+        doWork();
+    }
+
+    /**
+     * Method to control which UI element is visible at different state.
+     */
+    private void updateUI(){
+        switch (mState){
+            case QUERYING:
+                mRouteIdText.setText(mUser.getRouteId());
+                mClimberIdEdit.setText(mClimber.getClimberId());
+                mClimberNameEdit.setText(null);
+                mAccumulatedEdit.setText(null);
+                //Don't touch mCurrentSessionEdit.
+                mBText.setText("-");
+                mTText.setText("-");
+                break;
+            case NOT_QUERYING:
+                mRouteIdText.setText(mUser.getRouteId());
+                mClimberIdEdit.setText(mClimber.getClimberId());
+                mClimberNameEdit.setText(mClimber.getClimberName());
+                mAccumulatedEdit.setText(mClimber.getTotalScore());
+                //Don't touch mCurrentSessionEdit.
+                //mBText.setText("-");
+                //mTText.setText("-");
+                calculateAndUpdateBT();
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Method to control what is performed at different state.
+     */
+    private void doWork(){
+        switch (mState){
+            case QUERYING:
+                break;
+            case NOT_QUERYING:
+                break;
+            default:
+                break;
+        }
+    }
+
+    private enum State{
+        QUERYING(0),
+        NOT_QUERYING(1);
+
+        private final int value;
+
+        State(int value){
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static State toEnum(int i){
+            switch(i){
+                case 0:
+                    return QUERYING;
+                case 1:
+                    return NOT_QUERYING;
+                default:
+                    return null;
+            }
+        }
     }
 
 }

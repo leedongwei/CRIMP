@@ -10,8 +10,8 @@ public class QueueObject {
     private UploadStatus status;
     private String timeStamp;
 
-    public QueueObject(String xUserId, String xAuthToken,
-                       String r_id, String c_id, String currentScore, int msgId, Context context){
+    public QueueObject(String xUserId, String xAuthToken, String categoryId,
+                       String routeId, String climberId, String currentScore, int msgId, Context context){
         // Time stamp
         this.timeStamp = Helper.getCurrentTimeStamp();
 
@@ -19,7 +19,8 @@ public class QueueObject {
         this.status = UploadStatus.PAUSED;
 
         // Score request
-        this.request = new PostScoreRequest(xUserId, xAuthToken, r_id, c_id, currentScore, context);
+        this.request = new PostScoreRequest(xUserId, xAuthToken, categoryId,
+                routeId, climberId, currentScore, context);
     }
 
     public PostScoreRequest getRequest(){

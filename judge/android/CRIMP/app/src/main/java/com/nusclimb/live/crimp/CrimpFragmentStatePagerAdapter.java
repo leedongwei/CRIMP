@@ -4,6 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.nusclimb.live.crimp.hello.CrimpFragment;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,7 @@ import java.util.List;
 public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
     private final String TAG = "FragStatePagerAdapter";
 
-    private List<Fragment> fragmentList;
+    private List<CrimpFragment> fragmentList;
 
     /**
      * Constructs a CrimpFragmentStatePagerAdapter object with an empty list
@@ -31,7 +33,7 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
      */
     public CrimpFragmentStatePagerAdapter(FragmentManager fm) {
         super(fm);
-        this.fragmentList = new ArrayList<Fragment>();
+        this.fragmentList = new ArrayList<CrimpFragment>();
     }
 
     /**
@@ -42,7 +44,7 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
      *           CrimpFragmentStatePagerAdapter.
      * @param fragmentList List of Fragments to populate a ViewPager.
      */
-    public CrimpFragmentStatePagerAdapter(FragmentManager fm, List<Fragment> fragmentList) {
+    public CrimpFragmentStatePagerAdapter(FragmentManager fm, List<CrimpFragment> fragmentList) {
         super(fm);
         this.fragmentList = fragmentList;
     }
@@ -78,7 +80,7 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
      * @param index Index at which the specified mFragment is to be inserted.
      * @param mFragment Fragment to be inserted.
      */
-    public void addFragment( int index, Fragment mFragment) {
+    public void addFragment( int index, CrimpFragment mFragment) {
         fragmentList.add(index, mFragment);
         notifyDataSetChanged();
     }
@@ -89,7 +91,7 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
      *
      * @param mFragment Fragment to be appended.
      */
-    public void addFragment(Fragment mFragment) {
+    public void addFragment(CrimpFragment mFragment) {
         addFragment(fragmentList.size(), mFragment);
     }
 

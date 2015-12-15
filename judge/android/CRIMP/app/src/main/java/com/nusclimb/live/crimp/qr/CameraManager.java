@@ -29,15 +29,15 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
     private boolean _isSurfaceReady;			// Whether the surface to show preview is ready (between
                                                 // surfaceCreated and surfaceDestroyed).
     private Camera camera;
-    private ScanFragment fragment;
+    private Handler mDecodeHandler;
     private boolean _isPreviewing;			    // Whether we are displaying camera input on previewView.
     private boolean _isScanning;			    // Whether we are sending new camera input to decode.
     private Camera.Size bestPreviewSize;
     private Point previewViewResolution;
     private boolean _isTorchOn;
 
-    public CameraManager(ScanFragment fragment){
-        this.fragment = fragment;
+    public CameraManager(Handler mDecodeHandler){
+        this.mDecodeHandler = mDecodeHandler;
         _isScanning = false;
         _isPreviewing = false;
         bestPreviewSize = null;
@@ -198,32 +198,6 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
         }
     }
 
-    /**
-     * A factory method to build the appropriate LuminanceSource object based on the format
-     * of the preview buffers, as described by Camera.Parameters.
-     *
-     * @param data A preview frame.
-     * @param width The width of the image.
-     * @param height The height of the image.
-     * @return A PlanarYUVLuminanceSource instance.
-     */
-    public PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
-        int left, right, top, bottom;
-        top = 0;
-        bottom = height;
-        right = width;
-        if(width >= previewViewResolution.y){
-            left = width - previewViewResolution.y;
-        }
-        else{
-            left = 0;
-        }
-        Rect rect = new Rect(left, top, right, bottom);
-
-        // Go ahead and assume it's YUV rather than die.
-        return new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,
-                rect.width(), rect.height(), false);
-    }
   	
   	
 	/*=========================================================================
@@ -304,9 +278,8 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         // Got preview data. Need to send over to ScanFragmentHandler.
-        Handler handler = fragment.getDecodeHandler();
-        if (handler != null) {
-            Message message = handler.obtainMessage(R.id.decode, bestPreviewSize.width, bestPreviewSize.height, data);
+        if (mDecodeHandler != null) {
+            Message message = mDecodeHandler.obtainMessage(R.id.decode, bestPreviewSize.width, bestPreviewSize.height, data);
             message.sendToTarget();
         }
         else {
@@ -346,6 +319,8 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
             return;
         }
 
+        boolean previouslyIsPreviewing = isPreviewing();
+
         // Stop camera preview, make changes, start camera preview again. 
         if(isPreviewing() && hasCamera()){
             stopPreview();
@@ -355,7 +330,7 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
         // reformatting changes here
 
         // Only start scanning if activity state is "decode"
-        if(fragment.getState() == R.id.decode && hasCamera()){
+        if(previouslyIsPreviewing && hasCamera()){
             startPreview(holder);
             startScan();
         }

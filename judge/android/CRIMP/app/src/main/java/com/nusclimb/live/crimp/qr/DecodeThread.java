@@ -1,5 +1,7 @@
 package com.nusclimb.live.crimp.qr;
 
+import android.graphics.Point;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
@@ -7,7 +9,9 @@ import com.nusclimb.live.crimp.hello.ScanFragment;
 
 /**
  * Worker thread for handling decode operation. A DecodeHandler instance will
- * be associated with this thread.
+ * be created by this thread. Any changes to the user interface must always be
+ * performed from within the main thread therefore DecodeThread will hold a reference
+ * to the main thread handler for inter-thread communication.
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  *
@@ -20,10 +24,15 @@ public class DecodeThread extends Thread{
     public static final String BARCODE_SCALED_FACTOR = "barcode_scaled_factor";
 
     private DecodeHandler mDecodeHandler;
-    private ScanFragment fragment;
+    private Handler mainThreadHandler;
 
-    public DecodeThread(ScanFragment fragment){
-        this.fragment = fragment;
+    private final String PREFIX;	// Magic string to check if QR Code is valid
+    private Point previewResolution;	// Size of the previewView
+
+    public DecodeThread(Handler mainThreadHandler, String qrPrefix, Point previewResolution){
+        this.mainThreadHandler = mainThreadHandler;
+        PREFIX = qrPrefix;
+        this.previewResolution = previewResolution;
         Log.d(TAG, "DecodeThread constructed.");
     }
 
@@ -31,7 +40,7 @@ public class DecodeThread extends Thread{
     public void run(){
         Log.d(TAG, "DecodeThread begin running");
         Looper.prepare();
-        mDecodeHandler = new DecodeHandler(fragment);
+        mDecodeHandler = new DecodeHandler(mainThreadHandler, PREFIX, previewResolution);
         Looper.loop();
     }
 

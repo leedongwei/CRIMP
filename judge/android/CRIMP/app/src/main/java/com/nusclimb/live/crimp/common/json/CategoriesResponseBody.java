@@ -12,64 +12,45 @@ import java.util.ArrayList;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class CategoriesResponseBody{
-    @JsonProperty("signature")
-    private String signature;
-    @JsonProperty("time_stamp")
-    private String timeStamp;
     @JsonProperty("categories")
     private ArrayList<Category> categories;
 
     public CategoriesResponseBody(){}
 
     public CategoriesResponseBody(CategoriesResponseBody mCategoriesResponseBody){
-        setSignature(mCategoriesResponseBody.getSignature());
-        setTimeStamp(mCategoriesResponseBody.getTimeStamp());
-        ArrayList<Category> mCategories = new ArrayList<Category>(mCategoriesResponseBody.getCategories());
-        setCategories(mCategories);
+        categories = new ArrayList<Category>();
+        for(Category c: mCategoriesResponseBody.getCategories()){
+            categories.add(new Category(c));
+        }
     }
-
 
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
         sb.append("{\n");
-        sb.append("\tsignature: "+signature+",\n");
-        sb.append("\ttimeStamp: "+timeStamp+",\n");
         sb.append("\tcategories: [\n");
 
-        if(categories.size()<=1){
-            for(Category c:categories){
-                sb.append("\t"+c.toString());
+        if(categories!=null) {
+            if (categories.size() <= 1) {
+                for (Category c : categories) {
+                    sb.append("\t" + c.toString());
+                }
+            } else {
+                sb.append("\t" + categories.get(0).toString());
+
+                for (int i = 1; i < categories.size(); i++) {
+                    sb.append(",\n");
+                    sb.append("\t" + categories.get(i).toString());
+                }
             }
         }
         else{
-            sb.append("\t"+ categories.get(0).toString());
-
-            for(int i=1; i<categories.size(); i++){
-                sb.append(",\n");
-                sb.append("\t"+categories.get(i).toString());
-            }
+            sb.append("null");
         }
         sb.append("\t]\n");
         sb.append("}");
 
         return sb.toString();
-    }
-
-    public String getSignature() {
-        return signature;
-    }
-
-    public void setSignature(String signature) {
-        this.signature = signature;
-    }
-
-    public String getTimeStamp() {
-        return timeStamp;
-    }
-
-    public void setTimeStamp(String timeStamp) {
-        this.timeStamp = timeStamp;
     }
 
     public ArrayList<Category> getCategories() {
@@ -80,7 +61,7 @@ public class CategoriesResponseBody{
         this.categories = categories;
     }
 
-    public class Category{
+    public static class Category{
         @JsonProperty("category_name")
         private String categoryName;
         @JsonProperty("category_id")
@@ -94,6 +75,20 @@ public class CategoriesResponseBody{
         @JsonProperty("time_end")
         private String timeEnd;
 
+        public Category(){}
+
+        public Category(Category category){
+            categoryName = category.getCategoryName();
+            categoryId = category.getCategoryId();
+            scoresFinalized = category.isScoresFinalized();
+            timeStart = category.getTimeStart();
+            timeEnd = category.getTimeEnd();
+            routes = new ArrayList<Route>();
+            for(Route r: category.getRoutes()){
+                routes.add(new Route(r));
+            }
+        }
+
         public String toString(){
             StringBuilder sb = new StringBuilder();
             sb.append("{\n");
@@ -103,19 +98,22 @@ public class CategoriesResponseBody{
             sb.append("\ttime_start: "+timeStart+",\n");
             sb.append("\ttime_end: "+timeEnd+",\n");
             sb.append("\troutes: [\n");
-            if(routes.size()<=1){
-                for(Route r:routes) {
-                    sb.append(r.toString());
+            if(routes!=null) {
+                if (routes.size() <= 1) {
+                    for (Route r : routes) {
+                        sb.append(r.toString());
+                    }
+                } else {
+                    sb.append(routes.get(0).toString());
+                    for (int i = 1; i < routes.size(); i++) {
+                        sb.append(",\n");
+                        sb.append(routes.get(i).toString());
+                    }
                 }
             }
             else{
-                sb.append(routes.get(0).toString());
-                for(int i=1; i<routes.size(); i++){
-                    sb.append(",\n");
-                    sb.append(routes.get(i).toString());
-                }
+                sb.append("null");
             }
-
             sb.append("\t]\n");
             sb.append("}");
 
@@ -170,13 +168,21 @@ public class CategoriesResponseBody{
             this.timeEnd = timeEnd;
         }
 
-        public class Route{
+        public static class Route{
             @JsonProperty("route_id")
             private String routeId;
             @JsonProperty("route_name")
             private String routeName;
             @JsonProperty("score")
             private String score;
+
+            public Route(){}
+
+            public Route(Route route){
+                routeId = route.getRouteId();
+                routeName = route.getRouteName();
+                score = route.getScore();
+            }
 
             @Override
             public String toString(){

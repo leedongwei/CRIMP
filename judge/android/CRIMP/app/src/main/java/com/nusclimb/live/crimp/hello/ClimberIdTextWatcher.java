@@ -4,9 +4,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 
-import com.nusclimb.live.crimp.common.BusProvider;
-import com.nusclimb.live.crimp.common.busevent.ClimberIdChange;
-
 /**
  * Created by weizhi on 16/7/2015.
  */
@@ -27,6 +24,5 @@ public class ClimberIdTextWatcher implements TextWatcher {
     public void afterTextChanged(Editable s) {
         Log.d(TAG + ".afterTextChanged()", "afterTextChanged");
 
-        BusProvider.getInstance().post(new ClimberIdChange(s.length()));
     }
 }

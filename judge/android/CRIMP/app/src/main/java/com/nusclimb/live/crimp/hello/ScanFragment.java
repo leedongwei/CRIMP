@@ -7,7 +7,6 @@ import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -19,48 +18,35 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.BusProvider;
-import com.nusclimb.live.crimp.common.busevent.ClimberIdChange;
-import com.nusclimb.live.crimp.common.busevent.InRouteTab;
-import com.nusclimb.live.crimp.common.busevent.InScanTab;
-import com.nusclimb.live.crimp.common.busevent.InScoreTab;
-import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
-import com.nusclimb.live.crimp.common.busevent.ScanFinish;
-import com.nusclimb.live.crimp.common.busevent.ScanNotFinish;
-import com.nusclimb.live.crimp.common.busevent.ScanOnResume;
-import com.nusclimb.live.crimp.common.busevent.ScoreFinish;
-import com.nusclimb.live.crimp.common.busevent.StartScan;
+import com.nusclimb.live.crimp.common.Categories;
+import com.nusclimb.live.crimp.common.Climber;
+import com.nusclimb.live.crimp.common.User;
 import com.nusclimb.live.crimp.qr.CameraManager;
 import com.nusclimb.live.crimp.qr.DecodeThread;
 import com.nusclimb.live.crimp.qr.PreviewView;
 import com.nusclimb.live.crimp.qr.ScanFragmentHandler;
-import com.squareup.otto.Subscribe;
+
+import java.util.ArrayList;
 
 /**
  * Created by Zhi on 7/8/2015.
  */
-public class ScanFragment extends Fragment {
+public class ScanFragment extends CrimpFragment {
     private final String TAG = ScanFragment.class.getSimpleName();
 
-    // Information retrieved from intent.
-    private String xUserId;
-    private String xAuthToken;
+    private User mUser = null;
+    private Climber mClimber = null;
 
     // Decoding stuff
     private DecodeThread mDecodeThread;
-    private ScanFragmentHandler handler;
+    private ScanFragmentHandler mScanFragmentHandler;
 
     // Camera stuff
     private CameraManager cameraManager;
     private Point previewResolution;	// Size of the previewView
     private PreviewView previewView;
-
-    // Info from scanned QR code
-    private String climberId;
-    private String climberName;
 
     // UI references
     private FrameLayout mPreviewFrame;
@@ -71,18 +57,44 @@ public class ScanFragment extends Fragment {
     private EditText mClimberNameEdit;
     private Button mNextButton;
 
-    private int activityState;	// R.id.decode: previewView showing camera input. preview send
-    //      to DecodeThread to be decoded. Default entry state.
-    // R.id.decode_failed: Transitive state. Happens when DecodeThread
-    //      fails to find QRCode. Will quickly transit to decode state
-    //      to attempt to scan/decode again.
-    // R.id.decode_succeeded: Camera resource released. previewView
-    //      stop previewing. DecodeThread killed. qrResult not null.
-    // R.id.quit: Prepare to quit. Camera resource released.
-    //      previewView stop previewing. DecodeThread killed.
+    private State mState;
 
-    private boolean cNameImmune = true;
+    public static ScanFragment newInstance(User user, Categories categoriesInfo, Context context) {
+        ScanFragment myFragment = new ScanFragment();
 
+        Bundle args = new Bundle();
+        if(user != null){
+            args.putString(context.getString(R.string.bundle_x_user_id), user.getUserId());
+            args.putString(context.getString(R.string.bundle_x_auth_token), user.getAuthToken());
+            args.putString(context.getString(R.string.bundle_user_name), user.getUserName());
+            args.putString(context.getString(R.string.bundle_access_token), user.getFacebookAccessToken());
+        }
+
+        if(categoriesInfo != null){
+            ArrayList<String> categoryNameList = categoriesInfo.getCategoryNameList();
+            ArrayList<String> categoryIdList = categoriesInfo.getCategoryIdList();
+            ArrayList<Integer> categoryRouteCountList = categoriesInfo.getCategoryRouteCountList();
+            ArrayList<String> routeNameList = categoriesInfo.getRouteNameList();
+            ArrayList<String> routeIdList = categoriesInfo.getRouteIdList();
+            ArrayList<String> routeScoreList = categoriesInfo.getRouteScoreList();
+            byte[] categoryFinalizeArray = categoriesInfo.getCategoryFinalizeArray();
+            ArrayList<String> categoryStartList = categoriesInfo.getCategoryStartList();
+            ArrayList<String> categoryEndList = categoriesInfo.getCategoryEndList();
+
+            args.putStringArrayList(context.getString(R.string.bundle_category_name_list), categoryNameList);
+            args.putStringArrayList(context.getString(R.string.bundle_category_id_list),categoryIdList);
+            args.putIntegerArrayList(context.getString(R.string.bundle_category_route_count_list), categoryRouteCountList);
+            args.putStringArrayList(context.getString(R.string.bundle_route_name_list), routeNameList);
+            args.putStringArrayList(context.getString(R.string.bundle_route_id_list), routeIdList);
+            args.putStringArrayList(context.getString(R.string.bundle_route_score_list), routeScoreList);
+            args.putByteArray(context.getString(R.string.bundle_category_finalize_list), categoryFinalizeArray);
+            args.putStringArrayList(context.getString(R.string.bundle_category_start_list), categoryStartList);
+            args.putStringArrayList(context.getString(R.string.bundle_category_end_list), categoryEndList);
+        }
+        myFragment.setArguments(args);
+
+        return myFragment;
+    }
 
     /*=========================================================================
      * Fragment lifecycle methods
@@ -91,10 +103,9 @@ public class ScanFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        handler = new ScanFragmentHandler(this);
-        cameraManager = new CameraManager(this);
+        mScanFragmentHandler = new ScanFragmentHandler(this);
 
-        Log.d(TAG+".onCreate()", "created");
+        Log.d(TAG + ".onCreate()", "created");
     }
 
     @Override
@@ -112,6 +123,10 @@ public class ScanFragment extends Fragment {
         mClimberNameEdit = (EditText) rootView.findViewById(R.id.scan_climber_name_edit);
         mNextButton = (Button) rootView.findViewById(R.id.scan_next_button);
 
+        mFlashButton.setOnClickListener(this);
+        mNextButton.setOnClickListener(this);
+        mRescanButton.setOnClickListener(this);
+
         mClimberIdEdit.addTextChangedListener(new ClimberIdTextWatcher());
 
         // Update buttons.
@@ -128,19 +143,49 @@ public class ScanFragment extends Fragment {
         previewResolution = calculatePreviewResolution();
 
         if(savedInstanceState == null){
-            activityState = R.id.decode;
+            // Initialize mState
+            mState = State.SCANNING;
+            Bundle args = getArguments();
+
+            // Initialize mUser
+            if(mUser == null)
+                mUser = new User();
+            mUser.setUserId(args.getString(getString(R.string.bundle_x_user_id)));
+            mUser.setAuthToken(args.getString(getString(R.string.bundle_x_auth_token)));
+            mUser.setUserName(args.getString(getString(R.string.bundle_user_name)));
+            mUser.setFacebookAccessToken(args.getString(getString(R.string.bundle_access_token)));
+            mUser.setCategoryId(args.getString(getString(R.string.bundle_category_id)));
+            mUser.setRouteId(args.getString(getString(R.string.bundle_route_id)));
+            //mUser.setClimberId(args.getString(getString(R.string.bundle_climber_id)));
+
+            // Initialize mClimber
+            if(mClimber == null)
+                mClimber = new Climber();
+            mClimber.setClimberId(args.getString(getString(R.string.bundle_climber_id)));
+            mClimber.setClimberName(args.getString(getString(R.string.bundle_climber_name)));
+            mClimber.setTotalScore(args.getString(getString(R.string.bundle_total_score)));
         }
         else{
-            activityState = savedInstanceState.getInt(getString(R.string.bundle_decode_state));
+            mState = State.toEnum(savedInstanceState.getInt(getString(R.string.bundle_scan_state)));
 
-            if(activityState == R.id.decode_succeeded){
-                climberId = savedInstanceState.getString(getString(R.string.bundle_climber_id));
-                climberName = savedInstanceState.getString(getString(R.string.bundle_climber_name));
-            }
+            // Initialize mUser
+            if(mUser == null)
+                mUser = new User();
+            mUser.setUserId(savedInstanceState.getString(getString(R.string.bundle_x_user_id)));
+            mUser.setAuthToken(savedInstanceState.getString(getString(R.string.bundle_x_auth_token)));
+            mUser.setUserName(savedInstanceState.getString(getString(R.string.bundle_user_name)));
+            mUser.setFacebookAccessToken(savedInstanceState.getString(getString(R.string.bundle_access_token)));
+            mUser.setCategoryId(savedInstanceState.getString(getString(R.string.bundle_category_id)));
+            mUser.setRouteId(savedInstanceState.getString(getString(R.string.bundle_route_id)));
+            //mUser.setClimberId(savedInstanceState.getString(getString(R.string.bundle_climber_id)));mUser.setCategoryId(args.getString(getString(R.string.bundle_category_id)));
+
+            // Initialize mClimber
+            if(mClimber == null)
+                mClimber = new Climber();
+            mClimber.setClimberId(savedInstanceState.getString(getString(R.string.bundle_climber_id)));
+            mClimber.setClimberName(savedInstanceState.getString(getString(R.string.bundle_climber_name)));
+            mClimber.setTotalScore(savedInstanceState.getString(getString(R.string.bundle_total_score)));
         }
-
-        xUserId = ((HelloActivity)getActivity()).getxUserId();
-        xAuthToken = ((HelloActivity)getActivity()).getxAuthToken();
     }
 
     @Override
@@ -148,59 +193,110 @@ public class ScanFragment extends Fragment {
         super.onResume();
         Log.v(TAG + ".onResume()", "resume");
 
-        mRouteIdEdit.setText(((HelloActivity) getActivity()).getRouteId());
-        if(climberId != null && climberId.length()>0)
-            mClimberIdEdit.setText(climberId);
-        if(climberName != null && climberName.length()>0)
-            mClimberNameEdit.setText(climberName);
-
         // Will always perform these in onResume().
         startThread();
+        cameraManager = new CameraManager(getDecodeHandler());
         acquireCamera();
         acquirePreview();
 
-        // Register bus
-        BusProvider.getInstance().register(this);
-        // Tell the world we are onResume and wait for callback.
-        BusProvider.getInstance().post(new ScanOnResume());
+        changeState(mState);
     }
 
     @Override
     public void onPause(){
         Log.d(TAG + ".onPause()", "pause");
-        BusProvider.getInstance().unregister(this);
-        releaseCamera();
+
+        releaseCameraAndStopDecodeThread();
         super.onPause();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if(activityState == R.id.decode_succeeded) {
-            outState.putInt(getString(R.string.bundle_decode_state), R.id.decode_succeeded);
-            outState.putString(getString(R.string.bundle_climber_id), climberId);
-            outState.putString(getString(R.string.bundle_climber_name), climberName);
+        if(mUser != null){
+            outState.putString(getString(R.string.bundle_x_user_id), mUser.getUserId());
+            outState.putString(getString(R.string.bundle_x_auth_token), mUser.getAuthToken());
+            outState.putString(getString(R.string.bundle_user_name), mUser.getUserName());
+            outState.putString(getString(R.string.bundle_access_token), mUser.getFacebookAccessToken());
+            outState.putString(getString(R.string.bundle_category_id), mUser.getCategoryId());
+            outState.putString(getString(R.string.bundle_route_id), mUser.getRouteId());
+            //outState.putString(getString(R.string.bundle_climber_id), mUser.getClimberId());
         }
-        else{
-            outState.putInt(getString(R.string.bundle_decode_state), R.id.decode);
+
+        if(mClimber != null){
+            outState.putString(getString(R.string.bundle_climber_id), mClimber.getClimberId());
+            outState.putString(getString(R.string.bundle_climber_name), mClimber.getClimberName());
+            outState.putString(getString(R.string.bundle_total_score), mClimber.getTotalScore());
         }
+
+        outState.putInt(getString(R.string.bundle_scan_state), mState.getValue());
     }
-    /**
-     * This method takes in a result String, retrieve climber's id and name from
-     * result String, and update the UI.
-     *
-     * @param result String containing climber's id and name.
-     */
-    public void updateStatusView(String result){
-        cNameImmune = true;
+
+
+
+    public void updateClimberWithScanResult(String result){
         String[] climberInfo = result.split(";");
-        climberId = climberInfo[0];
-        climberName = climberInfo[1];
-
-        mClimberIdEdit.setText(climberId, TextView.BufferType.EDITABLE);
-        mClimberNameEdit.setText(climberName, TextView.BufferType.EDITABLE);
+        mClimber.setClimberId(climberInfo[0]);
+        mClimber.setClimberName(climberInfo[1]);
     }
 
+
+
+
+
+
+    /**
+     * Set {@code mState} to {@code state}. Changes to {@code mState} must
+     * go through this method.
+     *
+     * @param state Hello state to set {@code mState} to.
+     */
+    public void changeState(State state) {
+        Log.d(TAG + ".changeState()", mState + " -> " + state);
+
+        mState = state;
+        updateUI();
+        doWork();
+    }
+
+    /**
+     * Method to control which UI element is visible at different state.
+     */
+    private void updateUI(){
+        switch (mState){
+            case SCANNING:
+                mRescanButton.setEnabled(false);
+                mRouteIdEdit.setText(mUser.getRouteId());
+                //Don't touch mClimberIdEdit. It is left as it is.
+                //Don't touch mClimberNameEdit. It is left as it is.
+                break;
+            case NOT_SCANNING:
+                mRescanButton.setEnabled(true);
+                mRouteIdEdit.setText(mUser.getRouteId());
+                mClimberIdEdit.setText(mClimber.getClimberId());
+                //Don't touch mClimberNameEdit. It is left as it is.
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Method to control what is performed at different state.
+     */
+    private void doWork(){
+        switch (mState){
+            case SCANNING:
+                cameraManager.startPreview(previewView.getHolder());
+                cameraManager.startScan();
+                break;
+            case NOT_SCANNING:
+                cameraManager.stopPreview();
+                break;
+            default:
+                break;
+        }
+    }
 
     /**
      * This method calculate the size of preview surface view. We want the
@@ -285,20 +381,16 @@ public class ScanFragment extends Fragment {
 
 
 
+
+
+
+
+
+
     /*=========================================================================
      * Getter/Setter methods
      *=======================================================================*/
-    public int getState(){
-        return activityState;
-    }
 
-    public void setState(int state){
-        activityState = state;
-    }
-
-    public ScanFragmentHandler getHandler(){
-        return handler;
-    }
 
     public CameraManager getCameraManager(){
         return cameraManager;
@@ -306,65 +398,12 @@ public class ScanFragment extends Fragment {
 
 
 
-    @Subscribe
-    public void onReceiveStartScan(StartScan event){
-        Log.d(TAG + ".onReceiveStartScan()", "Received StartScan event.");
-        if(activityState == R.id.decode)
-            startScan();
-        else{
-            Log.d(TAG+".onReceivedStartScan()", "actvityState is not R.id.decode.");
-        }
-    }
 
-    @Subscribe
-    public void onReceiveInRouteTab(InRouteTab event){
-        Log.d(TAG+".onReceiveInRouteTab()", "Received InRouteTab event.");
-        cameraManager.stopPreview();
-    }
 
-    @Subscribe
-    public void onReceiveInScoreTab(InScoreTab event){
-        Log.d(TAG + ".onReceiveInScoreTab()", "Received InScoreTab event.");
-        cameraManager.stopPreview();
-    }
-
-    @Subscribe
-    public void onReceiveInScanTab(InScanTab event){
-        Log.d(TAG + ".onReceiveInScoreTab()", "Received InScoreTab event. routeId=" + event.getRouteId());
-
-        if(activityState == R.id.decode) {
-            cameraManager.startPreview(previewView.getHolder());
-            cameraManager.startScan();
-        }
-
-        mRouteIdEdit.setText(((HelloActivity) getActivity()).getRouteId());
-    }
-
-    @Subscribe
-    public void onReceiveRouteNotFinish(RouteNotFinish event){
-        Log.d(TAG + ".onReceiveRouteNotFinish()", "Received RouteNotFinish event.");
-        climberId = "";
-        climberName = "";
-
-        mClimberIdEdit.setText(climberId, TextView.BufferType.EDITABLE);
-        mClimberNameEdit.setText(climberName, TextView.BufferType.EDITABLE);
-        setState(R.id.decode);
-    }
-
-    @Subscribe
-    public void onReceiveScoreFinish(ScoreFinish event){
-        Log.d(TAG + ".onReceiveScoreFinish()", "Received ScoreFinish event.");
-        climberId = "";
-        climberName = "";
-
-        mClimberIdEdit.setText(climberId, TextView.BufferType.EDITABLE);
-        mClimberNameEdit.setText(climberName, TextView.BufferType.EDITABLE);
-        setState(R.id.decode);
-    }
-
+    /*
     @Subscribe
     public void onReceiveClimberIdChange(ClimberIdChange event){
-        Log.d(TAG+".onReceiveClimberIdChange()", "Received ClimberIdChange event. Length = "+event.getIdLength());
+        Log.d(TAG + ".onReceiveClimberIdChange()", "Received ClimberIdChange event. Length = " + event.getIdLength());
         climberId = mClimberIdEdit.getText().toString();
 
         if(cNameImmune == false) {
@@ -384,13 +423,16 @@ public class ScanFragment extends Fragment {
             mNextButton.setEnabled(false);
         }
     }
+    */
 
 
     private void startThread() {
-        mDecodeThread = new DecodeThread(this);
+        mDecodeThread = new DecodeThread(mScanFragmentHandler,
+                getActivity().getString(R.string.qr_prefix),
+                previewResolution);
         if(mDecodeThread.getState() == Thread.State.NEW)
             mDecodeThread.start();
-        handler.setRunning(true);
+        mScanFragmentHandler.setRunning(true);
     }
 
     private void acquireCamera(){
@@ -419,24 +461,20 @@ public class ScanFragment extends Fragment {
     }
 
     private void startScan(){
-        if (getState() == R.id.decode) {
+        if (mState == State.SCANNING) {
             if (cameraManager.isSurfaceReady()) {
-                Log.d(TAG + ".startScan()", "here");
-                setState(R.id.decode);
                 cameraManager.startPreview(previewView.getHolder());
                 cameraManager.startScan();
-            } else {
-                Log.d(TAG + ".startScan()", "there");
             }
         }
     }
 
-    private void releaseCamera(){
-        if(handler != null){
-            handler.setRunning(false);
+    private void releaseCameraAndStopDecodeThread(){
+        if(mScanFragmentHandler != null){
+            mScanFragmentHandler.setRunning(false);
         }
         else{
-            Log.e(TAG + ".releaseCamera()", "handler == null while trying to setRunning(false).");
+            Log.e(TAG + ".releaseCameraAndStopDecodeThread()", "mScanFragmentHandler == null while trying to setRunning(false).");
         }
 
         if (cameraManager != null) {
@@ -444,10 +482,10 @@ public class ScanFragment extends Fragment {
             cameraManager.releaseCamera();
         }
         else{
-            Log.e(TAG+".releaseCamera()", "cameraManager == null while trying to stopPreview() and releaseCamera()");
+            Log.e(TAG+".releaseCameraAndStopDecodeThread()", "cameraManager == null while trying to stopPreview() and releaseCameraAndStopDecodeThread()");
         }
 
-        handler.onPause();
+        mScanFragmentHandler.onPause();
     }
 
 
@@ -456,20 +494,11 @@ public class ScanFragment extends Fragment {
      * No-op if previewView surface is not ready.
      */
     public void rescan(){
-        climberId = "";
-        climberName = "";
+        mClimber.setClimberId(null);
+        mClimber.setClimberName(null);
+        mClimber.setTotalScore(null);
 
-        mClimberIdEdit.setText(climberId, TextView.BufferType.EDITABLE);
-        mClimberNameEdit.setText(climberName, TextView.BufferType.EDITABLE);
-
-        if(cameraManager.isSurfaceReady()){
-            setState(R.id.decode);
-            cameraManager.startPreview(previewView.getHolder());
-            cameraManager.startScan();
-        }
-        else{
-            Log.w(TAG, "Rescan button failed due to previewView surface not ready.");
-        }
+        changeState(State.SCANNING);
     }
 
     /**
@@ -480,7 +509,7 @@ public class ScanFragment extends Fragment {
     }
 
     public void next(){
-        BusProvider.getInstance().post(new ScanFinish(climberId, climberName));
+
     }
 
     public Handler getDecodeHandler(){
@@ -491,4 +520,49 @@ public class ScanFragment extends Fragment {
         return mDecodeThread;
     }
 
+    @Override
+    public CharSequence getPageTitle() {
+        return "Scan";
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.scan_rescan_button:
+                break;
+            case R.id.scan_flash_button:
+                break;
+            case R.id.scan_next_button:
+                break;
+        }
+    }
+
+
+
+
+    public enum State{
+        SCANNING(0),
+        NOT_SCANNING(1);
+
+        private final int value;
+
+        State(int value){
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static State toEnum(int i){
+            switch(i){
+                case 0:
+                    return SCANNING;
+                case 1:
+                    return SCANNING;
+                default:
+                    return null;
+            }
+        }
+    }
 }

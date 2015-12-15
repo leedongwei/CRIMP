@@ -1,106 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout android:id="@+id/swipe_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
     tools:context="com.nusclimb.live.crimp.hello.HelloActivity">
 
-    <LinearLayout android:id="@+id/route_spinner_viewgroup"
-        android:layout_width="match_parent"
+    <ScrollView android:id="@+id/scroll_viewgroup"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_width="match_parent">
 
-        <TextView android:id="@+id/route_hello_text"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:layout_marginBottom="16dp"
-            android:textSize="20sp"
-            android:text="@string/route_fragment_question"/>
+            android:orientation="vertical">
 
-        <Spinner
-            android:id="@+id/route_category_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginBottom="8dp" />
-
-        <Spinner
-            android:id="@+id/route_route_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginBottom="8dp" />
-
-        <Button
-            android:id="@+id/route_next_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/route_fragment_next"
-            android:onClick="routeNext"
-            android:enabled="false"/>
-
-    </LinearLayout>
-
-    <RelativeLayout android:id="@+id/route_replace_viewgroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone">
-
-        <TextView android:id="@+id/route_replace_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:textSize="20sp"
-            android:layout_marginBottom="8dp"/>
-
-        <LinearLayout android:id="@+id/route_yes_no_viewgroup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_below="@id/route_replace_text">
-
-            <Button android:id="@+id/route_yes_button"
-                android:layout_width="0dp"
+            <LinearLayout android:id="@+id/route_category_request_viewgroup"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/route_fragment_yes"
-                android:onClick="routeYes"/>
+                android:orientation="vertical"
+                android:visibility="gone">
 
-            <Button android:id="@+id/route_no_button"
-                android:layout_width="0dp"
+                <TextView android:id="@+id/route_category_request_status_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"/>
+
+                <Button
+                    android:id="@+id/route_category_request_retry_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/route_fragment_retry"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/route_spinner_viewgroup"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_toRightOf="@id/route_yes_button"
-                android:text="@string/route_fragment_no"
-                android:onClick="routeNo"/>
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView android:id="@+id/route_hello_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:layout_marginBottom="16dp"
+                    android:textSize="20sp"
+                    android:text="@string/route_fragment_question"/>
+
+                <Spinner
+                    android:id="@+id/route_category_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginBottom="8dp" />
+
+                <Spinner
+                    android:id="@+id/route_route_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginBottom="8dp" />
+
+                <Button
+                    android:id="@+id/route_next_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/route_fragment_next"
+                    android:onClick="routeNext"
+                    android:enabled="false"/>
+
+            </LinearLayout>
+
+            <RelativeLayout android:id="@+id/route_replace_viewgroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <TextView android:id="@+id/route_replace_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout android:id="@+id/route_yes_no_viewgroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_below="@id/route_replace_text">
+
+                    <Button android:id="@+id/route_yes_button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/route_fragment_yes"
+                        android:onClick="routeYes"/>
+
+                    <Button android:id="@+id/route_no_button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_toRightOf="@id/route_yes_button"
+                        android:text="@string/route_fragment_no"
+                        android:onClick="routeNo"/>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <LinearLayout android:id="@+id/route_progress_viewgroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ProgressBar android:id="@+id/route_wheel_progressbar"
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView android:id="@+id/route_status_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"/>
+
+                <Button
+                    android:id="@+id/route_retry_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/route_fragment_retry"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
         </LinearLayout>
-    </RelativeLayout>
 
-    <LinearLayout android:id="@+id/route_progress_viewgroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
+    </ScrollView>
 
-        <ProgressBar android:id="@+id/route_wheel_progressbar"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_gravity="center_horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
 
-        <TextView android:id="@+id/route_status_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"/>
 
-        <Button
-            android:id="@+id/route_retry_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/route_fragment_retry"
-            android:visibility="gone"/>
-    </LinearLayout>
-
-</LinearLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

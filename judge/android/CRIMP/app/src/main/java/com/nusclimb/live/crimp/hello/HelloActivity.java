@@ -1,12 +1,7 @@
 package com.nusclimb.live.crimp.hello;
 
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Vibrator;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -15,35 +10,17 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
-import com.nusclimb.live.crimp.CrimpFragmentPagerAdapter;
+import com.nusclimb.live.crimp.CrimpFragmentStatePagerAdapter;
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.BusProvider;
-import com.nusclimb.live.crimp.common.busevent.InRouteTab;
-import com.nusclimb.live.crimp.common.busevent.InScanTab;
-import com.nusclimb.live.crimp.common.busevent.InScoreTab;
-import com.nusclimb.live.crimp.common.busevent.RouteFinish;
-import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
-import com.nusclimb.live.crimp.common.busevent.RouteOnPause;
-import com.nusclimb.live.crimp.common.busevent.RouteOnResume;
-import com.nusclimb.live.crimp.common.busevent.ScanFinish;
-import com.nusclimb.live.crimp.common.busevent.ScanNotFinish;
-import com.nusclimb.live.crimp.common.busevent.ScanOnPause;
-import com.nusclimb.live.crimp.common.busevent.ScanOnResume;
-import com.nusclimb.live.crimp.common.busevent.ScoreFinish;
-import com.nusclimb.live.crimp.common.busevent.ScoreOnPause;
-import com.nusclimb.live.crimp.common.busevent.ScoreOnResume;
-import com.nusclimb.live.crimp.common.busevent.StartScan;
+import com.nusclimb.live.crimp.common.Categories;
+import com.nusclimb.live.crimp.common.Climber;
+import com.nusclimb.live.crimp.common.User;
 import com.nusclimb.live.crimp.login.LoginActivity;
-import com.nusclimb.live.crimp.service.CrimpService;
-import com.octo.android.robospice.SpiceManager;
-import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,58 +28,28 @@ import java.util.List;
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class HelloActivity extends ActionBarActivity implements ActionBar.TabListener{
+public class HelloActivity extends ActionBarActivity implements ActionBar.TabListener, RouteFragment.RouteFragmentToActivityMethods {
     private final String TAG = HelloActivity.class.getSimpleName();
+
+    // All the info
+    private User mUser = null;
+    private Categories mCategories = null;
+    private Climber mClimber = null;
 
     // For doing tab manipulation
     private ActionBar mActionBar;
     private ViewPager mViewPager;
-    private CrimpFragmentPagerAdapter mCrimpFragmentPagerAdapter;
-    private Handler activityHandler;
+    private HintableArrayAdapter mHintableArrayAdapter;
 
-    // Fragment State. For use with Bus.
-    private boolean isRouteOnResume = false;
-    private boolean isScanOnResume = false;
-    private boolean isScoreOnResume = false;
-    private int currentTab = 0;
-    private int tabCount = 1;
+    private CrimpFragmentStatePagerAdapter mCrimpFragmentStatePagerAdapter;
 
-    // Info from fragments
-    private String xUserId;                         // From LoginActivity
-    private String xAuthToken;                      // From LoginActivity
-    private String[] categoryIdListAsArray;         // From LoginActivity
-    private String[] categoryNameListAsArray;       // From LoginActivity
-    private int[] categoryRouteCountListAsArray;    // From LoginActivity
-    private String routeId;                         // From RouteFragment
-    private String climberId;                       // From ScanFragment
-    private String climberName;                     // From ScanFragment (optional)
 
-    private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
 
-    public SpiceManager getSpiceManager(){
-        return spiceManager;
-    }
 
-    public String getxUserId(){
-        return xUserId;
-    }
 
-    public String getxAuthToken(){
-        return xAuthToken;
-    }
 
-    public String getRouteId(){
-        return routeId;
-    }
-
-    public String getClimberId(){
-        return climberId;
-    }
-
-    public String getClimberName(){
-        return climberName;
-    }
-
+    /*
+    //TODO
     public List<HintableSpinnerItem> getCategoryList(){
         List<HintableSpinnerItem> categoryHintableSpinnerItemList = new ArrayList<HintableSpinnerItem>();
         for(int i=0; i<categoryIdListAsArray.length; i++){
@@ -112,7 +59,9 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
         return categoryHintableSpinnerItemList;
     }
+    */
 
+    /*
     private void updateTabEnableView(){
         for(int i=0; i<3; i++){
             if(i<tabCount){
@@ -125,138 +74,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
             }
         }
     }
-
-
-    /*=========================================================================
-   * Bus methods
-   *=======================================================================*/
-    @Subscribe
-    public void onReceiveRouteNotFinish(RouteNotFinish event){
-        Log.d(TAG+".onReceiveRouteFinish()", "Received RouteNotFinish event. Set tab count to 1.");
-
-        tabCount = 1;
-        updateTabEnableView();
-        mCrimpFragmentPagerAdapter.set_count(tabCount);
-    }
-
-    @Subscribe
-    public void onReceiveRouteFinish(RouteFinish event){
-        Log.d(TAG+".onReceiveRouteFinish()", "Received RouteFinish event. Set tab count to 2. Select tab 1. routeId="+event.getRouteId());
-
-        routeId = event.getRouteId();
-
-        tabCount = 2;
-        currentTab = 1;
-        updateTabEnableView();
-        mCrimpFragmentPagerAdapter.set_count(tabCount);
-        mActionBar.setSelectedNavigationItem(currentTab);
-    }
-
-    @Subscribe
-    public void onReceiveScanNotFinish(ScanNotFinish event){
-        if(tabCount<=2){
-            Log.d(TAG + ".onReceiveScanNotFinish()", "Received ScanNotFinish event. Tab count unchanged.");
-        }
-        else {
-            Log.d(TAG + ".onReceiveScanNotFinish()", "Received ScanNotFinish event. Set tab count to 2.");
-            tabCount = 2;
-            updateTabEnableView();
-            mCrimpFragmentPagerAdapter.set_count(tabCount);
-        }
-    }
-
-    @Subscribe
-    public void onReceiveScanFinish(ScanFinish event){
-        Log.d(TAG+".onReceiveScanFinish()", "Received ScanFinish event. Set tab count to 3. Select tab 2. cid = "+event.getClimberId()+"; cname = "+event.getClimberName());
-        climberId = event.getClimberId();
-        climberName = event.getClimberName();
-
-        tabCount = 3;
-        currentTab = 2;
-        updateTabEnableView();
-        mCrimpFragmentPagerAdapter.set_count(tabCount);
-        mActionBar.setSelectedNavigationItem(currentTab);
-    }
-
-    @Subscribe
-    public void onReceiveScoreFinish(ScoreFinish event){
-        Log.d(TAG+".onReceiveScoreFinish()", "Received ScoreFinish event.");
-
-        climberId = null;
-        climberName = null;
-
-        tabCount = 2;
-        currentTab = 1;
-        mActionBar.setSelectedNavigationItem(currentTab);
-        updateTabEnableView();
-        mCrimpFragmentPagerAdapter.set_count(tabCount);
-    }
-
-    @Subscribe
-    public void onReceiveRouteOnResume(RouteOnResume event){
-        isRouteOnResume = true;
-
-        if(isRouteOnResume && isScanOnResume && isScoreOnResume){
-            updateTabEnableView();
-            mCrimpFragmentPagerAdapter.set_count(tabCount);
-            mActionBar.setSelectedNavigationItem(currentTab);
-            Log.d(TAG + ".onReceiveRouteOnResume()", "Received RouteOnResume event. Set tab count to " + tabCount);
-        }
-        else{
-            Log.d(TAG + ".onReceiveRouteOnResume()", "Received RouteOnResume event.");
-        }
-    }
-
-    @Subscribe
-    public void onReceivedRouteOnPause(RouteOnPause event){
-        isRouteOnResume = false;
-    }
-
-
-
-    @Subscribe
-    public void onReceiveScanOnResume(ScanOnResume event){
-        Log.d(TAG + ".onReceiveScanOnResume", "Received ScanOnResume event.");
-
-        isScanOnResume = true;
-        if(tabCount>= 2){
-            Log.d(TAG + ".onReceiveScanOnResume", "Post StartScan event.");
-            BusProvider.getInstance().post(new StartScan());
-        }
-
-        if(isRouteOnResume && isScanOnResume && isScoreOnResume){
-            Log.d(TAG + ".onReceiveScanOnResume", "Set tab count to "+tabCount);
-            updateTabEnableView();
-            mCrimpFragmentPagerAdapter.set_count(tabCount);
-            mActionBar.setSelectedNavigationItem(currentTab);
-        }
-    }
-
-    @Subscribe
-    public void onReceivedScanOnPause(ScanOnPause event){
-        isScanOnResume = false;
-    }
-
-    @Subscribe
-    public void onReceiveScoreOnResume(ScoreOnResume event){
-        isScoreOnResume = true;
-
-        if(isRouteOnResume && isScanOnResume && isScoreOnResume){
-            Log.d(TAG + ".onReceiveScoreOnResume()", "Received ScoreOnResume event. Set tab count to "+tabCount);
-            updateTabEnableView();
-            mCrimpFragmentPagerAdapter.set_count(tabCount);
-            mActionBar.setSelectedNavigationItem(currentTab);
-        }
-        else{
-            Log.d(TAG + ".onReceiveScoreOnResume()", "Received ScoreOnResume event.");
-        }
-    }
-
-    @Subscribe
-    public void onReceiveScoreOnPause(ScoreOnPause event){
-        isScoreOnResume = false;
-    }
-
+    */
 
 
 
@@ -271,168 +89,128 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         // keep the device's screen turned on and bright.
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_hello);
 
-        activityHandler = new Handler();
+        // Prepare the initial fragment (RouteFragment) and add it to a list of fragments.
+        List<CrimpFragment> fragList = new ArrayList<CrimpFragment>();
+        RouteFragment rf = RouteFragment.newInstance(getIntent().getExtras());
+        fragList.add(rf);
 
-        // Instantiate object for tab manipulation
+        /* Note to self: ActionBar and ViewPager are seperated. User can switch between
+         * fragments by using either ActionBar or ViewPager. When ActionBar is used, we set
+         * ViewPager to match the ActionBar and vice versa.
+         *
+         * ActionBar (the top bar) is just navigation "buttons" and does not have "content".
+         *
+         * ViewPager (the entire content area) has an adapter which contains a list of fragments.
+         * When we swipe the ViewPager, the adapter will pull the correct fragment from its list
+         * and display it.
+         */
+
+        // Prepare ActionBar, create a routeTab for our RouteFragment.
+        mCrimpFragmentStatePagerAdapter = new CrimpFragmentStatePagerAdapter(getSupportFragmentManager(), fragList);
+        mViewPager = (ViewPager)findViewById(R.id.pager);
         mActionBar = getSupportActionBar();
-        mCrimpFragmentPagerAdapter = new CrimpFragmentPagerAdapter(getSupportFragmentManager(), this);
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-
-        // Specify that we will be displaying tabs in the action bar.
         mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        // Add route, scan, score tab to action bar.
         ActionBar.Tab routeTab = mActionBar.newTab()
-                .setText(mCrimpFragmentPagerAdapter.getPageTitle(0))
+                .setText(rf.getPageTitle())
                 .setTabListener(this);
         mActionBar.addTab(routeTab);
 
-        ActionBar.Tab scanTab = mActionBar.newTab()
-                .setText(mCrimpFragmentPagerAdapter.getPageTitle(1))
-                .setTabListener(this);
-        mActionBar.addTab(scanTab);
-
-        ActionBar.Tab scoreTab = mActionBar.newTab()
-                .setText(mCrimpFragmentPagerAdapter.getPageTitle(2))
-                .setTabListener(this);
-        mActionBar.addTab(scoreTab);
-
-        mViewPager.setAdapter(mCrimpFragmentPagerAdapter);
+        // Prepare ViewPager, attach adapter to ViewPager, back adapter with a list of fragment.
+        mViewPager.setAdapter(mCrimpFragmentStatePagerAdapter);
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            // This is THE listener for page swiping.
             private final String TAG = ViewPager.SimpleOnPageChangeListener.class.getSimpleName();
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                Log.v(TAG, "onPageScrollStateChanged(" + state + ")");
+                super.onPageScrollStateChanged(state);
+            }
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                //Log.v(TAG, "onPageScrolled(" + position + ", " + positionOffset + ", " + positionOffsetPixels + ")");
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
+            }
 
             @Override
             public void onPageSelected(int position) {
                 // When swiping between different app sections, select the corresponding tab.
                 // We can also use ActionBar.Tab#select() to do this if we have a reference to the
                 // Tab.
-                Log.d(TAG + ".onPageSelected", "called with position = " + position);
-                currentTab = position;
-                mActionBar.setSelectedNavigationItem(currentTab);
+                Log.d(TAG, "onPageSelected(" + position + ")");
+                super.onPageSelected(position);
+                mActionBar.setSelectedNavigationItem(position);
             }
         });
-        mViewPager.setOffscreenPageLimit(2);
 
-        if(savedInstanceState == null){
-            // Newly created activity
-            xUserId = getIntent().getExtras().getString(getString(R.string.bundle_x_user_id));
-            xAuthToken = getIntent().getExtras().getString(getString(R.string.bundle_x_auth_token));
-            categoryIdListAsArray = getIntent().getExtras().getStringArray(getString(R.string.bundle_category_id_list));
-            categoryNameListAsArray = getIntent().getExtras().getStringArray(getString(R.string.bundle_category_name_list));
-            categoryRouteCountListAsArray = getIntent().getExtras().getIntArray(getString(R.string.bundle_category_route_count_list));
-
-            Log.d(TAG + ".onCreate()", "Newly created.\n"+
-                    "xUserId="+xUserId+"\n"+
-                    "xAuthToken="+xAuthToken+"\n"+
-                    "categoryIdListAsArray="+ categoryIdListAsArray.length +"\n"+
-                    "categoryNameListAsArray="+categoryNameListAsArray.length+"\n"+
-                    "categoryRouteCountListAsArray="+categoryRouteCountListAsArray.length);
+        if(savedInstanceState == null) {
+            // Newly created activity therefore we can only get information from intent.
+            mUser = new User();
+            mUser.setFacebookAccessToken(getIntent().getStringExtra(getString(R.string.bundle_access_token)));
+            mUser.setUserName(getIntent().getStringExtra(getString(R.string.bundle_user_name)));
+            mUser.setUserId(getIntent().getStringExtra(getString(R.string.bundle_x_user_id)));
+            mUser.setAuthToken(getIntent().getStringExtra(getString(R.string.bundle_x_auth_token)));
         }
         else{
-            // Restored activity
-            tabCount = savedInstanceState.getInt(getString(R.string.bundle_tab_count));
-            currentTab = savedInstanceState.getInt(getString(R.string.bundle_current_tab));
+            // Recreating activity. Restore all info from saved instance state.
+            mUser = new User();
+            mUser.setFacebookAccessToken(savedInstanceState.getString(getString(R.string.bundle_access_token)));
+            mUser.setUserName(savedInstanceState.getString(getString(R.string.bundle_user_name)));
+            mUser.setUserId(savedInstanceState.getString(getString(R.string.bundle_x_user_id)));
+            mUser.setAuthToken(savedInstanceState.getString(getString(R.string.bundle_x_auth_token)));
+            mUser.setCategoryId(savedInstanceState.getString(getString(R.string.bundle_category_id)));
+            mUser.setRouteId(savedInstanceState.getString(getString(R.string.bundle_route_id)));
+            //mUser.setClimberId(savedInstanceState.getString(getString(R.string.bundle_climber_id)));
 
-            xUserId = savedInstanceState.getString(getString(R.string.bundle_x_user_id));
-            xAuthToken = savedInstanceState.getString(getString(R.string.bundle_x_auth_token));
-            categoryIdListAsArray = savedInstanceState.getStringArray(getString(R.string.bundle_category_id_list));
-            categoryNameListAsArray = savedInstanceState.getStringArray(getString(R.string.bundle_category_name_list));
-            categoryRouteCountListAsArray = savedInstanceState.getIntArray(getString(R.string.bundle_category_route_count_list));
+            mCategories = new Categories(savedInstanceState.getStringArrayList(getString(R.string.bundle_category_name_list)),
+                    savedInstanceState.getStringArrayList(getString(R.string.bundle_category_id_list)),
+                    savedInstanceState.getIntegerArrayList(getString(R.string.bundle_category_route_count_list)),
+                    savedInstanceState.getStringArrayList(getString(R.string.bundle_route_name_list)),
+                    savedInstanceState.getStringArrayList(getString(R.string.bundle_route_id_list)),
+                    savedInstanceState.getStringArrayList(getString(R.string.bundle_route_score_list)),
+                    savedInstanceState.getByteArray(getString(R.string.bundle_category_finalize_list)),
+                    savedInstanceState.getStringArrayList(getString(R.string.bundle_category_start_list)),
+                    savedInstanceState.getStringArrayList(getString(R.string.bundle_category_end_list)));
 
-            if(tabCount == 2){
-                routeId = savedInstanceState.getString(getString(R.string.bundle_route_id));
-            }
-            else if(tabCount == 3){
-                climberId = savedInstanceState.getString(getString(R.string.bundle_climber_id));
-                climberName = savedInstanceState.getString(getString(R.string.bundle_climber_name));
-            }
-
-            String temp = "Restored.";
-            temp = temp + "\nxUserId=" + xUserId;
-            temp = temp + "\nxAuthToken" + xAuthToken;
-            temp = temp + "\ncategoryIdListAsArray=" + categoryIdListAsArray.length;
-            temp = temp + "\ncategoryNameListAsArray=" + categoryNameListAsArray.length;
-            temp = temp + "\ncategoryRouteCountListAsArray=" + categoryRouteCountListAsArray.length;
-            if(tabCount == 2){
-                temp = temp + "\nrouteId=" + routeId;
-            }
-            else if(tabCount == 3){
-                temp = temp + "\nclimberId=" + climberId;
-                temp = temp + "\nclimberName=" + climberName;
-            }
-            temp = temp + "\ntabCount=" + tabCount;
-            temp = temp + "\ncurrentTab=" + currentTab;
-
-
-            Log.d(TAG+".onCreate()", temp);
+            mClimber = new Climber();
+            mClimber.setClimberId(savedInstanceState.getString(getString(R.string.bundle_climber_id)));
+            mClimber.setClimberName(savedInstanceState.getString(getString(R.string.bundle_climber_name)));
+            mClimber.setTotalScore(savedInstanceState.getString(getString(R.string.bundle_total_score)));
         }
-    }
-
-    @Override
-    protected void onStart(){
-        super.onStart();
-        Log.v(TAG + ".onStart()", "start");
-        spiceManager.start(this);
-    }
-
-    @Override
-    protected void onResume(){
-        super.onResume();
-        BusProvider.getInstance().register(this);
-        Log.v(TAG + ".onResume()", "registered BusProvider");
-    }
-
-    @Override
-    protected void onPause(){
-        super.onPause();
-        BusProvider.getInstance().unregister(this);
-        Log.v(TAG + ".onPause()", "unregistered BusProvider");
-    }
-
-    @Override
-    protected void onStop(){
-        Log.v(TAG + ".onStop()", "stop");
-        spiceManager.shouldStop();
-        super.onStop();
     }
 
     @Override
     protected void onSaveInstanceState (Bundle outState){
         super.onSaveInstanceState(outState);
 
-        outState.putString(getString(R.string.bundle_x_user_id), xUserId);
-        outState.putString(getString(R.string.bundle_x_auth_token), xAuthToken);
-        outState.putStringArray(getString(R.string.bundle_category_id_list), categoryIdListAsArray);
-        outState.putStringArray(getString(R.string.bundle_category_name_list), categoryNameListAsArray);
-        outState.putIntArray(getString(R.string.bundle_category_route_count_list), categoryRouteCountListAsArray);
-        outState.putInt(getString(R.string.bundle_tab_count), tabCount);
-        outState.putInt(getString(R.string.bundle_current_tab), currentTab);
+        outState.putString(getString(R.string.bundle_access_token), mUser.getFacebookAccessToken());
+        outState.putString(getString(R.string.bundle_user_name), mUser.getUserName());
+        outState.putString(getString(R.string.bundle_x_user_id), mUser.getUserId());
+        outState.putString(getString(R.string.bundle_x_auth_token), mUser.getAuthToken());
+        outState.putString(getString(R.string.bundle_category_id), mUser.getCategoryId());
+        outState.putString(getString(R.string.bundle_route_id), mUser.getRouteId());
+        //outState.putString(getString(R.string.bundle_climber_id), mUser.getClimberId());
 
-        if(tabCount == 2)
-            outState.putString(getString(R.string.bundle_route_id), routeId);
-        if(tabCount == 3) {
-            outState.putString(getString(R.string.bundle_climber_id), climberId);
-            outState.putString(getString(R.string.bundle_climber_name), climberName);
+        if(mCategories != null){
+            outState.putStringArrayList(getString(R.string.bundle_category_name_list), mCategories.getCategoryNameList());
+            outState.putStringArrayList(getString(R.string.bundle_category_id_list), mCategories.getCategoryIdList());
+            outState.putIntegerArrayList(getString(R.string.bundle_category_route_count_list), mCategories.getCategoryRouteCountList());
+            outState.putStringArrayList(getString(R.string.bundle_route_name_list), mCategories.getRouteNameList());
+            outState.putStringArrayList(getString(R.string.bundle_route_id_list), mCategories.getRouteIdList());
+            outState.putStringArrayList(getString(R.string.bundle_route_score_list), mCategories.getRouteScoreList());
+            outState.putByteArray(getString(R.string.bundle_category_finalize_list), mCategories.getCategoryFinalizeArray());
+            outState.putStringArrayList(getString(R.string.bundle_category_start_list), mCategories.getCategoryStartList());
+            outState.putStringArrayList(getString(R.string.bundle_category_end_list), mCategories.getCategoryEndList());
         }
 
-        String temp = "xUserId=" + xUserId;
-        temp = temp + "\nxAuthToken" + xAuthToken;
-        temp = temp + "\ncategoryIdListAsArray=" + categoryIdListAsArray.length;
-        temp = temp + "\ncategoryNameListAsArray=" + categoryNameListAsArray.length;
-        temp = temp + "\ncategoryRouteCountListAsArray=" + categoryRouteCountListAsArray.length;
-        if(tabCount == 2){
-            temp = temp + "\nrouteId=" + routeId;
+        if(mClimber != null){
+            // We skipped climberId because we already done that in User.
+            outState.putString(getString(R.string.bundle_climber_name), mClimber.getClimberName());
+            outState.putString(getString(R.string.bundle_total_score), mClimber.getTotalScore());
         }
-        else if(tabCount == 3){
-            temp = temp + "\nclimberId=" + climberId;
-            temp = temp + "\nclimberName=" + climberName;
-        }
-        temp = temp + "\ntabCount=" + tabCount;
-        temp = temp + "\ncurrentTab=" + currentTab;
-
-        Log.d(TAG + ".onSavedInstanceState()", temp);
     }
 
 
@@ -446,166 +224,34 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
     @Override
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        if(tab.getPosition() >= tabCount) {
-            Log.d(TAG+".onTabSelected()", "selected "+tab.getPosition()+" >= count "+tabCount);
-
-            final int currentTabPosition = currentTab;
-
-            activityHandler.postAtFrontOfQueue(new Runnable() {
-                @Override
-                public void run() {
-                    getSupportActionBar().setSelectedNavigationItem(
-                            currentTabPosition);
-                }
-            });
-        }
-        else {
-            Log.d(TAG+".onTabSelected()", "selected "+tab.getPosition()+" < count "+tabCount);
-            // When the given tab is selected, switch to the corresponding page in the ViewPager.
-            currentTab = tab.getPosition();
-            mViewPager.setCurrentItem(currentTab);
-
-            switch(currentTab){
-                case 0:
-                    Log.d(TAG+".onTabSelected()", "Posted InRouteTab to bus.");
-                    BusProvider.getInstance().post(new InRouteTab());
-                    break;
-                case 1:
-                    Log.d(TAG+".onTabSelected()", "Posted InScanTab("+routeId+") to bus.");
-                    BusProvider.getInstance().post(new InScanTab(routeId));
-                    break;
-                case 2:
-                    Log.d(TAG+".onTabSelected()", "Posted InScoreTab to bus.");
-                    BusProvider.getInstance().post(new InScoreTab());
-                    break;
-                default:
-                    break;
-            }
+        // We can always go back to earlier tab (earlier tab always exist).
+        // We can go to a tab if it exist.
+        int currentIndex = mViewPager.getCurrentItem();
+        if(tab.getPosition() < currentIndex || tab.getPosition() <mCrimpFragmentStatePagerAdapter.getCount()) {
+            mViewPager.setCurrentItem(tab.getPosition());
         }
     }
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        Log.d(TAG + ".onTabReselected()", "tab.position = " + tab.getPosition());
     }
 
-
-
-    /*=========================================================================
-     * Button onClick methods
-     *=======================================================================*/
-    public void routeNext(View view){
-        Log.v(TAG + ".routeNext()", "Button clicked.");
-        RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
-        rf.next();
-    }
-
-    public void routeYes(View view){
-        Log.v(TAG+".routeYes()", "Button clicked.");
-        RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
-        rf.yes();
-    }
-
-    public void routeNo(View view){
-        Log.v(TAG+".routeNo()", "Button clicked.");
-        RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
-        rf.no();
-    }
-
-    public void scanRescan(View view){
-        Log.v(TAG+".scanRescan()", "Button clicked.");
-        ScanFragment sf = (ScanFragment) getFirstMatchingFragment(ScanFragment.class);
-        sf.rescan();
-    }
-
-    public void scanFlash(View view){
-        Log.v(TAG+".scanFlash()", "Button clicked.");
-        ScanFragment sf = (ScanFragment) getFirstMatchingFragment(ScanFragment.class);
-        sf.toggleFlash();
-    }
-
-    public void scanNext(View view){
-        Log.v(TAG + ".scanNext()", "Button clicked.");
-        ScanFragment sf = (ScanFragment) getFirstMatchingFragment(ScanFragment.class);
-        sf.next();
-    }
-
-    public void scorePlusOne(View view){
-        Log.v(TAG+".scorePlusOne()", "Button clicked.");
-        // Get instance of Vibrator from current Context
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        // Vibrate for 50 milliseconds
-        v.vibrate(50);
-        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
-        sf.plusOne();
-    }
-
-    public void scoreBonus(View view){
-        Log.v(TAG+".scorePlusOne()", "Button clicked.");
-        // Get instance of Vibrator from current Context
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        // Vibrate for 50 milliseconds
-        v.vibrate(50);
-        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
-        sf.bonus();
-    }
-
-    public void scoreTop(View view){
-        Log.v(TAG + ".scorePlusOne()", "Button clicked.");
-        // Get instance of Vibrator from current Context
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        // Vibrate for 50 milliseconds
-        v.vibrate(50);
-        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
-        sf.top();
-    }
-
-    public void scoreBackspace(View view){
-        Log.v(TAG + ".scorePlusOne()", "Button clicked.");
-        // Get instance of Vibrator from current Context
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        // Vibrate for 50 milliseconds
-        v.vibrate(50);
-        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
-        sf.backspace();
-    }
-
-    public void scoreSubmit(View view){
-        Log.v(TAG + ".scoreSubmit()", "Button clicked.");
-        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
-        sf.submit();
-    }
 
 
     /*=========================================================================
      * Other methods
      *=======================================================================*/
-    private Fragment getFirstMatchingFragment(Class clazz){
-        List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
-        for(Fragment fr: fragmentList){
-            if( fr.getClass().getSimpleName().equals(clazz.getSimpleName())){
-                return fr;
-            }
-        }
-        return null;
-    }
+
 
     @Override
     public void onBackPressed()
     {
-        switch(currentTab){
-            case 0:
-                //super.onBackPressed();
-                break;
-            case 1:
-                currentTab = 0;
-                mActionBar.setSelectedNavigationItem(currentTab);
-                break;
-            case 2:
-                // TODO prompt user
-                currentTab = 1;
-                mActionBar.setSelectedNavigationItem(currentTab);
-                break;
+        int currentTab = mViewPager.getCurrentItem();
+        if(currentTab == 0){
+            //super.onBackPressed();
+        }
+        else{
+            mActionBar.setSelectedNavigationItem(currentTab-1);
         }
     }
 
@@ -631,4 +277,37 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    @Override
+    public void createAndSwitchToScanFragment(User user, Categories categoriesInfo) {
+        mUser = new User(user);
+        mCategories = new Categories(categoriesInfo);
+
+        //We try to switch to ScanFragment. Create ScanFragment if it does not already exist.
+        if(mActionBar.getTabCount()<2){
+            ScanFragment mScanFragment = ScanFragment.newInstance(user, categoriesInfo, this);
+
+            ActionBar.Tab tab = mActionBar.newTab()
+                    .setText(mScanFragment.getPageTitle())
+                    .setTabListener(this);
+            mActionBar.addTab(tab);
+
+            mCrimpFragmentStatePagerAdapter.addFragment(mScanFragment);
+        }
+        mViewPager.setCurrentItem(1);
+    }
+
+    @Override
+    public void destroyOtherTab(){
+        Log.v(TAG, "number of tab: "+mActionBar.getTabCount());
+        for(int i=mActionBar.getTabCount(); i>1; i--){
+            removeFragment(i-1);
+        }
+    }
+
+    public void removeFragment(int position){
+        mCrimpFragmentStatePagerAdapter.removeFragment(position);
+        mActionBar.removeTabAt(position);
+    }
+
 }

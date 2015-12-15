@@ -1,8 +1,9 @@
 package com.nusclimb.live.crimp.hello;
 
-import android.content.Context;
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,46 +19,48 @@ import android.widget.TextView;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.Categories;
 import com.nusclimb.live.crimp.common.User;
-import com.nusclimb.live.crimp.common.json.CategoriesHeadResponseBody;
 import com.nusclimb.live.crimp.common.json.CategoriesResponseBody;
 import com.nusclimb.live.crimp.common.json.ReportResponseBody;
-import com.nusclimb.live.crimp.common.spicerequest.CategoriesHeadRequest;
 import com.nusclimb.live.crimp.common.spicerequest.CategoriesRequest;
 import com.nusclimb.live.crimp.common.spicerequest.ReportRequest;
+import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Fragment for category and route selection. Activity containing this Fragment must implement
- * FragmentToActivityMethods interface to allow this fragment to communicate with the attached
+ * RouteFragmentToActivityMethods interface to allow this fragment to communicate with the attached
  * Activity and possibly other Fragments. Information from the Activity is passed to this Fragment
  * through arguments.
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class RouteFragment extends Fragment implements View.OnClickListener{
+public class RouteFragment extends CrimpFragment implements SwipeRefreshLayout.OnRefreshListener{
     private final String TAG = RouteFragment.class.getSimpleName();
 
+    RouteFragmentToActivityMethods mToActivityMethod;   //This is how we will communicate with
+                                                        //Hello Activity.
+
     private User mUser = null;
-    private State mState = State.START;
-    private State shouldState = State.PICKING;      // State that mState should change to after
-                                                    // categories is ready.
-    private Categories categoryInfo;
-    private String currentJudge;
+    private Categories categoryInfo = null;
 
     private HintableArrayAdapter categoryAdapter;
     private HintableArrayAdapter routeAdapter;
 
+    private State mState = State.START;
+
+    private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
+
+    // UI references
+    private SwipeRefreshLayout mSwipeLayout;
+    // UI references (category request form)
+    private LinearLayout mCategoryForm;
+    private TextView mCategoryStatusText;
+    private Button mCategoryRetryButton;
     // UI references (spinner form)
     private LinearLayout mSpinnerForm;
     private TextView mHelloText;
@@ -75,25 +78,72 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
     private TextView mStatusText;
     private Button mRetryButton;
 
+    public static RouteFragment newInstance(Bundle bundle) {
+        RouteFragment myFragment = new RouteFragment();
+
+        Bundle args = new Bundle(bundle);
+        myFragment.setArguments(args);
+
+        return myFragment;
+    }
+
+
+
+    /*=========================================================================
+     * Interface methods
+     *=======================================================================*/
+    @Override
+    public CharSequence getPageTitle() {
+        return "Route";
+    }
+
     @Override
     public void onClick(View v) {
         switch(v.getId()){
+            case R.id.route_category_request_retry_button:
+                categoryInfo = null;
+                changeState(State.PICKING);
+                break;
             case R.id.route_next_button:
-                changeState(State.IN_FIRST_REQUEST);
+                changeState(State.VERIFYING_1);
                 break;
             case R.id.route_yes_button:
-                changeState(State.IN_SECOND_REQUEST);
+                changeState(State.VERIFYING_2);
                 break;
             case R.id.route_no_button:
                 changeState(State.PICKING);
                 break;
             case R.id.route_retry_button:
-                if(mState == State.VERIFY_SIGNATURE_FAIL)
-                    changeState(State.VERIFY_SIGNATURE);
-                if(mState == State.REQUEST_CATEGORIES_FAIL)
-                    changeState(State.REQUEST_CATEGORIES);
+                if(mState == State.CATEGORY_FAIL)
+                    changeState(State.START);
+                else
+                    changeState(State.PICKING);
                 break;
         }
+    }
+
+    @Override
+    public void onRefresh(){
+        Log.v(TAG, "onRefresh ");
+        changeState(State.START);
+    }
+
+
+
+    /*=========================================================================
+     * Fragment lifecycle methods
+     *=======================================================================*/
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mToActivityMethod = (RouteFragmentToActivityMethods) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement RouteFragmentToActivityMethods");
+        }
+
+        Log.v(TAG, "COMPLETE ONATTACH");
     }
 
     @Override
@@ -106,6 +156,11 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
         View rootView = inflater.inflate(R.layout.fragment_route, container, false);
 
         // Get UI references.
+        //TODO not sure if this will give us the correct view
+        mSwipeLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_layout);
+        mCategoryForm = (LinearLayout) rootView.findViewById(R.id.route_category_request_viewgroup);
+        mCategoryStatusText = (TextView) rootView.findViewById(R.id.route_category_request_status_text);
+        mCategoryRetryButton = (Button) rootView.findViewById(R.id.route_category_request_retry_button);
         mSpinnerForm = (LinearLayout) rootView.findViewById(R.id.route_spinner_viewgroup);
         mHelloText = (TextView) rootView.findViewById(R.id.route_hello_text);
         mCategorySpinner = (Spinner) rootView.findViewById(R.id.route_category_spinner);
@@ -121,10 +176,15 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
         mRetryButton = (Button) rootView.findViewById(R.id.route_retry_button);
 
         // Set button on click listener
+        mCategoryRetryButton.setOnClickListener(this);
         mNextButton.setOnClickListener(this);
         mNoButton.setOnClickListener(this);
+        mYesButton.setOnClickListener(this);
         mRetryButton.setOnClickListener(this);
-        mRetryButton.setOnClickListener(this);
+
+        mSwipeLayout.setOnRefreshListener(this);
+
+        Log.v(TAG, "COMPLETE ONCREATEVIEW");
 
         return rootView;
     }
@@ -133,132 +193,134 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
     public void onActivityCreated(Bundle savedInstanceState) {
         // This is the final lifecycle state before fragment is visible.
         // Initialize all objects here.
-
         super.onActivityCreated(savedInstanceState);
 
         if(savedInstanceState == null){
-            shouldState = State.PICKING;
-        }
-        else{
-            shouldState = State.toEnum(savedInstanceState.getInt(
-                    getString(R.string.bundle_route_state)));
-        }
+            // Initialize mState
+            mState = State.START;
 
-        // Initialize mUser
-        if(mUser == null) {
+            // Initialize mUser
+            if(mUser == null)
+                mUser = new User();
+
             Bundle args = getArguments();
-            mUser = new User();
             mUser.setUserId(args.getString(getString(R.string.bundle_x_user_id)));
             mUser.setAuthToken(args.getString(getString(R.string.bundle_x_auth_token)));
             mUser.setUserName(args.getString(getString(R.string.bundle_user_name)));
             mUser.setFacebookAccessToken(args.getString(getString(R.string.bundle_access_token)));
+
+            // Initialize categoryInfo
+            categoryInfo = new Categories();
+        }
+        else{
+            // Initialize mState
+            mState = State.toEnum(savedInstanceState.getInt(getString(R.string.bundle_route_state)));
+
+            // Initialize mUser
+            if(mUser == null)
+                mUser = new User();
+
+            mUser.setUserId(savedInstanceState.getString(getString(R.string.bundle_x_user_id)));
+            mUser.setAuthToken(savedInstanceState.getString(getString(R.string.bundle_x_auth_token)));
+            mUser.setUserName(savedInstanceState.getString(getString(R.string.bundle_user_name)));
+            mUser.setFacebookAccessToken(savedInstanceState.getString(getString(R.string.bundle_access_token)));
+
+            ArrayList<String> cNameList = savedInstanceState.getStringArrayList(getString(R.string.bundle_category_name_list));
+            ArrayList<String> cIdList = savedInstanceState.getStringArrayList(getString(R.string.bundle_category_id_list));
+            ArrayList<Integer> cCountList = savedInstanceState.getIntegerArrayList(getString(R.string.bundle_category_route_count_list));
+            ArrayList<String> rNameList = savedInstanceState.getStringArrayList(getString(R.string.bundle_route_name_list));
+            ArrayList<String> rIdList = savedInstanceState.getStringArrayList(getString(R.string.bundle_route_id_list));
+            ArrayList<String> rScoreList = savedInstanceState.getStringArrayList(getString(R.string.bundle_route_score_list));
+            byte[] cFinalizeArray = savedInstanceState.getByteArray(getString(R.string.bundle_category_finalize_list));
+            ArrayList<String> cStartList = savedInstanceState.getStringArrayList(getString(R.string.bundle_category_start_list));
+            ArrayList<String> cEndList = savedInstanceState.getStringArrayList(getString(R.string.bundle_category_end_list));
+
+            // Initialize categoryInfo
+            categoryInfo = new Categories(cNameList, cIdList, cCountList, rNameList, rIdList,
+                    rScoreList, cFinalizeArray, cStartList, cEndList);
         }
 
-        // Read Categories information from persistent storage
-        String FILENAME = getString(R.string.categories_file);
-        FileInputStream fis = null;
-        CategoriesResponseBody mCategoriesResponseBody = null;
-        try {
-            fis = getActivity().openFileInput(FILENAME);
-            ObjectMapper mapper = new ObjectMapper();
-            mCategoriesResponseBody =
-                    mapper.readValue(fis, CategoriesResponseBody.class);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            mCategoriesResponseBody = null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            mCategoriesResponseBody = null;
-        } finally {
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException e) {}
-            }
-        }
+        Log.v(TAG, "COMPLETE ONACTIVITYCREATED. mState="+mState+" mUser="+mUser.toString()
+                +" mCategories="+categoryInfo.toString());
+    }
 
-        // Initialize categoryInfo
-        if (mCategoriesResponseBody == null) {
-            categoryInfo = null;
-        } else {
-            categoryInfo = new Categories(mCategoriesResponseBody);
-        }
+    @Override
+    public void onStart(){
+        super.onStart();
+        spiceManager.start(getActivity());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        changeState(State.START);
+        switch(mState){
+            case START:
+            case CATEGORY_FAIL:
+            case PICKING:
+            case VERIFYING_1:
+            case VERIFY_1_NOT_OK:
+            case VERIFY_1_FAIL:
+            case VERIFYING_2:
+            case VERIFYING_2_FAIL:
+                changeState(mState);
+                break;
+            case ALL_OK:
+                changeState(State.PICKING);
+                break;
+        }
     }
 
     @Override
     public void onPause() {
-        switch(shouldState){
-            case PICKING:
-            case IN_FIRST_REQUEST:
-            case FIRST_REQUEST_NOT_OK:
-            case FIRST_REQUEST_FAILED:
-                shouldState = State.PICKING;
-                break;
-            case REPLACE_QUESTION:
-            case IN_SECOND_REQUEST:
-            case SECOND_REQUEST_OK:
-            case SECOND_REQUEST_FAILED:
-                shouldState = State.REPLACE_QUESTION;
-                break;
-            case JUDGE_OK:
-                shouldState = State.JUDGE_OK;
-                break;
-        }
-
-        if(categoryInfo != null) {
-            String FILENAME = getString(R.string.categories_file);
-
-            FileOutputStream fos = null;
-            try {
-                fos = getActivity().openFileOutput(FILENAME, Context.MODE_PRIVATE);
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.writeValue(fos, categoryInfo.getJSON());
-            } catch(FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (JsonGenerationException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    fos.close();
-                }catch(IOException e) {}
-            }
-
-        }
         super.onPause();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        switch(shouldState){
-            case PICKING:
-            case IN_FIRST_REQUEST:
-            case FIRST_REQUEST_NOT_OK:
-            case FIRST_REQUEST_FAILED:
-                shouldState = State.PICKING;
-                break;
-            case REPLACE_QUESTION:
-            case IN_SECOND_REQUEST:
-            case SECOND_REQUEST_OK:
-            case SECOND_REQUEST_FAILED:
-                shouldState = State.REPLACE_QUESTION;
-                break;
-            case JUDGE_OK:
-                shouldState = State.JUDGE_OK;
-                break;
+
+        if(mUser != null){
+            outState.putString(getString(R.string.bundle_x_user_id), mUser.getUserId());
+            outState.putString(getString(R.string.bundle_x_auth_token), mUser.getAuthToken());
+            outState.putString(getString(R.string.bundle_user_name), mUser.getUserName());
+            outState.putString(getString(R.string.bundle_access_token), mUser.getFacebookAccessToken());
         }
 
-        outState.putInt(getString(R.string.bundle_route_state), shouldState.getValue());
+        if(categoryInfo != null){
+            ArrayList<String> categoryNameList = categoryInfo.getCategoryNameList();
+            ArrayList<String> categoryIdList = categoryInfo.getCategoryIdList();
+            ArrayList<Integer> categoryRouteCountList = categoryInfo.getCategoryRouteCountList();
+            ArrayList<String> routeNameList = categoryInfo.getRouteNameList();
+            ArrayList<String> routeIdList = categoryInfo.getRouteIdList();
+            ArrayList<String> routeScoreList = categoryInfo.getRouteScoreList();
+            byte[] categoryFinalizeArray = categoryInfo.getCategoryFinalizeArray();
+            ArrayList<String> categoryStartList = categoryInfo.getCategoryStartList();
+            ArrayList<String> categoryEndList = categoryInfo.getCategoryEndList();
+
+            outState.putStringArrayList(getString(R.string.bundle_category_name_list), categoryNameList);
+            outState.putStringArrayList(getString(R.string.bundle_category_id_list),categoryIdList);
+            outState.putIntegerArrayList(getString(R.string.bundle_category_route_count_list), categoryRouteCountList);
+            outState.putStringArrayList(getString(R.string.bundle_route_name_list), routeNameList);
+            outState.putStringArrayList(getString(R.string.bundle_route_id_list), routeIdList);
+            outState.putStringArrayList(getString(R.string.bundle_route_score_list), routeScoreList);
+            outState.putByteArray(getString(R.string.bundle_category_finalize_list), categoryFinalizeArray);
+            outState.putStringArrayList(getString(R.string.bundle_category_start_list), categoryStartList);
+            outState.putStringArrayList(getString(R.string.bundle_category_end_list), categoryEndList);
+        }
+
+        outState.putInt(getString(R.string.bundle_route_state), mState.getValue());
+    }
+
+    @Override
+    public void onStop(){
+        spiceManager.shouldStop();
+        super.onStop();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mToActivityMethod = null;
     }
 
     /**
@@ -281,142 +343,85 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
     private void updateUI(){
         switch (mState){
             case START:
-                showRetryButton(false);
-                showProgressBar(true);
-                showProgressForm(true);
+                mSwipeLayout.setRefreshing(true);
+                showCategoryRequestForm(false);
                 showSpinnerForm(false);
                 showReplaceForm(false);
+                showProgressForm(false);
                 break;
-            case NO_CATEGORIES:
-                showRetryButton(false);
-                showProgressBar(true);
-                updateStatusText(R.string.route_fragment_status_no_categories);
-                showProgressForm(true);
+            case CATEGORY_FAIL:
+                mSwipeLayout.setRefreshing(false);
+                showCategoryRetryButton(true);
+                // Display status message implicitly.
+                showCategoryRequestForm(true);
                 showSpinnerForm(false);
                 showReplaceForm(false);
-                break;
-            case HAS_CATEGORIES:
-                showRetryButton(false);
-                showProgressBar(true);
-                updateStatusText(R.string.route_fragment_status_has_categories);
-                showProgressForm(true);
-                showSpinnerForm(false);
-                showReplaceForm(false);
-                break;
-            case VERIFY_SIGNATURE:
-                showRetryButton(false);
-                showProgressBar(true);
-                updateStatusText(R.string.route_fragment_status_verify_signature);
-                showProgressForm(true);
-                showSpinnerForm(false);
-                showReplaceForm(false);
-                break;
-            case VERIFY_SIGNATURE_FAIL:
-                showRetryButton(true);
-                showProgressBar(false);
-                updateStatusText(R.string.route_fragment_status_signature_fail);
-                showProgressForm(true);
-                showSpinnerForm(false);
-                showReplaceForm(false);
-                break;
-            case SIGNATURE_EXPIRE:
-                showRetryButton(false);
-                showProgressBar(true);
-                updateStatusText(R.string.route_fragment_status_expire);
-                showProgressForm(true);
-                showSpinnerForm(false);
-                showReplaceForm(false);
-                break;
-            case SIGNATURE_NOT_EXPIRE:
-                showRetryButton(false);
-                showProgressBar(true);
-                updateStatusText(R.string.route_fragment_status_not_expire);
-                showProgressForm(true);
-                showSpinnerForm(false);
-                showReplaceForm(false);
-                break;
-            case REQUEST_CATEGORIES:
-                showRetryButton(false);
-                showProgressBar(true);
-                updateStatusText(R.string.route_fragment_status_request_category);
-                showProgressForm(true);
-                showSpinnerForm(false);
-                showReplaceForm(false);
-                break;
-            case REQUEST_CATEGORIES_FAIL:
-                showRetryButton(true);
-                showProgressBar(false);
-                updateStatusText(R.string.login_activity_categories_fail);
-                showProgressForm(true);
-                showSpinnerForm(false);
-                showReplaceForm(false);
-                break;
-            case CATEGORIES_READY:
-                showRetryButton(false);
-                showProgressBar(true);
-                updateStatusText(R.string.route_fragment_status_ready);
-                showProgressForm(true);
-                showSpinnerForm(false);
-                showReplaceForm(false);
+                showProgressForm(false);
                 break;
             case PICKING:
+                mSwipeLayout.setRefreshing(false);
+                showCategoryRequestForm(false);
                 initHelloText();
-                enableRouteSpinner(false);
+                // Displaying of which item in spinner is done elsewhere.
                 showSpinnerForm(true);
                 showReplaceForm(false);
                 showProgressForm(false);
-                enableNextButtonIfPossible(true);
                 break;
-            case IN_FIRST_REQUEST:
-                showSpinnerForm(true);
+            case VERIFYING_1:
+                mSwipeLayout.setRefreshing(false);
+                showCategoryRequestForm(false);
+                showSpinnerForm(false);
                 showReplaceForm(false);
-                updateStatusText(R.string.route_fragment_status_report_in);
+                // Display status message implicitly.
+                showProgressBar(true);
                 showRetryButton(false);
+                showProgressForm(true);
+                break;
+            case VERIFY_1_NOT_OK:
+                mSwipeLayout.setRefreshing(false);
+                showCategoryRequestForm(false);
+                showSpinnerForm(false);
+                // Display replace message implicitly. Update is done elsewhere.
+                showReplaceForm(true);
+                showProgressForm(false);
+                break;
+            case VERIFY_1_FAIL:
+                mSwipeLayout.setRefreshing(false);
+                showCategoryRequestForm(false);
+                showSpinnerForm(false);
+                showReplaceForm(false);
+                // Display status message implicitly.
+                showProgressBar(false);
+                showRetryButton(true);
+                showProgressForm(true);
+                break;
+            case VERIFYING_2:
+                mSwipeLayout.setRefreshing(false);
+                showCategoryRequestForm(false);
+                showSpinnerForm(false);
+                showReplaceForm(false);
+                // Display status message implicitly.
                 showProgressBar(true);
                 showProgressForm(true);
-                enableNextButtonIfPossible(false);
                 break;
-            case FIRST_REQUEST_FAILED:
-                showSpinnerForm(true);
+            case VERIFYING_2_FAIL:
+                mSwipeLayout.setRefreshing(false);
+                showCategoryRequestForm(false);
+                showSpinnerForm(false);
                 showReplaceForm(false);
-                updateStatusText(R.string.route_fragment_status_report_in_fail);
-                showRetryButton(false);
+                // Display status message implicitly.
                 showProgressBar(false);
+                showRetryButton(true);
                 showProgressForm(true);
-                enableNextButtonIfPossible(true);
                 break;
-            case REPLACE_QUESTION:
+            case ALL_OK:
+                mSwipeLayout.setRefreshing(false);
+                showCategoryRequestForm(false);
                 showSpinnerForm(false);
-                updateReplaceText();
-                showReplaceForm(true);
-                showProgressForm(false);
-                enableYesNo(true);
-                break;
-            case IN_SECOND_REQUEST:
-                showSpinnerForm(false);
-                updateReplaceText();
-                showReplaceForm(true);
-                updateStatusText(R.string.route_fragment_status_report_in);
-                showRetryButton(false);
-                showProgressBar(true);
-                showProgressForm(true);
-                enableYesNo(false);
-                break;
-            case SECOND_REQUEST_FAILED:
-                showSpinnerForm(false);
-                updateReplaceText();
-                showReplaceForm(true);
-                updateStatusText(R.string.route_fragment_status_report_in_fail);
-                showRetryButton(false);
-                showProgressBar(false);
-                showProgressForm(true);
-                enableYesNo(true);
-                break;
-            case JUDGE_OK:
-                showSpinnerForm(true);
                 showReplaceForm(false);
+                // Display status message implicitly.
+                showProgressBar(false);
                 showProgressForm(false);
-                enableNextButtonIfPossible(false);
                 break;
             default:
                 break;
@@ -432,129 +437,99 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
 
         switch (mState){
             case START:
-                if(categoryInfo == null)
-                    changeState(State.NO_CATEGORIES);
-                else
-                    changeState(State.HAS_CATEGORIES);
+                categoryAdapter = null;
+                routeAdapter = null;
+                CategoriesRequest mCategoriesRequest = new CategoriesRequest(mUser.getUserId(),
+                        mUser.getAuthToken(), getActivity());
+                spiceManager.execute(mCategoriesRequest, new CategoriesRequestListener());
                 break;
-            case NO_CATEGORIES:
-                changeState(State.REQUEST_CATEGORIES);
-                break;
-            case HAS_CATEGORIES:
-                if(((FragmentToActivityMethods)getActivity()).isOfflineMode()) {
-                    changeState(State.CATEGORIES_READY);
-                }
-                else{
-                    changeState(State.VERIFY_SIGNATURE);
-                }
-                break;
-            case VERIFY_SIGNATURE:
-                CategoriesHeadRequest mCategoriesHeadRequest =
-                        new CategoriesHeadRequest(mUser.getUserId(),
-                                mUser.getAuthToken(), getActivity());
-
-                ((FragmentToActivityMethods) getActivity()).getSpiceManager().
-                        execute(mCategoriesHeadRequest, new CategoriesHeadRequestListener());
-                break;
-            case VERIFY_SIGNATURE_FAIL:
-                break;
-            case SIGNATURE_EXPIRE:
-                changeState(State.REQUEST_CATEGORIES);
-                break;
-            case SIGNATURE_NOT_EXPIRE:
-                changeState(State.CATEGORIES_READY);
-                break;
-            case REQUEST_CATEGORIES:
-                shouldState = State.PICKING;
-
-                CategoriesRequest mCategoriesRequest =
-                        new CategoriesRequest(mUser.getUserId(),
-                                mUser.getAuthToken(), getActivity());
-
-                ((FragmentToActivityMethods) getActivity()).getSpiceManager().
-                        execute(mCategoriesRequest, new CategoriesRequestListener());
-                break;
-            case REQUEST_CATEGORIES_FAIL:
-                break;
-            case CATEGORIES_READY:
-                String categoryHint = getString(R.string.route_fragment_category_hint);
-                String routeHint = getString(R.string.route_fragment_route_hint);
-
-                categoryAdapter = new HintableArrayAdapter(getActivity(),
-                        android.R.layout.simple_spinner_item,
-                        categoryInfo.getCategoriesSpinnerListCopy(categoryHint, routeHint));
-                categoryAdapter.setDropDownViewResource(
-                        android.R.layout.simple_spinner_dropdown_item);
-                mCategorySpinner.setAdapter(categoryAdapter);
-                mCategorySpinner.setOnItemSelectedListener(new CategoriesSpinnerListener());
-
-                routeAdapter = new HintableArrayAdapter(getActivity(),
-                        android.R.layout.simple_spinner_item,
-                        categoryInfo.getCategorySpinnerItem(0).getRoutes());
-                routeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                mRouteSpinner.setAdapter(routeAdapter);
-                mRouteSpinner.setOnItemSelectedListener(new RouteSpinnerListener());
-
-                changeState(shouldState);
+            case CATEGORY_FAIL:
                 break;
             case PICKING:
+                if(categoryAdapter == null || routeAdapter == null){
+                    String categoryHint = getString(R.string.route_fragment_category_hint);
+                    String routeHint = getString(R.string.route_fragment_route_hint);
 
+                    List<HintableSpinnerItem> categoryList = categoryInfo.getCategoriesSpinnerListCopy(categoryHint, routeHint);
+                    categoryAdapter = new HintableArrayAdapter(getActivity(),
+                            android.R.layout.simple_spinner_item, categoryList);
+
+                    List<HintableSpinnerItem> routeList = ((Categories.CategoryItem) (categoryList.get(0))).getRoutes();
+                    routeAdapter = new HintableArrayAdapter(getActivity(), android.R.layout.simple_spinner_item,routeList);
+
+                    categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    routeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                    // Apply the adapter to the spinner
+                    mCategorySpinner.setAdapter(categoryAdapter);
+                    mRouteSpinner.setAdapter(routeAdapter);
+
+                    mCategorySpinner.setOnItemSelectedListener(new CategoriesSpinnerListener());
+                    mRouteSpinner.setOnItemSelectedListener(new RouteSpinnerListener());
+                }
                 break;
-            case IN_FIRST_REQUEST:
+            case VERIFYING_1:
                 selectedCategoryId = ((HintableSpinnerItem) mCategorySpinner.getSelectedItem()).getId();
                 selectedRouteId = ((HintableSpinnerItem) mRouteSpinner.getSelectedItem()).getId();
 
                 ReportRequest mReportRequest1 = new ReportRequest(mUser.getUserId(),
                         mUser.getAuthToken(), selectedCategoryId, selectedRouteId,
                         false, getActivity());
-
-                ((FragmentToActivityMethods)getActivity()).getSpiceManager().execute(
-                        mReportRequest1, new ReportRequestListener());
+                spiceManager.execute(mReportRequest1, new ReportRequestListener());
                 break;
-            case FIRST_REQUEST_OK:
-                changeState(State.JUDGE_OK);
+            case VERIFY_1_NOT_OK:
                 break;
-            case FIRST_REQUEST_NOT_OK:
-                changeState(State.REPLACE_QUESTION);
+            case VERIFY_1_FAIL:
                 break;
-            case FIRST_REQUEST_FAILED:
-                break;
-            case REPLACE_QUESTION:
-                break;
-            case IN_SECOND_REQUEST:
+            case VERIFYING_2:
                 selectedCategoryId = ((HintableSpinnerItem) mCategorySpinner.getSelectedItem()).getId();
                 selectedRouteId = ((HintableSpinnerItem) mRouteSpinner.getSelectedItem()).getId();
 
                 ReportRequest mReportRequest2 = new ReportRequest(mUser.getUserId(),
                         mUser.getAuthToken(), selectedCategoryId, selectedRouteId,
-                        false, getActivity());
-
-                ((FragmentToActivityMethods)getActivity()).getSpiceManager().execute(
-                        mReportRequest2, new ReportRequestListener());
-
+                        true, getActivity());
+                spiceManager.execute(mReportRequest2, new ReportRequestListener());
                 break;
-            case SECOND_REQUEST_OK:
-                changeState(State.JUDGE_OK);
+            case VERIFYING_2_FAIL:
                 break;
-            case SECOND_REQUEST_FAILED:
+            case ALL_OK:
+                // TODO
+                // Call a method to spawn the next tab into existence. use contract method.
+                ((RouteFragmentToActivityMethods) getActivity())
+                        .createAndSwitchToScanFragment(mUser, categoryInfo);
                 break;
-            case JUDGE_OK:
-                ((FragmentToActivityMethods)getActivity()).setUser(mUser);
+            default:
                 break;
         }
     }
 
 
+    /*=========================================================================
+     * UI methods
+     *=======================================================================*/
+    private void showCategoryRequestForm(boolean show){
+        mCategoryForm.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
 
+    private void updateCategoryStatusText(int resId) {
+        mCategoryStatusText.setText(resId);
+    }
 
+    private void showCategoryRetryButton(boolean show) {
+        mCategoryRetryButton.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
 
-    private void showSpinnerForm(boolean show){
+    private void showSpinnerForm(boolean show) {
         mSpinnerForm.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void initHelloText(){
+        String userName = null;
+        if(mUser != null){
+            userName = mUser.getUserName();
+        }
         mHelloText.setText(getActivity().getString(R.string.route_fragment_greeting) +
-                getArguments().getString(getString(R.string.bundle_user_name)) +
+                userName +
                 getActivity().getString(R.string.route_fragment_question));
     }
 
@@ -563,7 +538,7 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
     }
 
     private void enableNextButtonIfPossible(boolean enable){
-        boolean isHint = ((Categories.RouteItem)mRouteSpinner.getSelectedItem()).isHint();
+        boolean isHint = ((Categories.RouteItem) mRouteSpinner.getSelectedItem()).isHint();
         if(!enable)
             mNextButton.setEnabled(false);
         else
@@ -574,7 +549,7 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
         mReplaceForm.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
-    private void updateReplaceText(){
+    private void updateReplaceText(String currentJudge){
         String question = currentJudge+getString(R.string.route_fragment_replace_question1)+
                 ((Categories.CategoryItem)mCategorySpinner.getSelectedItem()).toString()+
                 getString(R.string.route_fragment_replace_question2)+
@@ -584,11 +559,6 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
                 getString(R.string.route_fragment_replace_question4);
 
         mReplaceText.setText(question);
-    }
-
-    private void enableYesNo(boolean enable){
-        mYesButton.setEnabled(enable);
-        mNoButton.setEnabled(enable);
     }
 
     private void showProgressForm(boolean show){
@@ -610,35 +580,9 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
 
 
 
-
-    /**
-     * Listener for CategoriesHeadRequest
-     */
-    private class CategoriesHeadRequestListener implements
-            RequestListener<CategoriesHeadResponseBody> {
-        private final String TAG = CategoriesHeadRequestListener.class.getSimpleName();
-
-        @Override
-        public void onRequestFailure(SpiceException e) {
-            if(mState == State.VERIFY_SIGNATURE)
-                changeState(State.VERIFY_SIGNATURE_FAIL);
-        }
-
-        @Override
-        public void onRequestSuccess(CategoriesHeadResponseBody result) {
-            if(mState == State.VERIFY_SIGNATURE) {
-                String mySignature = categoryInfo.getJSON().getSignature();
-                String serverSignature = result.getSignature();
-                if (mySignature.equals(serverSignature)) {
-                    changeState(State.SIGNATURE_NOT_EXPIRE);
-                }
-                else {
-                    changeState(State.SIGNATURE_EXPIRE);
-                }
-            }
-        }
-    }
-
+    /*=========================================================================
+     * Listener classes
+     *=======================================================================*/
     /**
      * Listener for CategoriesRequest.
      */
@@ -648,15 +592,19 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
 
         @Override
         public void onRequestFailure(SpiceException e) {
-            if(mState == State.REQUEST_CATEGORIES)
-                changeState(State.REQUEST_CATEGORIES_FAIL);
+            mSwipeLayout.setRefreshing(false);
+            if(mState == State.START)
+                updateCategoryStatusText(R.string.route_fragment_status_category_fail);
+                categoryInfo = null;
+                changeState(State.CATEGORY_FAIL);
         }
 
         @Override
         public void onRequestSuccess(CategoriesResponseBody result) {
-            if(mState == State.REQUEST_CATEGORIES) {
+            mSwipeLayout.setRefreshing(false);
+            if(mState == State.START) {
                 categoryInfo = new Categories(result);
-                changeState(State.CATEGORIES_READY);
+                changeState(State.PICKING);
             }
         }
     }
@@ -669,36 +617,36 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
 
         @Override
         public void onRequestFailure(SpiceException e) {
-            if(mState == State.IN_FIRST_REQUEST){
-                changeState(State.FIRST_REQUEST_FAILED);
+            if(mState == State.VERIFYING_1){
+                updateStatusText(R.string.route_fragment_status_report_in_fail);
+                changeState(State.VERIFY_1_FAIL);
             }
-            if(mState == State.IN_SECOND_REQUEST){
-                changeState(State.SECOND_REQUEST_FAILED);
+            if(mState == State.VERIFYING_2){
+                updateStatusText(R.string.route_fragment_status_report_in_fail);
+                changeState(State.VERIFYING_2_FAIL);
             }
         }
 
         @Override
         public void onRequestSuccess(ReportResponseBody result) {
-            currentJudge = result.getAdminName();
+            String currentJudge = result.getAdminName();
 
             if(result.getState() == 1){
-                if(mState == State.IN_FIRST_REQUEST){
+                if(mState == State.VERIFYING_1 || mState == State.VERIFYING_2){
                     mUser.setCategoryId(result.getCategoryId());
                     mUser.setRouteId(result.getRouteId());
-                    changeState(State.FIRST_REQUEST_OK);
-                }
-                else if(mState == State.IN_SECOND_REQUEST){
-                    mUser.setCategoryId(result.getCategoryId());
-                    mUser.setRouteId(result.getRouteId());
-                    changeState(State.SECOND_REQUEST_OK);
+                    changeState(State.ALL_OK);
                 }
             }
             else{
-                if(mState == State.IN_FIRST_REQUEST){
-                    changeState(State.FIRST_REQUEST_NOT_OK);
+                if(mState == State.VERIFYING_1){
+                    updateReplaceText(currentJudge);
+                    changeState(State.VERIFY_1_NOT_OK);
                 }
-                else if(mState == State.IN_SECOND_REQUEST){
-                    changeState(State.SECOND_REQUEST_FAILED);
+                else if(mState == State.VERIFYING_2){
+                    // This should not even happen
+                    updateStatusText(R.string.route_fragment_status_report_in_fail);
+                    changeState(State.VERIFYING_2_FAIL);
                 }
             }
         }
@@ -738,6 +686,10 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
 
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            // onItemSelected will only be called by user using spinner if there is a change in
+            // the selected item (i.e. selecting a different item). Will not be fired by user if
+            // there is no change in selection (e.g. item1 selected -> click spinner ->
+            // select back item1).
             Categories.RouteItem selectedRoute =
                     (Categories.RouteItem)parent.getAdapter().getItem(position);
 
@@ -749,13 +701,19 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
             else{
                 enableNextButtonIfPossible(true);
             }
+
+            // Route selection has changed. Destroy other tabs.
+            mToActivityMethod.destroyOtherTab();
         }
 
         @Override
         public void onNothingSelected(AdapterView<?> parent) {
-
+            Log.v(TAG, "ON NOTHING SELECTED");
         }
     }
+
+
+
 
     /**
      * This interface must be implemented by activities that contain this
@@ -767,38 +725,21 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface FragmentToActivityMethods {
-        public SpiceManager getSpiceManager();
-        public boolean isOfflineMode();
-        public void setUser(User user);
+    public interface RouteFragmentToActivityMethods {
+        public void createAndSwitchToScanFragment(User user, Categories categoriesInfo);
+        public void destroyOtherTab();
     }
 
     private enum State{
         START(0),
-        NO_CATEGORIES(1),
-        HAS_CATEGORIES(2),
-        VERIFY_SIGNATURE(3),
-        VERIFY_SIGNATURE_FAIL(4),
-        //REQUEST_SIGNATURE_NOT_OK(5),
-        //REQUEST_SIGNATURE_OK(6),
-        SIGNATURE_EXPIRE(7),
-        SIGNATURE_NOT_EXPIRE(8),
-        REQUEST_CATEGORIES(9),
-        REQUEST_CATEGORIES_FAIL(10),
-        //REQUEST_CATEGORIES_NOT_OK(11),
-        //REQUEST_CATEGORIES_OK(12),
-        CATEGORIES_READY(13),
-        PICKING(14),                // Picking category and route. Can stay in this state.
-        IN_FIRST_REQUEST(15),       // Sending request to be judge. Force=false.
-        FIRST_REQUEST_OK(16),       // CRIMP server reply ok.
-        FIRST_REQUEST_NOT_OK(17),   // CRIMP server reply not ok.
-        FIRST_REQUEST_FAILED(18),   // No/unknown response from CRIMP server.
-        REPLACE_QUESTION(19),       // Ask user to force replace. Can stay in this state.
-        IN_SECOND_REQUEST(20),      // Sending request to be judge. Force=true.
-        SECOND_REQUEST_OK(21),      // CRIMP server reply ok.
-        //SECOND_REQUEST_NOT_OK(22),  // CRIMP server reply not ok.
-        SECOND_REQUEST_FAILED(23),  // No/unknown response from CRIMP server.
-        JUDGE_OK(24);              // User become judge. Can stay in this state.
+        CATEGORY_FAIL(1),
+        PICKING(2),
+        VERIFYING_1(3),
+        VERIFY_1_NOT_OK(4),
+        VERIFY_1_FAIL(5),
+        VERIFYING_2(6),
+        VERIFYING_2_FAIL(7),
+        ALL_OK(8);
 
         private final int value;
 
@@ -815,53 +756,21 @@ public class RouteFragment extends Fragment implements View.OnClickListener{
                 case 0:
                     return START;
                 case 1:
-                    return NO_CATEGORIES;
+                    return CATEGORY_FAIL;
                 case 2:
-                    return HAS_CATEGORIES;
-                case 3:
-                    return VERIFY_SIGNATURE;
-                case 4:
-                    return VERIFY_SIGNATURE_FAIL;
-                case 5:
-                    return null;
-                //case 6:
-                //    return REQUEST_SIGNATURE_OK;
-                case 7:
-                    return SIGNATURE_EXPIRE;
-                case 8:
-                    return SIGNATURE_NOT_EXPIRE;
-                case 9:
-                    return REQUEST_CATEGORIES;
-                case 10:
-                    return REQUEST_CATEGORIES_FAIL;
-                case 11:
-                    return null;
-                //case 12:
-                //    return REQUEST_CATEGORIES_OK;
-                case 13:
-                    return CATEGORIES_READY;
-                case 14:
                     return PICKING;
-                case 15:
-                    return IN_FIRST_REQUEST;
-                case 16:
-                    return FIRST_REQUEST_OK;
-                case 17:
-                    return FIRST_REQUEST_NOT_OK;
-                case 18:
-                    return FIRST_REQUEST_FAILED;
-                case 19:
-                    return REPLACE_QUESTION;
-                case 20:
-                    return IN_SECOND_REQUEST;
-                case 21:
-                    return SECOND_REQUEST_OK;
-                //case 22:
-                //    return SECOND_REQUEST_NOT_OK;
-                case 23:
-                    return SECOND_REQUEST_FAILED;
-                case 24:
-                    return JUDGE_OK;
+                case 3:
+                    return VERIFYING_1;
+                case 4:
+                    return VERIFY_1_NOT_OK;
+                case 5:
+                    return VERIFY_1_FAIL;
+                case 6:
+                    return VERIFYING_2;
+                case 7:
+                    return VERIFYING_2_FAIL;
+                case 8:
+                    return ALL_OK;
                 default:
                     return null;
             }

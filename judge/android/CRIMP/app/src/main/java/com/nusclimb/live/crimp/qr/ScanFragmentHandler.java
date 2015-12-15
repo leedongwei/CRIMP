@@ -33,27 +33,18 @@ public class ScanFragmentHandler extends Handler{
         switch (message.what) {
             case R.id.decode_succeeded:
                 Log.d(TAG+".handleMessage()", "ScanFragmentHandler receive msg 'succeed'.");
-                fragment.getCameraManager().stopPreview();
-                fragment.setState(R.id.decode_succeeded);
                 String result = (String) message.obj;
-                fragment.updateStatusView(result);
+                fragment.updateClimberWithScanResult(result);
+                fragment.changeState(ScanFragment.State.NOT_SCANNING);
 
                 // Get instance of Vibrator from current Context
                 Vibrator v = (Vibrator) fragment.getActivity().getSystemService(Context.VIBRATOR_SERVICE);
 
                 // Vibrate for 100 milliseconds
                 v.vibrate(100);
-
-                //TODO should release camera?
                 break;
             case R.id.decode_failed:
-                //TODO maybe need check and start preview.
-                if(fragment.getCameraManager().isPreviewing()){
-                    fragment.getCameraManager().startScan();
-                }
-                else{
-                    Log.w(TAG+".handleMessage()", "ScanFragmentHandler received decode fail msg. Start scan failed due to not previewing." );
-                }
+                fragment.changeState(ScanFragment.State.SCANNING);
                 break;
             default:
                 Log.w(TAG+".handleMessage()", "ScanFragmentHandler received unknown msg.");

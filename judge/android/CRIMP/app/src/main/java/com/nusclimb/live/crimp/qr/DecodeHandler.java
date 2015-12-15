@@ -18,6 +18,8 @@ import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.hello.ScanFragment;
 
 import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -37,13 +39,15 @@ public class DecodeHandler extends Handler{
 
     private final String PREFIX;	// Magic string to check if QR Code is valid
 
-    private final ScanFragment fragment;
+    private Handler mainThreadHandler;
+    private Point previewResolution;	// Size of the previewView
     private final MultiFormatReader multiFormatReader;  // ZXing stuff. For decoding QR code.
     private boolean running;
 
-    DecodeHandler(ScanFragment fragment) {
-        PREFIX = fragment.getActivity().getString(R.string.qr_prefix);
-        this.fragment = fragment;
+    DecodeHandler(Handler mainThreadHandler, String qrPrefix, Point previewResolution) {
+        PREFIX = qrPrefix;
+        this.mainThreadHandler = mainThreadHandler;
+        this.previewResolution = previewResolution;
         running = true;
 
         // Instantiating the decoder.
@@ -91,7 +95,7 @@ public class DecodeHandler extends Handler{
         // Obtained a Result from decoding data.
         long start = System.currentTimeMillis();
         Result rawResult = null;
-        PlanarYUVLuminanceSource source = fragment.getCameraManager().buildLuminanceSource(data, width, height);
+        PlanarYUVLuminanceSource source = buildLuminanceSource(data, width, height);
         if (source != null) {
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             try {
@@ -104,22 +108,21 @@ public class DecodeHandler extends Handler{
         }
 
         // Send a message to fragment, informing of decode outcome.
-        Handler handler = fragment.getHandler();
         if (rawResult != null) {
             // Need to verify the result.
             String result = verifyResult(rawResult.getText());
             long end = System.currentTimeMillis();
             if(result == null){
                 Log.d(TAG+".decode()", "Found non BA2015 result: " + rawResult.getText());
-                if (handler != null) {
-                    Message message = Message.obtain(handler, R.id.decode_failed);
+                if (mainThreadHandler != null) {
+                    Message message = Message.obtain(mainThreadHandler, R.id.decode_failed);
                     message.sendToTarget();
                 }
             }
             else{
                 Log.i(TAG+".decode()", "Found barcode in " + (end - start) + " ms: " + result);
-                if (handler != null) {
-                    Message message = Message.obtain(handler, R.id.decode_succeeded, result);
+                if (mainThreadHandler != null) {
+                    Message message = Message.obtain(mainThreadHandler, R.id.decode_succeeded, result);
                     Bundle bundle = new Bundle();
                     bundleThumbnail(source, bundle);
                     message.setData(bundle);
@@ -128,11 +131,38 @@ public class DecodeHandler extends Handler{
             }
         }
         else {
-            if (handler != null) {
-                Message message = Message.obtain(handler, R.id.decode_failed);
+            if (mainThreadHandler != null) {
+                Message message = Message.obtain(mainThreadHandler, R.id.decode_failed);
                 message.sendToTarget();
             }
         }
+    }
+
+    /**
+     * A factory method to build the appropriate LuminanceSource object based on the format
+     * of the preview buffers, as described by Camera.Parameters.
+     *
+     * @param data A preview frame.
+     * @param width The width of the image.
+     * @param height The height of the image.
+     * @return A PlanarYUVLuminanceSource instance.
+     */
+    private PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
+        int left, right, top, bottom;
+        top = 0;
+        bottom = height;
+        right = width;
+        if(width >= previewResolution.y){
+            left = width - previewResolution.y;
+        }
+        else{
+            left = 0;
+        }
+        Rect rect = new Rect(left, top, right, bottom);
+
+        // Go ahead and assume it's YUV rather than die.
+        return new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,
+                rect.width(), rect.height(), false);
     }
 
     /**

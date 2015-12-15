@@ -8,11 +8,13 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.Profile;
+import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -77,7 +79,7 @@ public class LoginActivity extends Activity {
     }
 
     private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
-    private User mUser = new User();
+    private User mUser = null;
     private State mState;
 
     // UI references.
@@ -90,6 +92,8 @@ public class LoginActivity extends Activity {
 
     // Facebook references.
     private CallbackManager callbackManager;
+    AccessTokenTracker mAccessTokenTracker;
+    ProfileTracker mProfileTracker;
 
     /*=========================================================================
      * Inner class
@@ -110,9 +114,6 @@ public class LoginActivity extends Activity {
             if(mState == State.IN_VERIFYING) {
                 changeState(State.VERIFIED_FAILED);
             }
-            else{
-                return;
-            }
         }
 
         @Override
@@ -125,9 +126,6 @@ public class LoginActivity extends Activity {
                 mUser.setAuthToken(result.getxAuthToken());
 
                 changeState(State.VERIFIED_OK);
-            }
-            else{
-                return;
             }
         }
     }
@@ -194,11 +192,9 @@ public class LoginActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
-        Log.i(TAG, "Facebook login result. resultCode: " + resultCode + ", mState: " + mState);
+        Log.i(TAG, "Facebook login returned. resultCode: " + resultCode + ", mState: " + mState);
 
         if(resultCode == RESULT_OK) {
-            mUser.setFacebookAccessToken(AccessToken.getCurrentAccessToken().getToken());
-            mUser.setUserName(Profile.getCurrentProfile().getName());
             changeState(State.IN_VERIFYING);
         }
         else{
@@ -215,7 +211,6 @@ public class LoginActivity extends Activity {
      * Method to control which UI element is visible at different state.
      */
     private void updateUI(){
-        Log.v(TAG, "Update UI. mState: " + mState);
         String responseText;
 
         switch (mState) {
@@ -252,7 +247,6 @@ public class LoginActivity extends Activity {
      * Method to control what is performed at different state.
      */
     private void doVerification(){
-        Log.v(TAG + ".doVerification()", "mState:" + mState);
         switch (mState){
             case NOT_LOGIN:
                 // Try to logout of facebook
@@ -260,10 +254,48 @@ public class LoginActivity extends Activity {
                 mUser.clearAll();
                 break;
             case IN_VERIFYING:
-                mUser.clearAll();
-                mUser.setUserName(Profile.getCurrentProfile().getName());
-                mUser.setFacebookAccessToken(AccessToken.getCurrentAccessToken().getToken());
+                if(AccessToken.getCurrentAccessToken() == null){
+                    // AccessToken not ready yet. Set up tracker to wait for access token.
+                    if(mAccessTokenTracker == null) {
+                        mAccessTokenTracker = new AccessTokenTracker() {
+                            @Override
+                            protected void onCurrentAccessTokenChanged(AccessToken accessToken, AccessToken accessToken1) {
+                                stopTracking();
+                                Log.v(TAG, "TOKEN CHANGED. NEW TOKEN=" + accessToken1.getToken());
+                                changeState(State.IN_VERIFYING);
+                            }
+                        };
+                    }
+                    if(!mAccessTokenTracker.isTracking()){
+                        mAccessTokenTracker.startTracking();
+                        Log.v(TAG, "TOKEN NOT READY. WE START TRACKING");
+                    }
+                    break;
+                }
 
+                if(Profile.getCurrentProfile() == null){
+                    //Profile not ready yet. Set up tracker to wait for profile.
+                    if(mProfileTracker == null){
+                        mProfileTracker = new ProfileTracker() {
+                            @Override
+                            protected void onCurrentProfileChanged(Profile profile, Profile profile1) {
+                                stopTracking();
+                                Log.v(TAG, "PROFILE CHANGED. NEW PROFILE="+profile1.getName());
+                                changeState(State.IN_VERIFYING);
+                            }
+                        };
+                    }
+                    if(!mProfileTracker.isTracking()){
+                        mProfileTracker.startTracking();
+                        Log.v(TAG, "PROFILE NOT READY. WE START TRACKING");
+                    }
+                    break;
+                }
+
+                Log.v(TAG, "IN_VERIFYING. NAME="+Profile.getCurrentProfile().getName()
+                        +" TOKEN="+AccessToken.getCurrentAccessToken().getToken());
+                mUser.setFacebookAccessToken(AccessToken.getCurrentAccessToken().getToken());
+                mUser.setUserName(Profile.getCurrentProfile().getName());
                 LoginRequest mLoginRequest = new LoginRequest(mUser.getFacebookAccessToken(), this);
                 spiceManager.execute(mLoginRequest, new LoginRequestListener());
                 break;
@@ -293,6 +325,10 @@ public class LoginActivity extends Activity {
      * Method to launch the next activity.
      */
     private void launchHelloActivity(){
+        Log.v(TAG, "Launching HelloActivity. userId="+mUser.getUserId()
+        +" authToken="+mUser.getAuthToken()+" userName="+ mUser.getUserName()
+        +" accessToken="+mUser.getFacebookAccessToken());
+
         Bundle mBundle = new Bundle();
         mBundle.putString(getString(R.string.bundle_x_user_id), mUser.getUserId());
         mBundle.putString(getString(R.string.bundle_x_auth_token), mUser.getAuthToken());
@@ -350,24 +386,22 @@ public class LoginActivity extends Activity {
         if(savedInstanceState != null){
             mState = State.toEnum(savedInstanceState.getInt(
                     getString(R.string.bundle_login_state)));
-            switch (mState) {
-                // Deliberate fall through
-                case VERIFIED_OK:
-                    mUser.setUserId(savedInstanceState.getString(
-                            getString(R.string.bundle_x_user_id)));
-                    mUser.setAuthToken(savedInstanceState.getString(
-                            getString(R.string.bundle_x_auth_token)));
-                case VERIFIED_FAILED:
-                case IN_VERIFYING:
-                    mUser.setUserName(savedInstanceState.getString(
-                            getString(R.string.bundle_user_name)));
-                    mUser.setFacebookAccessToken(savedInstanceState.getString(
-                            getString(R.string.bundle_access_token)));
-                    break;
-            }
+
+            if(mUser == null)
+                mUser = new User();
+            mUser.setUserId(savedInstanceState.getString(
+                    getString(R.string.bundle_x_user_id)));
+            mUser.setAuthToken(savedInstanceState.getString(
+                    getString(R.string.bundle_x_auth_token)));
+            mUser.setUserName(savedInstanceState.getString(
+                    getString(R.string.bundle_user_name)));
+            mUser.setFacebookAccessToken(savedInstanceState.getString(
+                    getString(R.string.bundle_access_token)));
         }
         else{
             mState = State.NOT_LOGIN;
+            if(mUser == null)
+                mUser = new User();
         }
         Log.v(TAG, "mState at end of onCreate:" + mState);
     }
@@ -381,20 +415,7 @@ public class LoginActivity extends Activity {
     @Override
     protected void onResume(){
         super.onResume();
-        switch(mState){
-            case VERIFIED_OK:
-                changeState(State.VERIFIED_OK);
-                break;
-            case VERIFIED_FAILED:
-                changeState(State.VERIFIED_FAILED);
-                break;
-            case IN_VERIFYING:
-                changeState(State.IN_VERIFYING);
-                break;
-            case NOT_LOGIN:
-                changeState(State.NOT_LOGIN);
-                break;
-        }
+        changeState(mState);
     }
 
     @Override
@@ -407,18 +428,11 @@ public class LoginActivity extends Activity {
     protected void onSaveInstanceState (Bundle outState){
         super.onSaveInstanceState(outState);
 
-        switch (mState){
-            case VERIFIED_OK:
-                outState.putString(getString(R.string.bundle_x_user_id), mUser.getUserId());
-                outState.putString(getString(R.string.bundle_x_auth_token), mUser.getAuthToken());
-            case IN_VERIFYING:
-            case VERIFIED_FAILED:
-                outState.putString(getString(R.string.bundle_access_token), mUser.getFacebookAccessToken());
-                outState.putString(getString(R.string.bundle_user_name), mUser.getUserName());
-            case NOT_LOGIN:
-                outState.putInt(getString(R.string.bundle_login_state), mState.getValue());
-                break;
-        }
+        outState.putInt(getString(R.string.bundle_login_state), mState.getValue());
+        outState.putString(getString(R.string.bundle_x_user_id), mUser.getUserId());
+        outState.putString(getString(R.string.bundle_x_auth_token), mUser.getAuthToken());
+        outState.putString(getString(R.string.bundle_access_token), mUser.getFacebookAccessToken());
+        outState.putString(getString(R.string.bundle_user_name), mUser.getUserName());
 
         Log.v(TAG, "mState at end of onSaveInstanceState:" + mState);
     }
