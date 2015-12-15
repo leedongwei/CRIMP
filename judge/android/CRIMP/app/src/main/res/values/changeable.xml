@@ -5,4 +5,9 @@
     <string name="crimp_production">"http://live.nusclimb.com"</string>
     <string name="crimp_staging">"http://live.nusclimb.com"</string>
     <bool name="is_production_app">false</bool>
+
+    <!-- QR Code prefix -->
+    <string name="qr_prefix">&lt;BA2015&gt;</string>
+
+    <bool name="is_debug">true</bool>
 </resources>

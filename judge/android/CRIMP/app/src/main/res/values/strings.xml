@@ -3,9 +3,6 @@
     <string name="package_name">com.nusclimb.live</string>
     <string name="categories_file">categories_file</string>
 
-    <!-- QR Code prefix -->
-    <string name="qr_prefix">&lt;BA2015&gt;</string>
-
     <!-- Facebook stuff -->
     <string name="facebook_app_id">1448790512098965</string>
 
@@ -13,10 +10,9 @@
     <string name="login_api">/api/judge/login</string>
     <string name="report_api">/api/judge/report</string>
     <string name="helpme_api">/api/judge/helpme</string>
-    <string name="categorieshead_api">/api/judge/categories_head</string>
     <string name="categories_api">/api/judge/categories</string>
-    <string name="climbers_api">/api/judge/climbers/</string>
-    <string name="activeclimbers_api">/api/judge/activeclimbers</string>
+    <string name="climber_api">/api/judge/climber/</string>
+    <string name="activemonitor_api">/api/judge/activemonitor</string>
     <string name="get_score_api">/api/judge/score/</string>
     <string name="post_score_api">/api/judge/score/</string>
 
@@ -45,18 +41,10 @@
     <string name="route_fragment_yes">Yes</string>
     <string name="route_fragment_no">No</string>
     <string name="route_fragment_retry">Retry</string>
-    <string name="route_fragment_status_no_categories">No categories information</string>
-    <string name="route_fragment_status_has_categories">Categories information found</string>
-    <string name="route_fragment_status_verify_signature">Verifying categories signature…</string>
-    <string name="route_fragment_status_expire">Categories information outdated</string>
-    <string name="route_fragment_status_not_expire">Categories information is up to date</string>
-    <string name="route_fragment_status_signature_fail">No/Wrong response from server.</string>
-    <string name="route_fragment_status_request_category">Requesting categories information…</string>
-    <string name="route_fragment_status_category_ok">Categories information received</string>
     <string name="route_fragment_status_category_fail">Fail to get categories information</string>
-    <string name="route_fragment_status_ready">Done!</string>
+    <string name="route_fragment_status_report_in_fail">No/Wrong response from server.</string>
     <string name="route_fragment_status_report_in">Judge reporting in…</string>
-    <string name="route_fragment_status_report_in_fail">No/Wrong response from server. Retrying…</string>
+
 
     <!-- Scan Fragment UI -->
     <string name="scan_fragment_climberid">"Climber ID"</string>
@@ -64,6 +52,8 @@
     <string name="scan_fragment_rescan">Rescan</string>
     <string name="scan_fragment_flash">Flash</string>
     <string name="scan_fragment_next">Next</string>
+
+    <!-- Score Fragment UI -->
 
 
     <!-- UploadList Activity UI -->
@@ -84,31 +74,42 @@
 
 
 
-    <!-- Bundle Key -->
-    <string name="bundle_x_user_id">bundle_xuserid</string>
-    <string name="bundle_x_auth_token">bundle_xauthtoken</string>
+    <!-- User Bundle Key -->
     <string name="bundle_access_token">bundle_access_token</string>
     <string name="bundle_user_name">bundle_user_name</string>
-    <string name="bundle_login_state">bundle_login_state</string>
-    
-    
-    
-    
-    
-    
-    
-    
-    <string name="bundle_category_id_list">bundle_categoryidlist</string>
-    <string name="bundle_category_name_list">bundle_categorynamelist</string>
-    <string name="bundle_category_route_count_list">bundle_categoryroutecountlist</string>
-    <string name="bundle_category_spinner_selection">bundle_categoryspinnerselection</string>
-    <string name="bundle_route_spinner_selection">bundle_routespinnerselection</string>
-    <string name="bundle_route_state">bundle_routestate</string>
+    <string name="bundle_x_user_id">bundle_xuserid</string>
+    <string name="bundle_x_auth_token">bundle_xauthtoken</string>
+    <string name="bundle_category_id">bundle_categoryid</string>
     <string name="bundle_route_id">bundle_routeid</string>
-    <string name="bundle_category_full_name">bundle_categoryfullname</string>
-    <string name="bundle_route_full_name">bundle_routefullname</string>
+
+    <!-- Categories Bundle Key -->
+    <string name="bundle_category_name_list">bundle_categorynamelist</string>
+    <string name="bundle_category_id_list">bundle_categoryidlist</string>
+    <string name="bundle_category_route_count_list">bundle_categoryroutecountlist</string>
+    <string name="bundle_route_name_list">bundle_routenamelist</string>
+    <string name="bundle_route_id_list">bundle_routeidlist</string>
+    <string name="bundle_route_score_list">bundle_routescorelist</string>
+    <string name="bundle_category_finalize_list">bundle_categoryfinalizelist</string>
+    <string name="bundle_category_start_list">bundle_categorystartlist</string>
+    <string name="bundle_category_end_list">bundle_categoryendlist</string>
+
+    <!-- Climber Bundle Key -->
     <string name="bundle_climber_id">bundle_climberid</string>
     <string name="bundle_climber_name">bundle_climbername</string>
+    <string name="bundle_total_score">bundle_totalscore</string>
+
+    <!-- Fragment/Activity State -->
+    <string name="bundle_login_state">bundle_login_state</string>
+    <string name="bundle_route_state">bundle_routestate</string>
+    <string name="bundle_scan_state">bundle_scanstate</string>
+    <string name="bundle_score_state">bundle_scorestate</string>
+    
+
+
+    <string name="bundle_category_spinner_selection">bundle_categoryspinnerselection</string>
+    <string name="bundle_route_spinner_selection">bundle_routespinnerselection</string>
+    <string name="bundle_category_full_name">bundle_categoryfullname</string>
+    <string name="bundle_route_full_name">bundle_routefullname</string>
     <string name="bundle_decode_state">bundle_decodestate</string>
     <string name="bundle_current_judge">bundle_currentjudge</string>
     <string name="bundle_tab_count">bundle_tabcount</string>
