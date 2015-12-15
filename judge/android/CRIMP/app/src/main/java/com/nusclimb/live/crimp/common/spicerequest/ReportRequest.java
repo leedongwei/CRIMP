@@ -22,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>{
     private static final String TAG = ReportRequest.class.getSimpleName();
 
+    private Context context;
     private String xUserId;
     private String xAuthToken;
     private String categoryId;
@@ -37,36 +38,46 @@ public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>
         this.categoryId = categoryId;
         this.routeId = routeId;
         this.force = force;
+        this.context = context;
 
-        url = context.getString(R.string.crimp_url)+context.getString(R.string.report_api);
+        boolean isProductionApp = context.getResources().getBoolean(R.bool.is_production_app);
+        if(isProductionApp)
+            this.url = context.getString(R.string.crimp_production)+context.getString(R.string.report_api);
+        else
+            this.url = context.getString(R.string.crimp_staging)+context.getString(R.string.report_api);
     }
 
     @Override
     public ReportResponseBody loadDataFromNetwork() throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Cache-Control", "no-cache");
-        headers.set("x-user-id", xUserId);
-        headers.set("x-auth-token", xAuthToken);
+        if(context.getResources().getBoolean(R.bool.is_debug)){
+            ReportResponseBody response = new ReportResponseBody();
+            response.setCategoryId(xUserId);
+            response.setAdminName("xusername");
+            response.setCategoryId(categoryId);
+            response.setRouteId(routeId);
+            if(force)
+                response.setState(1);
+            else
+                response.setState(0);
 
-        HttpBody body = new HttpBody(categoryId, routeId, force);
-        HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
+            return response;
+        }
+        else {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Cache-Control", "no-cache");
+            headers.set("x-user-id", xUserId);
+            headers.set("x-auth-token", xAuthToken);
 
-        RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<ReportResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,
-                request, ReportResponseBody.class);
+            HttpBody body = new HttpBody(categoryId, routeId, force);
+            HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
 
-        return response.getBody();
-    }
+            RestTemplate mRestTemplate = getRestTemplate();
+            ResponseEntity<ReportResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,
+                    request, ReportResponseBody.class);
 
-    /**
-     * Create a cache key for this request. Cache key will allow us to
-     * cancel/aggregate/cache this request.
-     *
-     * @return Cache key for this request.
-     */
-    public String createCacheKey() {
-        return xUserId+categoryId+routeId+force;
+            return response.getBody();
+        }
     }
 
     /**

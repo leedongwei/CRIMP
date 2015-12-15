@@ -22,11 +22,11 @@ import org.springframework.web.client.RestTemplate;
 public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponseBody>{
     private static final String TAG = HelpMeRequest.class.getSimpleName();
 
+    private Context context;
     private String xUserId;
     private String xAuthToken;
     private String categoryId;
     private String routeId;
-
     private String url;
 
     public HelpMeRequest(String xUserId, String xAuthToken, String categoryId,
@@ -36,26 +36,37 @@ public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponseBody>
         this.xAuthToken = xAuthToken;
         this.categoryId = categoryId;
         this.routeId = routeId;
+        this.context = context;
 
-        url = context.getString(R.string.crimp_url)+context.getString(R.string.helpme_api);
+        boolean isProductionApp = context.getResources().getBoolean(R.bool.is_production_app);
+        if(isProductionApp)
+            this.url = context.getString(R.string.crimp_production)+context.getString(R.string.helpme_api);
+        else
+            this.url = context.getString(R.string.crimp_staging)+context.getString(R.string.helpme_api);
     }
 
     @Override
     public HelpMeResponseBody loadDataFromNetwork() throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Cache-Control", "no-cache");
-        headers.set("x-user-id", xUserId);
-        headers.set("x-auth-token", xAuthToken);
+        if(context.getResources().getBoolean(R.bool.is_debug)){
+            HelpMeResponseBody response = new HelpMeResponseBody();
+            return response;
+        }
+        else{
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Cache-Control", "no-cache");
+            headers.set("x-user-id", xUserId);
+            headers.set("x-auth-token", xAuthToken);
 
-        HttpBody body = new HttpBody(categoryId, routeId);
-        HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
+            HttpBody body = new HttpBody(categoryId, routeId);
+            HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
 
-        RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<HelpMeResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,
-                request, HelpMeResponseBody.class);
+            RestTemplate mRestTemplate = getRestTemplate();
+            ResponseEntity<HelpMeResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,
+                    request, HelpMeResponseBody.class);
 
-        return response.getBody();
+            return response.getBody();
+        }
     }
 
     /**

@@ -64,7 +64,7 @@ public class UploadEditActivity extends Activity{
                         element.getRequest().setxAuthToken(xAuthToken);
                         element.getRequest().setClimberId(cid);
                         element.getRequest().setRouteId(rid);
-                        element.getRequest().setScore(score);
+                        element.getRequest().setScoreString(score);
 
                         // Navigate up from this activity.
                         NavUtils.navigateUpFromSameTask(UploadEditActivity.this);

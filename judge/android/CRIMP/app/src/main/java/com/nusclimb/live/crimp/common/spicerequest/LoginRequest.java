@@ -1,6 +1,7 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.json.LoginResponseBody;
@@ -22,12 +23,14 @@ import org.springframework.web.client.RestTemplate;
 public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponseBody> {
     private static final String TAG = LoginRequest.class.getSimpleName();
 
+    private Context context;
     private String accessToken;
     private boolean isProductionApp;
     private String url;
 
     public LoginRequest(String accessToken, Context context) {
         super(LoginResponseBody.class);
+        this.context = context;
         this.accessToken = accessToken;
         this.isProductionApp = context.getResources().getBoolean(R.bool.is_production_app);
         if(this.isProductionApp)
@@ -39,18 +42,27 @@ public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponseBody> {
 
     @Override
     public LoginResponseBody loadDataFromNetwork() throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Cache-Control", "no-cache");
+        if(context.getResources().getBoolean(R.bool.is_debug)){
+            LoginResponseBody response = new LoginResponseBody();
+            response.setxUserId("debuguserid");
+            response.setxAuthToken("debugauthtoken");
 
-        HttpBody body = new HttpBody(accessToken, isProductionApp);
-        HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
+            return response;
+        }
+        else{
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Cache-Control", "no-cache");
 
-        RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<LoginResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,
-                request, LoginResponseBody.class);
+            HttpBody body = new HttpBody(accessToken, isProductionApp);
+            HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
 
-        return response.getBody();
+            RestTemplate mRestTemplate = getRestTemplate();
+            ResponseEntity<LoginResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,
+                    request, LoginResponseBody.class);
+
+            return response.getBody();
+        }
     }
 
     /**

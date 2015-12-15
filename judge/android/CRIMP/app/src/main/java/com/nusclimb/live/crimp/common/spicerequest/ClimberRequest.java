@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 public class ClimberRequest extends SpringAndroidSpiceRequest<ClimberResponseBody> {
     private static final String TAG = ClimberRequest.class.getSimpleName();
 
+    private Context context;
     private String xUserId;
     private String xAuthToken;
     private String climberId;
@@ -31,36 +32,41 @@ public class ClimberRequest extends SpringAndroidSpiceRequest<ClimberResponseBod
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
         this.climberId = climberId;
+        this.context = context;
 
-        url = context.getString(R.string.crimp_url)+context.getString(R.string.climber_api)
-                +climberId;
+        if(context.getResources().getBoolean(R.bool.is_production_app)) {
+            this.url = context.getString(R.string.crimp_production) + context.getString(R.string.climber_api)
+                    + climberId;
+        }
+        else {
+            this.url = context.getString(R.string.crimp_staging) + context.getString(R.string.climber_api)
+                    + climberId;
+        }
     }
 
     @Override
     public ClimberResponseBody loadDataFromNetwork() throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Cache-Control", "no-cache");
-        headers.set("x-user-id", xUserId);
-        headers.set("x-auth-token", xAuthToken);
+        if(context.getResources().getBoolean(R.bool.is_debug)){
+            ClimberResponseBody response = new ClimberResponseBody();
+            response.setClimberId(climberId);
+            response.setClimberName("climbername");
+            response.setTotalScore("totalscore");
+            return response;
+        }
+        else {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Cache-Control", "no-cache");
+            headers.set("x-user-id", xUserId);
+            headers.set("x-auth-token", xAuthToken);
 
-        HttpEntity request = new HttpEntity(headers);
+            HttpEntity request = new HttpEntity(headers);
 
-        RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<ClimberResponseBody> response = mRestTemplate.exchange(url,
-                HttpMethod.GET, request, ClimberResponseBody.class);
+            RestTemplate mRestTemplate = getRestTemplate();
+            ResponseEntity<ClimberResponseBody> response = mRestTemplate.exchange(url,
+                    HttpMethod.GET, request, ClimberResponseBody.class);
 
-        return response.getBody();
+            return response.getBody();
+        }
     }
-
-    /**
-     * Create a cache key for this request. Cache key will allow us to
-     * cancel/aggregate/cache this request.
-     *
-     * @return Cache key for this request.
-     */
-    public String createCacheKey() {
-        return climberId;
-    }
-
 }

@@ -80,7 +80,7 @@ public class UploadListActivity extends ListActivity {
                     (element.getStatus() == UploadStatus.ERROR_UPLOAD) ){
                 String packageName = getString(R.string.package_name);
 
-                // Preparing to start QRScanActivity
+                // Preparing to start UploadEditActivity
                 Intent intent = new Intent(this, UploadEditActivity.class);
                 intent.putExtra(getString(R.string.intent_x_user_id),
                         element.getRequest().getxUserId());
@@ -91,7 +91,7 @@ public class UploadListActivity extends ListActivity {
                 intent.putExtra(getString(R.string.intent_rid),
                         element.getRequest().getRouteId());
                 intent.putExtra(getString(R.string.intent_score),
-                        element.getRequest().getScore());
+                        element.getRequest().getScoreString());
 
                 startActivity(intent);
             }

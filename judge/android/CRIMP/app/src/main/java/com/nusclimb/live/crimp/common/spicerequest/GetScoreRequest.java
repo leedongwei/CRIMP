@@ -3,10 +3,6 @@ package com.nusclimb.live.crimp.common.spicerequest;
 import android.content.Context;
 
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.KeyValuePair;
-import com.nusclimb.live.crimp.common.json.ActiveClimbersResponse;
-import com.nusclimb.live.crimp.common.json.CategoriesResponse;
-import com.nusclimb.live.crimp.common.json.GetScoreResponse;
 import com.nusclimb.live.crimp.common.json.GetScoreResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
@@ -25,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreResponseBody> {
     private static final String TAG = GetScoreRequest.class.getSimpleName();
 
+    private Context context;
     private String xUserId;
     private String xAuthToken;
     private String categoryId;
@@ -37,36 +34,43 @@ public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreResponseB
         super(GetScoreResponseBody.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
+        this.context = context;
 
-        url = context.getString(R.string.crimp_url)+context.getString(R.string.get_score_api)
-                +categoryId+"/"+routeId+"/"+climberId;
+        if(context.getResources().getBoolean(R.bool.is_production_app)) {
+            this.url = context.getString(R.string.crimp_production) + context.getString(R.string.get_score_api)
+                    +categoryId+"/"+routeId+"/"+climberId;;
+        }
+        else {
+            this.url = context.getString(R.string.crimp_staging) + context.getString(R.string.get_score_api)
+                    +categoryId+"/"+routeId+"/"+climberId;;
+        }
     }
 
     @Override
     public GetScoreResponseBody loadDataFromNetwork() throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Cache-Control", "no-cache");
-        headers.set("x-user-id", xUserId);
-        headers.set("x-auth-token", xAuthToken);
+        if(context.getResources().getBoolean(R.bool.is_debug)){
+            GetScoreResponseBody response = new GetScoreResponseBody();
+            response.setClimberName("climbername");
+            response.setClimberId(climberId);
+            response.setCategoryId(categoryId);
+            response.setRouteId(routeId);
+            response.setScoreString("1111");
+            return response;
+        }
+        else{
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Cache-Control", "no-cache");
+            headers.set("x-user-id", xUserId);
+            headers.set("x-auth-token", xAuthToken);
 
-        HttpEntity request = new HttpEntity(headers);
+            HttpEntity request = new HttpEntity(headers);
 
-        RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<GetScoreResponseBody> response = mRestTemplate.exchange(url,
-                HttpMethod.GET, request, GetScoreResponseBody.class);
+            RestTemplate mRestTemplate = getRestTemplate();
+            ResponseEntity<GetScoreResponseBody> response = mRestTemplate.exchange(url,
+                    HttpMethod.GET, request, GetScoreResponseBody.class);
 
-        return response.getBody();
+            return response.getBody();
+        }
     }
-
-    /**
-     * Create a cache key for this request. Cache key will allow us to
-     * cancel/aggregate/cache this request.
-     *
-     * @return Cache key for this request.
-     */
-    public String createCacheKey() {
-        return categoryId+routeId+climberId;
-    }
-
 }

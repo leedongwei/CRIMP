@@ -3,10 +3,6 @@ package com.nusclimb.live.crimp.common.spicerequest;
 import android.content.Context;
 
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.KeyValuePair;
-import com.nusclimb.live.crimp.common.json.ActiveClimbersResponse;
-import com.nusclimb.live.crimp.common.json.GetScoreResponse;
-import com.nusclimb.live.crimp.common.json.PostScoreResponse;
 import com.nusclimb.live.crimp.common.json.PostScoreResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
@@ -26,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreResponseBody> {
     private static final String TAG = PostScoreRequest.class.getSimpleName();
 
+    private Context context;
     private String xUserId;
     private String xAuthToken;
     private String categoryId;
@@ -43,27 +40,96 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
         this.routeId = routeId;
         this.climberId = climberId;
         this.scoreString = scoreString;
+        this.context = context;
 
-        url = context.getString(R.string.crimp_url) + context.getString(R.string.post_score_api)
-                + categoryId + "/" + routeId + "/" + climberId;
+        if(context.getResources().getBoolean(R.bool.is_production_app)) {
+            this.url = context.getString(R.string.crimp_production) + context.getString(R.string.post_score_api)
+                    + categoryId + "/" + routeId + "/" + climberId;;
+        }
+        else {
+            this.url = context.getString(R.string.crimp_staging) + context.getString(R.string.post_score_api)
+                    + categoryId + "/" + routeId + "/" + climberId;;
+        }
     }
 
     @Override
     public PostScoreResponseBody loadDataFromNetwork() throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Cache-Control", "no-cache");
-        headers.set("x-user-id", xUserId);
-        headers.set("x-auth-token", xAuthToken);
+        if(context.getResources().getBoolean(R.bool.is_debug)){
+            PostScoreResponseBody response = new PostScoreResponseBody();
+            return response;
+        }
+        else {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Cache-Control", "no-cache");
+            headers.set("x-user-id", xUserId);
+            headers.set("x-auth-token", xAuthToken);
 
-        HttpBody body = new HttpBody(scoreString);
-        HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
+            HttpBody body = new HttpBody(scoreString);
+            HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
 
-        RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<PostScoreResponseBody> response = mRestTemplate.exchange(url,
-                HttpMethod.POST, request, PostScoreResponseBody.class);
+            RestTemplate mRestTemplate = getRestTemplate();
+            ResponseEntity<PostScoreResponseBody> response = mRestTemplate.exchange(url,
+                    HttpMethod.POST, request, PostScoreResponseBody.class);
 
-        return response.getBody();
+            return response.getBody();
+        }
+    }
+
+    public String getxUserId() {
+        return xUserId;
+    }
+
+    public String getxAuthToken() {
+        return xAuthToken;
+    }
+
+    public String getCategoryId() {
+        return categoryId;
+    }
+
+    public String getRouteId() {
+        return routeId;
+    }
+
+    public String getClimberId() {
+        return climberId;
+    }
+
+    public String getScoreString() {
+        return scoreString;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setxUserId(String xUserId) {
+        this.xUserId = xUserId;
+    }
+
+    public void setxAuthToken(String xAuthToken) {
+        this.xAuthToken = xAuthToken;
+    }
+
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public void setRouteId(String routeId) {
+        this.routeId = routeId;
+    }
+
+    public void setClimberId(String climberId) {
+        this.climberId = climberId;
+    }
+
+    public void setScoreString(String scoreString) {
+        this.scoreString = scoreString;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     /**
