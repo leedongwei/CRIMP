@@ -1,5 +1,7 @@
 package com.nusclimb.live.crimp.common;
 
+import android.util.Log;
+
 import com.nusclimb.live.crimp.common.json.CategoriesResponseBody;
 import com.nusclimb.live.crimp.hello.HintableSpinnerItem;
 
@@ -15,8 +17,58 @@ import java.util.List;
  * @see <a href="http://wiki.fasterxml.com/JacksonDataBinding">JacksonDataBinding</a>
  */
 public class Categories {
-    List<HintableSpinnerItem> spinnerList;  // For populating HintableArrayAdapter.
+    //List<HintableSpinnerItem> spinnerList;  // For populating HintableArrayAdapter.
     CategoriesResponseBody categoriesInfo;  // Contain all info regarding categories and routes.
+
+    public Categories(){
+        categoriesInfo = new CategoriesResponseBody();
+    }
+
+    /**
+     * Construct a Categories object from several list containing information on all categories.
+     * This method allow us to rebuild a Categories object from serializable information (such as
+     * from a bundle).
+     *
+     * @param cNameList category name list
+     * @param cIdList category id list
+     * @param cCountList category route count list
+     * @param rNameList route name list
+     * @param rIdList route id list
+     * @param rScoreList route score list
+     * @param cFinalizeArray category score finalize array
+     * @param cStartList category start time list
+     * @param cEndList category end time list
+     */
+    public Categories(List<String> cNameList, List<String> cIdList, List<Integer> cCountList,
+                      List<String> rNameList, List<String> rIdList, List<String> rScoreList,
+                      byte[] cFinalizeArray, List<String> cStartList, List<String> cEndList){
+
+        categoriesInfo = new CategoriesResponseBody();
+        int k = 0;
+        for(int i=0; i<cNameList.size(); i++){
+            CategoriesResponseBody.Category mCategory = new CategoriesResponseBody.Category();
+            mCategory.setCategoryName(cNameList.get(i));
+            mCategory.setCategoryId(cNameList.get(i));
+            if(cFinalizeArray[i] == 1)
+                mCategory.setScoresFinalized(true);
+            else
+                mCategory.setScoresFinalized(false);
+            mCategory.setTimeStart(cStartList.get(i));
+            mCategory.setTimeEnd(cEndList.get(i));
+
+            ArrayList<CategoriesResponseBody.Category.Route> mRouteList = new ArrayList<>();
+            for(int j=0; j<cCountList.get(i); j++,k++){
+                CategoriesResponseBody.Category.Route mRoute = new CategoriesResponseBody.Category.Route();
+                mRoute.setRouteName(rNameList.get(k));
+                mRoute.setRouteId(rIdList.get(k));
+                mRoute.setScore(rScoreList.get(k));
+
+                mRouteList.add(mRoute);
+            }
+
+            mCategory.setRoutes(mRouteList);
+        }
+    }
 
     /**
      * Create an object that stores all information about categories and routes.
@@ -24,7 +76,11 @@ public class Categories {
      * @param mResponseBody Jackson POJO containing categories and routes information.
      */
     public Categories(CategoriesResponseBody mResponseBody){
-        categoriesInfo = mResponseBody;
+        categoriesInfo = new CategoriesResponseBody(mResponseBody);
+    }
+
+    public Categories(Categories categories){
+        categoriesInfo = new CategoriesResponseBody(categories.getJSON());
     }
 
     /**
@@ -37,25 +93,30 @@ public class Categories {
      */
     public List<HintableSpinnerItem> getCategoriesSpinnerListCopy(String categoryHint,
                                                                   String routeHint){
-        if(spinnerList == null){
-            spinnerList = new ArrayList<HintableSpinnerItem>();
-            spinnerList.add(new CategoryItem(categoryHint));
-            for(CategoriesResponseBody.Category c: categoriesInfo.getCategories()){
-                List<HintableSpinnerItem> routes = new ArrayList<HintableSpinnerItem>();
-                routes.add(new RouteItem(routeHint));
-                for(CategoriesResponseBody.Category.Route r: c.getRoutes()){
-                    routes.add(new RouteItem(c.getCategoryId(), r.getRouteId(),r.getRouteName(),
-                            r.getScore()));
-                }
+        List<HintableSpinnerItem> spinnerList = new ArrayList<HintableSpinnerItem>();
+        spinnerList.add(new CategoryItem(categoryHint, routeHint));
 
-                spinnerList.add(new CategoryItem(c.getCategoryId(), c.getCategoryName(), routes));
-            }
+        if(categoriesInfo.getCategories() == null){
+            Log.v("Categories", "categoriesinfo null***********");
         }
 
-        // Return a copy of spinnerList instead of spinnerList itself. This is to prevent
-        // modifying spinnerList directly from outside this class and end up with a spinnerList
-        // that contain information different from categoriesInfo.
-        return new ArrayList<HintableSpinnerItem>(spinnerList);
+        for(CategoriesResponseBody.Category c: categoriesInfo.getCategories()){
+            List<HintableSpinnerItem> routes = new ArrayList<HintableSpinnerItem>();
+            routes.add(new RouteItem(routeHint));
+            for(CategoriesResponseBody.Category.Route r: c.getRoutes()){
+                routes.add(new RouteItem(c.getCategoryId(), r.getRouteId(),r.getRouteName(),
+                        r.getScore()));
+            }
+
+            spinnerList.add(new CategoryItem(c.getCategoryId(), c.getCategoryName(), routes));
+        }
+
+        return spinnerList;
+    }
+
+    @Override
+    public String toString(){
+        return categoriesInfo.toString();
     }
 
     /**
@@ -73,8 +134,138 @@ public class Categories {
      * @param position Position of the CategoryItem to return.
      * @return Copy of a CategoryItem at the specified position in the list.
      */
-    public CategoryItem getCategorySpinnerItem(int position){
-        return new CategoryItem((CategoryItem)spinnerList.get(position+1));
+    //public CategoryItem getCategorySpinnerItem(int position){
+    //    return new CategoryItem((CategoryItem)spinnerList.get(position+1));
+    //}
+
+    /**
+     * Return a list of category names in the order they appear in categoriesInfo.
+     *
+     * @return ArrayList of category name.
+     */
+    public ArrayList<String> getCategoryNameList(){
+        ArrayList<String> categoryNameList = new ArrayList<String>();
+        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
+            categoryNameList.add(c.getCategoryName());
+        }
+        return categoryNameList;
+    }
+
+    /**
+     * Return a list of category id in the order they appear in categoriesInfo.
+     *
+     * @return ArrayList of category id.
+     */
+    public ArrayList<String> getCategoryIdList(){
+        ArrayList<String> categoryIdList = new ArrayList<String>();
+        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
+            categoryIdList.add(c.getCategoryId());
+        }
+        return categoryIdList;
+    }
+
+    /**
+     * Return a list of route count in each category, ordered by the order each category appear
+     * in categoriesInfo.
+     *
+     * @return ArrayList of route count.
+     */
+    public ArrayList<Integer> getCategoryRouteCountList(){
+        ArrayList<Integer> categoryRouteCountList = new ArrayList<Integer>();
+        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
+            categoryRouteCountList.add(c.getRoutes().size());
+        }
+        return categoryRouteCountList;
+    }
+
+    /**
+     * Return a list of route name, ordered by the order they appear in categoriesInfo.
+     *
+     * @return ArrayList of route name.
+     */
+    public ArrayList<String> getRouteNameList(){
+        ArrayList<String> routeNameList = new ArrayList<String>();
+        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
+            for(CategoriesResponseBody.Category.Route r: c.getRoutes()){
+                routeNameList.add(r.getRouteName());
+            }
+        }
+        return routeNameList;
+    }
+
+    /**
+     * Return a list of route id, ordered by the order they appear in categoriesInfo.
+     *
+     * @return ArrayList of route id.
+     */
+    public ArrayList<String> getRouteIdList(){
+        ArrayList<String> routeIdList = new ArrayList<String>();
+        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
+            for(CategoriesResponseBody.Category.Route r: c.getRoutes()){
+                routeIdList.add(r.getRouteId());
+            }
+        }
+        return routeIdList;
+    }
+
+    /**
+     * Return a list of route score, ordered by the order they appear in categoriesInfo.
+     *
+     * @return ArrayList of route score.
+     */
+    public ArrayList<String> getRouteScoreList(){
+        ArrayList<String> routeScoreList = new ArrayList<String>();
+        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
+            for(CategoriesResponseBody.Category.Route r: c.getRoutes()){
+                routeScoreList.add(r.getScore());
+            }
+        }
+        return routeScoreList;
+    }
+
+    /**
+     * Return a list of finalized flag (in bytes. true:1; false:0) for categories in the order their
+     * category appear in categoriesInfo.
+     *
+     * @return Array of 1's and 0's corresponding to the finalized flag for each category.
+     */
+    public byte[] getCategoryFinalizeArray(){
+        int size = categoriesInfo.getCategories().size();
+        byte[] categoryFinalizedArray = new byte[size];
+        for(int i=0; i<size; i++){
+            if(categoriesInfo.getCategories().get(i).isScoresFinalized())
+                categoryFinalizedArray[i] = 1;
+            else
+                categoryFinalizedArray[i] = 0;
+        }
+
+        return categoryFinalizedArray;
+    }
+
+    /**
+     * Return a list of category time start in the order they appear in categoriesInfo.
+     *
+     * @return ArrayList of category time start.
+     */
+    public ArrayList<String> getCategoryStartList(){
+        ArrayList<String> categoryStartList = new ArrayList<String>();
+        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
+            categoryStartList.add(c.getTimeStart());
+        }
+        return categoryStartList;
+    }
+
+    /**
+     * Return a list of category time end in the order they appear in categoriesInfo.
+     *
+     * @return ArrayList of category time end.
+     */
+    public ArrayList<String> getCategoryEndList(){
+        ArrayList<String> categoryEndList = new ArrayList<String>();
+        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
+            categoryEndList.add(c.getTimeEnd());
+        }
+        return categoryEndList;
     }
 
 
@@ -103,11 +294,16 @@ public class Categories {
         /**
          * Construct a CategoryItem that is a hint for spinner.
          *
-         * @param hintText Hint message.
+         * @param categoryHintText Hint for category spinner
+         * @param routeHintText Hint to display for route spinner when category spinner
+         *                      is showing hint.
          */
-        public CategoryItem(String hintText){
-            this.fullCategoryName = hintText;
+        public CategoryItem(String categoryHintText, String routeHintText){
+            this.fullCategoryName = categoryHintText;
             this.isHint = true;
+            List<HintableSpinnerItem> hintRoutes = new ArrayList<HintableSpinnerItem>();
+            hintRoutes.add(new RouteItem(routeHintText));
+            this.routes = hintRoutes;
         }
 
         /**

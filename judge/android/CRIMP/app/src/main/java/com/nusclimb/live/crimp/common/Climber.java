@@ -8,6 +8,14 @@ public class Climber {
     private String climberName;
     private String totalScore;
 
+    public Climber(){}
+
+    public Climber(Climber climber){
+        climberId = climber.getClimberId();
+        climberName = climber.getClimberName();
+        totalScore = climber.getTotalScore();
+    }
+
     public String getClimberId() {
         return climberId;
     }

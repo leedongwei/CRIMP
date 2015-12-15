@@ -10,13 +10,42 @@ public class User {
     private String authToken;
     private String categoryId;
     private String routeId;
-    private String climberId;
+
+    public User(){
+        clearAll();
+    }
+
+    public User(User user){
+        setFacebookAccessToken(user.getFacebookAccessToken());
+        setUserName(user.getUserName());
+        setUserId(user.getUserId());
+        setAuthToken(user.getAuthToken());
+        setCategoryId(user.getCategoryId());
+        setRouteId(user.getRouteId());
+    }
 
     public void clearAll(){
         facebookAccessToken = null;
         userName = null;
         userId = null;
         authToken = null;
+        categoryId = null;
+        routeId = null;
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append("facebookAccessToken="+facebookAccessToken+" ");
+        sb.append("userName="+userName+" ");
+        sb.append("userId="+userId+" ");
+        sb.append("authToken="+authToken+" ");
+        sb.append("categoryId="+categoryId+" ");
+        sb.append("routeId="+routeId+" ");
+        sb.append("}");
+
+        return sb.toString();
     }
 
     public String getFacebookAccessToken() {
@@ -67,11 +96,4 @@ public class User {
         this.routeId = routeId;
     }
 
-    public String getClimberId() {
-        return climberId;
-    }
-
-    public void setClimberId(String climberId) {
-        this.climberId = climberId;
-    }
 }
