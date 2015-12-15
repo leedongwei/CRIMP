@@ -3,7 +3,7 @@ package com.nusclimb.live.crimp.common.spicerequest;
 import android.content.Context;
 
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.json.ActiveClimberResponseBody;
+import com.nusclimb.live.crimp.common.json.ActiveMonitorResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -15,13 +15,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Spice request for POST '/api/judge/activeclimber'
+ * Spice request for POST '/api/judge/activemonitor'
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class ActiveClimberRequest extends SpringAndroidSpiceRequest<ActiveClimberResponseBody> {
-    private static final String TAG = ActiveClimberRequest.class.getSimpleName();
+public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonitorResponseBody> {
+    private static final String TAG = ActiveMonitorRequest.class.getSimpleName();
 
+    private Context context;
     private String xUserId;
     private String xAuthToken;
     private String categoryId;
@@ -30,45 +31,45 @@ public class ActiveClimberRequest extends SpringAndroidSpiceRequest<ActiveClimbe
     private boolean insert;
     private String url;
 
-    public ActiveClimberRequest(String xUserId, String xAuthToken, String categoryId,
-                         String routeId, String climberId, boolean insert, Context context) {
-        super(ActiveClimberResponseBody.class);
+    public ActiveMonitorRequest(String xUserId, String xAuthToken, String categoryId,
+                                String routeId, String climberId, boolean insert, Context context) {
+        super(ActiveMonitorResponseBody.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
         this.categoryId = categoryId;
         this.routeId = routeId;
         this.climberId = climberId;
         this.insert = insert;
+        this.context = context;
 
-        url = context.getString(R.string.crimp_url)+context.getString(R.string.activeclimber_api);
+        if(context.getResources().getBoolean(R.bool.is_production_app))
+            this.url = context.getString(R.string.crimp_production)+context.getString(R.string.activemonitor_api);
+        else
+            this.url = context.getString(R.string.crimp_staging)+context.getString(R.string.activemonitor_api);
     }
 
     @Override
-    public ActiveClimberResponseBody loadDataFromNetwork() throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Cache-Control", "no-cache");
-        headers.set("x-user-id", xUserId);
-        headers.set("x-auth-token", xAuthToken);
+    public ActiveMonitorResponseBody loadDataFromNetwork() throws Exception {
+        if(context.getResources().getBoolean(R.bool.is_debug)){
+            ActiveMonitorResponseBody response = new ActiveMonitorResponseBody();
+            return response;
+        }
+        else{
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Cache-Control", "no-cache");
+            headers.set("x-user-id", xUserId);
+            headers.set("x-auth-token", xAuthToken);
 
-        HttpBody body = new HttpBody(categoryId, routeId, climberId, insert);
-        HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
+            HttpBody body = new HttpBody(categoryId, routeId, climberId, insert);
+            HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
 
-        RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<ActiveClimberResponseBody> response = mRestTemplate.exchange(url,
-                HttpMethod.POST, request, ActiveClimberResponseBody.class);
+            RestTemplate mRestTemplate = getRestTemplate();
+            ResponseEntity<ActiveMonitorResponseBody> response = mRestTemplate.exchange(url,
+                    HttpMethod.POST, request, ActiveMonitorResponseBody.class);
 
-        return response.getBody();
-    }
-
-    /**
-     * Create a cache key for this request. Cache key will allow us to
-     * cancel/aggregate/cache this request.
-     *
-     * @return Cache key for this request.
-     */
-    public String createCacheKey() {
-        return categoryId+routeId+climberId+insert;
+            return response.getBody();
+        }
     }
 
     /**
