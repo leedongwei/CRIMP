@@ -28,7 +28,7 @@
             android:layout_marginBottom="8dp" >
 
             <EditText
-                android:id="@+id/scan_route_id_edit"
+                android:id="@+id/scan_category_id_edit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="8dp"

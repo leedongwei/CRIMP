@@ -3,9 +3,10 @@ package com.nusclimb.live.crimp.qr;
 import android.graphics.Point;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 
-import com.nusclimb.live.crimp.hello.ScanFragment;
+import com.nusclimb.live.crimp.R;
 
 /**
  * Worker thread for handling decode operation. A DecodeHandler instance will
@@ -41,6 +42,8 @@ public class DecodeThread extends Thread{
         Log.d(TAG, "DecodeThread begin running");
         Looper.prepare();
         mDecodeHandler = new DecodeHandler(mainThreadHandler, PREFIX, previewResolution);
+        Message message = Message.obtain(mainThreadHandler, R.id.decode_handler_constructed);
+        message.sendToTarget();
         Looper.loop();
     }
 

@@ -13,89 +13,91 @@
         android:onClick="scoreSubmit"
         android:text="submit" />
 
-    <LinearLayout android:id="@+id/scoring_button_row"
+    <LinearLayout android:id="@+id/scoring_score_fragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:weightSum="27.0"
-        android:orientation="horizontal"
-        android:layout_above="@id/scoring_submit_button" >
+        android:orientation="vertical"
+        android:layout_above="@id/scoring_submit_button">
 
-        <Button
-            android:id="@+id/scoring_plus_one_button"
-            android:layout_width="0dp"
+        <LinearLayout android:id="@+id/scoring_t_b_row"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="4.0"
-            android:layout_marginRight="8dp"
-            android:text="+1"
-            android:onClick="scorePlusOne" />
-
-        <Button
-            android:id="@+id/scoring_b_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="7.0"
-            android:layout_marginRight="8dp"
-            android:text="B"
-            android:onClick="scoreBonus" />
-
-        <Button
-            android:id="@+id/scoring_t_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="5.0"
-            android:layout_marginRight="8dp"
-            android:text="T"
-            android:onClick="scoreTop" />
-
-        <Button
-            android:id="@+id/scoring_backspace_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="11.0"
-            android:text="Backspace"
-            android:enabled="false"
-            android:onClick="scoreBackspace" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/scoring_t_b_row"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:layout_above="@id/scoring_button_row"
-        android:layout_marginBottom="16dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="T"
             android:gravity="center"
-            android:textSize="32sp" />
-        <TextView
-            android:id="@+id/scoring_t_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:gravity="center"
-            android:textSize="32sp"
-            android:layout_marginRight="8dp"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="B"
-            android:gravity="center"
-            android:textSize="32sp"
-            android:layout_marginLeft="8dp"/>
-        <TextView
-            android:id="@+id/scoring_b_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:gravity="center"
-            android:textSize="32sp" />
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="T"
+                android:gravity="center"
+                android:textSize="32sp" />
+            <TextView
+                android:id="@+id/scoring_t_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:gravity="center"
+                android:textSize="32sp"
+                android:layout_marginRight="8dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="B"
+                android:gravity="center"
+                android:textSize="32sp"
+                android:layout_marginLeft="8dp"/>
+            <TextView
+                android:id="@+id/scoring_b_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:gravity="center"
+                android:textSize="32sp" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/scoring_button_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="27.0"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/scoring_plus_one_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="4.0"
+                android:layout_marginRight="8dp"
+                android:text="+1"
+                android:onClick="scorePlusOne" />
+
+            <Button
+                android:id="@+id/scoring_b_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="7.0"
+                android:layout_marginRight="8dp"
+                android:text="B"
+                android:onClick="scoreBonus" />
+
+            <Button
+                android:id="@+id/scoring_t_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="5.0"
+                android:layout_marginRight="8dp"
+                android:text="T"
+                android:onClick="scoreTop" />
+
+            <Button
+                android:id="@+id/scoring_backspace_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="11.0"
+                android:text="Backspace"
+                android:enabled="false"
+                android:onClick="scoreBackspace" />
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -122,7 +124,6 @@
         android:shrinkColumns="1" >
 
         <TableRow >
-
             <TextView
                 android:id="@+id/scoring_climber_id_text"
                 android:text="Climber Id" />
@@ -133,11 +134,9 @@
                 android:cursorVisible="false"
                 android:focusable="false"
                 android:focusableInTouchMode="false" />
-
         </TableRow>
 
         <TableRow >
-
             <TextView
                 android:id="@+id/scoring_climber_name_text"
                 android:text="Climber name" />
@@ -150,7 +149,6 @@
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:hint="loading..."/>
-
         </TableRow>
 
     </TableLayout>
@@ -168,7 +166,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_below="@id/scoring_divider"
-        android:layout_above="@id/scoring_t_b_row">
+        android:layout_above="@id/scoring_score_fragment">
 
         <LinearLayout android:id="@+id/scoring_root"
             android:layout_width="match_parent"

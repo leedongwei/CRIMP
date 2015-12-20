@@ -31,10 +31,14 @@ public class ScanFragmentHandler extends Handler{
             return;
         }
         switch (message.what) {
+            case R.id.decode_handler_constructed:
+                fragment.onReceiveDecodeHandlerConstructed();
+                break;
             case R.id.decode_succeeded:
                 Log.d(TAG+".handleMessage()", "ScanFragmentHandler receive msg 'succeed'.");
                 String result = (String) message.obj;
-                fragment.updateClimberWithScanResult(result);
+                String[] climberInfo = result.split(";");
+                fragment.updateClimberWithScanResult(climberInfo[0], climberInfo[1]);
                 fragment.changeState(ScanFragment.State.NOT_SCANNING);
 
                 // Get instance of Vibrator from current Context

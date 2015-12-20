@@ -3,6 +3,7 @@ package com.nusclimb.live.crimp;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.Log;
 
 import com.nusclimb.live.crimp.hello.CrimpFragment;
 
@@ -54,6 +55,8 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
         // This method name is misleading. This method will be call when
         // FragmentStatePagerAdapter needs an item and it does not exist. This
         // method instantiate the item.
+
+        Log.d(TAG, "called getitem() on position: "+position);
 
         return fragmentList.get(position);
     }

@@ -9,6 +9,11 @@ import android.util.Log;
  */
 public class ClimberIdTextWatcher implements TextWatcher {
     private final String TAG = ClimberIdTextWatcher.class.getSimpleName();
+    private ToFragmentInteraction mToFragmentInteraction;
+
+    public ClimberIdTextWatcher(ToFragmentInteraction toFragmentInteraction){
+        mToFragmentInteraction = toFragmentInteraction;
+    }
 
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -22,7 +27,13 @@ public class ClimberIdTextWatcher implements TextWatcher {
 
     @Override
     public void afterTextChanged(Editable s) {
-        Log.d(TAG + ".afterTextChanged()", "afterTextChanged");
+        Log.d(TAG + ".afterTextChanged()", "afterTextChanged: "+s.toString());
+        mToFragmentInteraction.updateClimberName();
+        mToFragmentInteraction.updateNextButton(s.toString().length()==3);
+    }
 
+    public interface ToFragmentInteraction {
+        public void updateClimberName();
+        public void updateNextButton(boolean enable);
     }
 }

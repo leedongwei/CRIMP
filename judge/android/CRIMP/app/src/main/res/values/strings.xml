@@ -99,10 +99,14 @@
     <string name="bundle_total_score">bundle_totalscore</string>
 
     <!-- Fragment/Activity State -->
-    <string name="bundle_login_state">bundle_login_state</string>
+    <string name="bundle_login_state">bundle_loginstate</string>
     <string name="bundle_route_state">bundle_routestate</string>
     <string name="bundle_scan_state">bundle_scanstate</string>
     <string name="bundle_score_state">bundle_scorestate</string>
+
+    <!-- Other Bundle Key -->
+    <string name="bundle_category_spinner_selected_index">bundle_categoryspinnerselectedindex</string>
+    <string name="bundle_route_spinner_selected_index">bundle_routespinnerselectedindex</string>
     
 
 

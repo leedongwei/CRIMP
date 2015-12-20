@@ -16,6 +16,8 @@ import android.os.Message;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 /**
  * This class provides an interface for acquiring/releasing of camera 
  * resource and any operations pertaining to camera resource. 
@@ -23,7 +25,7 @@ import android.view.SurfaceHolder;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  *
  */
-public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Callback{
+public class CameraManager implements Camera.PreviewCallback{
     private static final String TAG = CameraManager.class.getSimpleName();
 
     private boolean _isSurfaceReady;			// Whether the surface to show preview is ready (between
@@ -37,10 +39,16 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
     private boolean _isTorchOn;
 
     public CameraManager(Handler mDecodeHandler){
+        camera = null;
+        if(mDecodeHandler == null){
+            throw new NullPointerException("Constructor of CameraManager must have a valid DecodeHandler");
+        }
         this.mDecodeHandler = mDecodeHandler;
         _isScanning = false;
         _isPreviewing = false;
         bestPreviewSize = null;
+        previewViewResolution = null;
+        _isTorchOn = false;
 
         Log.v(TAG, "CameraManager is constructed!");
     }
@@ -74,6 +82,10 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
 
     public boolean isTorchOn(){
         return _isTorchOn;
+    }
+
+    public void set_isSurfaceReady(boolean isReady){
+        _isSurfaceReady = isReady;
     }
 	
 	
@@ -116,26 +128,25 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
     /**
      * Method to start previewing and display camera input onto surfaceView.
      * No-op if 1) camera resource not acquired and/or 2) already previewing
-     * and/or 3) surface not ready.
      *
      * @param holder Holder of surfaceView
      */
     public void startPreview(SurfaceHolder holder){
-        if(hasCamera() && !_isPreviewing && _isSurfaceReady){
-            try {
-                camera.setPreviewDisplay(holder);
-                camera.startPreview();
-                _isPreviewing = true;
-                Log.i(TAG, "start previewing.");
-            } catch (IOException e) {
-                Log.e(TAG, "IOE when attempting to setPreviewDisplay().");
-            }
-
+        if(!_isSurfaceReady){
+            Log.e(TAG, "SurfaceHolder must be ready to start preview.");
         }
-        else{
-            Log.w(TAG, "Attempt to start preview fail. hasCamera=" + hasCamera() +
-                    " isPreviewing=" + _isPreviewing +
-                    "isSurfaceReady=" + _isSurfaceReady);
+        else {
+            if (hasCamera() && !_isPreviewing) {
+                try {
+                    camera.setPreviewDisplay(holder);
+                    camera.startPreview();
+                    _isPreviewing = true;
+                    Log.i(TAG, "start previewing.");
+                } catch (IOException e) {
+                    Log.e(TAG, "IOE when attempting to setPreviewDisplay().");
+                }
+
+            }
         }
     }
 
@@ -206,7 +217,6 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
     /**
      * Perform rotation of camera by 90 degree, find available preview
      * size with height closest to targetResolution's width, and set autofocus.
-     * No-op if camera resource not acquired.
      *
      * @param targetResolution Resolution of previewView.
      */
@@ -217,12 +227,6 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
 
             Camera.Parameters param = camera.getParameters();
             List<Camera.Size> supportedSize = param.getSupportedPreviewSizes();
-
-            //String temp = "Available preview size: ";
-            //for(Camera.Size s: supportedSize ){
-            //    temp = temp + s.height + "x" + s.width + ";\n";
-            //}
-            //Log.v(TAG, temp);
 
             // Find available preview size with height closest to
             // targetResolution's width.
@@ -250,7 +254,7 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
             camera.setParameters(param);
         }
         else{
-            Log.w(TAG, "Called initCamera without camera instance. No-op.");
+            throw new NullPointerException("initCamera must be called with a valid camera instance");
         }
     }
 
@@ -283,56 +287,10 @@ public class CameraManager implements Camera.PreviewCallback, SurfaceHolder.Call
             message.sendToTarget();
         }
         else {
-            Log.w(TAG, "Got preview callback, but no handler available");
+            throw new NullPointerException("Got preview callback, but no handler available");
         }
 
         // We only send 1 frame to decode. Stop scanning and wait for decode result.
         _isScanning = false;
-    }
-
-
-
-    /*=========================================================================
-     * SurfaceHolder.Callback methods
-     *=======================================================================*/
-    public void surfaceCreated(SurfaceHolder holder) {
-        _isSurfaceReady = true;
-
-        Log.d(TAG, "Preview view surface created.");
-    }
-
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        _isSurfaceReady = false;
-
-        Log.d(TAG, "Preview view surface destroyed.");
-
-        stopPreview();
-    }
-
-    public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-        // If your preview can change or rotate, take care of those events here.
-        // Make sure to stop the preview before resizing or reformatting it.
-        Log.d(TAG, "Preview view surface changed.");
-
-        if (holder.getSurface() == null){
-            Log.w(TAG, "Preview view surface changed but surface is missing?");
-            return;
-        }
-
-        boolean previouslyIsPreviewing = isPreviewing();
-
-        // Stop camera preview, make changes, start camera preview again. 
-        if(isPreviewing() && hasCamera()){
-            stopPreview();
-        }
-
-        // set preview size and make any resize, rotate or
-        // reformatting changes here
-
-        // Only start scanning if activity state is "decode"
-        if(previouslyIsPreviewing && hasCamera()){
-            startPreview(holder);
-            startScan();
-        }
     }
 }

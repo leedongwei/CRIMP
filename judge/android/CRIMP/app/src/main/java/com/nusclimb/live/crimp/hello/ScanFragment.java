@@ -1,6 +1,7 @@
 package com.nusclimb.live.crimp.hello;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
@@ -11,6 +12,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -31,13 +33,47 @@ import com.nusclimb.live.crimp.qr.ScanFragmentHandler;
 import java.util.ArrayList;
 
 /**
- * Created by Zhi on 7/8/2015.
+ * Fragment for scanning QR code to get climber id and name. Activity containing this Fragment must
+ * implement ScanFragmentToActivityMethods interface to allow this fragment to communicate with the attached
+ * Activity and possibly other Fragments. Information from the Activity is passed to this Fragment
+ * through arguments.
+ *
+ * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class ScanFragment extends CrimpFragment {
+public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callback, ClimberIdTextWatcher.ToFragmentInteraction {
     private final String TAG = ScanFragment.class.getSimpleName();
 
+    public enum State{
+        SCANNING(0),
+        NOT_SCANNING(1);
+
+        private final int value;
+
+        State(int value){
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static State toEnum(int i){
+            switch(i){
+                case 0:
+                    return SCANNING;
+                case 1:
+                    return SCANNING;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    private ScanFragmentToActivityMethods mToActivityMethod;   //This is how we will communicate with
+                                                                //Hello Activity.
     private User mUser = null;
     private Climber mClimber = null;
+    private State mState;
 
     // Decoding stuff
     private DecodeThread mDecodeThread;
@@ -45,19 +81,17 @@ public class ScanFragment extends CrimpFragment {
 
     // Camera stuff
     private CameraManager cameraManager;
-    private Point previewResolution;	// Size of the previewView
-    private PreviewView previewView;
+    private Point previewResolution;	// Size of the previewSurface
+    private PreviewView previewSurface;
 
     // UI references
     private FrameLayout mPreviewFrame;
-    private EditText mRouteIdEdit;
+    private EditText mCategoryIdEdit;
     private EditText mClimberIdEdit;
     private Button mRescanButton;
     private Button mFlashButton;
     private EditText mClimberNameEdit;
     private Button mNextButton;
-
-    private State mState;
 
     public static ScanFragment newInstance(User user, Categories categoriesInfo, Context context) {
         ScanFragment myFragment = new ScanFragment();
@@ -68,6 +102,8 @@ public class ScanFragment extends CrimpFragment {
             args.putString(context.getString(R.string.bundle_x_auth_token), user.getAuthToken());
             args.putString(context.getString(R.string.bundle_user_name), user.getUserName());
             args.putString(context.getString(R.string.bundle_access_token), user.getFacebookAccessToken());
+            args.putString(context.getString(R.string.bundle_category_id), user.getCategoryId());
+            args.putString(context.getString(R.string.bundle_route_id), user.getRouteId());
         }
 
         if(categoriesInfo != null){
@@ -96,27 +132,69 @@ public class ScanFragment extends CrimpFragment {
         return myFragment;
     }
 
+    /**
+     * Update mClimber with climber id and climber name.
+     *
+     * @param climberId climber id
+     * @param climberName climber name
+     */
+    public void updateClimberWithScanResult(String climberId, String climberName){
+        mClimber.setClimberId(climberId);
+        mClimber.setClimberName(climberName);
+    }
+
+    /**
+     * This method initialize cameraManager, acquire camera and create a preview view.
+     * This is called when DecodeHandler has been constructed.
+     */
+    public void onReceiveDecodeHandlerConstructed(){
+        cameraManager = new CameraManager(getDecodeHandler());
+        acquireCamera();
+        createSurfaceAndAttach();
+    }
+
+    public Handler getDecodeHandler(){
+        return mDecodeThread.getHandler();
+    }
+
+    public Thread getDecodeThread(){
+        return mDecodeThread;
+    }
+
+
+
     /*=========================================================================
      * Fragment lifecycle methods
      *=======================================================================*/
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mToActivityMethod = (ScanFragmentToActivityMethods) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement ScanFragmentToActivityMethods");
+        }
+
+        Log.d(TAG, "ScanFragment onAttach");
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-
         mScanFragmentHandler = new ScanFragmentHandler(this);
 
-        Log.d(TAG + ".onCreate()", "created");
+        Log.d(TAG, "ScanFragment onCreate");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
-
         View rootView = inflater.inflate(R.layout.fragment_scan, container, false);
 
         // Get UI references.
         mPreviewFrame = (FrameLayout) rootView.findViewById(R.id.scan_frame_viewgroup);
-        mRouteIdEdit = (EditText) rootView.findViewById(R.id.scan_route_id_edit);
+        mCategoryIdEdit = (EditText) rootView.findViewById(R.id.scan_category_id_edit);
         mClimberIdEdit = (EditText) rootView.findViewById(R.id.scan_climber_id_edit);
         mRescanButton = (Button) rootView.findViewById(R.id.scan_rescan_button);
         mFlashButton = (Button) rootView.findViewById(R.id.scan_flash_button);
@@ -127,13 +205,14 @@ public class ScanFragment extends CrimpFragment {
         mNextButton.setOnClickListener(this);
         mRescanButton.setOnClickListener(this);
 
-        mClimberIdEdit.addTextChangedListener(new ClimberIdTextWatcher());
+        mClimberIdEdit.addTextChangedListener(new ClimberIdTextWatcher(this));
 
         // Update buttons.
         if(!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)){
             mFlashButton.setEnabled(false);
         }
 
+        Log.d(TAG, "ScanFragment onCreateView");
         return rootView;
     }
 
@@ -156,7 +235,6 @@ public class ScanFragment extends CrimpFragment {
             mUser.setFacebookAccessToken(args.getString(getString(R.string.bundle_access_token)));
             mUser.setCategoryId(args.getString(getString(R.string.bundle_category_id)));
             mUser.setRouteId(args.getString(getString(R.string.bundle_route_id)));
-            //mUser.setClimberId(args.getString(getString(R.string.bundle_climber_id)));
 
             // Initialize mClimber
             if(mClimber == null)
@@ -177,7 +255,6 @@ public class ScanFragment extends CrimpFragment {
             mUser.setFacebookAccessToken(savedInstanceState.getString(getString(R.string.bundle_access_token)));
             mUser.setCategoryId(savedInstanceState.getString(getString(R.string.bundle_category_id)));
             mUser.setRouteId(savedInstanceState.getString(getString(R.string.bundle_route_id)));
-            //mUser.setClimberId(savedInstanceState.getString(getString(R.string.bundle_climber_id)));mUser.setCategoryId(args.getString(getString(R.string.bundle_category_id)));
 
             // Initialize mClimber
             if(mClimber == null)
@@ -186,27 +263,24 @@ public class ScanFragment extends CrimpFragment {
             mClimber.setClimberName(savedInstanceState.getString(getString(R.string.bundle_climber_name)));
             mClimber.setTotalScore(savedInstanceState.getString(getString(R.string.bundle_total_score)));
         }
+
+        Log.d(TAG, "ScanFragment onActivityCreate");
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        Log.v(TAG + ".onResume()", "resume");
-
-        // Will always perform these in onResume().
+        Log.d(TAG, "ScanFragment onResume");
         startThread();
-        cameraManager = new CameraManager(getDecodeHandler());
-        acquireCamera();
-        acquirePreview();
-
-        changeState(mState);
     }
 
     @Override
     public void onPause(){
-        Log.d(TAG + ".onPause()", "pause");
+        Log.d(TAG, "ScanFragment onPause");
 
         releaseCameraAndStopDecodeThread();
+        removePreviewView();
+        cameraManager = null;
         super.onPause();
     }
 
@@ -220,7 +294,6 @@ public class ScanFragment extends CrimpFragment {
             outState.putString(getString(R.string.bundle_access_token), mUser.getFacebookAccessToken());
             outState.putString(getString(R.string.bundle_category_id), mUser.getCategoryId());
             outState.putString(getString(R.string.bundle_route_id), mUser.getRouteId());
-            //outState.putString(getString(R.string.bundle_climber_id), mUser.getClimberId());
         }
 
         if(mClimber != null){
@@ -230,21 +303,22 @@ public class ScanFragment extends CrimpFragment {
         }
 
         outState.putInt(getString(R.string.bundle_scan_state), mState.getValue());
+
+        Log.d(TAG, "ScanFragment onSaveInstance");
+    }
+
+    @Override
+    public void onDetach() {
+        Log.d(TAG, "ScanFragment onDetach");
+        mToActivityMethod = null;
+        super.onDetach();
     }
 
 
 
-    public void updateClimberWithScanResult(String result){
-        String[] climberInfo = result.split(";");
-        mClimber.setClimberId(climberInfo[0]);
-        mClimber.setClimberName(climberInfo[1]);
-    }
-
-
-
-
-
-
+    /*=========================================================================
+     * Main flow methods.
+     *=======================================================================*/
     /**
      * Set {@code mState} to {@code state}. Changes to {@code mState} must
      * go through this method.
@@ -252,7 +326,7 @@ public class ScanFragment extends CrimpFragment {
      * @param state Hello state to set {@code mState} to.
      */
     public void changeState(State state) {
-        Log.d(TAG + ".changeState()", mState + " -> " + state);
+        //Log.d(TAG, "Change state: " + mState + " -> " + state);
 
         mState = state;
         updateUI();
@@ -266,13 +340,13 @@ public class ScanFragment extends CrimpFragment {
         switch (mState){
             case SCANNING:
                 mRescanButton.setEnabled(false);
-                mRouteIdEdit.setText(mUser.getRouteId());
+                mCategoryIdEdit.setText(mUser.getCategoryId());
                 //Don't touch mClimberIdEdit. It is left as it is.
                 //Don't touch mClimberNameEdit. It is left as it is.
                 break;
             case NOT_SCANNING:
                 mRescanButton.setEnabled(true);
-                mRouteIdEdit.setText(mUser.getRouteId());
+                mCategoryIdEdit.setText(mUser.getCategoryId());
                 mClimberIdEdit.setText(mClimber.getClimberId());
                 //Don't touch mClimberNameEdit. It is left as it is.
                 break;
@@ -287,7 +361,7 @@ public class ScanFragment extends CrimpFragment {
     private void doWork(){
         switch (mState){
             case SCANNING:
-                cameraManager.startPreview(previewView.getHolder());
+                cameraManager.startPreview(previewSurface.getHolder());
                 cameraManager.startScan();
                 break;
             case NOT_SCANNING:
@@ -298,6 +372,77 @@ public class ScanFragment extends CrimpFragment {
         }
     }
 
+
+
+    /*=========================================================================
+     * Interface methods
+     *=======================================================================*/
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        //surface is only ready after surfaceChanged is called.
+        cameraManager.set_isSurfaceReady(false);
+        Log.d(TAG, "Preview view surface created.");
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        if(cameraManager != null){
+            cameraManager.set_isSurfaceReady(false);
+            cameraManager.stopPreview();
+        }
+        Log.d(TAG, "Preview view surface destroyed.");
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+        // If your preview can change or rotate, take care of those events here.
+        // Make sure to stop the preview before resizing or reformatting it.
+        Log.d(TAG, "Preview view surface changed.");
+        cameraManager.set_isSurfaceReady(true);
+        changeState(mState);
+    }
+
+    @Override
+    public CharSequence getPageTitle() {
+        return "Scan";
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.scan_rescan_button:
+                rescan();
+                break;
+            case R.id.scan_flash_button:
+                toggleFlash();
+                break;
+            case R.id.scan_next_button:
+                next();
+                break;
+        }
+    }
+
+    @Override
+    public void updateClimberName(){
+        String displayedId = mClimberIdEdit.getText().toString();
+        if(displayedId.equals(mClimber.getClimberId())){
+        }
+        else{
+            mClimber.setClimberName(null);
+        }
+        mClimberNameEdit.setText(mClimber.getClimberName());
+    }
+
+    @Override
+    public void updateNextButton(boolean enable){
+        mNextButton.setEnabled(enable);
+    }
+
+
+
+    /*=========================================================================
+     * Private methods
+     *=======================================================================*/
     /**
      * This method calculate the size of preview surface view. We want the
      * width of preview view to be the entire display width. Aspect ratio
@@ -343,15 +488,15 @@ public class ScanFragment extends CrimpFragment {
     }
 
     /**
-     * This method create previewView and translate it. No-op if previewView
-     * already exist. Important: This method can only be called after camera
-     * resource is acquired (e.g. starting from onResume).
+     * This method create previewSurface and translate it. No-op if previewSurface
+     * already exist. Important: This method can only be called after we have CameraManager
+     * and camera resource is acquired.
      */
-    private void createPreviewAndArrange(){
-        if(previewView == null){
+    private void createSurfaceAndAttach(){
+        if(previewSurface == null){
             Camera.Size temp = cameraManager.getBestPreviewSize();
 
-            previewView = new PreviewView(getActivity());
+            previewSurface = new PreviewView(getActivity());
             int height;
             if(temp.width > previewResolution.y){
                 height = temp.width;
@@ -361,71 +506,36 @@ public class ScanFragment extends CrimpFragment {
             }
             FrameLayout.LayoutParams frameParams =
                     new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, height);
-            previewView.setLayoutParams(frameParams);
+            previewSurface.setLayoutParams(frameParams);
 
             //previewFrame
             LinearLayout.LayoutParams linearParams =
                     (android.widget.LinearLayout.LayoutParams) mPreviewFrame.getLayoutParams();
             linearParams.height = previewResolution.y;
             mPreviewFrame.setLayoutParams(linearParams);
-            mPreviewFrame.addView(previewView);
+            mPreviewFrame.addView(previewSurface);
 
-            previewView.getHolder().addCallback(cameraManager);
+            previewSurface.getHolder().addCallback(this);
             if(temp.width > previewResolution.y){
-                previewView.setTranslationY(previewResolution.y - temp.width);
+                previewSurface.setTranslationY(previewResolution.y - temp.width);
             }
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-    /*=========================================================================
-     * Getter/Setter methods
-     *=======================================================================*/
-
-
-    public CameraManager getCameraManager(){
-        return cameraManager;
-    }
-
-
-
-
-
-    /*
-    @Subscribe
-    public void onReceiveClimberIdChange(ClimberIdChange event){
-        Log.d(TAG + ".onReceiveClimberIdChange()", "Received ClimberIdChange event. Length = " + event.getIdLength());
-        climberId = mClimberIdEdit.getText().toString();
-
-        if(cNameImmune == false) {
-            climberName = "";
-            mClimberNameEdit.setText(climberName);
-        }
-        else{
-            cNameImmune = false;
-        }
-
-        BusProvider.getInstance().post(new ScanNotFinish());
-
-        if(event.getIdLength() == 3){
-            mNextButton.setEnabled(true);
-        }
-        else{
-            mNextButton.setEnabled(false);
+    /**
+     * This method is use to remove previewView completely when the activity goes onPause().
+     */
+    private void removePreviewView(){
+        if(previewSurface != null){
+            previewSurface.getHolder().removeCallback(this);
+            mPreviewFrame.removeView(previewSurface);
+            previewSurface = null;
         }
     }
-    */
 
-
+    /**
+     * This method start the decode thread.
+     */
     private void startThread() {
         mDecodeThread = new DecodeThread(mScanFragmentHandler,
                 getActivity().getString(R.string.qr_prefix),
@@ -435,46 +545,16 @@ public class ScanFragment extends CrimpFragment {
         mScanFragmentHandler.setRunning(true);
     }
 
-    private void acquireCamera(){
-        // We need camera resource. We will acquire camera in onResume and release in onPause.
-        // Check if we have camera resource first.
-        if (!cameraManager.hasCamera()) {
-            // No Camera resource.
-            Log.d(TAG + ".acquireCamera()", "No camera resource. Will attempt to acquire camera.");
-
-            boolean temp = cameraManager.acquireCamera(previewResolution);
-            if (temp == false) {
-                // Error handling. Fail to get camera resource.
-                Log.e(TAG + ".acquireCamera()", "Failed to get camera resource.");
-            }
-        }
-    }
-
-    private void acquirePreview(){
-        //TODO Not sure if we can assume camera acquired. Perform check for safety.
-        if (cameraManager.hasCamera()) {
-            Log.d(TAG + ".acquirePreview()", "hasCamera");
-            createPreviewAndArrange();
-        } else {
-            Log.d(TAG + ".acquirePreview()", "no camera");
-        }
-    }
-
-    private void startScan(){
-        if (mState == State.SCANNING) {
-            if (cameraManager.isSurfaceReady()) {
-                cameraManager.startPreview(previewView.getHolder());
-                cameraManager.startScan();
-            }
-        }
-    }
-
+    /**
+     * Clean up method to release camera resource and stop decode thread.
+     */
     private void releaseCameraAndStopDecodeThread(){
         if(mScanFragmentHandler != null){
             mScanFragmentHandler.setRunning(false);
         }
         else{
-            Log.e(TAG + ".releaseCameraAndStopDecodeThread()", "mScanFragmentHandler == null while trying to setRunning(false).");
+            Log.e(TAG + ".releaseCameraAndStopDecodeThread()",
+                    "mScanFragmentHandler == null while trying to setRunning(false).");
         }
 
         if (cameraManager != null) {
@@ -482,21 +562,40 @@ public class ScanFragment extends CrimpFragment {
             cameraManager.releaseCamera();
         }
         else{
-            Log.e(TAG+".releaseCameraAndStopDecodeThread()", "cameraManager == null while trying to stopPreview() and releaseCameraAndStopDecodeThread()");
+            Log.e(TAG+".releaseCameraAndStopDecodeThread()",
+                    "cameraManager == null while trying to stopPreview() and releaseCameraAndStopDecodeThread()");
         }
 
         mScanFragmentHandler.onPause();
     }
 
+    /**
+     * This method tries to acquire camera resource using camera manager.
+     */
+    private void acquireCamera(){
+        // We need camera resource. We will acquire camera in onResume and release in onPause.
+        // Check if we have camera resource first.
+        if (!cameraManager.hasCamera()) {
+            boolean temp = cameraManager.acquireCamera(previewResolution);
+            if (temp == false) {
+                // Error handling. Fail to get camera resource.
+                Log.e(TAG, "Failed to get camera resource.");
+            }
+            else{
+                Log.i(TAG, "Camera resource acquired.");
+            }
+        }
+    }
 
     /**
-     * This method reset activity state to "decode" and restart scanning.
-     * No-op if previewView surface is not ready.
+     * This method reset mClimber, clear mClimberIdEdit and restart scanning.
      */
-    public void rescan(){
+    private void rescan(){
         mClimber.setClimberId(null);
         mClimber.setClimberName(null);
         mClimber.setTotalScore(null);
+
+        mClimberIdEdit.setText(null);
 
         changeState(State.SCANNING);
     }
@@ -504,65 +603,34 @@ public class ScanFragment extends CrimpFragment {
     /**
      * Method to toggle the camera flash.
      */
-    public void toggleFlash(){
-        getCameraManager().setFlash(!getCameraManager().isTorchOn());
+    private void toggleFlash(){
+        cameraManager.setFlash(!cameraManager.isTorchOn());
     }
 
-    public void next(){
-
-    }
-
-    public Handler getDecodeHandler(){
-        return mDecodeThread.getHandler();
-    }
-
-    public Thread getDecodeThread(){
-        return mDecodeThread;
-    }
-
-    @Override
-    public CharSequence getPageTitle() {
-        return "Scan";
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch(v.getId()){
-            case R.id.scan_rescan_button:
-                break;
-            case R.id.scan_flash_button:
-                break;
-            case R.id.scan_next_button:
-                break;
-        }
+    /**
+     * This method is called when next button is pressed.
+     */
+    private void next(){
+        mClimber.setClimberId(mClimberIdEdit.getText().toString());
+        changeState(State.NOT_SCANNING);
+        releaseCameraAndStopDecodeThread();
+        mToActivityMethod.createAndSwitchToScoreFragment(mUser, mClimber);
     }
 
 
 
-
-    public enum State{
-        SCANNING(0),
-        NOT_SCANNING(1);
-
-        private final int value;
-
-        State(int value){
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public static State toEnum(int i){
-            switch(i){
-                case 0:
-                    return SCANNING;
-                case 1:
-                    return SCANNING;
-                default:
-                    return null;
-            }
-        }
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface ScanFragmentToActivityMethods {
+        public void createAndSwitchToScoreFragment(User user, Climber climber);
+        public void destroyOtherTabButScan();
     }
 }
