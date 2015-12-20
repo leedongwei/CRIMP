@@ -44,6 +44,7 @@ public class Categories {
                       byte[] cFinalizeArray, List<String> cStartList, List<String> cEndList){
 
         categoriesInfo = new CategoriesResponseBody();
+        ArrayList<CategoriesResponseBody.Category> arr = new ArrayList<CategoriesResponseBody.Category>();
         int k = 0;
         for(int i=0; i<cNameList.size(); i++){
             CategoriesResponseBody.Category mCategory = new CategoriesResponseBody.Category();
@@ -67,7 +68,9 @@ public class Categories {
             }
 
             mCategory.setRoutes(mRouteList);
+            arr.add(mCategory);
         }
+        categoriesInfo.setCategories(arr);
     }
 
     /**
@@ -95,10 +98,6 @@ public class Categories {
                                                                   String routeHint){
         List<HintableSpinnerItem> spinnerList = new ArrayList<HintableSpinnerItem>();
         spinnerList.add(new CategoryItem(categoryHint, routeHint));
-
-        if(categoriesInfo.getCategories() == null){
-            Log.v("Categories", "categoriesinfo null***********");
-        }
 
         for(CategoriesResponseBody.Category c: categoriesInfo.getCategories()){
             List<HintableSpinnerItem> routes = new ArrayList<HintableSpinnerItem>();
@@ -129,24 +128,16 @@ public class Categories {
     }
 
     /**
-     * Return a copy of a CategoryItem at the specified position in the list.
-     *
-     * @param position Position of the CategoryItem to return.
-     * @return Copy of a CategoryItem at the specified position in the list.
-     */
-    //public CategoryItem getCategorySpinnerItem(int position){
-    //    return new CategoryItem((CategoryItem)spinnerList.get(position+1));
-    //}
-
-    /**
      * Return a list of category names in the order they appear in categoriesInfo.
      *
      * @return ArrayList of category name.
      */
     public ArrayList<String> getCategoryNameList(){
         ArrayList<String> categoryNameList = new ArrayList<String>();
-        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
-            categoryNameList.add(c.getCategoryName());
+        if(categoriesInfo.getCategories()!=null){
+            for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
+                categoryNameList.add(c.getCategoryName());
+            }
         }
         return categoryNameList;
     }
@@ -158,8 +149,10 @@ public class Categories {
      */
     public ArrayList<String> getCategoryIdList(){
         ArrayList<String> categoryIdList = new ArrayList<String>();
-        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
-            categoryIdList.add(c.getCategoryId());
+        if(categoriesInfo.getCategories()!=null) {
+            for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
+                categoryIdList.add(c.getCategoryId());
+            }
         }
         return categoryIdList;
     }
@@ -172,8 +165,10 @@ public class Categories {
      */
     public ArrayList<Integer> getCategoryRouteCountList(){
         ArrayList<Integer> categoryRouteCountList = new ArrayList<Integer>();
-        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
-            categoryRouteCountList.add(c.getRoutes().size());
+        if(categoriesInfo.getCategories()!=null) {
+            for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
+                categoryRouteCountList.add(c.getRoutes().size());
+            }
         }
         return categoryRouteCountList;
     }
@@ -185,9 +180,11 @@ public class Categories {
      */
     public ArrayList<String> getRouteNameList(){
         ArrayList<String> routeNameList = new ArrayList<String>();
-        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
-            for(CategoriesResponseBody.Category.Route r: c.getRoutes()){
-                routeNameList.add(r.getRouteName());
+        if(categoriesInfo.getCategories()!=null) {
+            for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
+                for (CategoriesResponseBody.Category.Route r : c.getRoutes()) {
+                    routeNameList.add(r.getRouteName());
+                }
             }
         }
         return routeNameList;
@@ -200,9 +197,11 @@ public class Categories {
      */
     public ArrayList<String> getRouteIdList(){
         ArrayList<String> routeIdList = new ArrayList<String>();
-        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
-            for(CategoriesResponseBody.Category.Route r: c.getRoutes()){
-                routeIdList.add(r.getRouteId());
+        if(categoriesInfo.getCategories()!=null) {
+            for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
+                for (CategoriesResponseBody.Category.Route r : c.getRoutes()) {
+                    routeIdList.add(r.getRouteId());
+                }
             }
         }
         return routeIdList;
@@ -215,9 +214,11 @@ public class Categories {
      */
     public ArrayList<String> getRouteScoreList(){
         ArrayList<String> routeScoreList = new ArrayList<String>();
-        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
-            for(CategoriesResponseBody.Category.Route r: c.getRoutes()){
-                routeScoreList.add(r.getScore());
+        if(categoriesInfo.getCategories()!=null) {
+            for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
+                for (CategoriesResponseBody.Category.Route r : c.getRoutes()) {
+                    routeScoreList.add(r.getScore());
+                }
             }
         }
         return routeScoreList;
@@ -230,16 +231,20 @@ public class Categories {
      * @return Array of 1's and 0's corresponding to the finalized flag for each category.
      */
     public byte[] getCategoryFinalizeArray(){
-        int size = categoriesInfo.getCategories().size();
-        byte[] categoryFinalizedArray = new byte[size];
-        for(int i=0; i<size; i++){
-            if(categoriesInfo.getCategories().get(i).isScoresFinalized())
-                categoryFinalizedArray[i] = 1;
-            else
-                categoryFinalizedArray[i] = 0;
+        if(categoriesInfo.getCategories()!=null) {
+            int size = categoriesInfo.getCategories().size();
+            byte[] categoryFinalizedArray = new byte[size];
+            for (int i = 0; i < size; i++) {
+                if (categoriesInfo.getCategories().get(i).isScoresFinalized())
+                    categoryFinalizedArray[i] = 1;
+                else
+                    categoryFinalizedArray[i] = 0;
+            }
+            return categoryFinalizedArray;
         }
-
-        return categoryFinalizedArray;
+        else{
+            return null;
+        }
     }
 
     /**
@@ -249,8 +254,10 @@ public class Categories {
      */
     public ArrayList<String> getCategoryStartList(){
         ArrayList<String> categoryStartList = new ArrayList<String>();
-        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
-            categoryStartList.add(c.getTimeStart());
+        if(categoriesInfo.getCategories()!=null) {
+            for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
+                categoryStartList.add(c.getTimeStart());
+            }
         }
         return categoryStartList;
     }
@@ -262,8 +269,10 @@ public class Categories {
      */
     public ArrayList<String> getCategoryEndList(){
         ArrayList<String> categoryEndList = new ArrayList<String>();
-        for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
-            categoryEndList.add(c.getTimeEnd());
+        if(categoriesInfo.getCategories()!=null) {
+            for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
+                categoryEndList.add(c.getTimeEnd());
+            }
         }
         return categoryEndList;
     }
