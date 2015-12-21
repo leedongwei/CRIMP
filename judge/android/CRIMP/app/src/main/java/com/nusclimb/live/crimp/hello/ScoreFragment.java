@@ -22,6 +22,7 @@ import com.nusclimb.live.crimp.common.User;
 import com.nusclimb.live.crimp.common.json.ActiveMonitorResponseBody;
 import com.nusclimb.live.crimp.common.json.GetScoreResponseBody;
 import com.nusclimb.live.crimp.common.spicerequest.ActiveMonitorRequest;
+import com.nusclimb.live.crimp.common.spicerequest.GetScoreRequest;
 import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
@@ -260,13 +261,10 @@ public class ScoreFragment extends CrimpFragment {
     @Override
     public void onResume(){
         super.onResume();
-
-        /*TODO
         ActiveMonitorRequest mActiveMonitorRequest = new ActiveMonitorRequest(mUser.getUserId(),
                 mUser.getAuthToken(), mUser.getCategoryId(), mUser.getRouteId(),
                 mClimber.getClimberId(), true, getActivity());
         spiceManager.execute(mActiveMonitorRequest, new ActiveMonitorRequestListener());
-        */
         changeState(mState);
     }
 
@@ -391,6 +389,10 @@ public class ScoreFragment extends CrimpFragment {
         switch (mState){
             case QUERYING:
                 //Send query request
+                GetScoreRequest mGetScoreRequest = new GetScoreRequest(mUser.getUserId(),
+                        mUser.getAuthToken(), mUser.getCategoryId(), mUser.getRouteId(),
+                        mClimber.getClimberId(), getActivity());
+                spiceManager.execute(mGetScoreRequest, new GetScoreRequestListener());
                 break;
             case NOT_QUERYING:
                 break;
@@ -452,6 +454,7 @@ public class ScoreFragment extends CrimpFragment {
             if(result.getClimberId().compareTo(mClimber.getClimberId()) == 0){
                 mClimber.setTotalScore(result.getScoreString());
                 mClimber.setClimberName(result.getClimberName());
+                changeState(State.NOT_QUERYING);
             }
             else{
                 Log.e(TAG+".onRequestSuccess()", result.getClimberId()+" != "+mClimberIdEdit.getText().toString());

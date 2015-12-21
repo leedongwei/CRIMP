@@ -34,6 +34,9 @@ public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreResponseB
         super(GetScoreResponseBody.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
+        this.categoryId = categoryId;
+        this.routeId = routeId;
+        this.climberId = climberId;
         this.context = context;
 
         if(context.getResources().getBoolean(R.bool.is_production_app)) {
