@@ -23,6 +23,7 @@ import com.nusclimb.live.crimp.common.json.ActiveMonitorResponseBody;
 import com.nusclimb.live.crimp.common.json.GetScoreResponseBody;
 import com.nusclimb.live.crimp.common.spicerequest.ActiveMonitorRequest;
 import com.nusclimb.live.crimp.common.spicerequest.GetScoreRequest;
+import com.nusclimb.live.crimp.scoremodule.TopBonusScoring;
 import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 /**
  * Created by weizhi on 16/7/2015.
  */
-public class ScoreFragment extends CrimpFragment {
+public class ScoreFragment extends CrimpFragment implements TopBonusScoring.ScoringModuleToFragmentMethods {
     private final String TAG = ScoreFragment.class.getSimpleName();
 
     private enum State{
@@ -77,6 +78,7 @@ public class ScoreFragment extends CrimpFragment {
     private EditText mClimberNameEdit;
     private EditText mAccumulatedEdit;
     private EditText mCurrentSessionEdit;
+    /*
     private TextView mBText;
     private TextView mTText;
     private Button mPlusOneButton;
@@ -84,9 +86,11 @@ public class ScoreFragment extends CrimpFragment {
     private Button mTopButton;
     private Button mSubmitButton;
     private Button mBackspaceButton;
+    */
 
     public static ScoreFragment newInstance(User user, Categories categories,
                                             Climber climber, Context context) {
+        Log.d("ScoreFragment", "newInstance");
         ScoreFragment myFragment = new ScoreFragment();
 
         Bundle args = new Bundle();
@@ -158,6 +162,7 @@ public class ScoreFragment extends CrimpFragment {
         mClimberIdEdit = (EditText) rootView.findViewById(R.id.scoring_climber_id_edit);
         mClimberNameEdit = (EditText) rootView.findViewById(R.id.scoring_climber_name_edit);
         mCurrentSessionEdit = (EditText) rootView.findViewById(R.id.scoring_score_current_edit);
+        /*
         mTText = (TextView) rootView.findViewById(R.id.scoring_t_text);
         mBText = (TextView) rootView.findViewById(R.id.scoring_b_text);
         mPlusOneButton = (Button) rootView.findViewById(R.id.scoring_plus_one_button);
@@ -165,16 +170,20 @@ public class ScoreFragment extends CrimpFragment {
         mTopButton = (Button) rootView.findViewById(R.id.scoring_t_button);
         mSubmitButton = (Button) rootView.findViewById(R.id.scoring_submit_button);
         mBackspaceButton = (Button) rootView.findViewById(R.id.scoring_backspace_button);
+        */
         mAccumulatedEdit = (EditText) rootView.findViewById(R.id.scoring_score_history_edit);
 
+        /*
         mBackspaceButton.setOnClickListener(this);
         mBonusButton.setOnClickListener(this);
         mPlusOneButton.setOnClickListener(this);
         mSubmitButton.setOnClickListener(this);
         mTopButton.setOnClickListener(this);
+*/
 
         //mAccumulatedEdit.addTextChangedListener(new AccumulatedScoreTextWatcher());
 
+        Log.d(TAG, "onCreateView");
         return rootView;
     }
 
@@ -250,17 +259,24 @@ public class ScoreFragment extends CrimpFragment {
             mClimber.setClimberName(savedInstanceState.getString(getString(R.string.bundle_climber_name)));
             mClimber.setTotalScore(savedInstanceState.getString(getString(R.string.bundle_total_score)));
         }
+
+        TopBonusScoring f1 = TopBonusScoring.newInstance(this.getActivity());
+        getChildFragmentManager().beginTransaction().replace(R.id.scoring_score_fragment, f1).commit();
+
+        Log.d(TAG, "onActivityCreated");
     }
 
     @Override
     public void onStart(){
         super.onStart();
         spiceManager.start(getActivity());
+        Log.d(TAG, "onStart");
     }
 
     @Override
     public void onResume(){
         super.onResume();
+        Log.d(TAG, "onResume");
         ActiveMonitorRequest mActiveMonitorRequest = new ActiveMonitorRequest(mUser.getUserId(),
                 mUser.getAuthToken(), mUser.getCategoryId(), mUser.getRouteId(),
                 mClimber.getClimberId(), true, getActivity());
@@ -270,11 +286,13 @@ public class ScoreFragment extends CrimpFragment {
 
     @Override
     public void onPause(){
+        Log.d(TAG, "onPause");
         super.onPause();
     }
 
     @Override
     public void onStop(){
+        Log.d(TAG, "onStop");
         spiceManager.shouldStop();
         super.onStop();
     }
@@ -364,8 +382,8 @@ public class ScoreFragment extends CrimpFragment {
                     mClimberNameEdit.setText(mClimber.getClimberName());
                 mAccumulatedEdit.setText(null);
                 //Don't touch mCurrentSessionEdit.
-                mBText.setText("-");
-                mTText.setText("-");
+                //mBText.setText("-");
+                //mTText.setText("-");
                 break;
             case NOT_QUERYING:
                 mRouteIdText.setText(mUser.getRouteId());
@@ -373,8 +391,6 @@ public class ScoreFragment extends CrimpFragment {
                 mClimberNameEdit.setText(mClimber.getClimberName());
                 mAccumulatedEdit.setText(mClimber.getTotalScore());
                 //Don't touch mCurrentSessionEdit.
-                //mBText.setText("-");
-                //mTText.setText("-");
                 calculateAndUpdateBT();
                 break;
             default:
@@ -469,7 +485,13 @@ public class ScoreFragment extends CrimpFragment {
 
 
 
-
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.scoring_submit_button:
+                break;
+        }
+    }
 
 
 
@@ -480,26 +502,15 @@ public class ScoreFragment extends CrimpFragment {
     }
 
     @Override
-    public void onClick(View v) {
-        switch(v.getId()){
-            case R.id.scoring_b_button:
-                break;
-            case R.id.scoring_backspace_button:
-                break;
-            case R.id.scoring_submit_button:
-                break;
-            case R.id.scoring_t_button:
-                break;
-            case R.id.scoring_plus_one_button:
-                break;
-        }
+    public void appendStringToAccumulated(String s){
+        mCurrentSessionEdit.append(s);
     }
-
 
 
     /*=========================================================================
      * Button press methods
      *=======================================================================*/
+    /*
     public void plusOne(){
         mCurrentSessionEdit.append("1");
 
@@ -548,6 +559,7 @@ public class ScoreFragment extends CrimpFragment {
 
         calculateAndUpdateBT();
     }
+    */
 
     public void submit(){
         new AlertDialog.Builder(getActivity())

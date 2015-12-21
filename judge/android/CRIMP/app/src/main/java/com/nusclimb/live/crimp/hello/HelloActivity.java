@@ -1,5 +1,7 @@
 package com.nusclimb.live.crimp.hello;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,12 +18,15 @@ import android.view.WindowManager;
 
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
+import com.nusclimb.live.crimp.CrimpApplication;
 import com.nusclimb.live.crimp.CrimpFragmentStatePagerAdapter;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.Categories;
 import com.nusclimb.live.crimp.common.Climber;
+import com.nusclimb.live.crimp.common.QueueObject;
 import com.nusclimb.live.crimp.common.User;
 import com.nusclimb.live.crimp.login.LoginActivity;
+import com.nusclimb.live.crimp.service.CrimpService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,16 +121,9 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
                 // When swiping between different app sections, select the corresponding tab.
                 // We can also use ActionBar.Tab#select() to do this if we have a reference to the
                 // Tab.
-                Log.d(TAG, "onPageSelected(" + position + ") currentItem:"+mViewPager.getCurrentItem());
-                if(mViewPager.getCurrentItem()==2 && position == 1){
-                    //TODO
-                    Log.d(TAG, "DONT ALLOW GOING TO SCAN FRAG");
-                }
-                else{
-                    super.onPageSelected(position);
-                    mActionBar.setSelectedNavigationItem(position);
-                    Log.d(TAG, "ALLOWED GOING TO SCAN FRAG");
-                }
+                Log.d(TAG, "onPageSelected(" + position + ") currentItem:" + mViewPager.getCurrentItem());
+                super.onPageSelected(position);
+                mActionBar.setSelectedNavigationItem(position);
             }
         });
 
@@ -207,25 +205,49 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
     @Override
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        if(mViewPager.getCurrentItem()!=2) {
-            // We can always go back to earlier tab (earlier tab always exist).
-            // We can go to a tab if it exist.
-            int currentIndex = mViewPager.getCurrentItem();
-            if (tab.getPosition() < currentIndex || tab.getPosition() < mCrimpFragmentStatePagerAdapter.getCount()) {
-                mViewPager.setCurrentItem(tab.getPosition());
-            }
-        }
-        else{
-            activityHandler.postAtFrontOfQueue(new Runnable() {
-                @Override
-                public void run() {
-                    getSupportActionBar().setSelectedNavigationItem(2);
-                }
-            });
-        }
-
-        if(mViewPager.getCurrentItem()==2){
+        Log.d(TAG, "onTabSelected: viewpagercurr:" + mViewPager.getCurrentItem() + " actiontabcurr:" + mActionBar.getSelectedNavigationIndex() + " tab:" + tab.getPosition());
+        final int mTab = tab.getPosition();
+        if(tab.getPosition() == 2)
             mViewPager.setIsAllowSwiping(false);
+
+        int currentIndex = mViewPager.getCurrentItem();
+        switch(currentIndex){
+            case 0:
+            case 1:
+                if(tab.getPosition()!=currentIndex){
+                    if(tab.getPosition()<mCrimpFragmentStatePagerAdapter.getCount())
+                        mViewPager.setCurrentItem(tab.getPosition());
+                }
+                mViewPager.setIsAllowSwiping(true);
+                break;
+            case 2:
+                activityHandler.postAtFrontOfQueue(new Runnable() {
+                    @Override
+                    public void run() {
+                        getSupportActionBar().setSelectedNavigationItem(2);
+                    }
+                });
+                if(currentIndex!=tab.getPosition()){
+                    new AlertDialog.Builder(this)
+                            .setTitle("Navigate away from Score tab")
+                            .setMessage("Current session score will be lost")
+                            .setPositiveButton("Navigate away", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // Do stuff
+                                    mViewPager.setIsAllowSwiping(true);
+                                    mViewPager.setCurrentItem(mTab);
+                                    destroyOtherTabButScan();
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
+                break;
         }
     }
 
@@ -243,12 +265,33 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     @Override
     public void onBackPressed()
     {
-        int currentTab = mViewPager.getCurrentItem();
-        if(currentTab == 0){
-            //super.onBackPressed();
-        }
-        else{
-            mActionBar.setSelectedNavigationItem(currentTab-1);
+        final int currentTab = mViewPager.getCurrentItem();
+        switch(currentTab){
+            case 0:
+                break;
+            case 1:
+                mActionBar.setSelectedNavigationItem(currentTab - 1);
+                break;
+            case 2:
+                new AlertDialog.Builder(this)
+                        .setTitle("Navigate away from Score tab")
+                        .setMessage("Current session score will be lost")
+                        .setPositiveButton("Navigate away", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Do stuff
+                                mViewPager.setIsAllowSwiping(true);
+                                mViewPager.setCurrentItem(currentTab-1);
+                                destroyOtherTabButScan();
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+                break;
         }
     }
 
@@ -302,6 +345,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
         //We try to switch to ScoreFragment. Create ScoreFragment if it does not already exist.
         if(mActionBar.getTabCount()<3){
+            Log.d(TAG, "create n switch to score "+mActionBar.getTabCount());
             ScoreFragment mScoreFragment = ScoreFragment.newInstance(user, mCategories, climber, this);
 
             ActionBar.Tab tab = mActionBar.newTab()
@@ -310,6 +354,9 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
             mActionBar.addTab(tab);
 
             mCrimpFragmentStatePagerAdapter.addFragment(mScoreFragment);
+        }
+        else{
+            Log.d(TAG, "create n switch to score: "+mActionBar.getTabCount());
         }
         mViewPager.setCurrentItem(2);
     }
