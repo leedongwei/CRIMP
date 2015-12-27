@@ -13,7 +13,6 @@ alanning:roles
 nimble:restivus
 http
 meteorhacks:kadira
-meteorhacks:kadira-profiler
 meteorhacks:zones
 ewall:foundation
 fourseven:scss
@@ -26,3 +25,4 @@ meteorhacks:npm
 
 
 npm-container
+mike:mocha

@@ -1,43 +1,44 @@
 # Comprehensive Real-time Index of Monkey Points (CRIMP)
 ### A real-time scoring and ranking system for climbing events
 
+<br><br><br>
 
-## Interface
-### Spectators
+*Development is currently on hold. We will continue in December 2015.*
 
-### Judges
-
-### Admin
-
-## Scoring systems available
-* IFSC Top/Bonus
-
+<br><br><br>
 
 ## System Components
-### web
-Mobile-supported web application for spectators to display real-time information. There are 2 key features:
+#### spectator scoreboard (web)
+Web app for spectators that displays scoring data in real-time.
 
-1. A list of climbers who are currently on the wall
-2. Sorted and ranked list of climbers with their scores on each route
+#### admin dashboard (web)
+Interface for admins to have a quick overview of the system and edit the data.
 
+#### judging app (android)
+App for judges to submit scores. We're looking for an iOS developer to help us work on this!
 
-### judge
-Android app for judges to submit scores. Emphasis placed on a simple and easy-to-use interface to reduce judges' workload. App uses QR code to identify climbers, but the keypad is available to manually enter the climber's ID as a backup. The app is fail-safe even if there is no internet connection - scores will be stored in a queue and sent out in sequence when connection is re-established.
+#### climber scoresheets (paper)
+Generator for physical scoresheets with unique QR codes for every climber.
 
+<br><br>
 
-### paper
-Generator for physical scoresheets with unique QR codes for every climber. Produces a single PDF file to send for printing. It would be nice if you have a few minions to cut and sort them for distribution. Distributing the scoresheets in the call-zone will prevent climbers from losing them.
+## Scoring systems
+* IFSC Top/Bonus
 
+<br><br>
 
 ## Technical Support & Development
-* Currently ongoing!
-* [Git branching model](http://nvie.com/posts/a-successful-git-branching-model/)
+* Currently ongoing! Contact <a href="https://github.com/leedongwei">Dongwei</a> for more information!
 
-
+<br><br>
 
 ## Users
+#### v0.2
 * [NUS - Black Diamond Boulderactive 2014](http://boulderactive.nusclimb.com)
 * [Asian University Climbing Championship 2014](http://nus.edu.sg/osa/src/competitive/competitions/aucc)
+
+#### v1.0.0
+* NUS - Black Diamond Boulderactive 2015
 
 
 ## License

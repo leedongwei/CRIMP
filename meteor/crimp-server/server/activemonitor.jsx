@@ -12,7 +12,7 @@ function checkActiveClimber() {
 
     ActiveMonitor.find({})
                  .forEach(checkActiveClimberExpiry);
-  }, 1000);
+  }, 60000);
 }
 
 /**
