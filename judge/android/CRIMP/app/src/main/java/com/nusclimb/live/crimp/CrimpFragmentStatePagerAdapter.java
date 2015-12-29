@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.Log;
+import android.view.ViewGroup;
 
 import com.nusclimb.live.crimp.hello.CrimpFragment;
 
@@ -24,6 +25,8 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
     private final String TAG = "FragStatePagerAdapter";
 
     private List<CrimpFragment> fragmentList;
+    private FragmentManager mFragmentManager;
+    private long baseId = 0;
 
     /**
      * Constructs a CrimpFragmentStatePagerAdapter object with an empty list
@@ -34,6 +37,7 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
      */
     public CrimpFragmentStatePagerAdapter(FragmentManager fm) {
         super(fm);
+        this.mFragmentManager = fm;
         this.fragmentList = new ArrayList<CrimpFragment>();
     }
 
@@ -47,6 +51,7 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
      */
     public CrimpFragmentStatePagerAdapter(FragmentManager fm, List<CrimpFragment> fragmentList) {
         super(fm);
+        this.mFragmentManager = fm;
         this.fragmentList = fragmentList;
     }
 
@@ -57,6 +62,12 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
         // method instantiate the item.
 
         Log.d(TAG, "called getitem() on position: "+position);
+        List<Fragment> fragList = mFragmentManager.getFragments();
+        int fragListCount = -1;
+        if(fragList!=null)
+            fragListCount = fragList.size();
+        Log.d(TAG, "***getItem() fraglistcount:"+fragListCount);
+
 
         return fragmentList.get(position);
     }
@@ -72,7 +83,7 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
             return POSITION_NONE;
         }
         else{
-            return position;
+            return POSITION_UNCHANGED;
         }
     }
 
@@ -84,6 +95,11 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
      * @param mFragment Fragment to be inserted.
      */
     public void addFragment( int index, CrimpFragment mFragment) {
+        List<Fragment> fragList = mFragmentManager.getFragments();
+        int fragListCount = -1;
+        if(fragList!=null)
+            fragListCount = fragList.size();
+        Log.d(TAG, "*** addFrag("+index+") fraglistcount:"+fragListCount);
         fragmentList.add(index, mFragment);
         notifyDataSetChanged();
     }

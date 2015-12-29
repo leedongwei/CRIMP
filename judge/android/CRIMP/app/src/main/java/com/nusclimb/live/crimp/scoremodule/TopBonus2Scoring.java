@@ -5,8 +5,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,24 +17,20 @@ import com.nusclimb.live.crimp.R;
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class TopBonusScoring extends ScoringModule implements View.OnClickListener{
-    private final String TAG = TopBonusScoring.class.getSimpleName();
+public class TopBonus2Scoring extends Fragment implements View.OnClickListener{
+    private final String TAG = TopBonus2Scoring.class.getSimpleName();
 
     private ScoringModuleToFragmentMethods mParentFragment;
 
-    private TextView mBText;
-    private TextView mTText;
-    private Button mPlusOneButton;
-    private Button mBonusButton;
+    private TextView mBestResult;
+    private Button mBonusOneButton;
+    private Button mBonusTwoButton;
     private Button mTopButton;
     private Button mBackspaceButton;
 
-    private String currentScore = null;
-    private String accumulatedScore = null;
-
-    public static TopBonusScoring newInstance(Context context){
-        Log.d("TopBonusScoring", "newInstance");
-        TopBonusScoring myFragment = new TopBonusScoring();
+    public static TopBonus2Scoring newInstance(Context context){
+        Log.d("TopBonus2Scoring", "newInstance");
+        TopBonus2Scoring myFragment = new TopBonus2Scoring();
 
         Bundle args = new Bundle();
 
@@ -62,11 +56,13 @@ public class TopBonusScoring extends ScoringModule implements View.OnClickListen
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_top_bonus_scoring, container, false);
 
+        /*
         mTText = (TextView) rootView.findViewById(R.id.scoring_t_text);
         mBText = (TextView) rootView.findViewById(R.id.scoring_b_text);
         mPlusOneButton = (Button) rootView.findViewById(R.id.scoring_plus_one_button);
         mBonusButton = (Button) rootView.findViewById(R.id.scoring_b_button);
         mTopButton = (Button) rootView.findViewById(R.id.scoring_t_button);
+        mSubmitButton = (Button) rootView.findViewById(R.id.scoring_submit_button);
         mBackspaceButton = (Button) rootView.findViewById(R.id.scoring_backspace_button);
 
         mBackspaceButton.setOnClickListener(this);
@@ -75,7 +71,7 @@ public class TopBonusScoring extends ScoringModule implements View.OnClickListen
         mTopButton.setOnClickListener(this);
 
         Log.d(TAG, "onCreateView");
-
+*/
         return rootView;
     }
 
@@ -122,18 +118,14 @@ public class TopBonusScoring extends ScoringModule implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
+        /*
         switch(v.getId()){
             case R.id.scoring_b_button:
                 mParentFragment.appendStringToAccumulated("B");
                 mBonusButton.setEnabled(false);
                 mBackspaceButton.setEnabled(true);
-                calculateScore("B");
                 break;
             case R.id.scoring_backspace_button:
-                currentScore = currentScore.substring(0, currentScore.length()-1);
-                if(currentScore.length()==0)
-                    mBackspaceButton.setEnabled(false);
-                calculateScore("");
                 break;
             case R.id.scoring_t_button:
                 mParentFragment.appendStringToAccumulated("T");
@@ -141,40 +133,12 @@ public class TopBonusScoring extends ScoringModule implements View.OnClickListen
                 mPlusOneButton.setEnabled(false);
                 mBonusButton.setEnabled(false);
                 mTopButton.setEnabled(false);
-                calculateScore("T");
                 break;
             case R.id.scoring_plus_one_button:
                 mParentFragment.appendStringToAccumulated("1");
                 mBackspaceButton.setEnabled(true);
-                calculateScore("1");
                 break;
         }
-    }
-
-    @Override
-    public void onScoreChange(String accumulatedScore, String currentScore) {
-        this.accumulatedScore = accumulatedScore;
-        this.currentScore = currentScore;
-        calculateScore("");
-    }
-
-    public void calculateScore(String append){
-        String scoreString = accumulatedScore + currentScore + append;
-        int top = scoreString.indexOf('T');
-        int bonus = scoreString.indexOf('B');
-
-        if(top == -1){
-            mTText.setText("-");
-        }
-        else{
-            mTText.setText(String.valueOf(top));
-        }
-
-        if(bonus == -1){
-            mBText.setText("-");
-        }
-        else{
-            mBText.setText(String.valueOf(bonus));
-        }
+        */
     }
 }

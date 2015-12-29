@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -47,7 +48,6 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     // For doing tab manipulation
     private ActionBar mActionBar;
     private CrimpViewPager mViewPager;
-    private HintableArrayAdapter mHintableArrayAdapter;
 
     private CrimpFragmentStatePagerAdapter mCrimpFragmentStatePagerAdapter;
     private Handler activityHandler;
@@ -71,9 +71,9 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         setContentView(R.layout.activity_hello);
 
         // Prepare the initial fragment (RouteFragment) and add it to a list of fragments.
-        List<CrimpFragment> fragList = new ArrayList<CrimpFragment>();
-        RouteFragment rf = RouteFragment.newInstance(getIntent().getExtras());
-        fragList.add(rf);
+        //List<CrimpFragment> fragList = new ArrayList<CrimpFragment>();
+        //RouteFragment rf = RouteFragment.newInstance(getIntent().getExtras());
+        //fragList.add(rf);
 
         /* Note to self: ActionBar and ViewPager are seperated. User can switch between
          * fragments by using either ActionBar or ViewPager. When ActionBar is used, we set
@@ -89,7 +89,10 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         activityHandler = new Handler();
 
         // Prepare ActionBar, create a routeTab for our RouteFragment.
-        mCrimpFragmentStatePagerAdapter = new CrimpFragmentStatePagerAdapter(getSupportFragmentManager(), fragList);
+        mCrimpFragmentStatePagerAdapter = new CrimpFragmentStatePagerAdapter(getSupportFragmentManager());
+        RouteFragment rf = RouteFragment.newInstance();
+        mCrimpFragmentStatePagerAdapter.addFragment(rf);
+
         mViewPager = (CrimpViewPager)findViewById(R.id.pager);
         mActionBar = getSupportActionBar();
         mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -112,7 +115,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                Log.v(TAG, "onPageScrolled(" + position + ", " + positionOffset + ", " + positionOffsetPixels + ")");
+                //Log.v(TAG, "onPageScrolled(" + position + ", " + positionOffset + ", " + positionOffsetPixels + ")");
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels);
             }
 
@@ -121,7 +124,8 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
                 // When swiping between different app sections, select the corresponding tab.
                 // We can also use ActionBar.Tab#select() to do this if we have a reference to the
                 // Tab.
-                Log.d(TAG, "onPageSelected(" + position + ") currentItem:" + mViewPager.getCurrentItem());
+                Log.d(TAG, "onPageSelected(" + position + ") currentItem:" + mViewPager.getCurrentItem()+
+                " mUser:"+mUser.toString());
                 super.onPageSelected(position);
                 mActionBar.setSelectedNavigationItem(position);
             }
@@ -134,6 +138,9 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
             mUser.setUserName(getIntent().getStringExtra(getString(R.string.bundle_user_name)));
             mUser.setUserId(getIntent().getStringExtra(getString(R.string.bundle_x_user_id)));
             mUser.setAuthToken(getIntent().getStringExtra(getString(R.string.bundle_x_auth_token)));
+
+            mCategories = new Categories();
+            mClimber = new Climber();
         }
         else{
             // Recreating activity. Restore all info from saved instance state.
@@ -161,6 +168,12 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
             mClimber.setClimberName(savedInstanceState.getString(getString(R.string.bundle_climber_name)));
             mClimber.setTotalScore(savedInstanceState.getString(getString(R.string.bundle_total_score)));
         }
+    }
+
+    @Override
+    protected void onPause(){
+        Log.v(TAG, "onpause curritem:" + mViewPager.getCurrentItem());
+        super.onPause();
     }
 
     @Override
@@ -205,7 +218,6 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
     @Override
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        Log.d(TAG, "onTabSelected: viewpagercurr:" + mViewPager.getCurrentItem() + " actiontabcurr:" + mActionBar.getSelectedNavigationIndex() + " tab:" + tab.getPosition());
         final int mTab = tab.getPosition();
         if(tab.getPosition() == 2)
             mViewPager.setIsAllowSwiping(false);
@@ -236,7 +248,8 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
                                     // Do stuff
                                     mViewPager.setIsAllowSwiping(true);
                                     mViewPager.setCurrentItem(mTab);
-                                    destroyOtherTabButScan();
+                                    ((CrimpFragment)(getSupportFragmentManager().getFragments().get(mTab))).restart();
+                                    removeFragment(2);
                                 }
                             })
                             .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -280,8 +293,9 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
                             public void onClick(DialogInterface dialog, int which) {
                                 // Do stuff
                                 mViewPager.setIsAllowSwiping(true);
-                                mViewPager.setCurrentItem(currentTab-1);
-                                destroyOtherTabButScan();
+                                mViewPager.setCurrentItem(currentTab - 1);
+                                ((CrimpFragment)(getSupportFragmentManager().getFragments().get(1))).restart();
+                                removeFragment(2);
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -319,13 +333,11 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     }
 
     @Override
-     public void createAndSwitchToScanFragment(User user, Categories categoriesInfo) {
-        mUser = new User(user);
-        mCategories = new Categories(categoriesInfo);
+     public void createAndSwitchToScanFragment() {
 
         //We try to switch to ScanFragment. Create ScanFragment if it does not already exist.
         if(mActionBar.getTabCount()<2){
-            ScanFragment mScanFragment = ScanFragment.newInstance(user, categoriesInfo, this);
+            ScanFragment mScanFragment = ScanFragment.newInstance();
 
             ActionBar.Tab tab = mActionBar.newTab()
                     .setText(mScanFragment.getPageTitle())
@@ -338,15 +350,48 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     }
 
     @Override
-    public void createAndSwitchToScoreFragment(User user, Climber climber) {
-        //TODO
-        mUser = new User(user);
-        mClimber = new Climber(climber);
+    public void onSpinnerSelectionChange(){
+        Log.d(TAG, "Spinner selection change when we are showing mViewPager:"+mViewPager.getCurrentItem());
+        if(mViewPager.getCurrentItem()==0){
+            for (int i = mActionBar.getTabCount(); i > 1; i--) {
+                removeFragment(i - 1);
+            }
+        }
+        mUser.setCategoryId(null);
+        mUser.setRouteId(null);
 
+        mClimber = new Climber();
+    }
+
+    @Override
+    public User getUser(){
+        return new User(mUser);
+    }
+
+    @Override
+    public Categories getCategories(){
+        return new Categories(mCategories);
+    }
+
+    @Override
+    public void onCategoryRouteSelected(String categoryId, String routeId){
+        mUser.setCategoryId(categoryId);
+        mUser.setRouteId(routeId);
+
+        mClimber = new Climber();
+    }
+
+    @Override
+    public void setCategories(Categories categories){
+        mCategories = new Categories(categories);
+    }
+
+    @Override
+    public void createAndSwitchToScoreFragment() {
         //We try to switch to ScoreFragment. Create ScoreFragment if it does not already exist.
         if(mActionBar.getTabCount()<3){
-            Log.d(TAG, "create n switch to score "+mActionBar.getTabCount());
-            ScoreFragment mScoreFragment = ScoreFragment.newInstance(user, mCategories, climber, this);
+            Log.d(TAG, "create n switch to score " + mActionBar.getTabCount());
+            ScoreFragment mScoreFragment = ScoreFragment.newInstance();
 
             ActionBar.Tab tab = mActionBar.newTab()
                     .setText(mScoreFragment.getPageTitle())
@@ -356,34 +401,56 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
             mCrimpFragmentStatePagerAdapter.addFragment(mScoreFragment);
         }
         else{
-            Log.d(TAG, "create n switch to score: "+mActionBar.getTabCount());
+            Log.d(TAG, "switch to score: " + mActionBar.getTabCount());
         }
         mViewPager.setCurrentItem(2);
     }
 
     @Override
-    public void destroyOtherTabButRoute(){
-        if(mViewPager.getCurrentItem()==0) {
-            Log.v(TAG, "currentTab: " + mViewPager.getCurrentItem() + "number of tab: " + mActionBar.getTabCount());
-            for (int i = mActionBar.getTabCount(); i > mViewPager.getCurrentItem() + 1; i--) {
-                removeFragment(i - 1);
+    public void updateActivityClimberInfo(String climberId, String climberName){
+        mClimber.setClimberId(climberId);
+        mClimber.setClimberName(climberName);
+
+        // First check to prevent null pointer exception
+        if(climberId != null && mClimber.getClimberId() != null){
+            // We reset totalscore if id is different.
+            if(climberId.compareTo(mClimber.getClimberId()) != 0){
+                mClimber.setTotalScore(null);
             }
         }
     }
 
     @Override
-    public void destroyOtherTabButScan(){
-        if(mViewPager.getCurrentItem()==1) {
-            Log.v(TAG, "currentTab: " + mViewPager.getCurrentItem() + "number of tab: " + mActionBar.getTabCount());
-            for (int i = mActionBar.getTabCount(); i > mViewPager.getCurrentItem() + 1; i--) {
-                removeFragment(i - 1);
-            }
-        }
+    public String getCategoryId(){
+        return mUser.getCategoryId();
+    }
+
+    @Override
+    public String getClimberId(){
+        return mClimber.getClimberId();
+    }
+
+    @Override
+    public String getClimberName(){
+        return mClimber.getClimberName();
+
+    }
+
+    @Override
+    public Climber getClimber(){
+        return new Climber(mClimber);
+    }
+
+    @Override
+    public void updateClimberInfo(String climberName,String totalScore){
+        mClimber.setClimberName(climberName);
+        mClimber.setTotalScore(totalScore);
     }
 
     private void removeFragment(int position){
         mCrimpFragmentStatePagerAdapter.removeFragment(position);
         mActionBar.removeTabAt(position);
     }
+
 
 }

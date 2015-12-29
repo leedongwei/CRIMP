@@ -8,6 +8,7 @@ import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -71,8 +72,6 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
 
     private ScanFragmentToActivityMethods mToActivityMethod;   //This is how we will communicate with
                                                                 //Hello Activity.
-    private User mUser = null;
-    private Climber mClimber = null;
     private State mState;
 
     // Decoding stuff
@@ -93,41 +92,10 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
     private EditText mClimberNameEdit;
     private Button mNextButton;
 
-    public static ScanFragment newInstance(User user, Categories categoriesInfo, Context context) {
+    private TextWatcher mTextWatcher;
+
+    public static ScanFragment newInstance() {
         ScanFragment myFragment = new ScanFragment();
-
-        Bundle args = new Bundle();
-        if(user != null){
-            args.putString(context.getString(R.string.bundle_x_user_id), user.getUserId());
-            args.putString(context.getString(R.string.bundle_x_auth_token), user.getAuthToken());
-            args.putString(context.getString(R.string.bundle_user_name), user.getUserName());
-            args.putString(context.getString(R.string.bundle_access_token), user.getFacebookAccessToken());
-            args.putString(context.getString(R.string.bundle_category_id), user.getCategoryId());
-            args.putString(context.getString(R.string.bundle_route_id), user.getRouteId());
-        }
-
-        if(categoriesInfo != null){
-            ArrayList<String> categoryNameList = categoriesInfo.getCategoryNameList();
-            ArrayList<String> categoryIdList = categoriesInfo.getCategoryIdList();
-            ArrayList<Integer> categoryRouteCountList = categoriesInfo.getCategoryRouteCountList();
-            ArrayList<String> routeNameList = categoriesInfo.getRouteNameList();
-            ArrayList<String> routeIdList = categoriesInfo.getRouteIdList();
-            ArrayList<String> routeScoreList = categoriesInfo.getRouteScoreList();
-            byte[] categoryFinalizeArray = categoriesInfo.getCategoryFinalizeArray();
-            ArrayList<String> categoryStartList = categoriesInfo.getCategoryStartList();
-            ArrayList<String> categoryEndList = categoriesInfo.getCategoryEndList();
-
-            args.putStringArrayList(context.getString(R.string.bundle_category_name_list), categoryNameList);
-            args.putStringArrayList(context.getString(R.string.bundle_category_id_list),categoryIdList);
-            args.putIntegerArrayList(context.getString(R.string.bundle_category_route_count_list), categoryRouteCountList);
-            args.putStringArrayList(context.getString(R.string.bundle_route_name_list), routeNameList);
-            args.putStringArrayList(context.getString(R.string.bundle_route_id_list), routeIdList);
-            args.putStringArrayList(context.getString(R.string.bundle_route_score_list), routeScoreList);
-            args.putByteArray(context.getString(R.string.bundle_category_finalize_list), categoryFinalizeArray);
-            args.putStringArrayList(context.getString(R.string.bundle_category_start_list), categoryStartList);
-            args.putStringArrayList(context.getString(R.string.bundle_category_end_list), categoryEndList);
-        }
-        myFragment.setArguments(args);
 
         return myFragment;
     }
@@ -139,8 +107,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
      * @param climberName climber name
      */
     public void updateClimberWithScanResult(String climberId, String climberName){
-        mClimber.setClimberId(climberId);
-        mClimber.setClimberName(climberName);
+        mToActivityMethod.updateActivityClimberInfo(climberId, climberName);
     }
 
     /**
@@ -205,7 +172,8 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
         mNextButton.setOnClickListener(this);
         mRescanButton.setOnClickListener(this);
 
-        mClimberIdEdit.addTextChangedListener(new ClimberIdTextWatcher(this));
+        mTextWatcher = new ClimberIdTextWatcher(this);
+        mClimberIdEdit.addTextChangedListener(mTextWatcher);
 
         // Update buttons.
         if(!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)){
@@ -224,44 +192,9 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
         if(savedInstanceState == null){
             // Initialize mState
             mState = State.SCANNING;
-            Bundle args = getArguments();
-
-            // Initialize mUser
-            if(mUser == null)
-                mUser = new User();
-            mUser.setUserId(args.getString(getString(R.string.bundle_x_user_id)));
-            mUser.setAuthToken(args.getString(getString(R.string.bundle_x_auth_token)));
-            mUser.setUserName(args.getString(getString(R.string.bundle_user_name)));
-            mUser.setFacebookAccessToken(args.getString(getString(R.string.bundle_access_token)));
-            mUser.setCategoryId(args.getString(getString(R.string.bundle_category_id)));
-            mUser.setRouteId(args.getString(getString(R.string.bundle_route_id)));
-
-            // Initialize mClimber
-            if(mClimber == null)
-                mClimber = new Climber();
-            mClimber.setClimberId(args.getString(getString(R.string.bundle_climber_id)));
-            mClimber.setClimberName(args.getString(getString(R.string.bundle_climber_name)));
-            mClimber.setTotalScore(args.getString(getString(R.string.bundle_total_score)));
         }
         else{
             mState = State.toEnum(savedInstanceState.getInt(getString(R.string.bundle_scan_state)));
-
-            // Initialize mUser
-            if(mUser == null)
-                mUser = new User();
-            mUser.setUserId(savedInstanceState.getString(getString(R.string.bundle_x_user_id)));
-            mUser.setAuthToken(savedInstanceState.getString(getString(R.string.bundle_x_auth_token)));
-            mUser.setUserName(savedInstanceState.getString(getString(R.string.bundle_user_name)));
-            mUser.setFacebookAccessToken(savedInstanceState.getString(getString(R.string.bundle_access_token)));
-            mUser.setCategoryId(savedInstanceState.getString(getString(R.string.bundle_category_id)));
-            mUser.setRouteId(savedInstanceState.getString(getString(R.string.bundle_route_id)));
-
-            // Initialize mClimber
-            if(mClimber == null)
-                mClimber = new Climber();
-            mClimber.setClimberId(savedInstanceState.getString(getString(R.string.bundle_climber_id)));
-            mClimber.setClimberName(savedInstanceState.getString(getString(R.string.bundle_climber_name)));
-            mClimber.setTotalScore(savedInstanceState.getString(getString(R.string.bundle_total_score)));
         }
 
         Log.d(TAG, "ScanFragment onActivityCreate");
@@ -287,20 +220,6 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if(mUser != null){
-            outState.putString(getString(R.string.bundle_x_user_id), mUser.getUserId());
-            outState.putString(getString(R.string.bundle_x_auth_token), mUser.getAuthToken());
-            outState.putString(getString(R.string.bundle_user_name), mUser.getUserName());
-            outState.putString(getString(R.string.bundle_access_token), mUser.getFacebookAccessToken());
-            outState.putString(getString(R.string.bundle_category_id), mUser.getCategoryId());
-            outState.putString(getString(R.string.bundle_route_id), mUser.getRouteId());
-        }
-
-        if(mClimber != null){
-            outState.putString(getString(R.string.bundle_climber_id), mClimber.getClimberId());
-            outState.putString(getString(R.string.bundle_climber_name), mClimber.getClimberName());
-            outState.putString(getString(R.string.bundle_total_score), mClimber.getTotalScore());
-        }
 
         outState.putInt(getString(R.string.bundle_scan_state), mState.getValue());
 
@@ -340,14 +259,14 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
         switch (mState){
             case SCANNING:
                 mRescanButton.setEnabled(false);
-                mCategoryIdEdit.setText(mUser.getCategoryId());
+                mCategoryIdEdit.setText(mToActivityMethod.getCategoryId());
                 //Don't touch mClimberIdEdit. It is left as it is.
                 //Don't touch mClimberNameEdit. It is left as it is.
                 break;
             case NOT_SCANNING:
                 mRescanButton.setEnabled(true);
-                mCategoryIdEdit.setText(mUser.getCategoryId());
-                mClimberIdEdit.setText(mClimber.getClimberId());
+                mCategoryIdEdit.setText(mToActivityMethod.getCategoryId());
+                mClimberIdEdit.setText(mToActivityMethod.getClimberId());
                 //Don't touch mClimberNameEdit. It is left as it is.
                 break;
             default:
@@ -408,15 +327,28 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
     }
 
     @Override
+    public void restart(){
+        mClimberIdEdit.removeTextChangedListener(mTextWatcher);
+        mClimberIdEdit.setText(null);
+        mClimberNameEdit.setText(null);
+        mTextWatcher = new ClimberIdTextWatcher(this);
+        mClimberIdEdit.addTextChangedListener(mTextWatcher);
+        changeState(State.SCANNING);
+    }
+
+    @Override
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.scan_rescan_button:
+                Log.d(TAG, "clicked rescan");
                 rescan();
                 break;
             case R.id.scan_flash_button:
+                Log.d(TAG, "clicked flash");
                 toggleFlash();
                 break;
             case R.id.scan_next_button:
+                Log.d(TAG, "clicked next");
                 next();
                 break;
         }
@@ -425,12 +357,12 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
     @Override
     public void updateClimberName(){
         String displayedId = mClimberIdEdit.getText().toString();
-        if(displayedId.equals(mClimber.getClimberId())){
+        if(displayedId.equals(mToActivityMethod.getClimberId())){
         }
         else{
-            mClimber.setClimberName(null);
+            mToActivityMethod.updateActivityClimberInfo(displayedId, null);
         }
-        mClimberNameEdit.setText(mClimber.getClimberName());
+        mClimberNameEdit.setText(mToActivityMethod.getClimberName());
     }
 
     @Override
@@ -591,9 +523,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
      * This method reset mClimber, clear mClimberIdEdit and restart scanning.
      */
     private void rescan(){
-        mClimber.setClimberId(null);
-        mClimber.setClimberName(null);
-        mClimber.setTotalScore(null);
+        mToActivityMethod.updateActivityClimberInfo(null, null);
 
         mClimberIdEdit.setText(null);
 
@@ -611,10 +541,10 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
      * This method is called when next button is pressed.
      */
     private void next(){
-        mClimber.setClimberId(mClimberIdEdit.getText().toString());
+        mToActivityMethod.updateActivityClimberInfo(mClimberIdEdit.getText().toString(), mClimberNameEdit.getText().toString());
         changeState(State.NOT_SCANNING);
-        releaseCameraAndStopDecodeThread();
-        mToActivityMethod.createAndSwitchToScoreFragment(mUser, mClimber);
+        //releaseCameraAndStopDecodeThread();
+        mToActivityMethod.createAndSwitchToScoreFragment();
     }
 
 
@@ -630,7 +560,10 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface ScanFragmentToActivityMethods {
-        public void createAndSwitchToScoreFragment(User user, Climber climber);
-        public void destroyOtherTabButScan();
+        void createAndSwitchToScoreFragment();
+        void updateActivityClimberInfo(String climberId, String climberName);
+        String getCategoryId();
+        String getClimberId();
+        String getClimberName();
     }
 }
