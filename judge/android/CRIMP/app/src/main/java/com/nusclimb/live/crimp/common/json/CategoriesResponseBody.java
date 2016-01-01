@@ -1,7 +1,5 @@
 package com.nusclimb.live.crimp.common.json;
 
-import com.nusclimb.live.crimp.common.Categories;
-
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.ArrayList;
@@ -15,13 +13,39 @@ public class CategoriesResponseBody{
     @JsonProperty("categories")
     private ArrayList<Category> categories;
 
+    /**
+     * Construct an empty instance of CategoriesResponseBody with its field set to null.
+     */
     public CategoriesResponseBody(){}
 
+    /**
+     * Construct a new instance of CategoriesResponseBody that is a copy of mCategoriesResponseBody.
+     *
+     * @param mCategoriesResponseBody The CategoriesResponseBody to make a copy of.
+     */
     public CategoriesResponseBody(CategoriesResponseBody mCategoriesResponseBody){
-        categories = new ArrayList<Category>();
-        for(Category c: mCategoriesResponseBody.getCategories()){
-            categories.add(new Category(c));
+        categories = new ArrayList<>();
+        if(mCategoriesResponseBody.getCategories() != null){
+            for(Category c: mCategoriesResponseBody.getCategories()){
+                categories.add(new Category(c));
+            }
         }
+    }
+
+    /**
+     * Find the first Category that has the same category id as the given categoryId.
+     *
+     * @param categoryId category id to search for
+     * @return the first Category that matches the given category id
+     */
+    public Category findCategoryById(String categoryId){
+        if(categories != null){
+            for(Category c: categories){
+                if(c.getCategoryId().compareTo(categoryId) == 0)
+                    return c;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -61,6 +85,9 @@ public class CategoriesResponseBody{
         this.categories = categories;
     }
 
+    /**
+     * This class contain information about a category.
+     */
     public static class Category{
         @JsonProperty("category_name")
         private String categoryName;
@@ -75,18 +102,41 @@ public class CategoriesResponseBody{
         @JsonProperty("time_end")
         private String timeEnd;
 
+        /**
+         * Constructs a empty instance of Category with all its field set to null.
+         */
         public Category(){}
 
+        /**
+         * Construct a new instance of Category that is a copy of the given category.
+         *
+         * @param category Category class to copy
+         */
         public Category(Category category){
             categoryName = category.getCategoryName();
             categoryId = category.getCategoryId();
             scoresFinalized = category.isScoresFinalized();
             timeStart = category.getTimeStart();
             timeEnd = category.getTimeEnd();
-            routes = new ArrayList<Route>();
+            routes = new ArrayList<>();
             for(Route r: category.getRoutes()){
                 routes.add(new Route(r));
             }
+        }
+
+        /**
+         * Find the first Route object that matches the given route id.
+         * @param routeId route id to search for
+         * @return the first Route object that matches the given route id.
+         */
+        public Route findRouteById(String routeId){
+            if(routes != null){
+                for(Route r : routes){
+                    if(r.getRouteId().compareTo(routeId) == 0)
+                        return r;
+                }
+            }
+            return null;
         }
 
         public String toString(){
@@ -168,6 +218,9 @@ public class CategoriesResponseBody{
             this.timeEnd = timeEnd;
         }
 
+        /**
+         * This class contain information about a route.
+         */
         public static class Route{
             @JsonProperty("route_id")
             private String routeId;
@@ -176,8 +229,16 @@ public class CategoriesResponseBody{
             @JsonProperty("score")
             private String score;
 
+            /**
+             * Constructs a empty instance of Route with all its field set to null.
+             */
             public Route(){}
 
+            /**
+             * Constructs a new instance of Route that is a copy of the given Route object.
+             *
+             * @param route Route object to copy
+             */
             public Route(Route route){
                 routeId = route.getRouteId();
                 routeName = route.getRouteName();

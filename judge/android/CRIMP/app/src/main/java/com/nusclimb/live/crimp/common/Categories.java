@@ -1,7 +1,5 @@
 package com.nusclimb.live.crimp.common;
 
-import android.util.Log;
-
 import com.nusclimb.live.crimp.common.json.CategoriesResponseBody;
 import com.nusclimb.live.crimp.hello.HintableSpinnerItem;
 
@@ -9,15 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Wrapper class to hold all categories information. This class stores categories information in
- * the form of Jackson POJO and produce a List of {@link HintableSpinnerItem} to populate a
- * {@link com.nusclimb.live.crimp.hello.HintableArrayAdapter HintableArrayAdapter}.
+ * This class is the main way hold all categories information. This class contains method
+ * that allow us to store categories information requested from server, produce a List of
+ * {@link HintableSpinnerItem} to populate a
+ * {@link com.nusclimb.live.crimp.hello.HintableArrayAdapter HintableArrayAdapter}, and retrieve
+ * information about category and routes.
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
- * @see <a href="http://wiki.fasterxml.com/JacksonDataBinding">JacksonDataBinding</a>
  */
 public class Categories {
-    //List<HintableSpinnerItem> spinnerList;  // For populating HintableArrayAdapter.
     CategoriesResponseBody categoriesInfo;  // Contain all info regarding categories and routes.
 
     public Categories(){
@@ -44,12 +42,12 @@ public class Categories {
                       byte[] cFinalizeArray, List<String> cStartList, List<String> cEndList){
 
         categoriesInfo = new CategoriesResponseBody();
-        ArrayList<CategoriesResponseBody.Category> arr = new ArrayList<CategoriesResponseBody.Category>();
+        ArrayList<CategoriesResponseBody.Category> arr = new ArrayList<>();
         int k = 0;
         for(int i=0; i<cNameList.size(); i++){
             CategoriesResponseBody.Category mCategory = new CategoriesResponseBody.Category();
             mCategory.setCategoryName(cNameList.get(i));
-            mCategory.setCategoryId(cNameList.get(i));
+            mCategory.setCategoryId(cIdList.get(i));
             if(cFinalizeArray[i] == 1)
                 mCategory.setScoresFinalized(true);
             else
@@ -82,6 +80,11 @@ public class Categories {
         categoriesInfo = new CategoriesResponseBody(mResponseBody);
     }
 
+    /**
+     * Construct a clone of the given Categories object.
+     *
+     * @param categories Categories object to clone.
+     */
     public Categories(Categories categories){
         categoriesInfo = new CategoriesResponseBody(categories.getJSON());
     }
@@ -96,11 +99,11 @@ public class Categories {
      */
     public List<HintableSpinnerItem> getCategoriesSpinnerListCopy(String categoryHint,
                                                                   String routeHint){
-        List<HintableSpinnerItem> spinnerList = new ArrayList<HintableSpinnerItem>();
+        List<HintableSpinnerItem> spinnerList = new ArrayList<>();
         spinnerList.add(new CategoryItem(categoryHint, routeHint));
 
         for(CategoriesResponseBody.Category c: categoriesInfo.getCategories()){
-            List<HintableSpinnerItem> routes = new ArrayList<HintableSpinnerItem>();
+            List<HintableSpinnerItem> routes = new ArrayList<>();
             routes.add(new RouteItem(routeHint));
             for(CategoriesResponseBody.Category.Route r: c.getRoutes()){
                 routes.add(new RouteItem(c.getCategoryId(), r.getRouteId(),r.getRouteName(),
@@ -133,7 +136,7 @@ public class Categories {
      * @return ArrayList of category name.
      */
     public ArrayList<String> getCategoryNameList(){
-        ArrayList<String> categoryNameList = new ArrayList<String>();
+        ArrayList<String> categoryNameList = new ArrayList<>();
         if(categoriesInfo.getCategories()!=null){
             for(CategoriesResponseBody.Category c : categoriesInfo.getCategories()){
                 categoryNameList.add(c.getCategoryName());
@@ -148,7 +151,7 @@ public class Categories {
      * @return ArrayList of category id.
      */
     public ArrayList<String> getCategoryIdList(){
-        ArrayList<String> categoryIdList = new ArrayList<String>();
+        ArrayList<String> categoryIdList = new ArrayList<>();
         if(categoriesInfo.getCategories()!=null) {
             for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
                 categoryIdList.add(c.getCategoryId());
@@ -164,7 +167,7 @@ public class Categories {
      * @return ArrayList of route count.
      */
     public ArrayList<Integer> getCategoryRouteCountList(){
-        ArrayList<Integer> categoryRouteCountList = new ArrayList<Integer>();
+        ArrayList<Integer> categoryRouteCountList = new ArrayList<>();
         if(categoriesInfo.getCategories()!=null) {
             for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
                 categoryRouteCountList.add(c.getRoutes().size());
@@ -179,7 +182,7 @@ public class Categories {
      * @return ArrayList of route name.
      */
     public ArrayList<String> getRouteNameList(){
-        ArrayList<String> routeNameList = new ArrayList<String>();
+        ArrayList<String> routeNameList = new ArrayList<>();
         if(categoriesInfo.getCategories()!=null) {
             for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
                 for (CategoriesResponseBody.Category.Route r : c.getRoutes()) {
@@ -196,7 +199,7 @@ public class Categories {
      * @return ArrayList of route id.
      */
     public ArrayList<String> getRouteIdList(){
-        ArrayList<String> routeIdList = new ArrayList<String>();
+        ArrayList<String> routeIdList = new ArrayList<>();
         if(categoriesInfo.getCategories()!=null) {
             for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
                 for (CategoriesResponseBody.Category.Route r : c.getRoutes()) {
@@ -213,7 +216,7 @@ public class Categories {
      * @return ArrayList of route score.
      */
     public ArrayList<String> getRouteScoreList(){
-        ArrayList<String> routeScoreList = new ArrayList<String>();
+        ArrayList<String> routeScoreList = new ArrayList<>();
         if(categoriesInfo.getCategories()!=null) {
             for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
                 for (CategoriesResponseBody.Category.Route r : c.getRoutes()) {
@@ -253,7 +256,7 @@ public class Categories {
      * @return ArrayList of category time start.
      */
     public ArrayList<String> getCategoryStartList(){
-        ArrayList<String> categoryStartList = new ArrayList<String>();
+        ArrayList<String> categoryStartList = new ArrayList<>();
         if(categoriesInfo.getCategories()!=null) {
             for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
                 categoryStartList.add(c.getTimeStart());
@@ -268,13 +271,20 @@ public class Categories {
      * @return ArrayList of category time end.
      */
     public ArrayList<String> getCategoryEndList(){
-        ArrayList<String> categoryEndList = new ArrayList<String>();
+        ArrayList<String> categoryEndList = new ArrayList<>();
         if(categoriesInfo.getCategories()!=null) {
             for (CategoriesResponseBody.Category c : categoriesInfo.getCategories()) {
                 categoryEndList.add(c.getTimeEnd());
             }
         }
         return categoryEndList;
+    }
+
+    public CategoriesResponseBody.Category findCategoryById(String categoryId){
+        if(categoriesInfo != null){
+            return categoriesInfo.findCategoryById(categoryId);
+        }
+        return null;
     }
 
 
@@ -310,7 +320,7 @@ public class Categories {
         public CategoryItem(String categoryHintText, String routeHintText){
             this.fullCategoryName = categoryHintText;
             this.isHint = true;
-            List<HintableSpinnerItem> hintRoutes = new ArrayList<HintableSpinnerItem>();
+            List<HintableSpinnerItem> hintRoutes = new ArrayList<>();
             hintRoutes.add(new RouteItem(routeHintText));
             this.routes = hintRoutes;
         }
@@ -336,7 +346,7 @@ public class Categories {
          * @return A copy of the list of routes in this category.
          */
         public List<HintableSpinnerItem> getRoutes(){
-            return new ArrayList<HintableSpinnerItem>(routes);
+            return new ArrayList<>(routes);
         }
 
         @Override

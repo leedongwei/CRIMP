@@ -1,6 +1,9 @@
 package com.nusclimb.live.crimp.common;
 
 /**
+ * This class is the main way for us to store user information. User information such as
+ * user id, authentication token gethered during usage are stored in this class.
+ *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class User {
@@ -11,10 +14,16 @@ public class User {
     private String categoryId;
     private String routeId;
 
-    public User(){
-        clearAll();
-    }
+    /**
+     * Construct a empty instance of User where all its field are set to null.
+     */
+    public User(){}
 
+    /**
+     * Construct a new instance of User that is a copy of the given User object.
+     *
+     * @param user User object to copy from
+     */
     public User(User user){
         setFacebookAccessToken(user.getFacebookAccessToken());
         setUserName(user.getUserName());

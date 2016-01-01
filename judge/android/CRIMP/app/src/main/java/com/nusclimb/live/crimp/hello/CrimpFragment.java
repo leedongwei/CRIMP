@@ -8,5 +8,7 @@ import android.view.View;
  */
 public abstract class CrimpFragment extends Fragment implements View.OnClickListener{
     public abstract CharSequence getPageTitle();
-    public abstract void restart();
+    //public abstract void reinitialize();
+    public abstract void onNavigateAway();
+    public abstract void onNavigateTo();
 }

@@ -11,6 +11,7 @@ import android.util.Log;
 
 public class ScanFragmentHandler extends Handler{
     private static final String TAG = ScanFragmentHandler.class.getSimpleName();
+    private final boolean DEBUG = true;
 
     private ScanFragment fragment;
     private boolean running;
@@ -32,27 +33,50 @@ public class ScanFragmentHandler extends Handler{
         }
         switch (message.what) {
             case R.id.decode_handler_constructed:
+                if(DEBUG) Log.d(TAG, "decode_handler_constructed msg received.");
                 fragment.onReceiveDecodeHandlerConstructed();
                 break;
             case R.id.decode_succeeded:
-                Log.d(TAG+".handleMessage()", "ScanFragmentHandler receive msg 'succeed'.");
-                String result = (String) message.obj;
-                String[] climberInfo = result.split(";");
-                fragment.updateClimberWithScanResult(climberInfo[0], climberInfo[1]);
-                fragment.changeState(ScanFragment.State.NOT_SCANNING);
+                Log.d(TAG + ".handleMessage()", "ScanFragmentHandler receive msg 'succeed'. running:" + running);
+                if(running){
+                    String result = (String) message.obj;
+                    String[] climberInfo = result.split(";");
+                    fragment.updateClimberWithScanResult(climberInfo[0], climberInfo[1]);
+                    fragment.changeState(ScanFragment.State.NOT_SCANNING);
 
-                // Get instance of Vibrator from current Context
-                Vibrator v = (Vibrator) fragment.getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+                    // Get instance of Vibrator from current Context
+                    Vibrator v = (Vibrator) fragment.getActivity().getSystemService(Context.VIBRATOR_SERVICE);
 
-                // Vibrate for 100 milliseconds
-                v.vibrate(100);
+                    // Vibrate for 100 milliseconds
+                    v.vibrate(100);
+                }
                 break;
             case R.id.decode_failed:
-                fragment.changeState(ScanFragment.State.SCANNING);
+                if(DEBUG) Log.d(TAG, "decode_failed msg received. running:"+running);
+                if(running){
+                    fragment.changeState(ScanFragment.State.SCANNING);
+                }
                 break;
             default:
                 Log.w(TAG+".handleMessage()", "ScanFragmentHandler received unknown msg.");
                 break;
+        }
+    }
+
+    public void pauseDecode(){
+        setRunning(false);
+        Message pauseMessage = Message.obtain(fragment.getDecodeHandler(), R.id.decode_pause);
+        pauseMessage.sendToTarget();
+
+        removeMessages(R.id.decode_succeeded);
+        removeMessages(R.id.decode_failed);
+    }
+
+    public void resumeDecode(){
+        setRunning(true);
+        if(fragment.getDecodeHandler() != null){
+            Message resumeMessage = Message.obtain(fragment.getDecodeHandler(), R.id.decode_resume);
+            resumeMessage.sendToTarget();
         }
     }
 
@@ -61,10 +85,9 @@ public class ScanFragmentHandler extends Handler{
      * Kills the DecodeThread and do stuff.
      */
     public void onPause(){
+        if (DEBUG) Log.d(TAG, "onPause");
         Message quit = Message.obtain(fragment.getDecodeHandler(), R.id.quit);
         quit.sendToTarget();
-
-        Log.d(TAG+".onPause()", "onPause");
 
         try {
             // Wait at most half a second; should be enough time, and onPause() will timeout quickly

@@ -17,7 +17,7 @@ import com.nusclimb.live.crimp.R;
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class TopBonus2Scoring extends Fragment implements View.OnClickListener{
+public class TopBonus2Scoring extends ScoringModule implements View.OnClickListener{
     private final String TAG = TopBonus2Scoring.class.getSimpleName();
 
     private ScoringModuleToFragmentMethods mParentFragment;
@@ -27,6 +27,9 @@ public class TopBonus2Scoring extends Fragment implements View.OnClickListener{
     private Button mBonusTwoButton;
     private Button mTopButton;
     private Button mBackspaceButton;
+
+    private String currentScore = null;
+    private String accumulatedScore = null;
 
     public static TopBonus2Scoring newInstance(Context context){
         Log.d("TopBonus2Scoring", "newInstance");
@@ -54,24 +57,21 @@ public class TopBonus2Scoring extends Fragment implements View.OnClickListener{
         }
 
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_top_bonus_scoring, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_top_bonus2_scoring, container, false);
 
-        /*
-        mTText = (TextView) rootView.findViewById(R.id.scoring_t_text);
-        mBText = (TextView) rootView.findViewById(R.id.scoring_b_text);
-        mPlusOneButton = (Button) rootView.findViewById(R.id.scoring_plus_one_button);
-        mBonusButton = (Button) rootView.findViewById(R.id.scoring_b_button);
+        mBestResult = (TextView) rootView.findViewById(R.id.scoring_best_result_text);
+        mBonusOneButton = (Button) rootView.findViewById(R.id.scoring_b1_button);
+        mBonusTwoButton = (Button) rootView.findViewById(R.id.scoring_b2_button);
         mTopButton = (Button) rootView.findViewById(R.id.scoring_t_button);
-        mSubmitButton = (Button) rootView.findViewById(R.id.scoring_submit_button);
         mBackspaceButton = (Button) rootView.findViewById(R.id.scoring_backspace_button);
 
-        mBackspaceButton.setOnClickListener(this);
-        mBonusButton.setOnClickListener(this);
-        mPlusOneButton.setOnClickListener(this);
+        mBonusOneButton.setOnClickListener(this);
+        mBonusTwoButton.setOnClickListener(this);
         mTopButton.setOnClickListener(this);
+        mBackspaceButton.setOnClickListener(this);
 
         Log.d(TAG, "onCreateView");
-*/
+
         return rootView;
     }
 
@@ -118,27 +118,81 @@ public class TopBonus2Scoring extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
-        /*
         switch(v.getId()){
-            case R.id.scoring_b_button:
-                mParentFragment.appendStringToAccumulated("B");
-                mBonusButton.setEnabled(false);
+            case R.id.scoring_b1_button:
+                mParentFragment.appendStringToAccumulated("B1");
+                mBonusOneButton.setEnabled(false);
                 mBackspaceButton.setEnabled(true);
+                calculateScore("B1");
                 break;
-            case R.id.scoring_backspace_button:
+            case R.id.scoring_b2_button:
+                mParentFragment.appendStringToAccumulated("B2");
+                mBonusOneButton.setEnabled(false);
+                mBonusTwoButton.setEnabled(false);
+                mBackspaceButton.setEnabled(true);
+                calculateScore("B2");
                 break;
             case R.id.scoring_t_button:
-                mParentFragment.appendStringToAccumulated("T");
-                mBackspaceButton.setEnabled(true);
-                mPlusOneButton.setEnabled(false);
-                mBonusButton.setEnabled(false);
+                mParentFragment.appendStringToAccumulated("T ");
+                mBonusOneButton.setEnabled(false);
+                mBonusTwoButton.setEnabled(false);
                 mTopButton.setEnabled(false);
-                break;
-            case R.id.scoring_plus_one_button:
-                mParentFragment.appendStringToAccumulated("1");
                 mBackspaceButton.setEnabled(true);
+                calculateScore("T ");
+                break;
+            case R.id.scoring_backspace_button:
+                currentScore = currentScore.substring(0, currentScore.length()-2);
+                String scoreString = accumulatedScore + currentScore;
+                if(scoreString.indexOf('T') != -1){
+                    mBonusOneButton.setEnabled(false);
+                    mBonusTwoButton.setEnabled(false);
+                    mTopButton.setEnabled(false);
+                }
+                else if(scoreString.indexOf("B2") != -1){
+                    mBonusOneButton.setEnabled(false);
+                    mBonusTwoButton.setEnabled(false);
+                    mTopButton.setEnabled(true);
+                }
+                else if(scoreString.indexOf("B1") != -1){
+                    mBonusOneButton.setEnabled(false);
+                    mBonusTwoButton.setEnabled(true);
+                    mTopButton.setEnabled(true);
+                }
+                else{   //This is not possible
+                    mBonusOneButton.setEnabled(true);
+                    mBonusTwoButton.setEnabled(true);
+                    mTopButton.setEnabled(true);
+                }
+                if(currentScore.length()==0)
+                    mBackspaceButton.setEnabled(false);
+                mParentFragment.backspaceAccumulated(2);
+                calculateScore("");
                 break;
         }
-        */
+    }
+
+    @Override
+    public void onScoreChange(String accumulatedScore, String currentScore) {
+        this.accumulatedScore = accumulatedScore;
+        this.currentScore = currentScore;
+        calculateScore("");
+    }
+
+    public void calculateScore(String append){
+        Log.d(TAG, "["+accumulatedScore+"]["+currentScore+"]["+append+"]");
+        currentScore = currentScore + append;
+        String scoreString = accumulatedScore + currentScore;
+        if(scoreString.indexOf('T') != -1){
+            mBestResult.setText("Top");
+        }
+        else if(scoreString.indexOf("B2") != -1){
+            mBestResult.setText("Bonus 2");
+        }
+        else if(scoreString.indexOf("B1") != -1){
+            mBestResult.setText("Bonus 1");
+        }
+        else{
+            mBestResult.setText("-");
+        }
     }
 }

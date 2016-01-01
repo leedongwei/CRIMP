@@ -5,4 +5,5 @@ import android.text.TextWatcher;
 
 public interface ScoringModuleToFragmentMethods {
     public void appendStringToAccumulated(String s);
+    public void backspaceAccumulated(int numberOfCharacters);
 }

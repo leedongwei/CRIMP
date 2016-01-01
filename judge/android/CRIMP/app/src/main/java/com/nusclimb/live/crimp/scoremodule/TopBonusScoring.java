@@ -131,8 +131,15 @@ public class TopBonusScoring extends ScoringModule implements View.OnClickListen
                 break;
             case R.id.scoring_backspace_button:
                 currentScore = currentScore.substring(0, currentScore.length()-1);
+                String scoreString = accumulatedScore + currentScore;
+                mPlusOneButton.setEnabled(true);
+                if(scoreString.indexOf("B") == -1)
+                    mBonusButton.setEnabled(true);
+                if(scoreString.indexOf("T") == -1)
+                    mTopButton.setEnabled(true);
                 if(currentScore.length()==0)
                     mBackspaceButton.setEnabled(false);
+                mParentFragment.backspaceAccumulated(1);
                 calculateScore("");
                 break;
             case R.id.scoring_t_button:
@@ -159,7 +166,9 @@ public class TopBonusScoring extends ScoringModule implements View.OnClickListen
     }
 
     public void calculateScore(String append){
-        String scoreString = accumulatedScore + currentScore + append;
+        Log.d(TAG, "["+accumulatedScore+"]["+currentScore+"]["+append+"]");
+        currentScore = currentScore + append;
+        String scoreString = accumulatedScore + currentScore;
         int top = scoreString.indexOf('T');
         int bonus = scoreString.indexOf('B');
 
@@ -167,14 +176,14 @@ public class TopBonusScoring extends ScoringModule implements View.OnClickListen
             mTText.setText("-");
         }
         else{
-            mTText.setText(String.valueOf(top));
+            mTText.setText(String.valueOf(top+1));
         }
 
         if(bonus == -1){
             mBText.setText("-");
         }
         else{
-            mBText.setText(String.valueOf(bonus));
+            mBText.setText(String.valueOf(bonus+1));
         }
     }
 }

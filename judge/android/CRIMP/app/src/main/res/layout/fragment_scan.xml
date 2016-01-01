@@ -59,11 +59,11 @@
                 android:text="@string/scan_fragment_rescan"
                 android:onClick="scanRescan"/>
 
-            <Button
+            <ImageButton
                 android:id="@+id/scan_flash_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/scan_fragment_flash"
+                android:src="@drawable/ic_flare_black_24dp"
                 android:onClick="scanFlash"/>
 
         </LinearLayout>

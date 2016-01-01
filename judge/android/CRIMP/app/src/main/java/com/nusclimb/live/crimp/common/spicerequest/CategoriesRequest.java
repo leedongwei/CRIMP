@@ -63,7 +63,7 @@ public class CategoriesRequest extends SpringAndroidSpiceRequest<CategoriesRespo
             CategoriesResponseBody.Category.Route aaa3 = new CategoriesResponseBody.Category.Route();
             aaa3.setRouteId("aaa3");
             aaa3.setRouteName("aaa3name");
-            aaa3.setScore("0");
+            aaa3.setScore("1");
             ArrayList<CategoriesResponseBody.Category.Route> a = new ArrayList<>();
             a.add(aaa1);
             a.add(aaa2);
@@ -87,7 +87,7 @@ public class CategoriesRequest extends SpringAndroidSpiceRequest<CategoriesRespo
             CategoriesResponseBody.Category.Route bbb3 = new CategoriesResponseBody.Category.Route();
             bbb3.setRouteId("bbb3");
             bbb3.setRouteName("bbb3name");
-            bbb3.setScore("0");
+            bbb3.setScore("1");
             ArrayList<CategoriesResponseBody.Category.Route> b = new ArrayList<>();
             b.add(bbb1);
             b.add(bbb2);

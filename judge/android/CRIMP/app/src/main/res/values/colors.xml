@@ -21,4 +21,8 @@
     <color name="hintTextBlack">#42000000</color>
 
 
+
+    <color name="whiteWithTransparency">#4cffffff</color>
+
+
 </resources>

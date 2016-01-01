@@ -143,6 +143,8 @@
 
 
     <string name="action_settings">Settings</string>
+    <string name="action_helpme">Help me</string>
+    <string name="action_logout">Logout</string>
     <string name="title_activity_upload_list">UploadListActivity</string>
 
 

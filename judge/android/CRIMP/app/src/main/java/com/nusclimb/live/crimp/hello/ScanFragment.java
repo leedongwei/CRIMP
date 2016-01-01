@@ -20,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import com.nusclimb.live.crimp.R;
@@ -39,10 +40,32 @@ import java.util.ArrayList;
  * Activity and possibly other Fragments. Information from the Activity is passed to this Fragment
  * through arguments.
  *
+ * For QR code scanning, we need these 5 classes: ScanFragment, ScanFragmentHandler, DecodeThread,
+ * DecodeHandler and CameraManager. We go through ScanFragmentHandler to communicate with ScanFragment
+ * and go through DecodeHandler to communicate with DecodeThread. CameraManager requires a DecodeHandler
+ * instance. DecodeHandler can only be instantiated by DecodeThread. DecodeThread is started by ScanFragment.
+ *
+ * Therefore the flow for setting up is as follows:
+ * ScanFragment     ScanFragmentHandler     DecodeThread     DecodeHandler     CameraManager
+ *     |
+ *     |---construct--->|
+ *     |<---------------|
+ *     |                |
+ *     | ---------------------start------------->|
+ *     |                |                        |----construct-->|
+ *     |                |                        |<---------------|
+ *     |                |<-inform decodehandler--|                |
+ *     |                |          ready         |                |
+ *     |<---------------|                        |                |
+ *     |                |                        |                |
+ *     |----------------------------------------------------------------construct-->|
+ *     |<---------------------------------------------------------------------------|
+ *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callback, ClimberIdTextWatcher.ToFragmentInteraction {
     private final String TAG = ScanFragment.class.getSimpleName();
+    private final boolean DEBUG = true;
 
     public enum State{
         SCANNING(0),
@@ -70,7 +93,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
         }
     }
 
-    private ScanFragmentToActivityMethods mToActivityMethod;   //This is how we will communicate with
+    private ScanFragmentToActivityMethods mToActivityMethod;    //This is how we will communicate with
                                                                 //Hello Activity.
     private State mState;
 
@@ -88,16 +111,14 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
     private EditText mCategoryIdEdit;
     private EditText mClimberIdEdit;
     private Button mRescanButton;
-    private Button mFlashButton;
+    private ImageButton mFlashButton;
     private EditText mClimberNameEdit;
     private Button mNextButton;
 
     private TextWatcher mTextWatcher;
 
     public static ScanFragment newInstance() {
-        ScanFragment myFragment = new ScanFragment();
-
-        return myFragment;
+        return new ScanFragment();
     }
 
     /**
@@ -115,6 +136,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
      * This is called when DecodeHandler has been constructed.
      */
     public void onReceiveDecodeHandlerConstructed(){
+        if (DEBUG) Log.d(TAG, "onReceiveDecodeHandlerConstructed");
         cameraManager = new CameraManager(getDecodeHandler());
         acquireCamera();
         createSurfaceAndAttach();
@@ -143,7 +165,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
                     + " must implement ScanFragmentToActivityMethods");
         }
 
-        Log.d(TAG, "ScanFragment onAttach");
+        if (DEBUG) Log.d(TAG, "ScanFragment onAttach");
     }
 
     @Override
@@ -151,7 +173,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
         super.onCreate(savedInstanceState);
         mScanFragmentHandler = new ScanFragmentHandler(this);
 
-        Log.d(TAG, "ScanFragment onCreate");
+        if (DEBUG) Log.d(TAG, "ScanFragment onCreate");
     }
 
     @Override
@@ -164,7 +186,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
         mCategoryIdEdit = (EditText) rootView.findViewById(R.id.scan_category_id_edit);
         mClimberIdEdit = (EditText) rootView.findViewById(R.id.scan_climber_id_edit);
         mRescanButton = (Button) rootView.findViewById(R.id.scan_rescan_button);
-        mFlashButton = (Button) rootView.findViewById(R.id.scan_flash_button);
+        mFlashButton = (ImageButton) rootView.findViewById(R.id.scan_flash_button);
         mClimberNameEdit = (EditText) rootView.findViewById(R.id.scan_climber_name_edit);
         mNextButton = (Button) rootView.findViewById(R.id.scan_next_button);
 
@@ -180,7 +202,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
             mFlashButton.setEnabled(false);
         }
 
-        Log.d(TAG, "ScanFragment onCreateView");
+        if (DEBUG) Log.d(TAG, "ScanFragment onCreateView");
         return rootView;
     }
 
@@ -189,27 +211,26 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
         super.onActivityCreated(savedInstanceState);
         previewResolution = calculatePreviewResolution();
 
-        if(savedInstanceState == null){
-            // Initialize mState
-            mState = State.SCANNING;
-        }
-        else{
-            mState = State.toEnum(savedInstanceState.getInt(getString(R.string.bundle_scan_state)));
-        }
+        Bundle mySaveInstanceState = mToActivityMethod.restoreScanInstance();
+        mState = State.toEnum(mySaveInstanceState.getInt(getString(R.string.bundle_scan_state), State.SCANNING.getValue()));
 
-        Log.d(TAG, "ScanFragment onActivityCreate");
+        if (DEBUG) Log.d(TAG, "ScanFragment onActivityCreate. mState: "+mState);
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        Log.d(TAG, "ScanFragment onResume");
+        if (DEBUG) Log.d(TAG, "ScanFragment onResume");
         startThread();
     }
 
     @Override
     public void onPause(){
-        Log.d(TAG, "ScanFragment onPause");
+        if (DEBUG) Log.d(TAG, "ScanFragment onPause");
+
+        Bundle myOutState = new Bundle();
+        myOutState.putInt(getString(R.string.bundle_scan_state), mState.getValue());
+        mToActivityMethod.saveScanInstance(myOutState);
 
         releaseCameraAndStopDecodeThread();
         removePreviewView();
@@ -218,17 +239,8 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putInt(getString(R.string.bundle_scan_state), mState.getValue());
-
-        Log.d(TAG, "ScanFragment onSaveInstance");
-    }
-
-    @Override
     public void onDetach() {
-        Log.d(TAG, "ScanFragment onDetach");
+        if (DEBUG) Log.d(TAG, "ScanFragment onDetach");
         mToActivityMethod = null;
         super.onDetach();
     }
@@ -245,7 +257,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
      * @param state Hello state to set {@code mState} to.
      */
     public void changeState(State state) {
-        //Log.d(TAG, "Change state: " + mState + " -> " + state);
+        if(DEBUG) Log.d(TAG, "Change state: " + mState + " -> " + state);
 
         mState = state;
         updateUI();
@@ -265,8 +277,16 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
                 break;
             case NOT_SCANNING:
                 mRescanButton.setEnabled(true);
+                String currClimberIdEditString = mClimberIdEdit.getText().toString();
+                String climberIdFromActivity = mToActivityMethod.getClimberId();
+                if(currClimberIdEditString == null){
+                    mClimberIdEdit.setText(climberIdFromActivity);
+                }
+                else if(currClimberIdEditString.compareTo(climberIdFromActivity)!=0){
+                    mClimberIdEdit.setText(climberIdFromActivity);
+                }
+
                 mCategoryIdEdit.setText(mToActivityMethod.getCategoryId());
-                mClimberIdEdit.setText(mToActivityMethod.getClimberId());
                 //Don't touch mClimberNameEdit. It is left as it is.
                 break;
             default:
@@ -280,11 +300,21 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
     private void doWork(){
         switch (mState){
             case SCANNING:
-                cameraManager.startPreview(previewSurface.getHolder());
-                cameraManager.startScan();
+                mScanFragmentHandler.resumeDecode();
+                if(cameraManager != null) {
+                    cameraManager.startPreview(previewSurface.getHolder());
+                    cameraManager.startScan();
+                }
+                else{
+                    Log.w(TAG, "cameraManager is null");
+                }
                 break;
             case NOT_SCANNING:
-                cameraManager.stopPreview();
+                mScanFragmentHandler.pauseDecode();
+                if(cameraManager != null)
+                    cameraManager.stopPreview();
+                else
+                    Log.w(TAG, "cameraManager is null");
                 break;
             default:
                 break;
@@ -300,7 +330,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
     public void surfaceCreated(SurfaceHolder holder) {
         //surface is only ready after surfaceChanged is called.
         cameraManager.set_isSurfaceReady(false);
-        Log.d(TAG, "Preview view surface created.");
+        if(DEBUG) Log.d(TAG, "Preview view surface created.");
     }
 
     @Override
@@ -309,14 +339,14 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
             cameraManager.set_isSurfaceReady(false);
             cameraManager.stopPreview();
         }
-        Log.d(TAG, "Preview view surface destroyed.");
+        if(DEBUG) Log.d(TAG, "Preview view surface destroyed.");
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         // If your preview can change or rotate, take care of those events here.
         // Make sure to stop the preview before resizing or reformatting it.
-        Log.d(TAG, "Preview view surface changed.");
+        if(DEBUG) Log.d(TAG, "Preview view surface changed.");
         cameraManager.set_isSurfaceReady(true);
         changeState(mState);
     }
@@ -326,29 +356,48 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
         return "Scan";
     }
 
+    /*
     @Override
-    public void restart(){
-        mClimberIdEdit.removeTextChangedListener(mTextWatcher);
+    public void reinitialize() {
+        if(DEBUG) Log.d(TAG, "ScanFragment reinitialize");
+        mRescanButton.setEnabled(false);
+        mCategoryIdEdit.setText(mToActivityMethod.getCategoryId());
         mClimberIdEdit.setText(null);
         mClimberNameEdit.setText(null);
-        mTextWatcher = new ClimberIdTextWatcher(this);
-        mClimberIdEdit.addTextChangedListener(mTextWatcher);
         changeState(State.SCANNING);
+    }
+    */
+
+    @Override
+    public void onNavigateAway(){
+        if(DEBUG) Log.d(TAG, "NavigateAway");
+        changeState(State.NOT_SCANNING);
+    }
+
+    @Override
+    public void onNavigateTo(){
+        if(DEBUG) Log.d(TAG, "NavigateTo");
+        if(mToActivityMethod.getClimberId()==null){
+            changeState(State.SCANNING);
+        }
+        else{
+            changeState(State.NOT_SCANNING);
+        }
     }
 
     @Override
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.scan_rescan_button:
-                Log.d(TAG, "clicked rescan");
+                if(DEBUG) Log.d(TAG, "clicked rescan");
                 rescan();
                 break;
             case R.id.scan_flash_button:
-                Log.d(TAG, "clicked flash");
+                if(DEBUG) Log.d(TAG, "clicked flash");
                 toggleFlash();
                 break;
             case R.id.scan_next_button:
-                Log.d(TAG, "clicked next");
+                if(DEBUG) Log.d(TAG, "clicked next");
                 next();
                 break;
         }
@@ -426,6 +475,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
      */
     private void createSurfaceAndAttach(){
         if(previewSurface == null){
+            if (DEBUG) Log.d(TAG, "createSurfaceAndAttach");
             Camera.Size temp = cameraManager.getBestPreviewSize();
 
             previewSurface = new PreviewView(getActivity());
@@ -469,6 +519,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
      * This method start the decode thread.
      */
     private void startThread() {
+        if (DEBUG) Log.d(TAG, "startThread");
         mDecodeThread = new DecodeThread(mScanFragmentHandler,
                 getActivity().getString(R.string.qr_prefix),
                 previewResolution);
@@ -481,6 +532,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
      * Clean up method to release camera resource and stop decode thread.
      */
     private void releaseCameraAndStopDecodeThread(){
+        if(DEBUG) Log.d(TAG, "releaseCameraAndStopDecodeThread");
         if(mScanFragmentHandler != null){
             mScanFragmentHandler.setRunning(false);
         }
@@ -523,10 +575,9 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
      * This method reset mClimber, clear mClimberIdEdit and restart scanning.
      */
     private void rescan(){
+        if(DEBUG) Log.d(TAG, "rescan");
         mToActivityMethod.updateActivityClimberInfo(null, null);
-
         mClimberIdEdit.setText(null);
-
         changeState(State.SCANNING);
     }
 
@@ -541,6 +592,9 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
      * This method is called when next button is pressed.
      */
     private void next(){
+        if(DEBUG) Log.d(TAG, "next");
+        cameraManager.setFlash(false);
+        mNextButton.setEnabled(false);
         mToActivityMethod.updateActivityClimberInfo(mClimberIdEdit.getText().toString(), mClimberNameEdit.getText().toString());
         changeState(State.NOT_SCANNING);
         //releaseCameraAndStopDecodeThread();
@@ -565,5 +619,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
         String getCategoryId();
         String getClimberId();
         String getClimberName();
+        void saveScanInstance(Bundle bundle);
+        Bundle restoreScanInstance();
     }
 }

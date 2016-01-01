@@ -1,7 +1,6 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.json.LoginResponseBody;

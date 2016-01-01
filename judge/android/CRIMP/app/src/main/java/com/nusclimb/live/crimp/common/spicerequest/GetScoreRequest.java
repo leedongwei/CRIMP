@@ -57,37 +57,73 @@ public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreResponseB
             response.setClimberId(climberId);
             response.setCategoryId(categoryId);
             response.setRouteId(routeId);
-            switch(climberId){
-                case "001":
-                    response.setScoreString("1");
-                    break;
-                case "002":
-                    response.setScoreString("11");
-                    break;
-                case "003":
-                    response.setScoreString("111");
-                    break;
-                case "004":
-                    response.setScoreString("1111");
-                    break;
-                case "005":
-                    response.setScoreString("11111");
-                    break;
-                case "006":
-                    response.setScoreString("111111");
-                    break;
-                case "007":
-                    response.setScoreString("1111111");
-                    break;
-                case "008":
-                    response.setScoreString("11111111");
-                    break;
-                case "009":
-                    response.setScoreString("111111111");
-                    break;
-                default:
-                    response.setScoreString("");
-                    break;
+            if(routeId == "aaa3" || routeId == "bbb3"){
+                switch (climberId) {
+                    case "001":
+                        response.setScoreString("");
+                        break;
+                    case "002":
+                        response.setScoreString("");
+                        break;
+                    case "003":
+                        response.setScoreString("");
+                        break;
+                    case "004":
+                        response.setScoreString("B1");
+                        break;
+                    case "005":
+                        response.setScoreString("B1");
+                        break;
+                    case "006":
+                        response.setScoreString("B1B2");
+                        break;
+                    case "007":
+                        response.setScoreString("B1B2");
+                        break;
+                    case "008":
+                        response.setScoreString("B2");
+                        break;
+                    case "009":
+                        response.setScoreString("B2");
+                        break;
+                    default:
+                        response.setScoreString("");
+                        break;
+                }
+            }
+            else {
+                switch (climberId) {
+                    case "001":
+                        response.setScoreString("1");
+                        break;
+                    case "002":
+                        response.setScoreString("11");
+                        break;
+                    case "003":
+                        response.setScoreString("111");
+                        break;
+                    case "004":
+                        response.setScoreString("1111");
+                        break;
+                    case "005":
+                        response.setScoreString("11111");
+                        break;
+                    case "006":
+                        response.setScoreString("111111");
+                        break;
+                    case "007":
+                        response.setScoreString("1111111");
+                        break;
+                    case "008":
+                        response.setScoreString("11111111");
+                        break;
+                    case "009":
+                        response.setScoreString("111111111");
+                        break;
+                    default:
+                        response.setScoreString("");
+                        break;
+                }
             }
             return response;
         }

@@ -36,6 +36,7 @@ import android.util.Log;
  */
 public class DecodeHandler extends Handler{
     private static final String TAG = DecodeHandler.class.getSimpleName();
+    private final boolean DEBUG = true;
 
     private final String PREFIX;	// Magic string to check if QR Code is valid
 
@@ -64,13 +65,19 @@ public class DecodeHandler extends Handler{
 
     @Override
     public void handleMessage(Message message) {
-        if (!running) {
-            Log.d(TAG+".handleMessage()", "DecodeHandler received msg but not running.");
-            return;
-        }
         switch (message.what) {
             case R.id.decode:
-                decode((byte[]) message.obj, message.arg1, message.arg2);
+                if(DEBUG) Log.d(TAG, "decode msg received. running:"+running);
+                if(running)
+                    decode((byte[]) message.obj, message.arg1, message.arg2);
+                break;
+            case R.id.decode_pause:
+                if(DEBUG) Log.d(TAG, "decode_pause msg received. running:"+running);
+                running = false;
+                break;
+            case R.id.decode_resume:
+                if(DEBUG) Log.d(TAG, "decode_resume msg received. running:"+running);
+                running = true;
                 break;
             case R.id.quit:
                 Log.d(TAG+".handleMessage()", "DecodeHandler receive msg 'quit'.");

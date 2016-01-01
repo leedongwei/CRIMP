@@ -51,12 +51,6 @@ public class CrimpApplication extends Application {
     private final Handler handler = new Handler();
     private NotificationCompat.Builder mBuilder;
     private Runnable checkSpiceManagerRunnable;
-
-
-
-
-
-
     private NetworkStateReceiver receiver;
 	
 	/*=========================================================================

@@ -25,6 +25,7 @@ import com.nusclimb.live.crimp.common.spicerequest.ActiveMonitorRequest;
 import com.nusclimb.live.crimp.common.spicerequest.GetScoreRequest;
 import com.nusclimb.live.crimp.scoremodule.ScoringModule;
 import com.nusclimb.live.crimp.scoremodule.ScoringModuleToFragmentMethods;
+import com.nusclimb.live.crimp.scoremodule.TopBonus2Scoring;
 import com.nusclimb.live.crimp.scoremodule.TopBonusScoring;
 import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
  */
 public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragmentMethods {
     private final String TAG = ScoreFragment.class.getSimpleName();
+    private final boolean DEBUG = true;
 
     private enum State{
         QUERYING(0),
@@ -78,6 +80,7 @@ public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragm
     private EditText mClimberNameEdit;
     private EditText mAccumulatedEdit;
     private EditText mCurrentSessionEdit;
+    private Button mSubmitButton;
 
     public static ScoreFragment newInstance() {
         Log.d("ScoreFragment", "newInstance");
@@ -114,8 +117,9 @@ public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragm
         mClimberNameEdit = (EditText) rootView.findViewById(R.id.scoring_climber_name_edit);
         mCurrentSessionEdit = (EditText) rootView.findViewById(R.id.scoring_score_current_edit);
         mAccumulatedEdit = (EditText) rootView.findViewById(R.id.scoring_score_history_edit);
+        mSubmitButton = (Button) rootView.findViewById(R.id.scoring_submit_button);
 
-        //mAccumulatedEdit.addTextChangedListener(new AccumulatedScoreTextWatcher());
+        mSubmitButton.setOnClickListener(this);
 
         Log.d(TAG, "onCreateView");
         return rootView;
@@ -133,9 +137,24 @@ public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragm
             mState = State.toEnum(savedInstanceState.getInt(getString(R.string.bundle_score_state)));
         }
 
-        mScoringModule = TopBonusScoring.newInstance(this.getActivity());
-        getChildFragmentManager().beginTransaction().replace(R.id.scoring_score_fragment, mScoringModule).commit();
+        String scoreType = mToActivityMethod.getScoringType();
+        if(scoreType!=null){
+            switch (scoreType){
+                case "0":
+                    mScoringModule = TopBonusScoring.newInstance(this.getActivity());
+                    break;
+                case "1":
+                    mScoringModule = TopBonus2Scoring.newInstance(this.getActivity());
+                    break;
+            }
 
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.scoring_score_fragment, mScoringModule).commit();
+        }
+        else{
+            Log.e(TAG, "Cannot find score type of selected route");
+        }
         Log.d(TAG, "onActivityCreated");
     }
 
@@ -334,10 +353,10 @@ public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragm
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.scoring_submit_button:
+                submit();
                 break;
         }
     }
-
 
 
 
@@ -346,10 +365,31 @@ public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragm
         return "Score";
     }
 
+    /*
     @Override
-    public void restart(){
+    public void reinitialize(){
+        mRouteIdText.setText(null);
+        mClimberIdEdit.setText(null);
+        mClimberNameEdit.setText(null);
+        mAccumulatedEdit.setText(null);
         mCurrentSessionEdit.setText(null);
-        changeState(State.QUERYING);
+    }
+    */
+
+    @Override
+    public void onNavigateAway(){
+        if(DEBUG) Log.d(TAG, "NavigateAway");
+        mToActivityMethod.resetClimber();
+    }
+
+    @Override
+    public void onNavigateTo(){
+        if(DEBUG) Log.d(TAG, "NavigateTo");
+        mRouteIdText.setText(null);
+        mClimberIdEdit.setText(null);
+        mClimberNameEdit.setText(null);
+        mAccumulatedEdit.setText(null);
+        mCurrentSessionEdit.setText(null);
     }
 
     @Override
@@ -357,82 +397,27 @@ public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragm
         mCurrentSessionEdit.append(s);
     }
 
+    @Override
+    public void backspaceAccumulated(int numberOfCharacters){
+        String current = mCurrentSessionEdit.getText().toString();
+        if(current != null  && current.length() >= numberOfCharacters){
+            current = current.substring(0, current.length()-numberOfCharacters);
+            mCurrentSessionEdit.setText(current);
+        }
+    }
+
 
     /*=========================================================================
      * Button press methods
      *=======================================================================*/
-    /*
-    public void plusOne(){
-        mCurrentSessionEdit.append("1");
-
-        mBackspaceButton.setEnabled(true);
-        calculateAndUpdateBT();
-    }
-
-    public void bonus(){
-        mCurrentSessionEdit.append("B");
-
-        mBonusButton.setEnabled(false);
-        mBackspaceButton.setEnabled(true);
-        calculateAndUpdateBT();
-    }
-
-    public void top(){
-        mCurrentSessionEdit.append("T");
-        mBackspaceButton.setEnabled(true);
-        mPlusOneButton.setEnabled(false);
-        mBonusButton.setEnabled(false);
-        mTopButton.setEnabled(false);
-
-        calculateAndUpdateBT();
-    }
-
-    public void backspace(){
-        String currentSessionScore = mCurrentSessionEdit.getText().toString();
-
-        if(currentSessionScore.length() == 1)
-            mBackspaceButton.setEnabled(false);
-
-        if(currentSessionScore.length() > 0){
-            char lastChar = currentSessionScore.charAt(currentSessionScore.length()-1);
-            if( lastChar == 'B'){
-                mBonusButton.setEnabled(true);
-            }
-            else if(lastChar == 'T'){
-                mTopButton.setEnabled(true);
-                mPlusOneButton.setEnabled(true);
-                if(!currentSessionScore.contains("B")){
-                    mBonusButton.setEnabled(true);
-                }
-            }
-            mCurrentSessionEdit.getText().delete(mCurrentSessionEdit.getText().length()-1, mCurrentSessionEdit.getText().length());
-        }
-
-        calculateAndUpdateBT();
-    }
-    */
-
-    public void submit(){
+    private void submit(){
         new AlertDialog.Builder(getActivity())
                 .setTitle("Submit score")
                 .setMessage("Are you sure you want to submit score?")
                 .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Do stuff
-                        // Make QueueObject
-                        QueueObject mQueueObject = new QueueObject(mToActivityMethod.getUser().getUserId(),
-                                mToActivityMethod.getUser().getAuthToken(),
-                                mToActivityMethod.getUser().getCategoryId(),
-                                mToActivityMethod.getUser().getRouteId(),
-                                mToActivityMethod.getClimber().getClimberId(),
-                                mCurrentSessionEdit.getText().toString(),
-                                CrimpService.nextRequestId(),
-                                getActivity());
-
-                        // Add to a queue of QueueObject request.
-                        ((CrimpApplication)getActivity().getApplicationContext()).addRequest(mQueueObject);
-
-                        //TODO destroy this fragment
+                        mToActivityMethod.onSubmit(mCurrentSessionEdit.getText().toString());
 
                     }
                 })
@@ -460,6 +445,11 @@ public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragm
         User getUser();
         Climber getClimber();
         void updateClimberInfo(String climberName, String totalScore);
+        String getScoringType();
+        void onSubmit(String currentScore);
+        void saveScoreInstance(Bundle bundle);
+        Bundle restoreScoreInstance();
+        void resetClimber();
     }
 
 
