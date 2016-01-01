@@ -222,6 +222,14 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
         super.onResume();
         if (DEBUG) Log.d(TAG, "ScanFragment onResume");
         startThread();
+
+        Bundle myBundle = mToActivityMethod.restoreScanInstance();
+        String climberIdEditString = myBundle.getString(getString(R.string.bundle_climber_id));
+        String climberNameEditString = myBundle.getString(getString(R.string.bundle_climber_name));
+        State state = State.toEnum(myBundle.getInt(getString(R.string.bundle_scan_state), State.SCANNING.getValue()));
+
+        mClimberIdEdit.setText(climberIdEditString);
+        mClimberNameEdit.setText(climberNameEditString);
     }
 
     @Override
@@ -230,6 +238,8 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
 
         Bundle myOutState = new Bundle();
         myOutState.putInt(getString(R.string.bundle_scan_state), mState.getValue());
+        myOutState.putString(getString(R.string.bundle_climber_id), mClimberIdEdit.getText().toString());
+        myOutState.putString(getString(R.string.bundle_climber_name), mClimberNameEdit.getText().toString());
         mToActivityMethod.saveScanInstance(myOutState);
 
         releaseCameraAndStopDecodeThread();
@@ -272,20 +282,11 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
             case SCANNING:
                 mRescanButton.setEnabled(false);
                 mCategoryIdEdit.setText(mToActivityMethod.getCategoryId());
-                //Don't touch mClimberIdEdit. It is left as it is.
+                //mClimberIdEdit.setText(mToActivityMethod.getClimberId());
                 //Don't touch mClimberNameEdit. It is left as it is.
                 break;
             case NOT_SCANNING:
                 mRescanButton.setEnabled(true);
-                String currClimberIdEditString = mClimberIdEdit.getText().toString();
-                String climberIdFromActivity = mToActivityMethod.getClimberId();
-                if(currClimberIdEditString == null){
-                    mClimberIdEdit.setText(climberIdFromActivity);
-                }
-                else if(currClimberIdEditString.compareTo(climberIdFromActivity)!=0){
-                    mClimberIdEdit.setText(climberIdFromActivity);
-                }
-
                 mCategoryIdEdit.setText(mToActivityMethod.getCategoryId());
                 //Don't touch mClimberNameEdit. It is left as it is.
                 break;
@@ -371,18 +372,32 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
     @Override
     public void onNavigateAway(){
         if(DEBUG) Log.d(TAG, "NavigateAway");
+        String climberIdEditString = mClimberIdEdit.getText().toString();
+        String climberNameEditString = mClimberNameEdit.getText().toString();
+
+        Bundle myBundle = new Bundle();
+        myBundle.putString(getString(R.string.bundle_climber_id), climberIdEditString);
+        myBundle.putString(getString(R.string.bundle_climber_name), climberNameEditString);
+        myBundle.putInt(getString(R.string.bundle_scan_state), mState.getValue());
+
+        mToActivityMethod.saveScanInstance(myBundle);
+
         changeState(State.NOT_SCANNING);
+
     }
 
     @Override
     public void onNavigateTo(){
         if(DEBUG) Log.d(TAG, "NavigateTo");
-        if(mToActivityMethod.getClimberId()==null){
-            changeState(State.SCANNING);
-        }
-        else{
-            changeState(State.NOT_SCANNING);
-        }
+        Bundle myBundle = mToActivityMethod.restoreScanInstance();
+        String climberIdEditString = myBundle.getString(getString(R.string.bundle_climber_id));
+        String climberNameEditString = myBundle.getString(getString(R.string.bundle_climber_name));
+        State state = State.toEnum(myBundle.getInt(getString(R.string.bundle_scan_state), State.SCANNING.getValue()));
+
+        mClimberIdEdit.setText(climberIdEditString);
+        mClimberNameEdit.setText(climberNameEditString);
+
+        changeState(state);
     }
 
     @Override
@@ -405,13 +420,7 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
 
     @Override
     public void updateClimberName(){
-        String displayedId = mClimberIdEdit.getText().toString();
-        if(displayedId.equals(mToActivityMethod.getClimberId())){
-        }
-        else{
-            mToActivityMethod.updateActivityClimberInfo(displayedId, null);
-        }
-        mClimberNameEdit.setText(mToActivityMethod.getClimberName());
+        mClimberNameEdit.setText(null);
     }
 
     @Override
@@ -596,6 +605,8 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
         cameraManager.setFlash(false);
         mNextButton.setEnabled(false);
         mToActivityMethod.updateActivityClimberInfo(mClimberIdEdit.getText().toString(), mClimberNameEdit.getText().toString());
+        mClimberIdEdit.setText(null);
+        mClimberNameEdit.setText(null);
         changeState(State.NOT_SCANNING);
         //releaseCameraAndStopDecodeThread();
         mToActivityMethod.createAndSwitchToScoreFragment();

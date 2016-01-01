@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class ScanFragmentHandler extends Handler{
     private static final String TAG = ScanFragmentHandler.class.getSimpleName();
-    private final boolean DEBUG = true;
+    private final boolean DEBUG = false;
 
     private ScanFragment fragment;
     private boolean running;

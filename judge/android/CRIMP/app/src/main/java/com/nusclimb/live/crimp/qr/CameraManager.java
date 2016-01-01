@@ -27,7 +27,7 @@ import org.apache.commons.lang3.ObjectUtils;
  */
 public class CameraManager implements Camera.PreviewCallback{
     private static final String TAG = CameraManager.class.getSimpleName();
-    private final boolean DEBUG = true;
+    private final boolean DEBUG = false;
 
     private boolean _isSurfaceReady;			// Whether the surface to show preview is ready (between
                                                 // surfaceCreated and surfaceDestroyed).

@@ -36,7 +36,7 @@ import android.util.Log;
  */
 public class DecodeHandler extends Handler{
     private static final String TAG = DecodeHandler.class.getSimpleName();
-    private final boolean DEBUG = true;
+    private final boolean DEBUG = false;
 
     private final String PREFIX;	// Magic string to check if QR Code is valid
 
