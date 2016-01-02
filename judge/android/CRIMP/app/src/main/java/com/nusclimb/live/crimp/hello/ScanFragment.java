@@ -24,15 +24,10 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.Categories;
-import com.nusclimb.live.crimp.common.Climber;
-import com.nusclimb.live.crimp.common.User;
 import com.nusclimb.live.crimp.qr.CameraManager;
 import com.nusclimb.live.crimp.qr.DecodeThread;
 import com.nusclimb.live.crimp.qr.PreviewView;
 import com.nusclimb.live.crimp.qr.ScanFragmentHandler;
-
-import java.util.ArrayList;
 
 /**
  * Fragment for scanning QR code to get climber id and name. Activity containing this Fragment must
@@ -63,7 +58,7 @@ import java.util.ArrayList;
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callback, ClimberIdTextWatcher.ToFragmentInteraction {
+public class ScanFragment extends HelloActivityFragment implements SurfaceHolder.Callback, ClimberIdTextWatcher.ToFragmentInteraction {
     private final String TAG = ScanFragment.class.getSimpleName();
     private final boolean DEBUG = true;
 
@@ -353,23 +348,6 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
     }
 
     @Override
-    public CharSequence getPageTitle() {
-        return "Scan";
-    }
-
-    /*
-    @Override
-    public void reinitialize() {
-        if(DEBUG) Log.d(TAG, "ScanFragment reinitialize");
-        mRescanButton.setEnabled(false);
-        mCategoryIdEdit.setText(mToActivityMethod.getCategoryId());
-        mClimberIdEdit.setText(null);
-        mClimberNameEdit.setText(null);
-        changeState(State.SCANNING);
-    }
-    */
-
-    @Override
     public void onNavigateAway(){
         if(DEBUG) Log.d(TAG, "NavigateAway");
         String climberIdEditString = mClimberIdEdit.getText().toString();
@@ -419,13 +397,9 @@ public class ScanFragment extends CrimpFragment implements SurfaceHolder.Callbac
     }
 
     @Override
-    public void updateClimberName(){
+    public void onClimberIdEditTextChange(String climberId){
         mClimberNameEdit.setText(null);
-    }
-
-    @Override
-    public void updateNextButton(boolean enable){
-        mNextButton.setEnabled(enable);
+        mNextButton.setEnabled(climberId.toString().length()==3);
     }
 
 

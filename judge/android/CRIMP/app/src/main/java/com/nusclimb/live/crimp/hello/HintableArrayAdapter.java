@@ -43,7 +43,7 @@ public class HintableArrayAdapter extends ArrayAdapter<HintableSpinnerItem> {
     {
         HintableSpinnerItem item = getItem(position);
 
-        View mView = null;
+        View mView;
         if(item.isHint()){
             TextView mTextView = new TextView(getContext());
             mTextView.setHeight(0);
@@ -58,6 +58,11 @@ public class HintableArrayAdapter extends ArrayAdapter<HintableSpinnerItem> {
         return mView;
     }
 
+    /**
+     * Find the position of the first hint item in this adapter.
+     *
+     * @return position of the first hint item.
+     */
     public int getFirstHintPosition(){
         int position = -1;
         int i=0;

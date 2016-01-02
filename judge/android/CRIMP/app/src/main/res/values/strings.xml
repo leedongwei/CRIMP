@@ -104,9 +104,15 @@
     <string name="bundle_scan_state">bundle_scanstate</string>
     <string name="bundle_score_state">bundle_scorestate</string>
 
+    <!-- HelloActivityFragment Bundle Bundle Key -->
+    <string name="bundle_route_bundle">bundle_routebundle</string>
+    <string name="bundle_scan_bundle">bundle_scanbundle</string>
+    <string name="bundle_score_bundle">bundle_scorebundle</string>
+
     <!-- Other Bundle Key -->
     <string name="bundle_category_spinner_selected_index">bundle_categoryspinnerselectedindex</string>
     <string name="bundle_route_spinner_selected_index">bundle_routespinnerselectedindex</string>
+
     
 
 

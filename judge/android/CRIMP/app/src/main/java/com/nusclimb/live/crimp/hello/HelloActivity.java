@@ -36,17 +36,22 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 /**
+ * This class is the main activity of Crimp. It contains several HelloActivityFragments. Navigating
+ * between HelloActivityFragments are done by clicking on ActionBarTab or swiping on
+ * HelloActivityViewPager. This class also contain User, Categories and Climber information. Any
+ * HelloActivityFragments intending to use these information must always get it from this class.
+ *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class HelloActivity extends ActionBarActivity implements ActionBar.TabListener,
         RouteFragment.RouteFragmentToActivityMethods, ScanFragment.ScanFragmentToActivityMethods,
         ScoreFragment.ScoreFragmentToActivityMethods {
     private final String TAG = HelloActivity.class.getSimpleName();
-    private final boolean DEBUG = true;
+    private final boolean DEBUG = false;
 
-    Bundle routeBundle = new Bundle();
-    Bundle scanBundle = new Bundle();
-    Bundle scoreBundle = new Bundle();
+    private Bundle routeBundle = new Bundle();
+    private Bundle scanBundle = new Bundle();
+    private Bundle scoreBundle = new Bundle();
     private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
 
     // All the info
@@ -56,13 +61,14 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
     // For doing tab manipulation
     private ActionBar mActionBar;
-    private CrimpViewPager mViewPager;
+    private HelloActivityViewPager mViewPager;
     private TextView mRouteTabTextView;
     private TextView mScanTabTextView;
     private TextView mScoreTabTextView;
     private CrimpFragmentPagerAdapter mCrimpFragmentPagerAdapter;
     private Handler activityHandler;
     private int prevPageIndex;
+
 
 
     /*=========================================================================
@@ -78,7 +84,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_hello);
 
-        /* Note to self: ActionBar and ViewPager are seperated. User can switch between
+        /* Note to self: ActionBar and ViewPager are separated. User can switch between
          * fragments by using either ActionBar or ViewPager. When ActionBar is used, we set
          * ViewPager to match the ActionBar and vice versa.
          *
@@ -95,7 +101,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         if(mCrimpFragmentPagerAdapter == null)
             mCrimpFragmentPagerAdapter = new CrimpFragmentPagerAdapter(getSupportFragmentManager());
 
-        mViewPager = (CrimpViewPager)findViewById(R.id.pager);
+        mViewPager = (HelloActivityViewPager)findViewById(R.id.pager);
         mActionBar = getSupportActionBar();
         mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
@@ -164,7 +170,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
                     +" prev:"+prevPageIndex);
                 super.onPageSelected(position);
 
-                // If the actionbar tab selection is the same as ViewPager's selection, we do nothig. It is possible
+                // If the actionbar tab selection is the same as ViewPager's selection, we do nothing. It is possible
                 // for actionbar tab to already be on the correct position (such as when user navigate by pressing tab instead
                 // of swiping).
                 if(mActionBar.getSelectedNavigationIndex() != position)
@@ -238,7 +244,9 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
             mClimber.setClimberName(savedInstanceState.getString(getString(R.string.bundle_climber_name)));
             mClimber.setTotalScore(savedInstanceState.getString(getString(R.string.bundle_total_score)));
 
-            routeBundle = savedInstanceState.getBundle("routeBundle");
+            routeBundle = savedInstanceState.getBundle(getString(R.string.bundle_route_bundle));
+            scanBundle = savedInstanceState.getBundle(getString(R.string.bundle_scan_bundle));
+            scoreBundle = savedInstanceState.getBundle(getString(R.string.bundle_score_bundle));
         }
     }
 
@@ -257,7 +265,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
     @Override
     protected void onPause(){
-        if (DEBUG) Log.d(TAG, "onpause curritem:" + mViewPager.getCurrentItem());
+        if (DEBUG) Log.d(TAG, "onPause currentItem:" + mViewPager.getCurrentItem());
         super.onPause();
     }
 
@@ -290,9 +298,9 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
             outState.putString(getString(R.string.bundle_total_score), mClimber.getTotalScore());
         }
 
-        outState.putBundle("routeBundle", routeBundle);
-        outState.putBundle("scanBundle", scanBundle);
-        outState.putBundle("scoreBundle", scoreBundle);
+        outState.putBundle(getString(R.string.bundle_route_bundle), routeBundle);
+        outState.putBundle(getString(R.string.bundle_route_bundle), scanBundle);
+        outState.putBundle(getString(R.string.bundle_route_bundle), scoreBundle);
 
         if (DEBUG) Log.d(TAG, "HelloActivity onSaveInstanceState");
     }
@@ -331,7 +339,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
         if (DEBUG) Log.d(TAG, "onTabSelected. SelectedTab:"+selectedTabPosition+
                 " currentTab:"+currentTabPosition+
-                " viewPagercurrent:"+viewPagerCurrentIndex+
+                " viewPagerCurrent:"+viewPagerCurrentIndex+
                 " adapterCount:"+numberOfFragment);
 
         // case 1
@@ -381,8 +389,25 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     }
 
     @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        if(DEBUG) Log.d(TAG, "onTabReselected: "+tab.getPosition());
+    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {}
+
+
+
+    /*=========================================================================
+     * SpiceRequest Listener
+     *=======================================================================*/
+    private class HelpMeRequestListener implements RequestListener<HelpMeResponseBody> {
+        private final String TAG = HelpMeRequestListener.class.getSimpleName();
+
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            Log.w(TAG+".onRequestFailure()", "fail");
+        }
+
+        @Override
+        public void onRequestSuccess(HelpMeResponseBody result) {
+            if (DEBUG) Log.i(TAG+".onRequestSuccess()", "success");
+        }
     }
 
 
@@ -390,16 +415,14 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     /*=========================================================================
      * Other methods
      *=======================================================================*/
-
     /**
      * This method handles what needs to be done when navigating away from score tab.
      * This method enable swiping on viewpager, calls viewpager to set to the target
      * position, update tab colors, reinitialize Climber info and reinitialize scan tab.
-     * @param targetPosition
+     *
+     * @param targetPosition the destination position to navigate to
      */
     private void navigateAwayFromScore(int targetPosition){
-        final int currentTab = mViewPager.getCurrentItem();
-
         mViewPager.setIsAllowSwiping(true);
         mViewPager.setCurrentItem(targetPosition);
         mCrimpFragmentPagerAdapter.setCount(2);
@@ -407,7 +430,6 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         mScanTabTextView.setTextColor(getResources().getColor(R.color.white));
         mScoreTabTextView.setTextColor(getResources().getColor(R.color.whiteWithTransparency));
         mClimber = new Climber();
-        //mCrimpFragmentPagerAdapter.getScanFragment().reinitialize();
     }
 
     @Override
@@ -429,8 +451,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     }
 
     @Override
-    public void onBackPressed()
-    {
+    public void onBackPressed() {
         final int currentTab = mViewPager.getCurrentItem();
         switch(currentTab){
             case 0:
@@ -504,17 +525,12 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     }
 
     @Override
-     public void createAndSwitchToScanFragment() {
+    public void createAndSwitchToScanFragment() {
         mCrimpFragmentPagerAdapter.setCount(2);
         mRouteTabTextView.setTextColor(getResources().getColor(R.color.white));
         mScanTabTextView.setTextColor(getResources().getColor(R.color.white));
         mScoreTabTextView.setTextColor(getResources().getColor(R.color.whiteWithTransparency));
         mViewPager.setCurrentItem(1);
-
-        /*
-        if(mCrimpFragmentPagerAdapter.getScanFragment() != null)
-            mCrimpFragmentPagerAdapter.getScanFragment().reinitialize();
-            */
     }
 
     @Override
@@ -602,11 +618,6 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         mScoreTabTextView.setTextColor(getResources().getColor(R.color.white));
         mViewPager.setCurrentItem(2);
         mViewPager.setIsAllowSwiping(false);
-
-        /*
-        if(mCrimpFragmentPagerAdapter.getScoreFragment() != null)
-            mCrimpFragmentPagerAdapter.getScoreFragment().reinitialize();
-            */
     }
 
     @Override
@@ -629,7 +640,6 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     @Override
     public String getClimberName(){
         return mClimber.getClimberName();
-
     }
 
     @Override
@@ -654,21 +664,4 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
         return null;
     }
-
-
-    private class HelpMeRequestListener implements RequestListener<HelpMeResponseBody> {
-        private final String TAG = HelpMeRequestListener.class.getSimpleName();
-
-        @Override
-        public void onRequestFailure(SpiceException e) {
-            Log.w(TAG+".onRequestFailure()", "fail");
-        }
-
-        @Override
-        public void onRequestSuccess(HelpMeResponseBody result) {
-            if (DEBUG) Log.i(TAG+".onRequestSuccess()", "success");
-        }
-    }
-
-
 }

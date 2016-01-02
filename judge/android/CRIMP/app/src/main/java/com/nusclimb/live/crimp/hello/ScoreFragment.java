@@ -2,7 +2,6 @@ package com.nusclimb.live.crimp.hello;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,11 +12,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.nusclimb.live.crimp.CrimpApplication;
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.Categories;
 import com.nusclimb.live.crimp.common.Climber;
-import com.nusclimb.live.crimp.common.QueueObject;
 import com.nusclimb.live.crimp.common.User;
 import com.nusclimb.live.crimp.common.json.ActiveMonitorResponseBody;
 import com.nusclimb.live.crimp.common.json.GetScoreResponseBody;
@@ -32,14 +28,12 @@ import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
-import java.util.ArrayList;
-
 /**
  * Created by weizhi on 16/7/2015.
  */
-public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragmentMethods {
+public class ScoreFragment extends HelloActivityFragment implements ScoringModuleToFragmentMethods {
     private final String TAG = ScoreFragment.class.getSimpleName();
-    private final boolean DEBUG = true;
+    private final boolean DEBUG = false;
 
     private enum State{
         QUERYING(0),
@@ -255,7 +249,6 @@ public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragm
                 mClimberNameEdit.setText(climberFromActivity.getClimberName());
                 mAccumulatedEdit.setText(climberFromActivity.getTotalScore());
                 //Don't touch mCurrentSessionEdit.
-                calculateAndUpdateBT();
                 break;
             default:
                 break;
@@ -280,19 +273,6 @@ public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragm
                 break;
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /**
@@ -342,13 +322,6 @@ public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragm
         }
     }
 
-
-    private void calculateAndUpdateBT(){
-
-    }
-
-
-
     @Override
     public void onClick(View v) {
         switch(v.getId()){
@@ -357,24 +330,6 @@ public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragm
                 break;
         }
     }
-
-
-
-    @Override
-    public CharSequence getPageTitle() {
-        return "Score";
-    }
-
-    /*
-    @Override
-    public void reinitialize(){
-        mRouteIdText.setText(null);
-        mClimberIdEdit.setText(null);
-        mClimberNameEdit.setText(null);
-        mAccumulatedEdit.setText(null);
-        mCurrentSessionEdit.setText(null);
-    }
-    */
 
     @Override
     public void onNavigateAway(){
@@ -451,8 +406,4 @@ public class ScoreFragment extends CrimpFragment implements ScoringModuleToFragm
         Bundle restoreScoreInstance();
         void resetClimber();
     }
-
-
-
-
 }

@@ -5,7 +5,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 
-import com.nusclimb.live.crimp.hello.CrimpFragment;
 import com.nusclimb.live.crimp.hello.RouteFragment;
 import com.nusclimb.live.crimp.hello.ScanFragment;
 import com.nusclimb.live.crimp.hello.ScoreFragment;

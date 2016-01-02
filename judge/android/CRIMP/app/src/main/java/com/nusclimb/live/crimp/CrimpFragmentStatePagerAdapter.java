@@ -4,9 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.Log;
-import android.view.ViewGroup;
 
-import com.nusclimb.live.crimp.hello.CrimpFragment;
+import com.nusclimb.live.crimp.hello.HelloActivityFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.List;
 public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
     private final String TAG = "FragStatePagerAdapter";
 
-    private List<CrimpFragment> fragmentList;
+    private List<HelloActivityFragment> fragmentList;
     private FragmentManager mFragmentManager;
     private long baseId = 0;
 
@@ -38,7 +37,7 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
     public CrimpFragmentStatePagerAdapter(FragmentManager fm) {
         super(fm);
         this.mFragmentManager = fm;
-        this.fragmentList = new ArrayList<CrimpFragment>();
+        this.fragmentList = new ArrayList<HelloActivityFragment>();
     }
 
     /**
@@ -49,7 +48,7 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
      *           CrimpFragmentStatePagerAdapter.
      * @param fragmentList List of Fragments to populate a ViewPager.
      */
-    public CrimpFragmentStatePagerAdapter(FragmentManager fm, List<CrimpFragment> fragmentList) {
+    public CrimpFragmentStatePagerAdapter(FragmentManager fm, List<HelloActivityFragment> fragmentList) {
         super(fm);
         this.mFragmentManager = fm;
         this.fragmentList = fragmentList;
@@ -94,7 +93,7 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
      * @param index Index at which the specified mFragment is to be inserted.
      * @param mFragment Fragment to be inserted.
      */
-    public void addFragment( int index, CrimpFragment mFragment) {
+    public void addFragment( int index, HelloActivityFragment mFragment) {
         List<Fragment> fragList = mFragmentManager.getFragments();
         int fragListCount = -1;
         if(fragList!=null)
@@ -110,7 +109,7 @@ public class CrimpFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
      *
      * @param mFragment Fragment to be appended.
      */
-    public void addFragment(CrimpFragment mFragment) {
+    public void addFragment(HelloActivityFragment mFragment) {
         addFragment(fragmentList.size(), mFragment);
     }
 

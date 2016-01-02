@@ -37,9 +37,9 @@ import java.util.List;
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class RouteFragment extends CrimpFragment implements SwipeRefreshLayout.OnRefreshListener{
+public class RouteFragment extends HelloActivityFragment implements SwipeRefreshLayout.OnRefreshListener{
     private final String TAG = RouteFragment.class.getSimpleName();
-    private final boolean DEBUG = true;
+    private final boolean DEBUG = false;
 
     private enum State{
         START(0),
@@ -213,38 +213,33 @@ public class RouteFragment extends CrimpFragment implements SwipeRefreshLayout.O
         super.onResume();
 
         Bundle mBundle = mToActivityMethod.restoreRouteInstance();
-        mState = State.toEnum(mBundle.getInt(getString(R.string.bundle_route_state), State.START.getValue()));
+        State state = State.toEnum(mBundle.getInt(getString(R.string.bundle_route_state), State.START.getValue()));
         categorySpinnerIndex = mBundle.getInt(getString(R.string.bundle_category_spinner_selected_index), 0);
         routeSpinnerIndex = mBundle.getInt(getString(R.string.bundle_route_spinner_selected_index), 0);
 
         if (DEBUG) Log.d(TAG, "RouteFragment onResume. mState:" + mState + " categoryIndex:"
                 +categorySpinnerIndex+" routeIndex:"+routeSpinnerIndex);
 
-        changeState(mState);
+        changeState(state);
     }
 
     @Override
     public void onPause() {
         if (DEBUG) Log.d(TAG, "RouteFragment onPause");
 
+        State state;
         switch (mState){
             case START:
             case CATEGORY_FAIL:
-                mState = State.START;
+                state = State.START;
                 break;
-            case PICKING:
-            case VERIFYING_1:
-            case VERIFY_1_NOT_OK:
-            case VERIFY_1_FAIL:
-            case VERIFYING_2:
-            case VERIFYING_2_FAIL:
-            case ALL_OK:
-                mState = State.PICKING;
+            default:
+                state = State.PICKING;
                 break;
         }
 
         Bundle outState = new Bundle();
-        outState.putInt(getString(R.string.bundle_route_state), mState.getValue());
+        outState.putInt(getString(R.string.bundle_route_state), state.getValue());
         categorySpinnerIndex = mCategorySpinner.getSelectedItemPosition();
         routeSpinnerIndex = mRouteSpinner.getSelectedItemPosition();
         outState.putInt(getString(R.string.bundle_category_spinner_selected_index), categorySpinnerIndex);
@@ -392,16 +387,6 @@ public class RouteFragment extends CrimpFragment implements SwipeRefreshLayout.O
                 showProgressForm(true);
                 break;
             case ALL_OK:
-                mSwipeLayout.setEnabled(true);
-                if(mSwipeLayout.isRefreshing())
-                    mSwipeLayout.setRefreshing(false);
-                showCategoryRequestForm(false);
-                initHelloText();
-                // Displaying of which item in spinner is done elsewhere.
-                showSpinnerForm(true);
-                showReplaceForm(false);
-                showProgressForm(false);
-                enableNextButtonIfPossible(false);
                 break;
             default:
                 break;
@@ -463,10 +448,7 @@ public class RouteFragment extends CrimpFragment implements SwipeRefreshLayout.O
             case ALL_OK:
                 selectedCategoryId = ((HintableSpinnerItem) mCategorySpinner.getSelectedItem()).getId();
                 selectedRouteId = ((HintableSpinnerItem) mRouteSpinner.getSelectedItem()).getId();
-
                 mToActivityMethod.onCategoryRouteSelected(selectedCategoryId, selectedRouteId);
-                // I have decided to manually change mState without going through changeState().
-                changeState(State.PICKING);
 
                 // Call a method to spawn the next tab into existence.
                 mToActivityMethod.createAndSwitchToScanFragment();
@@ -592,18 +574,6 @@ public class RouteFragment extends CrimpFragment implements SwipeRefreshLayout.O
      * Interface methods
      *=======================================================================*/
     @Override
-    public CharSequence getPageTitle() {
-        return "Route";
-    }
-
-    /*
-    @Override
-    public void reinitialize(){
-        if (DEBUG) Log.d(TAG, "RouteFragment reinitialize");
-    }
-    */
-
-    @Override
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.route_category_request_retry_button:
@@ -640,11 +610,37 @@ public class RouteFragment extends CrimpFragment implements SwipeRefreshLayout.O
     @Override
     public void onNavigateAway(){
         if(DEBUG) Log.d(TAG, "NavigateAway");
+
+        State state;
+        switch (mState){
+            case START:
+            case CATEGORY_FAIL:
+                state = State.START;
+                break;
+            default:
+                state = State.PICKING;
+        }
+
+        Bundle outState = new Bundle();
+        outState.putInt(getString(R.string.bundle_route_state), state.getValue());
+        categorySpinnerIndex = mCategorySpinner.getSelectedItemPosition();
+        routeSpinnerIndex = mRouteSpinner.getSelectedItemPosition();
+        outState.putInt(getString(R.string.bundle_category_spinner_selected_index), categorySpinnerIndex);
+        outState.putInt(getString(R.string.bundle_route_spinner_selected_index), routeSpinnerIndex);
+
+        mToActivityMethod.saveRouteInstance(outState);
     }
 
     @Override
     public void onNavigateTo(){
         if(DEBUG) Log.d(TAG, "NavigateTo");
+
+        Bundle mBundle = mToActivityMethod.restoreRouteInstance();
+        State state = State.toEnum(mBundle.getInt(getString(R.string.bundle_route_state), State.START.getValue()));
+        categorySpinnerIndex = mBundle.getInt(getString(R.string.bundle_category_spinner_selected_index), 0);
+        routeSpinnerIndex = mBundle.getInt(getString(R.string.bundle_route_spinner_selected_index), 0);
+
+        changeState(state);
     }
 
 
@@ -804,6 +800,7 @@ public class RouteFragment extends CrimpFragment implements SwipeRefreshLayout.O
         @Override
         public void onNothingSelected(AdapterView<?> parent) {}
     }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

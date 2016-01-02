@@ -5,10 +5,13 @@ import android.text.TextWatcher;
 import android.util.Log;
 
 /**
- * Created by weizhi on 16/7/2015.
+ * This class monitors for any changes in the EditText view for climber id.
+ *
+ * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class ClimberIdTextWatcher implements TextWatcher {
     private final String TAG = ClimberIdTextWatcher.class.getSimpleName();
+    private final boolean DEBUG = false;
     private ToFragmentInteraction mToFragmentInteraction;
 
     public ClimberIdTextWatcher(ToFragmentInteraction toFragmentInteraction){
@@ -16,24 +19,27 @@ public class ClimberIdTextWatcher implements TextWatcher {
     }
 
     @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        Log.v(TAG+".beforeTextChanged()", "CharSequence="+s+", start="+start+", count="+count+", after="+after);
-    }
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
     @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-        Log.v(TAG+".onTextChanged()", "CharSequence="+s+", start="+start+", before="+before+", count="+count);
-    }
+    public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
     @Override
     public void afterTextChanged(Editable s) {
-        Log.d(TAG + ".afterTextChanged()", "afterTextChanged: "+s.toString());
-        mToFragmentInteraction.updateClimberName();
-        mToFragmentInteraction.updateNextButton(s.toString().length()==3);
+        if (DEBUG) Log.d(TAG, "afterTextChanged: "+s.toString());
+        mToFragmentInteraction.onClimberIdEditTextChange(s.toString());
     }
 
+    /**
+     * Interface that the Fragment/Activity hosting climber id EditText view must implement.
+     */
     public interface ToFragmentInteraction {
-        public void updateClimberName();
-        public void updateNextButton(boolean enable);
+        /**
+         * Inform the hosting Fragment/Activity that a change to climber id EditText has
+         * occur.
+         *
+         * @param climberId the climberId after change.
+         */
+        void onClimberIdEditTextChange(String climberId);
     }
 }
