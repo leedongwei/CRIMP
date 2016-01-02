@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.nusclimb.live.crimp.R;
+
 import java.util.List;
 
 /**
@@ -30,7 +32,7 @@ public class HintableArrayAdapter extends ArrayAdapter<HintableSpinnerItem> {
         HintableSpinnerItem item = getItem(position);
         if(item.isHint()) {
             TextView v = (TextView)super.getView(position, convertView, parent);
-            v.setTextColor(Color.RED);  // TODO change to hint color
+            v.setTextColor(getContext().getResources().getColor(R.color.hint_color));
             return v;
         }
         else{
