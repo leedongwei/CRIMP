@@ -3,6 +3,7 @@ package com.nusclimb.live.crimp.hello.score.scoremodule;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -152,6 +153,11 @@ public class TopBonusScoring extends ScoringModule implements View.OnClickListen
                 calculateScore("1");
                 break;
         }
+        // Get instance of Vibrator from current Context
+        Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+
+        // Vibrate for 50 milliseconds
+        vibrator.vibrate(50);
     }
 
     @Override
