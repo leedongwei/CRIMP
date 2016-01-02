@@ -1,4 +1,4 @@
-package com.nusclimb.live.crimp.hello;
+package com.nusclimb.live.crimp.hello.route;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -22,6 +22,7 @@ import com.nusclimb.live.crimp.common.json.CategoriesResponseBody;
 import com.nusclimb.live.crimp.common.json.ReportResponseBody;
 import com.nusclimb.live.crimp.common.spicerequest.CategoriesRequest;
 import com.nusclimb.live.crimp.common.spicerequest.ReportRequest;
+import com.nusclimb.live.crimp.hello.HelloActivityFragment;
 import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;

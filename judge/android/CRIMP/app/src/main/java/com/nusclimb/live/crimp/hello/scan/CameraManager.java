@@ -1,22 +1,16 @@
-package com.nusclimb.live.crimp.qr;
-
-import java.io.IOException;
-import java.util.List;
-
-import com.google.zxing.PlanarYUVLuminanceSource;
-import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.hello.RouteFragment;
-import com.nusclimb.live.crimp.hello.ScanFragment;
+package com.nusclimb.live.crimp.hello.scan;
 
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
-import org.apache.commons.lang3.ObjectUtils;
+import com.nusclimb.live.crimp.R;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * This class provides an interface for acquiring/releasing of camera 
@@ -25,7 +19,7 @@ import org.apache.commons.lang3.ObjectUtils;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  *
  */
-public class CameraManager implements Camera.PreviewCallback{
+class CameraManager implements Camera.PreviewCallback{
     private static final String TAG = CameraManager.class.getSimpleName();
     private final boolean DEBUG = false;
 
@@ -36,7 +30,6 @@ public class CameraManager implements Camera.PreviewCallback{
     private boolean _isPreviewing;			    // Whether we are displaying camera input on previewView.
     private boolean _isScanning;			    // Whether we are sending new camera input to decode.
     private Camera.Size bestPreviewSize;
-    private Point previewViewResolution;
     private boolean _isTorchOn;
 
     public CameraManager(Handler mDecodeHandler){
@@ -48,7 +41,6 @@ public class CameraManager implements Camera.PreviewCallback{
         _isScanning = false;
         _isPreviewing = false;
         bestPreviewSize = null;
-        previewViewResolution = null;
         _isTorchOn = false;
 
         if (DEBUG) Log.d(TAG, "CameraManager is constructed!");
@@ -68,9 +60,7 @@ public class CameraManager implements Camera.PreviewCallback{
     }
 
     public boolean hasCamera(){
-        if(camera == null)
-            return false;
-        return true;
+        return camera != null;
     }
 
     public Camera.Size getBestPreviewSize(){
@@ -100,7 +90,6 @@ public class CameraManager implements Camera.PreviewCallback{
      * @return True: Camera acquired. False: Camera acquisition failed.
      */
     public boolean acquireCamera(Point targetResolution){
-        previewViewResolution = targetResolution;
         camera = getCameraInstance();
         if(camera == null){
             Log.w(TAG, "Acquire camera fail.");
@@ -123,7 +112,7 @@ public class CameraManager implements Camera.PreviewCallback{
             camera = null;
         }
 
-        Log.d(TAG, "Camera is released.");
+        if (DEBUG) Log.d(TAG, "Camera is released.");
     }
 
     /**
@@ -242,7 +231,7 @@ public class CameraManager implements Camera.PreviewCallback{
             }
 
             param.setPreviewSize(bestPreviewSize.width, bestPreviewSize.height);
-            Log.v(TAG, "Chosen size: H"+bestPreviewSize.height+" x W"+bestPreviewSize.width);
+            if (DEBUG) Log.v(TAG, "Chosen size: H"+bestPreviewSize.height+" x W"+bestPreviewSize.width);
 
             // Set autofocus if possible.
             List<String> focusModes = param.getSupportedFocusModes();

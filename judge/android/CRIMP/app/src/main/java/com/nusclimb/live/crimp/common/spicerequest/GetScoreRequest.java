@@ -41,11 +41,11 @@ public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreResponseB
 
         if(context.getResources().getBoolean(R.bool.is_production_app)) {
             this.url = context.getString(R.string.crimp_production) + context.getString(R.string.get_score_api)
-                    +categoryId+"/"+routeId+"/"+climberId;;
+                    +categoryId+"/"+routeId+"/"+climberId;
         }
         else {
             this.url = context.getString(R.string.crimp_staging) + context.getString(R.string.get_score_api)
-                    +categoryId+"/"+routeId+"/"+climberId;;
+                    +categoryId+"/"+routeId+"/"+climberId;
         }
     }
 

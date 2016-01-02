@@ -1,10 +1,8 @@
-package com.nusclimb.live.crimp.scoremodule;
+package com.nusclimb.live.crimp.hello.score.scoremodule;
 
 import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +29,7 @@ public class TopBonus2Scoring extends ScoringModule implements View.OnClickListe
     private String currentScore = null;
     private String accumulatedScore = null;
 
-    public static TopBonus2Scoring newInstance(Context context){
+    public static TopBonus2Scoring newInstance(){
         Log.d("TopBonus2Scoring", "newInstance");
         TopBonus2Scoring myFragment = new TopBonus2Scoring();
 
@@ -148,12 +146,12 @@ public class TopBonus2Scoring extends ScoringModule implements View.OnClickListe
                     mBonusTwoButton.setEnabled(false);
                     mTopButton.setEnabled(false);
                 }
-                else if(scoreString.indexOf("B2") != -1){
+                else if(scoreString.contains("B2")){
                     mBonusOneButton.setEnabled(false);
                     mBonusTwoButton.setEnabled(false);
                     mTopButton.setEnabled(true);
                 }
-                else if(scoreString.indexOf("B1") != -1){
+                else if(scoreString.contains("B1")){
                     mBonusOneButton.setEnabled(false);
                     mBonusTwoButton.setEnabled(true);
                     mTopButton.setEnabled(true);
@@ -178,17 +176,17 @@ public class TopBonus2Scoring extends ScoringModule implements View.OnClickListe
         calculateScore("");
     }
 
-    public void calculateScore(String append){
+    private void calculateScore(String append){
         Log.d(TAG, "["+accumulatedScore+"]["+currentScore+"]["+append+"]");
         currentScore = currentScore + append;
         String scoreString = accumulatedScore + currentScore;
         if(scoreString.indexOf('T') != -1){
             mBestResult.setText("Top");
         }
-        else if(scoreString.indexOf("B2") != -1){
+        else if(scoreString.contains("B2")){
             mBestResult.setText("Bonus 2");
         }
-        else if(scoreString.indexOf("B1") != -1){
+        else if(scoreString.contains("B1")){
             mBestResult.setText("Bonus 1");
         }
         else{

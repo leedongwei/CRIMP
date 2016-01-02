@@ -13,7 +13,7 @@ public enum UploadStatus {
 
     private String string;
 
-    private UploadStatus(String string){
+    UploadStatus(String string){
         this.string = string;
     }
 

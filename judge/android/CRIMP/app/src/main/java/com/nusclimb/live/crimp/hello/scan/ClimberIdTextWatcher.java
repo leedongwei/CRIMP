@@ -1,4 +1,4 @@
-package com.nusclimb.live.crimp.hello;
+package com.nusclimb.live.crimp.hello.scan;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,7 +9,7 @@ import android.util.Log;
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class ClimberIdTextWatcher implements TextWatcher {
+class ClimberIdTextWatcher implements TextWatcher {
     private final String TAG = ClimberIdTextWatcher.class.getSimpleName();
     private final boolean DEBUG = false;
     private ToFragmentInteraction mToFragmentInteraction;

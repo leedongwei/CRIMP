@@ -92,8 +92,8 @@ public class LoginActivity extends Activity {
 
     // Facebook references.
     private CallbackManager callbackManager;
-    AccessTokenTracker mAccessTokenTracker;
-    ProfileTracker mProfileTracker;
+    private AccessTokenTracker mAccessTokenTracker;
+    private ProfileTracker mProfileTracker;
 
     /*=========================================================================
      * Inner class

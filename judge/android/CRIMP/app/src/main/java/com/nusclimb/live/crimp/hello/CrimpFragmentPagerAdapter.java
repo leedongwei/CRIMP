@@ -1,18 +1,18 @@
-package com.nusclimb.live.crimp;
+package com.nusclimb.live.crimp.hello;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 
-import com.nusclimb.live.crimp.hello.RouteFragment;
-import com.nusclimb.live.crimp.hello.ScanFragment;
-import com.nusclimb.live.crimp.hello.ScoreFragment;
+import com.nusclimb.live.crimp.hello.route.RouteFragment;
+import com.nusclimb.live.crimp.hello.scan.ScanFragment;
+import com.nusclimb.live.crimp.hello.score.ScoreFragment;
 
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class CrimpFragmentPagerAdapter extends FragmentPagerAdapter {
+class CrimpFragmentPagerAdapter extends FragmentPagerAdapter {
     private int count = 1;
 
     private RouteFragment mRouteFragment;

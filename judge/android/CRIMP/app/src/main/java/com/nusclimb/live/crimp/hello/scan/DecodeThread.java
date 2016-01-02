@@ -1,4 +1,4 @@
-package com.nusclimb.live.crimp.qr;
+package com.nusclimb.live.crimp.hello.scan;
 
 import android.graphics.Point;
 import android.os.Handler;
@@ -17,8 +17,9 @@ import com.nusclimb.live.crimp.R;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  *
  */
-public class DecodeThread extends Thread{
+class DecodeThread extends Thread{
     private static final String TAG = DecodeThread.class.getSimpleName();
+    private final boolean DEBUG = false;
 
     // Bundle keys
     public static final String BARCODE_BITMAP = "barcode_bitmap";
@@ -34,12 +35,12 @@ public class DecodeThread extends Thread{
         this.mainThreadHandler = mainThreadHandler;
         PREFIX = qrPrefix;
         this.previewResolution = previewResolution;
-        Log.d(TAG, "DecodeThread constructed.");
+        if (DEBUG) Log.d(TAG, "DecodeThread constructed.");
     }
 
     @Override
     public void run(){
-        Log.d(TAG, "DecodeThread begin running");
+        if (DEBUG) Log.d(TAG, "DecodeThread begin running");
         Looper.prepare();
         mDecodeHandler = new DecodeHandler(mainThreadHandler, PREFIX, previewResolution);
         Message message = Message.obtain(mainThreadHandler, R.id.decode_handler_constructed);

@@ -44,19 +44,18 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
 
         if(context.getResources().getBoolean(R.bool.is_production_app)) {
             this.url = context.getString(R.string.crimp_production) + context.getString(R.string.post_score_api)
-                    + categoryId + "/" + routeId + "/" + climberId;;
+                    + categoryId + "/" + routeId + "/" + climberId;
         }
         else {
             this.url = context.getString(R.string.crimp_staging) + context.getString(R.string.post_score_api)
-                    + categoryId + "/" + routeId + "/" + climberId;;
+                    + categoryId + "/" + routeId + "/" + climberId;
         }
     }
 
     @Override
     public PostScoreResponseBody loadDataFromNetwork() throws Exception {
         if(context.getResources().getBoolean(R.bool.is_debug)){
-            PostScoreResponseBody response = new PostScoreResponseBody();
-            return response;
+            return new PostScoreResponseBody();
         }
         else {
             HttpHeaders headers = new HttpHeaders();
@@ -66,7 +65,7 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
             headers.set("x-auth-token", xAuthToken);
 
             HttpBody body = new HttpBody(scoreString);
-            HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
+            HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
 
             RestTemplate mRestTemplate = getRestTemplate();
             ResponseEntity<PostScoreResponseBody> response = mRestTemplate.exchange(url,

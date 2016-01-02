@@ -226,9 +226,7 @@ public class Helper {
     public static List<String> primitiveToList(String[] primitive){
         List<String> myList = new ArrayList<>();
 
-        for(String i : primitive){
-            myList.add(i);
-        }
+        Collections.addAll(myList, primitive);
 
         return myList;
     }

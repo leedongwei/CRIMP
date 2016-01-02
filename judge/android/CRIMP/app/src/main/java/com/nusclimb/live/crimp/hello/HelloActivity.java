@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
 import com.nusclimb.live.crimp.CrimpApplication;
-import com.nusclimb.live.crimp.CrimpFragmentPagerAdapter;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.Categories;
 import com.nusclimb.live.crimp.common.Climber;
@@ -29,6 +28,9 @@ import com.nusclimb.live.crimp.common.User;
 import com.nusclimb.live.crimp.common.json.CategoriesResponseBody;
 import com.nusclimb.live.crimp.common.json.HelpMeResponseBody;
 import com.nusclimb.live.crimp.common.spicerequest.HelpMeRequest;
+import com.nusclimb.live.crimp.hello.route.RouteFragment;
+import com.nusclimb.live.crimp.hello.scan.ScanFragment;
+import com.nusclimb.live.crimp.hello.score.ScoreFragment;
 import com.nusclimb.live.crimp.login.LoginActivity;
 import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
@@ -457,7 +459,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
             case 0:
                 break;
             case 1:
-                mViewPager.setCurrentItem(currentTab-1);
+                mViewPager.setCurrentItem(currentTab - 1);
                 break;
             case 2:
                 new AlertDialog.Builder(this)
@@ -630,16 +632,6 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     @Override
     public String getCategoryId(){
         return mUser.getCategoryId();
-    }
-
-    @Override
-    public String getClimberId(){
-        return mClimber.getClimberId();
-    }
-
-    @Override
-    public String getClimberName(){
-        return mClimber.getClimberName();
     }
 
     @Override

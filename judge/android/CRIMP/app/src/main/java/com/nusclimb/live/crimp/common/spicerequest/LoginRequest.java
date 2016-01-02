@@ -54,7 +54,7 @@ public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponseBody> {
             headers.set("Cache-Control", "no-cache");
 
             HttpBody body = new HttpBody(accessToken, isProductionApp);
-            HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
+            HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
 
             RestTemplate mRestTemplate = getRestTemplate();
             ResponseEntity<LoginResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,

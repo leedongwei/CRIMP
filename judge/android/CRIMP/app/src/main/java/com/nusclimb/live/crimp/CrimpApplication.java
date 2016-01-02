@@ -11,7 +11,6 @@ import com.nusclimb.live.crimp.service.CrimpService;
 import com.nusclimb.live.crimp.uploadlist.UploadStatus;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.exception.NoNetworkException;
-import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
@@ -183,7 +182,7 @@ public class CrimpApplication extends Application {
      */
     public Queue<QueueObject> getQueue(){
         if(uploadQueue == null){
-            uploadQueue = new LinkedList<QueueObject>();
+            uploadQueue = new LinkedList<>();
         }
 
         return uploadQueue;
@@ -246,7 +245,7 @@ public class CrimpApplication extends Application {
         mNotifyMgr.notify(NOTIFICATION_ID, getNotificationBuilder().build());
     }
 
-    public void modifyUploadSuccessCount(int i){
+    private void modifyUploadSuccessCount(int i){
         uploadSuccessCount += i;
 
         if(uploadSuccessCount == uploadTotalCount){

@@ -1,7 +1,6 @@
-package com.nusclimb.live.crimp.qr;
+package com.nusclimb.live.crimp.hello.scan;
 
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.hello.ScanFragment;
 
 import android.content.Context;
 import android.os.Handler;
@@ -9,7 +8,7 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.util.Log;
 
-public class ScanFragmentHandler extends Handler{
+class ScanFragmentHandler extends Handler{
     private static final String TAG = ScanFragmentHandler.class.getSimpleName();
     private final boolean DEBUG = false;
 
@@ -18,7 +17,7 @@ public class ScanFragmentHandler extends Handler{
 
     public ScanFragmentHandler(ScanFragment fragment){
         this.fragment = fragment;
-        Log.d(TAG, "ScanFragmentHandler constructed");
+        if (DEBUG) Log.d(TAG, "ScanFragmentHandler constructed");
     }
 
     public void setRunning(boolean running){
@@ -28,7 +27,7 @@ public class ScanFragmentHandler extends Handler{
     @Override
     public void handleMessage(Message message) {
         if(!running){
-            Log.d(TAG+".handleMessage()", "ScanFragmentHandler received msg but not running.");
+            if (DEBUG) Log.d(TAG+".handleMessage()", "ScanFragmentHandler received msg but not running.");
             return;
         }
         switch (message.what) {
@@ -37,7 +36,7 @@ public class ScanFragmentHandler extends Handler{
                 fragment.onReceiveDecodeHandlerConstructed();
                 break;
             case R.id.decode_succeeded:
-                Log.d(TAG + ".handleMessage()", "ScanFragmentHandler receive msg 'succeed'. running:" + running);
+                if (DEBUG) Log.d(TAG + ".handleMessage()", "ScanFragmentHandler receive msg 'succeed'. running:" + running);
                 if(running){
                     String result = (String) message.obj;
                     String[] climberInfo = result.split(";");

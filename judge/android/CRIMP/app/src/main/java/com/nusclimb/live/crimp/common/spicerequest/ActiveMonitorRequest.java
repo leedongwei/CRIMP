@@ -51,8 +51,7 @@ public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonito
     @Override
     public ActiveMonitorResponseBody loadDataFromNetwork() throws Exception {
         if(context.getResources().getBoolean(R.bool.is_debug)){
-            ActiveMonitorResponseBody response = new ActiveMonitorResponseBody();
-            return response;
+            return new ActiveMonitorResponseBody();
         }
         else{
             HttpHeaders headers = new HttpHeaders();
@@ -62,7 +61,7 @@ public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonito
             headers.set("x-auth-token", xAuthToken);
 
             HttpBody body = new HttpBody(categoryId, routeId, climberId, insert);
-            HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
+            HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
 
             RestTemplate mRestTemplate = getRestTemplate();
             ResponseEntity<ActiveMonitorResponseBody> response = mRestTemplate.exchange(url,

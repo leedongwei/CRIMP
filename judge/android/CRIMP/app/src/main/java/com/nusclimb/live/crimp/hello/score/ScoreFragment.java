@@ -1,4 +1,4 @@
-package com.nusclimb.live.crimp.hello;
+package com.nusclimb.live.crimp.hello.score;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -19,17 +19,25 @@ import com.nusclimb.live.crimp.common.json.ActiveMonitorResponseBody;
 import com.nusclimb.live.crimp.common.json.GetScoreResponseBody;
 import com.nusclimb.live.crimp.common.spicerequest.ActiveMonitorRequest;
 import com.nusclimb.live.crimp.common.spicerequest.GetScoreRequest;
-import com.nusclimb.live.crimp.scoremodule.ScoringModule;
-import com.nusclimb.live.crimp.scoremodule.ScoringModuleToFragmentMethods;
-import com.nusclimb.live.crimp.scoremodule.TopBonus2Scoring;
-import com.nusclimb.live.crimp.scoremodule.TopBonusScoring;
+import com.nusclimb.live.crimp.hello.HelloActivityFragment;
+import com.nusclimb.live.crimp.hello.score.scoremodule.ScoringModule;
+import com.nusclimb.live.crimp.hello.score.scoremodule.ScoringModuleToFragmentMethods;
+import com.nusclimb.live.crimp.hello.score.scoremodule.TopBonus2Scoring;
+import com.nusclimb.live.crimp.hello.score.scoremodule.TopBonusScoring;
 import com.nusclimb.live.crimp.service.CrimpService;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 /**
- * Created by weizhi on 16/7/2015.
+ * Fragment for assigning scores to climber. Activity containing this Fragment must
+ * implement ScoreFragmentToActivityMethods interface to allow this fragment to communicate
+ * with the attached Activity and possibly other Fragments. Information from the Activity is
+ * passed to this Fragment through arguments.
+ *
+ * This class must contain a child fragment ScoringModule which decides how the scoring is calculated.
+ *
+ * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class ScoreFragment extends HelloActivityFragment implements ScoringModuleToFragmentMethods {
     private final String TAG = ScoreFragment.class.getSimpleName();
@@ -77,10 +85,7 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
     private Button mSubmitButton;
 
     public static ScoreFragment newInstance() {
-        Log.d("ScoreFragment", "newInstance");
-        ScoreFragment myFragment = new ScoreFragment();
-
-        return myFragment;
+        return new ScoreFragment();
     }
 
 
@@ -98,7 +103,7 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
                     + " must implement ScoreFragmentToActivityMethods");
         }
 
-        Log.d(TAG, "ScoreFragment onAttach");
+        if (DEBUG) Log.d(TAG, "ScoreFragment onAttach");
     }
 
     @Override
@@ -115,7 +120,7 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
 
         mSubmitButton.setOnClickListener(this);
 
-        Log.d(TAG, "onCreateView");
+        if (DEBUG) Log.d(TAG, "onCreateView");
         return rootView;
     }
 
@@ -135,10 +140,10 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
         if(scoreType!=null){
             switch (scoreType){
                 case "0":
-                    mScoringModule = TopBonusScoring.newInstance(this.getActivity());
+                    mScoringModule = TopBonusScoring.newInstance();
                     break;
                 case "1":
-                    mScoringModule = TopBonus2Scoring.newInstance(this.getActivity());
+                    mScoringModule = TopBonus2Scoring.newInstance();
                     break;
             }
 
@@ -149,20 +154,20 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
         else{
             Log.e(TAG, "Cannot find score type of selected route");
         }
-        Log.d(TAG, "onActivityCreated");
+        if (DEBUG) Log.d(TAG, "onActivityCreated");
     }
 
     @Override
     public void onStart(){
         super.onStart();
         spiceManager.start(getActivity());
-        Log.d(TAG, "onStart");
+        if (DEBUG) Log.d(TAG, "onStart");
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        Log.d(TAG, "onResume");
+        if (DEBUG) Log.d(TAG, "onResume");
         User userFromActivity = mToActivityMethod.getUser();
         Climber climberFromActivity = mToActivityMethod.getClimber();
         String climberIdFromActivity = climberFromActivity.getClimberId();
@@ -175,13 +180,13 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
 
     @Override
     public void onPause(){
-        Log.d(TAG, "onPause");
+        if (DEBUG) Log.d(TAG, "onPause");
         super.onPause();
     }
 
     @Override
     public void onStop(){
-        Log.d(TAG, "onStop");
+        if (DEBUG) Log.d(TAG, "onStop");
         spiceManager.shouldStop();
         super.onStop();
     }
@@ -191,12 +196,12 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
         super.onSaveInstanceState(outState);
         outState.putInt(getString(R.string.bundle_score_state), mState.getValue());
 
-        Log.d(TAG, "ScoreFragment onSaveInstance");
+        if (DEBUG) Log.d(TAG, "ScoreFragment onSaveInstance");
     }
 
     @Override
     public void onDetach() {
-        Log.d(TAG, "ScoreFragment onDetach");
+        if (DEBUG) Log.d(TAG, "ScoreFragment onDetach");
         mToActivityMethod = null;
         super.onDetach();
     }
@@ -213,7 +218,7 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
      * @param state Hello state to set {@code mState} to.
      */
     private void changeState(State state) {
-        Log.d(TAG + ".changeState()", mState + " -> " + state);
+        if (DEBUG) Log.d(TAG + ".changeState()", mState + " -> " + state);
 
         mState = state;
         updateUI();
@@ -238,8 +243,6 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
                     mClimberNameEdit.setText(climberFromActivity.getClimberName());
                 mAccumulatedEdit.setText(null);
                 //Don't touch mCurrentSessionEdit.
-                //mBText.setText("-");
-                //mTText.setText("-");
                 break;
             case NOT_QUERYING:
                 userFromActivity = mToActivityMethod.getUser();
@@ -275,6 +278,10 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
     }
 
 
+
+    /*=========================================================================
+     * SpiceRequest Listener class
+     *=======================================================================*/
     /**
      * RequestListener for receiving response of active climber request.
      *
@@ -322,6 +329,11 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
         }
     }
 
+
+
+    /*=========================================================================
+     * Other methods
+     *=======================================================================*/
     @Override
     public void onClick(View v) {
         switch(v.getId()){
@@ -355,16 +367,12 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
     @Override
     public void backspaceAccumulated(int numberOfCharacters){
         String current = mCurrentSessionEdit.getText().toString();
-        if(current != null  && current.length() >= numberOfCharacters){
+        if(current.length() >= numberOfCharacters){
             current = current.substring(0, current.length()-numberOfCharacters);
             mCurrentSessionEdit.setText(current);
         }
     }
 
-
-    /*=========================================================================
-     * Button press methods
-     *=======================================================================*/
     private void submit(){
         new AlertDialog.Builder(getActivity())
                 .setTitle("Submit score")

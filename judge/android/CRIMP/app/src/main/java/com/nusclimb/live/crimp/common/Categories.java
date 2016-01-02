@@ -1,7 +1,8 @@
 package com.nusclimb.live.crimp.common;
 
 import com.nusclimb.live.crimp.common.json.CategoriesResponseBody;
-import com.nusclimb.live.crimp.hello.HintableSpinnerItem;
+import com.nusclimb.live.crimp.hello.route.HintableSpinnerItem;
+import com.nusclimb.live.crimp.hello.route.HintableArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,13 +11,13 @@ import java.util.List;
  * This class is the main way hold all categories information. This class contains method
  * that allow us to store categories information requested from server, produce a List of
  * {@link HintableSpinnerItem} to populate a
- * {@link com.nusclimb.live.crimp.hello.HintableArrayAdapter HintableArrayAdapter}, and retrieve
+ * {@link HintableArrayAdapter HintableArrayAdapter}, and retrieve
  * information about category and routes.
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class Categories {
-    CategoriesResponseBody categoriesInfo;  // Contain all info regarding categories and routes.
+    private CategoriesResponseBody categoriesInfo;  // Contain all info regarding categories and routes.
 
     public Categories(){
         categoriesInfo = new CategoriesResponseBody();
@@ -91,7 +92,7 @@ public class Categories {
 
     /**
      * Create a list of {@link HintableSpinnerItem} for populating a
-     * {@link com.nusclimb.live.crimp.hello.HintableArrayAdapter} and return a copy of the list.
+     * {@link HintableArrayAdapter} and return a copy of the list.
      *
      * @param categoryHint Hint message to appear on spinner for categories.
      * @param routeHint Hint message to appear on spinner for routes.

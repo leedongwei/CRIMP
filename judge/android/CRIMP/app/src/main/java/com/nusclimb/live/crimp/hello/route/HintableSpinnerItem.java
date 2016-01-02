@@ -1,4 +1,4 @@
-package com.nusclimb.live.crimp.hello;
+package com.nusclimb.live.crimp.hello.route;
 
 /**
  * Interface for spinner item with additional flag to indicate if it is a hint.

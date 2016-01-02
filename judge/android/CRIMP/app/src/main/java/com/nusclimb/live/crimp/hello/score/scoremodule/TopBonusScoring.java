@@ -1,12 +1,8 @@
-package com.nusclimb.live.crimp.scoremodule;
+package com.nusclimb.live.crimp.hello.score.scoremodule;
 
 import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +30,7 @@ public class TopBonusScoring extends ScoringModule implements View.OnClickListen
     private String currentScore = null;
     private String accumulatedScore = null;
 
-    public static TopBonusScoring newInstance(Context context){
+    public static TopBonusScoring newInstance(){
         Log.d("TopBonusScoring", "newInstance");
         TopBonusScoring myFragment = new TopBonusScoring();
 
@@ -133,9 +129,9 @@ public class TopBonusScoring extends ScoringModule implements View.OnClickListen
                 currentScore = currentScore.substring(0, currentScore.length()-1);
                 String scoreString = accumulatedScore + currentScore;
                 mPlusOneButton.setEnabled(true);
-                if(scoreString.indexOf("B") == -1)
+                if(!scoreString.contains("B"))
                     mBonusButton.setEnabled(true);
-                if(scoreString.indexOf("T") == -1)
+                if(!scoreString.contains("T"))
                     mTopButton.setEnabled(true);
                 if(currentScore.length()==0)
                     mBackspaceButton.setEnabled(false);
@@ -165,7 +161,7 @@ public class TopBonusScoring extends ScoringModule implements View.OnClickListen
         calculateScore("");
     }
 
-    public void calculateScore(String append){
+    private void calculateScore(String append){
         Log.d(TAG, "["+accumulatedScore+"]["+currentScore+"]["+append+"]");
         currentScore = currentScore + append;
         String scoreString = accumulatedScore + currentScore;

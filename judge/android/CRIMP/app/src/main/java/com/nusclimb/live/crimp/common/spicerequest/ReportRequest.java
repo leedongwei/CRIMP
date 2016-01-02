@@ -70,7 +70,7 @@ public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>
             headers.set("x-auth-token", xAuthToken);
 
             HttpBody body = new HttpBody(categoryId, routeId, force);
-            HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
+            HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
 
             RestTemplate mRestTemplate = getRestTemplate();
             ResponseEntity<ReportResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,

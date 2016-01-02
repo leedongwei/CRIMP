@@ -48,8 +48,7 @@ public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponseBody>
     @Override
     public HelpMeResponseBody loadDataFromNetwork() throws Exception {
         if(context.getResources().getBoolean(R.bool.is_debug)){
-            HelpMeResponseBody response = new HelpMeResponseBody();
-            return response;
+            return new HelpMeResponseBody();
         }
         else{
             HttpHeaders headers = new HttpHeaders();
@@ -59,7 +58,7 @@ public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponseBody>
             headers.set("x-auth-token", xAuthToken);
 
             HttpBody body = new HttpBody(categoryId, routeId);
-            HttpEntity<HttpBody> request = new HttpEntity<HttpBody>(body, headers);
+            HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
 
             RestTemplate mRestTemplate = getRestTemplate();
             ResponseEntity<HelpMeResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,

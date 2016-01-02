@@ -1,4 +1,4 @@
-package com.nusclimb.live.crimp.scoremodule;
+package com.nusclimb.live.crimp.hello.score.scoremodule;
 
 import android.support.v4.app.Fragment;
 

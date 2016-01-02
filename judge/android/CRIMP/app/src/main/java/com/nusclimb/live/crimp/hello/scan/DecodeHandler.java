@@ -1,4 +1,4 @@
-package com.nusclimb.live.crimp.qr;
+package com.nusclimb.live.crimp.hello.scan;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
@@ -15,7 +15,6 @@ import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.hello.ScanFragment;
 
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -60,7 +59,7 @@ public class DecodeHandler extends Handler{
         hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
         multiFormatReader.setHints(hints);
 
-        Log.d(TAG, "DecodeHandler constructed.");
+        if (DEBUG) Log.d(TAG, "DecodeHandler constructed.");
     }
 
     @Override
@@ -80,7 +79,7 @@ public class DecodeHandler extends Handler{
                 running = true;
                 break;
             case R.id.quit:
-                Log.d(TAG+".handleMessage()", "DecodeHandler receive msg 'quit'.");
+                if (DEBUG) Log.d(TAG+".handleMessage()", "DecodeHandler receive msg 'quit'.");
                 running = false;
                 Looper.myLooper().quit();
                 break;
@@ -120,7 +119,7 @@ public class DecodeHandler extends Handler{
             String result = verifyResult(rawResult.getText());
             long end = System.currentTimeMillis();
             if(result == null){
-                Log.d(TAG+".decode()", "Found non BA2015 result: " + rawResult.getText());
+                if (DEBUG) Log.d(TAG+".decode()", "Found non BA2015 result: " + rawResult.getText());
                 if (mainThreadHandler != null) {
                     Message message = Message.obtain(mainThreadHandler, R.id.decode_failed);
                     message.sendToTarget();
@@ -198,7 +197,7 @@ public class DecodeHandler extends Handler{
      */
     private String verifyResult(String rawResult){
         if(!rawResult.startsWith(PREFIX)){
-            Log.d(TAG+".verifyResult()", "Verifying '" + rawResult + "' to be wrong prefix.");
+            if (DEBUG) Log.d(TAG+".verifyResult()", "Verifying '" + rawResult + "' to be wrong prefix.");
             return null;
         }
 
