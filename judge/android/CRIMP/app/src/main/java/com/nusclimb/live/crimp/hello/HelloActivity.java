@@ -1,5 +1,6 @@
 package com.nusclimb.live.crimp.hello;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -45,7 +47,7 @@ import com.octo.android.robospice.request.listener.RequestListener;
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class HelloActivity extends ActionBarActivity implements ActionBar.TabListener,
+public class HelloActivity extends AppCompatActivity implements ActionBar.TabListener,
         RouteFragment.RouteFragmentToActivityMethods, ScanFragment.ScanFragmentToActivityMethods,
         ScoreFragment.ScoreFragmentToActivityMethods {
     private final String TAG = HelloActivity.class.getSimpleName();
@@ -169,7 +171,7 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
                 // and call ViewPager.setCurrentItem(int) again.
 
                 if (DEBUG) Log.d(TAG, "onPageSelected(" + position + ") viewPagerCurrentItem:" + mViewPager.getCurrentItem()
-                    +" prev:"+prevPageIndex);
+                        +" prev:"+prevPageIndex);
                 super.onPageSelected(position);
 
                 // If the actionbar tab selection is the same as ViewPager's selection, we do nothing. It is possible

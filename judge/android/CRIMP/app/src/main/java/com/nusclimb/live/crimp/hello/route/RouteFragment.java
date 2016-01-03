@@ -1,6 +1,7 @@
 package com.nusclimb.live.crimp.hello.route;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
@@ -103,11 +104,15 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
     private LinearLayout mCategoryForm;
     private Button mCategoryRetryButton;
     // UI references (spinner form)
-    private LinearLayout mSpinnerForm;
+    private RelativeLayout mSpinnerForm;
     private TextView mHelloText;
     private Spinner mCategorySpinner;
     private Spinner mRouteSpinner;
     private Button mNextButton;
+
+    private TextView mClickCategoryText;
+    private TextView mClickRouteText;
+
     // UI references (replace form)
     private RelativeLayout mReplaceForm;
     private TextView mReplaceText;
@@ -153,11 +158,15 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
         mCategoryForm = (LinearLayout) rootView.findViewById(R.id.route_category_request_viewgroup);
         //mCategoryStatusText = (TextView) rootView.findViewById(R.id.route_category_request_status_text);
         mCategoryRetryButton = (Button) rootView.findViewById(R.id.route_category_request_retry_button);
-        mSpinnerForm = (LinearLayout) rootView.findViewById(R.id.route_spinner_viewgroup);
+        mSpinnerForm = (RelativeLayout) rootView.findViewById(R.id.route_spinner_viewgroup);
         mHelloText = (TextView) rootView.findViewById(R.id.route_hello_text);
         mCategorySpinner = (Spinner) rootView.findViewById(R.id.route_category_spinner);
         mRouteSpinner = (Spinner) rootView.findViewById(R.id.route_route_spinner);
         mNextButton = (Button) rootView.findViewById(R.id.route_next_button);
+
+        mClickCategoryText = (TextView) rootView.findViewById(R.id.route_category_clickme_text);
+        mClickRouteText = (TextView) rootView.findViewById(R.id.route_route_clickme_text);
+
         mReplaceForm = (RelativeLayout) rootView.findViewById(R.id.route_replace_viewgroup);
         mReplaceText = (TextView) rootView.findViewById(R.id.route_replace_text);
         Button mYesButton = (Button) rootView.findViewById(R.id.route_yes_button);
@@ -644,8 +653,6 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
         changeState(state);
     }
 
-
-
     /*=========================================================================
      * Subclasses and interface
      *=======================================================================*/
@@ -751,6 +758,7 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
             }
             else{
                 enableRouteSpinner(true);
+                mClickRouteText.setVisibility(View.VISIBLE);
 
                 // Clear mRouteSpinner list, repopulate with updated route list and set selection
                 // to first hint item.
@@ -793,6 +801,7 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
                 enableNextButtonIfPossible(false);
             } else{
                 enableNextButtonIfPossible(true);
+                mClickRouteText.setVisibility(View.GONE);
             }
 
             mToActivityMethod.onSpinnerSelectionChange();

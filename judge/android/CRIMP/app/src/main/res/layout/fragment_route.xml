@@ -36,10 +36,9 @@
                     android:visibility="gone"/>
             </LinearLayout>
 
-            <LinearLayout android:id="@+id/route_spinner_viewgroup"
+            <RelativeLayout android:id="@+id/route_spinner_viewgroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:visibility="gone">
 
                 <TextView android:id="@+id/route_hello_text"
@@ -47,6 +46,7 @@
                     android:layout_height="wrap_content"
                     android:paddingLeft="8dp"
                     android:paddingRight="8dp"
+                    android:layout_alignParentTop="true"
                     android:layout_marginBottom="16dp"
                     android:textSize="20sp"
                     android:text="@string/route_fragment_question"/>
@@ -55,13 +55,40 @@
                     android:id="@+id/route_category_spinner"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    android:layout_below="@id/route_hello_text"/>
+
+                <TextView
+                    android:id="@+id/route_category_clickme_text"
+                    android:layout_below="@id/route_hello_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="9dp"
+                    android:layout_marginRight="50dp"
+                    android:textSize="16sp"
+                    android:text="Click here"
+                    android:layout_alignParentRight="true"
+                    android:visibility="gone"/>
 
                 <Spinner
                     android:id="@+id/route_route_spinner"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    android:layout_below="@id/route_category_spinner"/>
+
+                <TextView
+                    android:id="@+id/route_route_clickme_text"
+                    android:layout_below="@id/route_category_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="9dp"
+                    android:layout_marginRight="50dp"
+                    android:textSize="16sp"
+                    android:text="Click here"
+                    android:layout_alignParentRight="true"
+                    android:visibility="gone"/>
+
 
                 <Button
                     android:id="@+id/route_next_button"
@@ -69,9 +96,10 @@
                     android:layout_height="wrap_content"
                     android:text="@string/route_fragment_next"
                     android:onClick="routeNext"
-                    android:enabled="false"/>
+                    android:enabled="false"
+                    android:layout_below="@id/route_route_spinner"/>
 
-            </LinearLayout>
+            </RelativeLayout>
 
             <RelativeLayout android:id="@+id/route_replace_viewgroup"
                 android:layout_width="match_parent"
