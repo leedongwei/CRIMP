@@ -16,7 +16,8 @@ gen/
 # Local configuration file (sdk path, etc)
 local.properties
 
-
+# Weizhi stuff ===============================
+screenshot/
 
 #Eclipse gitignore ===========================
 *.pydevproject
