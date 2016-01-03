@@ -51,8 +51,8 @@ public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>
     public ReportResponseBody loadDataFromNetwork() throws Exception {
         if(context.getResources().getBoolean(R.bool.is_debug)){
             ReportResponseBody response = new ReportResponseBody();
-            response.setCategoryId(xUserId);
-            response.setAdminName("xusername");
+            response.setAdminId(xUserId);
+            response.setAdminName("John Smith");
             response.setCategoryId(categoryId);
             response.setRouteId(routeId);
             if(force)

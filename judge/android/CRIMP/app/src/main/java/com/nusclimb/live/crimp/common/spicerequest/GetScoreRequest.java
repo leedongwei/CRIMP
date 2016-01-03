@@ -53,40 +53,49 @@ public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreResponseB
     public GetScoreResponseBody loadDataFromNetwork() throws Exception {
         if(context.getResources().getBoolean(R.bool.is_debug)){
             GetScoreResponseBody response = new GetScoreResponseBody();
-            response.setClimberName("climbername");
             response.setClimberId(climberId);
             response.setCategoryId(categoryId);
             response.setRouteId(routeId);
-            if(routeId == "aaa3" || routeId == "bbb3"){
+            if(categoryId == "NMQ"){
                 switch (climberId) {
                     case "001":
+                        response.setClimberName("James");
                         response.setScoreString("");
                         break;
                     case "002":
-                        response.setScoreString("");
+                        response.setClimberName("John");
+                        response.setScoreString("1");
                         break;
                     case "003":
-                        response.setScoreString("");
+                        response.setClimberName("Robert");
+                        response.setScoreString("11");
                         break;
                     case "004":
-                        response.setScoreString("B1");
+                        response.setClimberName("Michael");
+                        response.setScoreString("111");
                         break;
                     case "005":
-                        response.setScoreString("B1");
+                        response.setClimberName("William");
+                        response.setScoreString("1111");
                         break;
                     case "006":
-                        response.setScoreString("B1B2");
+                        response.setClimberName("David");
+                        response.setScoreString("1111B");
                         break;
                     case "007":
-                        response.setScoreString("B1B2");
+                        response.setClimberName("Richard");
+                        response.setScoreString("1111B1");
                         break;
                     case "008":
-                        response.setScoreString("B2");
+                        response.setClimberName("Charles");
+                        response.setScoreString("1111B11");
                         break;
                     case "009":
-                        response.setScoreString("B2");
+                        response.setClimberName("Joseph");
+                        response.setScoreString("1111B111");
                         break;
                     default:
+                        response.setClimberName("Generic name "+climberId);
                         response.setScoreString("");
                         break;
                 }
@@ -94,33 +103,43 @@ public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreResponseB
             else {
                 switch (climberId) {
                     case "001":
-                        response.setScoreString("1");
+                        response.setClimberName("Thomas");
+                        response.setScoreString("");
                         break;
                     case "002":
-                        response.setScoreString("11");
+                        response.setClimberName("Christopher");
+                        response.setScoreString("");
                         break;
                     case "003":
-                        response.setScoreString("111");
+                        response.setClimberName("Daniel");
+                        response.setScoreString("B1");
                         break;
                     case "004":
-                        response.setScoreString("1111");
+                        response.setClimberName("Paul");
+                        response.setScoreString("B1");
                         break;
                     case "005":
-                        response.setScoreString("11111");
+                        response.setClimberName("Mark");
+                        response.setScoreString("B1B2");
                         break;
                     case "006":
-                        response.setScoreString("111111");
+                        response.setClimberName("Donald");
+                        response.setScoreString("B1B2");
                         break;
                     case "007":
-                        response.setScoreString("1111111");
+                        response.setClimberName("George");
+                        response.setScoreString("B2");
                         break;
                     case "008":
-                        response.setScoreString("11111111");
+                        response.setClimberName("Kenneth");
+                        response.setScoreString("B2");
                         break;
                     case "009":
-                        response.setScoreString("111111111");
+                        response.setClimberName("Steven");
+                        response.setScoreString("B2");
                         break;
                     default:
+                        response.setClimberName("Generic name "+climberId);
                         response.setScoreString("");
                         break;
                 }
