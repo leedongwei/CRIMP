@@ -360,12 +360,12 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
     }
 
     @Override
-    public void appendStringToAccumulated(String s){
+    public void appendStringToCurrent(String s){
         mCurrentSessionEdit.append(s);
     }
 
     @Override
-    public void backspaceAccumulated(int numberOfCharacters){
+    public void backspaceCurrent(int numberOfCharacters){
         String current = mCurrentSessionEdit.getText().toString();
         if(current.length() >= numberOfCharacters){
             current = current.substring(0, current.length()-numberOfCharacters);

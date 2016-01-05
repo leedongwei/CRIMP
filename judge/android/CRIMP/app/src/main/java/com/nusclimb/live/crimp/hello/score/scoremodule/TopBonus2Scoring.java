@@ -119,20 +119,20 @@ public class TopBonus2Scoring extends ScoringModule implements View.OnClickListe
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.scoring_b1_button:
-                mParentFragment.appendStringToAccumulated("B1");
+                mParentFragment.appendStringToCurrent("B1");
                 mBonusOneButton.setEnabled(false);
                 mBackspaceButton.setEnabled(true);
                 calculateScore("B1");
                 break;
             case R.id.scoring_b2_button:
-                mParentFragment.appendStringToAccumulated("B2");
+                mParentFragment.appendStringToCurrent("B2");
                 mBonusOneButton.setEnabled(false);
                 mBonusTwoButton.setEnabled(false);
                 mBackspaceButton.setEnabled(true);
                 calculateScore("B2");
                 break;
             case R.id.scoring_t_button:
-                mParentFragment.appendStringToAccumulated("T ");
+                mParentFragment.appendStringToCurrent("T ");
                 mBonusOneButton.setEnabled(false);
                 mBonusTwoButton.setEnabled(false);
                 mTopButton.setEnabled(false);
@@ -164,7 +164,7 @@ public class TopBonus2Scoring extends ScoringModule implements View.OnClickListe
                 }
                 if(currentScore.length()==0)
                     mBackspaceButton.setEnabled(false);
-                mParentFragment.backspaceAccumulated(2);
+                mParentFragment.backspaceCurrent(2);
                 calculateScore("");
                 break;
         }
