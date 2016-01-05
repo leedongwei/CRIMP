@@ -39,6 +39,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     //compile 'com.android.support:multidex:1.0.0'
     compile 'com.android.support:appcompat-v7:23.1.0'
+    compile 'com.android.support:design:22.2.0'
     //compile 'com.google.android.gms:play-services:7.3.0'
     compile 'com.octo.android.robospice:robospice:1.4.14'
     compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'

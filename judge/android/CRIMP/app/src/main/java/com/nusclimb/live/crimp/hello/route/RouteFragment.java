@@ -110,9 +110,6 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
     private Spinner mRouteSpinner;
     private Button mNextButton;
 
-    private TextView mClickCategoryText;
-    private TextView mClickRouteText;
-
     // UI references (replace form)
     private RelativeLayout mReplaceForm;
     private TextView mReplaceText;
@@ -163,9 +160,6 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
         mCategorySpinner = (Spinner) rootView.findViewById(R.id.route_category_spinner);
         mRouteSpinner = (Spinner) rootView.findViewById(R.id.route_route_spinner);
         mNextButton = (Button) rootView.findViewById(R.id.route_next_button);
-
-        mClickCategoryText = (TextView) rootView.findViewById(R.id.route_category_clickme_text);
-        mClickRouteText = (TextView) rootView.findViewById(R.id.route_route_clickme_text);
 
         mReplaceForm = (RelativeLayout) rootView.findViewById(R.id.route_replace_viewgroup);
         mReplaceText = (TextView) rootView.findViewById(R.id.route_replace_text);
@@ -758,7 +752,6 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
             }
             else{
                 enableRouteSpinner(true);
-                mClickRouteText.setVisibility(View.VISIBLE);
 
                 // Clear mRouteSpinner list, repopulate with updated route list and set selection
                 // to first hint item.
@@ -801,7 +794,6 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
                 enableNextButtonIfPossible(false);
             } else{
                 enableNextButtonIfPossible(true);
-                mClickRouteText.setVisibility(View.GONE);
             }
 
             mToActivityMethod.onSpinnerSelectionChange();

@@ -17,9 +17,16 @@ public class HelloActivityViewPager extends ViewPager {
      */
     private boolean isAllowSwiping;
 
+    public HelloActivityViewPager(Context context) {
+        super(context);
+        if(!isInEditMode())
+            this.isAllowSwiping = true;
+    }
+
     public HelloActivityViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.isAllowSwiping = true;
+        if(!isInEditMode())
+            this.isAllowSwiping = true;
     }
 
     @Override

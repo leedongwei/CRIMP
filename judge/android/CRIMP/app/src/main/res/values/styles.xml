@@ -5,12 +5,10 @@
         <item name="colorPrimary">@color/indigo_500</item>
         <item name="colorPrimaryDark">@color/indigo_700</item>
         <item name="colorAccent">@color/pink_200</item>
-        <item name="android:background">@color/indigo_200</item>
 
-    </style>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
 
-    <style name="CrimpActionBarTheme" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="background">@color/indigo_500</item>
     </style>
 
 </resources>

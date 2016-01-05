@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.SwipeRefreshLayout android:id="@+id/swipe_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
     tools:context="com.nusclimb.live.crimp.hello.HelloActivity">
 
-    <ScrollView android:id="@+id/scroll_viewgroup"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -39,7 +41,8 @@
             <RelativeLayout android:id="@+id/route_spinner_viewgroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone">
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <TextView android:id="@+id/route_hello_text"
                     android:layout_width="match_parent"
@@ -58,37 +61,12 @@
                     android:layout_marginBottom="8dp"
                     android:layout_below="@id/route_hello_text"/>
 
-                <TextView
-                    android:id="@+id/route_category_clickme_text"
-                    android:layout_below="@id/route_hello_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="9dp"
-                    android:layout_marginRight="50dp"
-                    android:textSize="16sp"
-                    android:text="Click here"
-                    android:layout_alignParentRight="true"
-                    android:visibility="gone"/>
-
                 <Spinner
                     android:id="@+id/route_route_spinner"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
                     android:layout_marginBottom="8dp"
                     android:layout_below="@id/route_category_spinner"/>
-
-                <TextView
-                    android:id="@+id/route_route_clickme_text"
-                    android:layout_below="@id/route_category_spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="9dp"
-                    android:layout_marginRight="50dp"
-                    android:textSize="16sp"
-                    android:text="Click here"
-                    android:layout_alignParentRight="true"
-                    android:visibility="gone"/>
-
 
                 <Button
                     android:id="@+id/route_next_button"
@@ -162,9 +140,7 @@
             </LinearLayout>
 
         </LinearLayout>
-
-    </ScrollView>
-
+    </android.support.v4.widget.NestedScrollView>
 
 
 </android.support.v4.widget.SwipeRefreshLayout>

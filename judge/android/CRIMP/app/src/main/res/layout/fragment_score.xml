@@ -1,96 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="16dp"
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.nusclimb.live.crimp.hello.HelloActivity"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <Button
-        android:id="@+id/scoring_submit_button"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:padding="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="16dp"
-        android:onClick="scoreSubmit"
-        android:text="submit" />
+        android:layout_height="match_parent" >
 
-    <LinearLayout android:id="@+id/scoring_score_fragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_above="@id/scoring_submit_button">
+        <TextView
+            android:id="@+id/scoring_route_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_alignParentTop="true"/>
 
-    </LinearLayout>
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/black"
+            android:layout_below="@id/scoring_route_text"/>
 
-    <TextView
-        android:id="@+id/scoring_route_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:layout_alignParentTop="true"/>
+        <TableLayout android:id="@+id/scoring_climber_info"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/scoring_route_text"
+            android:stretchColumns="1"
+            android:shrinkColumns="1" >
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@color/black"
-        android:layout_below="@id/scoring_route_text"/>
+            <TableRow >
+                <TextView
+                    android:id="@+id/scoring_climber_id_text"
+                    android:text="Climber Id" />
 
-    <TableLayout android:id="@+id/scoring_climber_info"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/scoring_route_text"
-        android:stretchColumns="1"
-        android:shrinkColumns="1" >
+                <EditText
+                    android:id="@+id/scoring_climber_id_edit"
+                    android:clickable="false"
+                    android:cursorVisible="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false" />
+            </TableRow>
 
-        <TableRow >
-            <TextView
-                android:id="@+id/scoring_climber_id_text"
-                android:text="Climber Id" />
+            <TableRow >
+                <TextView
+                    android:id="@+id/scoring_climber_name_text"
+                    android:text="Climber name" />
 
-            <EditText
-                android:id="@+id/scoring_climber_id_edit"
-                android:clickable="false"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false" />
-        </TableRow>
+                <EditText
+                    android:id="@+id/scoring_climber_name_edit"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:cursorVisible="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:hint="loading..."/>
+            </TableRow>
 
-        <TableRow >
-            <TextView
-                android:id="@+id/scoring_climber_name_text"
-                android:text="Climber name" />
+        </TableLayout>
 
-            <EditText
-                android:id="@+id/scoring_climber_name_edit"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:hint="loading..."/>
-        </TableRow>
-
-    </TableLayout>
-
-    <View
-        android:id="@+id/scoring_divider"
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@color/black"
-        android:layout_below="@id/scoring_climber_info"/>
-
-    <ScrollView android:id="@+id/scoring_scroll"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_below="@id/scoring_divider"
-        android:layout_above="@id/scoring_score_fragment">
+        <View
+            android:id="@+id/scoring_divider"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/black"
+            android:layout_below="@id/scoring_climber_info"/>
 
         <LinearLayout android:id="@+id/scoring_root"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/scoring_divider"
             android:orientation="vertical" >
 
             <TextView
@@ -122,6 +109,22 @@
 
         </LinearLayout>
 
-    </ScrollView>
+        <LinearLayout android:id="@+id/scoring_score_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_below="@id/scoring_root">
 
-</RelativeLayout>
+        </LinearLayout>
+        
+        <Button
+            android:id="@+id/scoring_submit_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/scoring_score_fragment"
+            android:layout_marginTop="16dp"
+            android:onClick="scoreSubmit"
+            android:text="submit" />
+
+    </RelativeLayout>
+</android.support.v4.widget.NestedScrollView>
