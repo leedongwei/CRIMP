@@ -100,28 +100,6 @@ body: {}
 <br><br><br>
 
 
-## GET '/api/judge/categories_head'
-* Used by judges to get data on all the categories
-
-#### Request
-```
-header: {
-  x-user-id: 'A6kvTowyvNz...',
-  x-auth-token: 'RCDBy6X3zS8...'
-}
-```
-
-#### Response
-```
-Body: {
-  signature: 'HDKfe58S...',
-  time_stamp:
-}
-```
-
-<br><br><br>
-
-
 ## GET '/api/judge/categories'
 * Used by judges to get data on all the categories
 
@@ -136,8 +114,6 @@ header: {
 #### Response
 ```
 Body: {
-  signature: 'HDKfe58S...',
-  time_stamp:
   categories: [
     {
       category_name: 'Novice Men Qualifiers',
