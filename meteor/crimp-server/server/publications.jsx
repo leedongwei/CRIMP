@@ -132,3 +132,11 @@ Meteor.publish('adminRecentScores', function() {
 
   return;
 });
+
+Meteor.publish('adminHelpMe', function() {
+  if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
+    return HelpMe.find({});
+  }
+
+  return;
+});

@@ -85,7 +85,7 @@ header: {
   x-auth-token: 'RCDBy6X3zS8...'
 }
 body: {
-  category_id: 'NWQ'
+  category_id: 'NWQ',
   route_id: 'NWQ1'
 }
 ```
@@ -100,24 +100,24 @@ body: {}
 <br><br><br>
 
 
-## GET '/api/judge/categories_head'
-* Used by judges to get data on all the categories
+      ## GET '/api/judge/categories_head'
+      * Used by judges to get data on all the categories
 
-#### Request
-```
-header: {
-  x-user-id: 'A6kvTowyvNz...',
-  x-auth-token: 'RCDBy6X3zS8...'
-}
-```
+      #### Request
+      ```
+      header: {
+        x-user-id: 'A6kvTowyvNz...',
+        x-auth-token: 'RCDBy6X3zS8...'
+      }
+      ```
 
-#### Response
-```
-Body: {
-  signature: 'HDKfe58S...',
-  time_stamp:
-}
-```
+      #### Response
+      ```
+      Body: {
+        signature: 'HDKfe58S...',
+        time_stamp:
+      }
+      ```
 
 <br><br><br>
 

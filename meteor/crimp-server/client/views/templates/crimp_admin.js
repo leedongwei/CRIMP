@@ -50,6 +50,7 @@ Template.admin_dashboard.onCreated(function() {
   Meteor.subscribe('adminActiveMonitor');
   Meteor.subscribe('adminAllUsers');
   Meteor.subscribe('adminRecentScores');
+  Meteor.subscribe('adminHelpMe');
 });
 
 
