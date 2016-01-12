@@ -64,5 +64,7 @@
 
     <color name="whiteWithTransparency">#4cffffff</color>
 
+    <color name="transparent">#00000000</color>
+
 
 </resources>

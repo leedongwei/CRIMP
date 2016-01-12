@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -593,6 +594,13 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
         }
 
         return null;
+    }
+
+    @Override
+    public void collapseToolBar(){
+        AppBarLayout mAppBarLayout = (AppBarLayout) findViewById(R.id.app_bar_layout);
+        if(mAppBarLayout != null)
+            mAppBarLayout.setExpanded(false);
     }
 
 
