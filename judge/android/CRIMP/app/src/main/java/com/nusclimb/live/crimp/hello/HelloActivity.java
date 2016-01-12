@@ -1,16 +1,12 @@
 package com.nusclimb.live.crimp.hello;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -19,7 +15,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
@@ -67,11 +62,13 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
 
     // For doing tab manipulation
     private Toolbar mActionBar;
+    private TabLayout mTabLayout;
     private HelloActivityViewPager mViewPager;
-    private CrimpFragmentPagerAdapter mCrimpFragmentPagerAdapter;
+    private HelloActivityFragmentPagerAdapter mCrimpFragmentPagerAdapter;
     private Handler activityHandler;
     private int prevPageIndex;
-    private CrimpViewPagerListener mViewPagerListener;
+    private HelloActivityViewPagerListener mViewPagerListener;
+    private HelloActivityOnTabSelectedListener mOnTabSelectedListner;
 
 
 
@@ -102,26 +99,26 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
             activityHandler = new Handler();
 
 
-
-
-
         // Appbar stuff
         mActionBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mActionBar);
 
         // ViewPager stuff
         if(mCrimpFragmentPagerAdapter == null)
-            mCrimpFragmentPagerAdapter = new CrimpFragmentPagerAdapter(getSupportFragmentManager());
+            mCrimpFragmentPagerAdapter = new HelloActivityFragmentPagerAdapter(getSupportFragmentManager());
         mViewPager = (HelloActivityViewPager)findViewById(R.id.pager);
         mViewPager.setAdapter(mCrimpFragmentPagerAdapter);
         if(mViewPagerListener == null) {
-            mViewPagerListener = new CrimpViewPagerListener();
+            mViewPagerListener = new HelloActivityViewPagerListener();
             mViewPager.addOnPageChangeListener(mViewPagerListener);
         }
 
         // TabLayout stuff
-        TabLayout mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
         mTabLayout.setupWithViewPager(mViewPager);
+        if(mOnTabSelectedListner == null)
+            mOnTabSelectedListner = new HelloActivityOnTabSelectedListener(mViewPager);
+        mTabLayout.setOnTabSelectedListener(mOnTabSelectedListner);
 
         if(savedInstanceState == null) {
             // Newly created activity therefore we can only get information from intent.
@@ -256,7 +253,7 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
         }
     }
 
-    private class CrimpViewPagerListener implements ViewPager.OnPageChangeListener{
+    private class HelloActivityViewPagerListener implements ViewPager.OnPageChangeListener{
 
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -310,7 +307,60 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
         }
     }
 
+    private class HelloActivityOnTabSelectedListener implements TabLayout.OnTabSelectedListener {
+        private final ViewPager mViewPager;
 
+        public HelloActivityOnTabSelectedListener(ViewPager viewPager){
+            mViewPager = viewPager;
+        }
+
+        @Override
+        public void onTabSelected(TabLayout.Tab tab) {
+            if(mViewPager.getAdapter().getCount() <= tab.getPosition()){
+                activityHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTabLayout.getTabAt(mViewPager.getCurrentItem()).select();
+                    }
+                }, 200);
+            }
+            else if(mViewPager.getCurrentItem() == 2 && tab.getPosition() != 2){
+                new AlertDialog.Builder(HelloActivity.this)
+                        .setTitle("Navigate away from Score tab")
+                        .setMessage("Current session score will be lost.")
+                        .setPositiveButton("Navigate away", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Do stuff
+                                navigateAwayFromScore(1);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                activityHandler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mTabLayout.getTabAt(mViewPager.getCurrentItem()).select();
+                                    }
+                                }, 200);
+                            }
+                        })
+                        .show();
+            }
+            else{
+                mViewPager.setCurrentItem(tab.getPosition());
+            }
+        }
+
+        @Override
+        public void onTabUnselected(TabLayout.Tab tab) {
+
+        }
+
+        @Override
+        public void onTabReselected(TabLayout.Tab tab) {
+
+        }
+    }
 
     /*=========================================================================
      * Other methods
@@ -462,7 +512,10 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
 
     @Override
     public void setCategories(Categories categories){
-        mCategories = new Categories(categories);
+        if(categories == null)
+            mCategories = null;
+        else
+            mCategories = new Categories(categories);
     }
 
     @Override
@@ -541,4 +594,6 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
 
         return null;
     }
+
+
 }

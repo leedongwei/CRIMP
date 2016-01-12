@@ -12,14 +12,14 @@ import com.nusclimb.live.crimp.hello.score.ScoreFragment;
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-class CrimpFragmentPagerAdapter extends FragmentPagerAdapter {
+class HelloActivityFragmentPagerAdapter extends FragmentPagerAdapter {
     private int count = 3;
 
     private RouteFragment mRouteFragment;
     private ScanFragment mScanFragment;
     private ScoreFragment mScoreFragment;
 
-    public CrimpFragmentPagerAdapter(FragmentManager fm) {
+    public HelloActivityFragmentPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
