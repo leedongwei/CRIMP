@@ -213,7 +213,14 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     public void onResume(){
         super.onResume();
         if (DEBUG) Log.d(TAG, "ScanFragment onResume");
-        startThread();
+
+
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int overlayHeight = 192 * metrics.densityDpi / 160;
+        int transparentHeight = screenResolution.y - overlayHeight;
+        Point transparentResolution = new Point(screenResolution.x, transparentHeight);
+
+        startThread(transparentResolution);
 
         Bundle myBundle = mToActivityMethod.restoreScanInstance();
         String climberIdEditString = myBundle.getString(getString(R.string.bundle_climber_id));
@@ -482,7 +489,7 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
             DisplayMetrics metrics = getResources().getDisplayMetrics();
 
             previewSurface = new PreviewView(getActivity());
-            int overlayHeight = 208 * metrics.densityDpi / 160;
+            int overlayHeight = 192 * metrics.densityDpi / 160;
             int transparentHeight = screenResolution.y - overlayHeight;
             int height = temp.width* screenResolution.x/temp.height;
 
@@ -515,10 +522,11 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     /**
      * This method start the decode thread.
      */
-    private void startThread() {
+    private void startThread(Point transparentResolution) {
         if (DEBUG) Log.d(TAG, "startThread");
         mDecodeThread = new DecodeThread(mScanFragmentHandler,
-                getActivity().getString(R.string.qr_prefix));
+                getActivity().getString(R.string.qr_prefix),
+                transparentResolution);
         if(mDecodeThread.getState() == Thread.State.NEW)
             mDecodeThread.start();
         mScanFragmentHandler.setRunning(true);

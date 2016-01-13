@@ -326,13 +326,14 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
                 }, 200);
             }
             else if(mViewPager.getCurrentItem() == 2 && tab.getPosition() != 2){
+                final int selectedTabPosition = tab.getPosition();
                 new AlertDialog.Builder(HelloActivity.this)
                         .setTitle("Navigate away from Score tab")
                         .setMessage("Current session score will be lost.")
                         .setPositiveButton("Navigate away", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 // Do stuff
-                                navigateAwayFromScore(1);
+                                navigateAwayFromScore(selectedTabPosition);
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -603,5 +604,13 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
             mAppBarLayout.setExpanded(false);
     }
 
+    @Override
+    public String[] getCategoryNameAndRouteName(){
+        CategoriesResponseBody.Category category = mCategories.findCategoryById(mUser.getCategoryId());
+        CategoriesResponseBody.Category.Route route = category.findRouteById(mUser.getRouteId());
 
+        String[] result = {category.getCategoryName(), route.getRouteName()};
+
+        return result;
+    }
 }

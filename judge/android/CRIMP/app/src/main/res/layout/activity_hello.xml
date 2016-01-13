@@ -5,7 +5,7 @@
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/indigo_200"
+    android:background="@color/grey_300"
     android:fitsSystemWindows="true"
     tools:context="com.nusclimb.live.crimp.hello.HelloActivity">
 

@@ -40,12 +40,14 @@ public class DecodeHandler extends Handler{
     private final String PREFIX;	// Magic string to check if QR Code is valid
 
     private Handler mainThreadHandler;
+    private final Point transparentResolution;
     private final MultiFormatReader multiFormatReader;  // ZXing stuff. For decoding QR code.
     private boolean running;
 
-    DecodeHandler(Handler mainThreadHandler, String qrPrefix) {
+    DecodeHandler(Handler mainThreadHandler, String qrPrefix, Point transparentResolution) {
         PREFIX = qrPrefix;
         this.mainThreadHandler = mainThreadHandler;
+        this.transparentResolution = transparentResolution;
         running = true;
 
         // Instantiating the decoder.
@@ -153,7 +155,7 @@ public class DecodeHandler extends Handler{
      */
     private PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
 
-        Rect rect = new Rect(0, 0, width, height);
+        Rect rect = new Rect(0, 0, transparentResolution.y, height);
 
         // Go ahead and assume it's YUV rather than die.
         return new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,

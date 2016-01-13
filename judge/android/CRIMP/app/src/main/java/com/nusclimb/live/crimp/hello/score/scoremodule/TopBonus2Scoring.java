@@ -2,6 +2,7 @@ package com.nusclimb.live.crimp.hello.score.scoremodule;
 
 import android.app.Activity;
 import android.content.Context;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.nusclimb.live.crimp.R;
@@ -25,7 +27,7 @@ public class TopBonus2Scoring extends ScoringModule implements View.OnClickListe
     private Button mBonusOneButton;
     private Button mBonusTwoButton;
     private Button mTopButton;
-    private Button mBackspaceButton;
+    private ImageButton mBackspaceButton;
 
     private String currentScore = null;
     private String accumulatedScore = null;
@@ -62,7 +64,7 @@ public class TopBonus2Scoring extends ScoringModule implements View.OnClickListe
         mBonusOneButton = (Button) rootView.findViewById(R.id.scoring_b1_button);
         mBonusTwoButton = (Button) rootView.findViewById(R.id.scoring_b2_button);
         mTopButton = (Button) rootView.findViewById(R.id.scoring_t_button);
-        mBackspaceButton = (Button) rootView.findViewById(R.id.scoring_backspace_button);
+        mBackspaceButton = (ImageButton) rootView.findViewById(R.id.scoring_backspace_button);
 
         mBonusOneButton.setOnClickListener(this);
         mBonusTwoButton.setOnClickListener(this);
