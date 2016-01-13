@@ -349,7 +349,6 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
     @Override
     public void onNavigateAway(){
         if(DEBUG) Log.d(TAG, "NavigateAway");
-        mToActivityMethod.resetClimber();
     }
 
     @Override
@@ -415,7 +414,6 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
         void onSubmit(String currentScore);
         void saveScoreInstance(Bundle bundle);
         Bundle restoreScoreInstance();
-        void resetClimber();
         String[] getCategoryNameAndRouteName();
     }
 }

@@ -1,5 +1,7 @@
 package com.nusclimb.live.crimp.common;
 
+import android.support.annotation.NonNull;
+
 /**
  * This class is the main way for us to store user information. User information such as
  * user id, authentication token gethered during usage are stored in this class.
@@ -24,7 +26,7 @@ public class User {
      *
      * @param user User object to copy from
      */
-    public User(User user){
+    public User(@NonNull User user){
         setFacebookAccessToken(user.getFacebookAccessToken());
         setUserName(user.getUserName());
         setUserId(user.getUserId());

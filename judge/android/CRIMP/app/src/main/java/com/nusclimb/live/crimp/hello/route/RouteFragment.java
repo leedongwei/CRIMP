@@ -399,7 +399,6 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
                 mRouteSpinner.setAdapter(null);
                 categoryAdapter = null;
                 routeAdapter = null;
-                mToActivityMethod.setCategories(null);
                 CategoriesRequest mCategoriesRequest = new CategoriesRequest(mToActivityMethod.getUser().getUserId(),
                         mToActivityMethod.getUser().getAuthToken(), getActivity());
                 spiceManager.execute(mCategoriesRequest, new CategoriesRequestListener());

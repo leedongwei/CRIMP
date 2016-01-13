@@ -1,5 +1,7 @@
 package com.nusclimb.live.crimp.common.json;
 
+import android.support.annotation.NonNull;
+
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ public class CategoriesResponseBody{
      *
      * @param mCategoriesResponseBody The CategoriesResponseBody to make a copy of.
      */
-    public CategoriesResponseBody(CategoriesResponseBody mCategoriesResponseBody){
+    public CategoriesResponseBody(@NonNull CategoriesResponseBody mCategoriesResponseBody){
         categories = new ArrayList<>();
         if(mCategoriesResponseBody.getCategories() != null){
             for(Category c: mCategoriesResponseBody.getCategories()){

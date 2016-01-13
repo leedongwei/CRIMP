@@ -62,7 +62,7 @@ public class CrimpApplication extends Application {
      * @author Lin Weizhi (ecc.weizhi@gmail.com)
      *
      */
-    public class NetworkStateReceiver extends BroadcastReceiver {
+    private class NetworkStateReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(final Context context, final Intent intent) {
             Log.d(TAG, "Network connectivity change");
@@ -99,10 +99,6 @@ public class CrimpApplication extends Application {
                 if(queueAdapter != null){
                     queueAdapter.notifyDataSetChanged();
                 }
-
-                // Cancel just in case.
-                //PostScoreRequest request = getQueue().peek().getRequest();
-                //spiceManager.cancel(PostScoreResponseBody.class, request.createCacheKey());
 
                 // Register receiver
                 registerReceiver(getNetworkStateReceiver(), new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));

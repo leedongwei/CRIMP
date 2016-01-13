@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -62,16 +63,60 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
     private Climber mClimber;
 
     // For doing tab manipulation
-    private Toolbar mActionBar;
     private TabLayout mTabLayout;
     private HelloActivityViewPager mViewPager;
-    private HelloActivityFragmentPagerAdapter mCrimpFragmentPagerAdapter;
+    private HelloActivityFragmentPagerAdapter mFragmentPagerAdapter;
     private Handler activityHandler;
     private int prevPageIndex;
     private HelloActivityViewPagerListener mViewPagerListener;
-    private HelloActivityOnTabSelectedListener mOnTabSelectedListner;
 
+    private User getmUser(){
+        if(mUser == null)
+            mUser = new User();
+        return mUser;
+    }
 
+    private Categories getmCategories(){
+        if(mCategories == null)
+            mCategories = new Categories();
+        return mCategories;
+    }
+
+    private Climber getmClimber(){
+        if(mClimber == null)
+            mClimber = new Climber();
+        return mClimber;
+    }
+
+    private TabLayout getmTabLayout(){
+        if(mTabLayout == null)
+            mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        return mTabLayout;
+    }
+
+    private HelloActivityViewPager getmViewPager(){
+        if(mViewPager == null)
+            mViewPager = (HelloActivityViewPager)findViewById(R.id.pager);
+        return mViewPager;
+    }
+
+    private HelloActivityFragmentPagerAdapter getmFragmentPagerAdapter(){
+        if(mFragmentPagerAdapter == null)
+            mFragmentPagerAdapter = new HelloActivityFragmentPagerAdapter(getSupportFragmentManager());
+        return mFragmentPagerAdapter;
+    }
+
+    private Handler getActivityHandler(){
+        if(activityHandler == null)
+            activityHandler = new Handler();
+        return activityHandler;
+    }
+
+    private HelloActivityViewPagerListener getmViewPagerListener(){
+        if(mViewPagerListener == null)
+            mViewPagerListener = new HelloActivityViewPagerListener();
+        return mViewPagerListener;
+    }
 
     /*=========================================================================
      * Lifecycle methods
@@ -96,56 +141,35 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
          * When we swipe the ViewPager, the adapter will pull the correct fragment from its list
          * and display it.
          */
-        if(activityHandler == null)
-            activityHandler = new Handler();
-
-
-        // Appbar stuff
-        mActionBar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mActionBar);
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         // ViewPager stuff
-        if(mCrimpFragmentPagerAdapter == null)
-            mCrimpFragmentPagerAdapter = new HelloActivityFragmentPagerAdapter(getSupportFragmentManager());
-        mViewPager = (HelloActivityViewPager)findViewById(R.id.pager);
-        mViewPager.setAdapter(mCrimpFragmentPagerAdapter);
-        if(mViewPagerListener == null) {
-            mViewPagerListener = new HelloActivityViewPagerListener();
-            mViewPager.addOnPageChangeListener(mViewPagerListener);
-        }
+        getmViewPager().setAdapter(getmFragmentPagerAdapter());
 
         // TabLayout stuff
-        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        mTabLayout.setupWithViewPager(mViewPager);
-        if(mOnTabSelectedListner == null)
-            mOnTabSelectedListner = new HelloActivityOnTabSelectedListener(mViewPager);
-        mTabLayout.setOnTabSelectedListener(mOnTabSelectedListner);
+        getmTabLayout().setupWithViewPager(getmViewPager());
+        getmTabLayout().setOnTabSelectedListener(new HelloActivityOnTabSelectedListener(getmViewPager()));
 
         if(savedInstanceState == null) {
             // Newly created activity therefore we can only get information from intent.
-            mUser = new User();
-            mUser.setFacebookAccessToken(getIntent().getStringExtra(getString(R.string.bundle_access_token)));
-            mUser.setUserName(getIntent().getStringExtra(getString(R.string.bundle_user_name)));
-            mUser.setUserId(getIntent().getStringExtra(getString(R.string.bundle_x_user_id)));
-            mUser.setAuthToken(getIntent().getStringExtra(getString(R.string.bundle_x_auth_token)));
+            getmUser().setFacebookAccessToken(getIntent().getStringExtra(getString(R.string.bundle_access_token)));
+            getmUser().setUserName(getIntent().getStringExtra(getString(R.string.bundle_user_name)));
+            getmUser().setUserId(getIntent().getStringExtra(getString(R.string.bundle_x_user_id)));
+            getmUser().setAuthToken(getIntent().getStringExtra(getString(R.string.bundle_x_auth_token)));
 
-            mCategories = new Categories();
-            mClimber = new Climber();
-
-            mCrimpFragmentPagerAdapter.setCount(1);
+            getmFragmentPagerAdapter().setCount(1);
             prevPageIndex = 0;
         }
         else{
             // Recreating activity. Restore all info from saved instance state.
-            mUser = new User();
-            mUser.setFacebookAccessToken(savedInstanceState.getString(getString(R.string.bundle_access_token)));
-            mUser.setUserName(savedInstanceState.getString(getString(R.string.bundle_user_name)));
-            mUser.setUserId(savedInstanceState.getString(getString(R.string.bundle_x_user_id)));
-            mUser.setAuthToken(savedInstanceState.getString(getString(R.string.bundle_x_auth_token)));
-            mUser.setCategoryId(savedInstanceState.getString(getString(R.string.bundle_category_id)));
-            mUser.setRouteId(savedInstanceState.getString(getString(R.string.bundle_route_id)));
+            getmUser().setFacebookAccessToken(savedInstanceState.getString(getString(R.string.bundle_access_token)));
+            getmUser().setUserName(savedInstanceState.getString(getString(R.string.bundle_user_name)));
+            getmUser().setUserId(savedInstanceState.getString(getString(R.string.bundle_x_user_id)));
+            getmUser().setAuthToken(savedInstanceState.getString(getString(R.string.bundle_x_auth_token)));
+            getmUser().setCategoryId(savedInstanceState.getString(getString(R.string.bundle_category_id)));
+            getmUser().setRouteId(savedInstanceState.getString(getString(R.string.bundle_route_id)));
 
-            mCategories = new Categories(savedInstanceState.getStringArrayList(getString(R.string.bundle_category_name_list)),
+            getmCategories().copy(savedInstanceState.getStringArrayList(getString(R.string.bundle_category_name_list)),
                     savedInstanceState.getStringArrayList(getString(R.string.bundle_category_id_list)),
                     savedInstanceState.getIntegerArrayList(getString(R.string.bundle_category_route_count_list)),
                     savedInstanceState.getStringArrayList(getString(R.string.bundle_route_name_list)),
@@ -155,16 +179,15 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
                     savedInstanceState.getStringArrayList(getString(R.string.bundle_category_start_list)),
                     savedInstanceState.getStringArrayList(getString(R.string.bundle_category_end_list)));
 
-            mClimber = new Climber();
-            mClimber.setClimberId(savedInstanceState.getString(getString(R.string.bundle_climber_id)));
-            mClimber.setClimberName(savedInstanceState.getString(getString(R.string.bundle_climber_name)));
-            mClimber.setTotalScore(savedInstanceState.getString(getString(R.string.bundle_total_score)));
+            getmClimber().setClimberId(savedInstanceState.getString(getString(R.string.bundle_climber_id)));
+            getmClimber().setClimberName(savedInstanceState.getString(getString(R.string.bundle_climber_name)));
+            getmClimber().setTotalScore(savedInstanceState.getString(getString(R.string.bundle_total_score)));
 
             routeBundle = savedInstanceState.getBundle(getString(R.string.bundle_route_bundle));
             scanBundle = savedInstanceState.getBundle(getString(R.string.bundle_scan_bundle));
             scoreBundle = savedInstanceState.getBundle(getString(R.string.bundle_score_bundle));
 
-            mCrimpFragmentPagerAdapter.setCount(savedInstanceState.getInt(getString(R.string.bundle_hello_fragment_count)));
+            getmFragmentPagerAdapter().setCount(savedInstanceState.getInt(getString(R.string.bundle_hello_fragment_count)));
             prevPageIndex = savedInstanceState.getInt(getString(R.string.bundle_hello_previous_index));
         }
     }
@@ -180,11 +203,13 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
     protected void onResume(){
         super.onResume();
         if(DEBUG) Log.d(TAG, "onResume");
+        getmViewPager().addOnPageChangeListener(getmViewPagerListener());
     }
 
     @Override
     protected void onPause(){
-        if (DEBUG) Log.d(TAG, "onPause currentItem:" + mViewPager.getCurrentItem());
+        getmViewPager().removeOnPageChangeListener(getmViewPagerListener());
+        if (DEBUG) Log.d(TAG, "onPause currentItem:" + getmViewPager().getCurrentItem());
         super.onPause();
     }
 
@@ -193,35 +218,31 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
         super.onSaveInstanceState(outState);
 
         outState.putString(getString(R.string.bundle_access_token), mUser.getFacebookAccessToken());
-        outState.putString(getString(R.string.bundle_user_name), mUser.getUserName());
-        outState.putString(getString(R.string.bundle_x_user_id), mUser.getUserId());
-        outState.putString(getString(R.string.bundle_x_auth_token), mUser.getAuthToken());
-        outState.putString(getString(R.string.bundle_category_id), mUser.getCategoryId());
-        outState.putString(getString(R.string.bundle_route_id), mUser.getRouteId());
+        outState.putString(getString(R.string.bundle_user_name), getmUser().getUserName());
+        outState.putString(getString(R.string.bundle_x_user_id), getmUser().getUserId());
+        outState.putString(getString(R.string.bundle_x_auth_token), getmUser().getAuthToken());
+        outState.putString(getString(R.string.bundle_category_id), getmUser().getCategoryId());
+        outState.putString(getString(R.string.bundle_route_id), getmUser().getRouteId());
 
-        if(mCategories != null){
-            outState.putStringArrayList(getString(R.string.bundle_category_name_list), mCategories.getCategoryNameList());
-            outState.putStringArrayList(getString(R.string.bundle_category_id_list), mCategories.getCategoryIdList());
-            outState.putIntegerArrayList(getString(R.string.bundle_category_route_count_list), mCategories.getCategoryRouteCountList());
-            outState.putStringArrayList(getString(R.string.bundle_route_name_list), mCategories.getRouteNameList());
-            outState.putStringArrayList(getString(R.string.bundle_route_id_list), mCategories.getRouteIdList());
-            outState.putStringArrayList(getString(R.string.bundle_route_score_list), mCategories.getRouteScoreList());
-            outState.putByteArray(getString(R.string.bundle_category_finalize_list), mCategories.getCategoryFinalizeArray());
-            outState.putStringArrayList(getString(R.string.bundle_category_start_list), mCategories.getCategoryStartList());
-            outState.putStringArrayList(getString(R.string.bundle_category_end_list), mCategories.getCategoryEndList());
-        }
+        outState.putStringArrayList(getString(R.string.bundle_category_name_list), getmCategories().getCategoryNameList());
+        outState.putStringArrayList(getString(R.string.bundle_category_id_list), getmCategories().getCategoryIdList());
+        outState.putIntegerArrayList(getString(R.string.bundle_category_route_count_list), getmCategories().getCategoryRouteCountList());
+        outState.putStringArrayList(getString(R.string.bundle_route_name_list), getmCategories().getRouteNameList());
+        outState.putStringArrayList(getString(R.string.bundle_route_id_list), getmCategories().getRouteIdList());
+        outState.putStringArrayList(getString(R.string.bundle_route_score_list), getmCategories().getRouteScoreList());
+        outState.putByteArray(getString(R.string.bundle_category_finalize_list), getmCategories().getCategoryFinalizeArray());
+        outState.putStringArrayList(getString(R.string.bundle_category_start_list), getmCategories().getCategoryStartList());
+        outState.putStringArrayList(getString(R.string.bundle_category_end_list), getmCategories().getCategoryEndList());
 
-        if(mClimber != null){
-            outState.putString(getString(R.string.bundle_climber_id), mClimber.getClimberId());
-            outState.putString(getString(R.string.bundle_climber_name), mClimber.getClimberName());
-            outState.putString(getString(R.string.bundle_total_score), mClimber.getTotalScore());
-        }
+        outState.putString(getString(R.string.bundle_climber_id), getmClimber().getClimberId());
+        outState.putString(getString(R.string.bundle_climber_name), getmClimber().getClimberName());
+        outState.putString(getString(R.string.bundle_total_score), getmClimber().getTotalScore());
 
         outState.putBundle(getString(R.string.bundle_route_bundle), routeBundle);
         outState.putBundle(getString(R.string.bundle_route_bundle), scanBundle);
         outState.putBundle(getString(R.string.bundle_route_bundle), scoreBundle);
 
-        outState.putInt(getString(R.string.bundle_hello_fragment_count), mCrimpFragmentPagerAdapter.getCount());
+        outState.putInt(getString(R.string.bundle_hello_fragment_count), getmFragmentPagerAdapter().getCount());
         outState.putInt(getString(R.string.bundle_hello_previous_index), prevPageIndex);
 
         if (DEBUG) Log.d(TAG, "HelloActivity onSaveInstanceState");
@@ -268,34 +289,34 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
             // and call ViewPager.setCurrentItem(int) again.
 
             if (DEBUG)
-                Log.d(TAG, "onPageSelected(" + position + ") viewPagerCurrentItem:" + mViewPager.getCurrentItem()
+                Log.d(TAG, "onPageSelected(" + position + ") viewPagerCurrentItem:" + getmViewPager().getCurrentItem()
                     +" prev:"+prevPageIndex);
 
             // Do onNavigateAway before onNavigateTo
             switch(position){
                 case 0:
-                    if(mCrimpFragmentPagerAdapter.getScanFragment()!=null && prevPageIndex==1)
-                        mCrimpFragmentPagerAdapter.getScanFragment().onNavigateAway();
-                    if(mCrimpFragmentPagerAdapter.getScoreFragment()!=null && prevPageIndex==2)
-                        mCrimpFragmentPagerAdapter.getScoreFragment().onNavigateAway();
-                    if(mCrimpFragmentPagerAdapter.getRouteFragment()!=null)
-                        mCrimpFragmentPagerAdapter.getRouteFragment().onNavigateTo();
+                    if(getmFragmentPagerAdapter().getScanFragment()!=null && prevPageIndex==1)
+                        getmFragmentPagerAdapter().getScanFragment().onNavigateAway();
+                    if(getmFragmentPagerAdapter().getScoreFragment()!=null && prevPageIndex==2)
+                        getmFragmentPagerAdapter().getScoreFragment().onNavigateAway();
+                    if(getmFragmentPagerAdapter().getRouteFragment()!=null)
+                        getmFragmentPagerAdapter().getRouteFragment().onNavigateTo();
                     break;
                 case 1:
-                    if(mCrimpFragmentPagerAdapter.getRouteFragment()!=null && prevPageIndex==0)
-                        mCrimpFragmentPagerAdapter.getRouteFragment().onNavigateAway();
-                    if(mCrimpFragmentPagerAdapter.getScoreFragment()!=null && prevPageIndex==2)
-                        mCrimpFragmentPagerAdapter.getScoreFragment().onNavigateAway();
-                    if(mCrimpFragmentPagerAdapter.getScanFragment()!=null)
-                        mCrimpFragmentPagerAdapter.getScanFragment().onNavigateTo();
+                    if(getmFragmentPagerAdapter().getRouteFragment()!=null && prevPageIndex==0)
+                        getmFragmentPagerAdapter().getRouteFragment().onNavigateAway();
+                    if(getmFragmentPagerAdapter().getScoreFragment()!=null && prevPageIndex==2)
+                        getmFragmentPagerAdapter().getScoreFragment().onNavigateAway();
+                    if(getmFragmentPagerAdapter().getScanFragment()!=null)
+                        getmFragmentPagerAdapter().getScanFragment().onNavigateTo();
                     break;
                 case 2:
-                    if(mCrimpFragmentPagerAdapter.getRouteFragment()!=null && prevPageIndex==0)
-                        mCrimpFragmentPagerAdapter.getRouteFragment().onNavigateAway();
-                    if(mCrimpFragmentPagerAdapter.getScanFragment()!=null && prevPageIndex==1)
-                        mCrimpFragmentPagerAdapter.getScanFragment().onNavigateAway();
-                    if(mCrimpFragmentPagerAdapter.getScoreFragment()!=null)
-                        mCrimpFragmentPagerAdapter.getScoreFragment().onNavigateTo();
+                    if(getmFragmentPagerAdapter().getRouteFragment()!=null && prevPageIndex==0)
+                        getmFragmentPagerAdapter().getRouteFragment().onNavigateAway();
+                    if(getmFragmentPagerAdapter().getScanFragment()!=null && prevPageIndex==1)
+                        getmFragmentPagerAdapter().getScanFragment().onNavigateAway();
+                    if(getmFragmentPagerAdapter().getScoreFragment()!=null)
+                        getmFragmentPagerAdapter().getScoreFragment().onNavigateTo();
                     break;
             }
 
@@ -318,10 +339,10 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
         @Override
         public void onTabSelected(TabLayout.Tab tab) {
             if(mViewPager.getAdapter().getCount() <= tab.getPosition()){
-                activityHandler.postDelayed(new Runnable() {
+                getActivityHandler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        mTabLayout.getTabAt(mViewPager.getCurrentItem()).select();
+                        getmTabLayout().getTabAt(mViewPager.getCurrentItem()).select();
                     }
                 }, 200);
             }
@@ -338,10 +359,10 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                activityHandler.postDelayed(new Runnable() {
+                                getActivityHandler().postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
-                                        mTabLayout.getTabAt(mViewPager.getCurrentItem()).select();
+                                        getmTabLayout().getTabAt(mViewPager.getCurrentItem()).select();
                                     }
                                 }, 200);
                             }
@@ -375,20 +396,19 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
      * @param targetPosition the destination position to navigate to
      */
     private void navigateAwayFromScore(int targetPosition){
-        mViewPager.setIsAllowSwiping(true);
-        mViewPager.setCurrentItem(targetPosition);
-        mCrimpFragmentPagerAdapter.setCount(2);
-        mClimber = new Climber();
+        getmViewPager().setIsAllowSwiping(true);
+        getmViewPager().setCurrentItem(targetPosition);
+        getmFragmentPagerAdapter().setCount(2);
     }
 
     @Override
     public void onSubmit(String currentScore){
         // Make QueueObject
-        QueueObject mQueueObject = new QueueObject(mUser.getUserId(),
-                mUser.getAuthToken(),
-                mUser.getCategoryId(),
-                mUser.getRouteId(),
-                mClimber.getClimberId(),
+        QueueObject mQueueObject = new QueueObject(getmUser().getUserId(),
+                getmUser().getAuthToken(),
+                getmUser().getCategoryId(),
+                getmUser().getRouteId(),
+                getmClimber().getClimberId(),
                 currentScore,
                 this);
 
@@ -401,12 +421,12 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
 
     @Override
     public void onBackPressed() {
-        final int currentTab = mViewPager.getCurrentItem();
+        final int currentTab = getmViewPager().getCurrentItem();
         switch(currentTab){
             case 0:
                 break;
             case 1:
-                mViewPager.setCurrentItem(currentTab - 1);
+                getmViewPager().setCurrentItem(currentTab - 1);
                 break;
             case 2:
                 new AlertDialog.Builder(this)
@@ -445,8 +465,8 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
                         "A ticket has been sent to the admins. Please wait for assistance.",
                         Toast.LENGTH_SHORT);
                 toast.show();
-                HelpMeRequest mHelpMeRequest = new HelpMeRequest(mUser.getUserId(),
-                        mUser.getAuthToken(), mUser.getCategoryId(), mUser.getRouteId(), this);
+                HelpMeRequest mHelpMeRequest = new HelpMeRequest(getmUser().getUserId(),
+                        getmUser().getAuthToken(), getmUser().getCategoryId(), getmUser().getRouteId(), this);
                 spiceManager.execute(mHelpMeRequest, new HelpMeRequestListener());
                 return true;
             case R.id.action_logout:
@@ -475,19 +495,18 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
 
     @Override
     public void createAndSwitchToScanFragment() {
-        mCrimpFragmentPagerAdapter.setCount(2);
-        mViewPager.setCurrentItem(1);
+        getmFragmentPagerAdapter().setCount(2);
+        getmViewPager().setCurrentItem(1);
     }
 
     @Override
     public void onSpinnerSelectionChange(){
-        if (DEBUG) Log.d(TAG, "Spinner selection change when we are showing mViewPager:" + mViewPager.getCurrentItem());
-        if(mViewPager.getCurrentItem()==0){
-            mCrimpFragmentPagerAdapter.setCount(1);
+        if (DEBUG) Log.d(TAG, "Spinner selection change when we are showing mViewPager:" + getmViewPager().getCurrentItem());
+        if(getmViewPager().getCurrentItem()==0){
+            getmFragmentPagerAdapter().setCount(1);
 
-            mUser.setCategoryId(null);
-            mUser.setRouteId(null);
-            mClimber = new Climber();
+            getmUser().setCategoryId(null);
+            getmUser().setRouteId(null);
         }
         else{
             Log.w(TAG, "Spinner selection change while not in route tab.");
@@ -496,28 +515,23 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
 
     @Override
     public User getUser(){
-        return new User(mUser);
+        return new User(getmUser());
     }
 
     @Override
     public Categories getCategories(){
-        return new Categories(mCategories);
+        return new Categories(getmCategories());
     }
 
     @Override
     public void onCategoryRouteSelected(String categoryId, String routeId){
-        mUser.setCategoryId(categoryId);
-        mUser.setRouteId(routeId);
-
-        mClimber = new Climber();
+        getmUser().setCategoryId(categoryId);
+        getmUser().setRouteId(routeId);
     }
 
     @Override
-    public void setCategories(Categories categories){
-        if(categories == null)
-            mCategories = null;
-        else
-            mCategories = new Categories(categories);
+    public void setCategories(@NonNull Categories categories){
+        getmCategories().copy(categories);
     }
 
     @Override
@@ -551,45 +565,40 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
     }
 
     @Override
-    public void resetClimber(){
-        mClimber = new Climber();
-    }
-
-    @Override
     public void createAndSwitchToScoreFragment() {
-        mCrimpFragmentPagerAdapter.setCount(3);
-        mViewPager.setCurrentItem(2);
-        mViewPager.setIsAllowSwiping(false);
+        getmFragmentPagerAdapter().setCount(3);
+        getmViewPager().setCurrentItem(2);
+        getmViewPager().setIsAllowSwiping(false);
     }
 
     @Override
     public void updateActivityClimberInfo(String climberId, String climberName){
-        mClimber.setClimberId(climberId);
-        mClimber.setClimberName(climberName);
-        mClimber.setTotalScore(null);
+        getmClimber().setClimberId(climberId);
+        getmClimber().setClimberName(climberName);
+        getmClimber().setTotalScore(null);
     }
 
     @Override
     public String getCategoryId(){
-        return mUser.getCategoryId();
+        return getmUser().getCategoryId();
     }
 
     @Override
     public Climber getClimber(){
-        return new Climber(mClimber);
+        return new Climber(getmClimber());
     }
 
     @Override
     public void updateClimberInfo(String climberName,String totalScore){
-        mClimber.setClimberName(climberName);
-        mClimber.setTotalScore(totalScore);
+        getmClimber().setClimberName(climberName);
+        getmClimber().setTotalScore(totalScore);
     }
 
     @Override
     public String getScoringType(){
-        CategoriesResponseBody.Category c = mCategories.findCategoryById(mUser.getCategoryId());
+        CategoriesResponseBody.Category c = getmCategories().findCategoryById(getmUser().getCategoryId());
         if(c!=null){
-            CategoriesResponseBody.Category.Route r = c.findRouteById(mUser.getRouteId());
+            CategoriesResponseBody.Category.Route r = c.findRouteById(getmUser().getRouteId());
             if(r != null)
                 return r.getScore();
         }
@@ -606,8 +615,8 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
 
     @Override
     public String[] getCategoryNameAndRouteName(){
-        CategoriesResponseBody.Category category = mCategories.findCategoryById(mUser.getCategoryId());
-        CategoriesResponseBody.Category.Route route = category.findRouteById(mUser.getRouteId());
+        CategoriesResponseBody.Category category = getmCategories().findCategoryById(getmUser().getCategoryId());
+        CategoriesResponseBody.Category.Route route = category.findRouteById(getmUser().getRouteId());
 
         String[] result = {category.getCategoryName(), route.getRouteName()};
 
