@@ -393,7 +393,6 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
                         // do nothing
                     }
                 })
-                .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
 
