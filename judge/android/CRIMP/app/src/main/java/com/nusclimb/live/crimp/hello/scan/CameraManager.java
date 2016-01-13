@@ -208,7 +208,7 @@ class CameraManager implements Camera.PreviewCallback{
      * Perform rotation of camera by 90 degree, find available preview
      * size with height closest to targetResolution's width, and set autofocus.
      *
-     * @param targetResolution Resolution of previewView.
+     * @param targetResolution target resolution of previewView.
      */
     private void initCamera(Point targetResolution){
         if(camera != null){
@@ -223,15 +223,17 @@ class CameraManager implements Camera.PreviewCallback{
             double smallestDiff = 100000; // Some arbitrary huge number.
             bestPreviewSize = supportedSize.get(0);
             for(Camera.Size s: supportedSize ){
-                double diff = Math.abs(s.height - targetResolution.x);
-                if(diff < smallestDiff){
-                    smallestDiff = diff;
-                    bestPreviewSize = s;
+                if(s.width <= targetResolution.y){
+                    double diff = Math.abs(s.height - targetResolution.x);
+                    if(diff < smallestDiff){
+                        smallestDiff = diff;
+                        bestPreviewSize = s;
+                    }
                 }
             }
 
             param.setPreviewSize(bestPreviewSize.width, bestPreviewSize.height);
-            if (DEBUG) Log.v(TAG, "Chosen size: H"+bestPreviewSize.height+" x W"+bestPreviewSize.width);
+            Log.v(TAG, "Chosen size: H"+bestPreviewSize.height+" x W"+bestPreviewSize.width);
 
             // Set autofocus if possible.
             List<String> focusModes = param.getSupportedFocusModes();

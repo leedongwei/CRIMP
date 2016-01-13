@@ -12,20 +12,34 @@ import com.nusclimb.live.crimp.hello.score.ScoreFragment;
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-class CrimpFragmentPagerAdapter extends FragmentPagerAdapter {
-    private int count = 1;
+class HelloActivityFragmentPagerAdapter extends FragmentPagerAdapter {
+    private int count = 3;
 
     private RouteFragment mRouteFragment;
     private ScanFragment mScanFragment;
     private ScoreFragment mScoreFragment;
+
+    public HelloActivityFragmentPagerAdapter(FragmentManager fm) {
+        super(fm);
+    }
 
     public void setCount(int count){
         this.count = count;
         notifyDataSetChanged();
     }
 
-    public CrimpFragmentPagerAdapter(FragmentManager fm) {
-        super(fm);
+    @Override
+    public String getPageTitle(int position){
+        switch(position){
+            case 0:
+                return "ROUTE";
+            case 1:
+                return "SCAN";
+            case 2:
+                return "SCORE";
+        }
+
+        return null;
     }
 
     @Override

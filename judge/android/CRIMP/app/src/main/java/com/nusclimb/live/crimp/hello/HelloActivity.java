@@ -5,17 +5,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentTransaction;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
@@ -45,8 +45,8 @@ import com.octo.android.robospice.request.listener.RequestListener;
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class HelloActivity extends ActionBarActivity implements ActionBar.TabListener,
-        RouteFragment.RouteFragmentToActivityMethods, ScanFragment.ScanFragmentToActivityMethods,
+public class HelloActivity extends AppCompatActivity implements RouteFragment.RouteFragmentToActivityMethods,
+        ScanFragment.ScanFragmentToActivityMethods,
         ScoreFragment.ScoreFragmentToActivityMethods {
     private final String TAG = HelloActivity.class.getSimpleName();
     private final boolean DEBUG = false;
@@ -62,14 +62,14 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     private Climber mClimber;
 
     // For doing tab manipulation
-    private ActionBar mActionBar;
+    private Toolbar mActionBar;
+    private TabLayout mTabLayout;
     private HelloActivityViewPager mViewPager;
-    private TextView mRouteTabTextView;
-    private TextView mScanTabTextView;
-    private TextView mScoreTabTextView;
-    private CrimpFragmentPagerAdapter mCrimpFragmentPagerAdapter;
+    private HelloActivityFragmentPagerAdapter mCrimpFragmentPagerAdapter;
     private Handler activityHandler;
     private int prevPageIndex;
+    private HelloActivityViewPagerListener mViewPagerListener;
+    private HelloActivityOnTabSelectedListener mOnTabSelectedListner;
 
 
 
@@ -99,116 +99,27 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         if(activityHandler == null)
             activityHandler = new Handler();
 
-        // Prepare ActionBar, create a routeTab for our RouteFragment.
+
+        // Appbar stuff
+        mActionBar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mActionBar);
+
+        // ViewPager stuff
         if(mCrimpFragmentPagerAdapter == null)
-            mCrimpFragmentPagerAdapter = new CrimpFragmentPagerAdapter(getSupportFragmentManager());
-
+            mCrimpFragmentPagerAdapter = new HelloActivityFragmentPagerAdapter(getSupportFragmentManager());
         mViewPager = (HelloActivityViewPager)findViewById(R.id.pager);
-        mActionBar = getSupportActionBar();
-        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        mRouteTabTextView = (TextView)getLayoutInflater().inflate(R.layout.routetab, null);
-        mScanTabTextView = (TextView)getLayoutInflater().inflate(R.layout.scantab, null);
-        mScoreTabTextView = (TextView)getLayoutInflater().inflate(R.layout.scoretab, null);
-        ActionBar.Tab routeTab = mActionBar.newTab()
-                .setTabListener(this)
-                .setCustomView(mRouteTabTextView);
-        mActionBar.addTab(routeTab);
-        ActionBar.Tab scanTab = mActionBar.newTab()
-                .setTabListener(this)
-                .setCustomView(mScanTabTextView);
-        mActionBar.addTab(scanTab);
-        ActionBar.Tab scoreTab = mActionBar.newTab()
-                .setTabListener(this)
-                .setCustomView(mScoreTabTextView);
-        mActionBar.addTab(scoreTab);
-
-        // Prepare ViewPager, attach adapter to ViewPager.
         mViewPager.setAdapter(mCrimpFragmentPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            // This is THE listener for page swiping. Navigating between fragments is always
-            // done by first calling ViewPager.setCurrentItem(int). Calling
-            // ViewPager.setCurrentItem(int) will trigger a onPageSelected(int) call in ViewPager's
-            // listener. ActionBar tab selection is then done during the callback.
-            private final String TAG = ViewPager.SimpleOnPageChangeListener.class.getSimpleName();
+        if(mViewPagerListener == null) {
+            mViewPagerListener = new HelloActivityViewPagerListener();
+            mViewPager.addOnPageChangeListener(mViewPagerListener);
+        }
 
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                /*
-                if(DEBUG) {
-                    String stateString;
-                    switch (state) {
-                        case ViewPager.SCROLL_STATE_DRAGGING:
-                            stateString = "ScrollStateDragging";
-                            break;
-                        case ViewPager.SCROLL_STATE_IDLE:
-                            stateString = "ScrollStateIdle";
-                            break;
-                        case ViewPager.SCROLL_STATE_SETTLING:
-                            stateString = "ScrollStateSettling";
-                            break;
-                        default:
-                            stateString = null;
-                    }
-                    Log.d(TAG, "onPageScrollStateChanged(" + stateString + ")");
-                }
-                */
-                super.onPageScrollStateChanged(state);
-            }
-
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                //if (DEBUG) Log.d(TAG, "onPageScrolled(" + position + ", " + positionOffset + ", " + positionOffsetPixels + ")");
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                // Note to self: when this method is called, the ViewPager.getCurrentItem() is already
-                // returning the parameter position. Therefore we should be careful not to have a loop
-                // and call ViewPager.setCurrentItem(int) again.
-
-                if (DEBUG) Log.d(TAG, "onPageSelected(" + position + ") viewPagerCurrentItem:" + mViewPager.getCurrentItem()
-                    +" prev:"+prevPageIndex);
-                super.onPageSelected(position);
-
-                // If the actionbar tab selection is the same as ViewPager's selection, we do nothing. It is possible
-                // for actionbar tab to already be on the correct position (such as when user navigate by pressing tab instead
-                // of swiping).
-                if(mActionBar.getSelectedNavigationIndex() != position)
-                    mActionBar.setSelectedNavigationItem(position);
-
-                // Do onNavigateAway before onNavigateTo
-                switch(position){
-                    case 0:
-                        if(mCrimpFragmentPagerAdapter.getScanFragment()!=null && prevPageIndex==1)
-                            mCrimpFragmentPagerAdapter.getScanFragment().onNavigateAway();
-                        if(mCrimpFragmentPagerAdapter.getScoreFragment()!=null && prevPageIndex==2)
-                            mCrimpFragmentPagerAdapter.getScoreFragment().onNavigateAway();
-                        if(mCrimpFragmentPagerAdapter.getRouteFragment()!=null)
-                            mCrimpFragmentPagerAdapter.getRouteFragment().onNavigateTo();
-                        break;
-                    case 1:
-                        if(mCrimpFragmentPagerAdapter.getRouteFragment()!=null && prevPageIndex==0)
-                            mCrimpFragmentPagerAdapter.getRouteFragment().onNavigateAway();
-                        if(mCrimpFragmentPagerAdapter.getScoreFragment()!=null && prevPageIndex==2)
-                            mCrimpFragmentPagerAdapter.getScoreFragment().onNavigateAway();
-                        if(mCrimpFragmentPagerAdapter.getScanFragment()!=null)
-                            mCrimpFragmentPagerAdapter.getScanFragment().onNavigateTo();
-                        break;
-                    case 2:
-                        if(mCrimpFragmentPagerAdapter.getRouteFragment()!=null && prevPageIndex==0)
-                            mCrimpFragmentPagerAdapter.getRouteFragment().onNavigateAway();
-                        if(mCrimpFragmentPagerAdapter.getScanFragment()!=null && prevPageIndex==1)
-                            mCrimpFragmentPagerAdapter.getScanFragment().onNavigateAway();
-                        if(mCrimpFragmentPagerAdapter.getScoreFragment()!=null)
-                            mCrimpFragmentPagerAdapter.getScoreFragment().onNavigateTo();
-                        break;
-                }
-
-                prevPageIndex = position;
-            }
-        });
+        // TabLayout stuff
+        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        mTabLayout.setupWithViewPager(mViewPager);
+        if(mOnTabSelectedListner == null)
+            mOnTabSelectedListner = new HelloActivityOnTabSelectedListener(mViewPager);
+        mTabLayout.setOnTabSelectedListener(mOnTabSelectedListner);
 
         if(savedInstanceState == null) {
             // Newly created activity therefore we can only get information from intent.
@@ -220,6 +131,9 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
             mCategories = new Categories();
             mClimber = new Climber();
+
+            mCrimpFragmentPagerAdapter.setCount(1);
+            prevPageIndex = 0;
         }
         else{
             // Recreating activity. Restore all info from saved instance state.
@@ -249,6 +163,9 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
             routeBundle = savedInstanceState.getBundle(getString(R.string.bundle_route_bundle));
             scanBundle = savedInstanceState.getBundle(getString(R.string.bundle_scan_bundle));
             scoreBundle = savedInstanceState.getBundle(getString(R.string.bundle_score_bundle));
+
+            mCrimpFragmentPagerAdapter.setCount(savedInstanceState.getInt(getString(R.string.bundle_hello_fragment_count)));
+            prevPageIndex = savedInstanceState.getInt(getString(R.string.bundle_hello_previous_index));
         }
     }
 
@@ -304,6 +221,9 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         outState.putBundle(getString(R.string.bundle_route_bundle), scanBundle);
         outState.putBundle(getString(R.string.bundle_route_bundle), scoreBundle);
 
+        outState.putInt(getString(R.string.bundle_hello_fragment_count), mCrimpFragmentPagerAdapter.getCount());
+        outState.putInt(getString(R.string.bundle_hello_previous_index), prevPageIndex);
+
         if (DEBUG) Log.d(TAG, "HelloActivity onSaveInstanceState");
     }
 
@@ -316,87 +236,9 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
 
 
-    /*=========================================================================
-     * ActionBar.TabListener interface methods
-     *=======================================================================*/
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {}
-
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        // Note to self: When this method is called, the correct tab is already being selected (i.e.
-        // tab.getPosition() == ActionBar.getSelectedNavigationIndex() ). We should be careful not
-        // to create a loop and call ActionBar.setSelectedNavigationIndex() again.
-        // This method will not be called if select back the same tab.
-
-        // In this method, a change to tab selection has already occur. We want to update the viewPager
-        // page to reflect this change if possible. Therefore we do nothing if
-        // 1) selectedTab is invalid (i.e. selectedTabPosition >= numberOfFragment)
-        // 2) viewPager page is already correct (i.e. viewPagerCurrentIndex == selectedTabPosition)
-
-        final int selectedTabPosition = tab.getPosition();
-        final int currentTabPosition = mActionBar.getSelectedNavigationIndex();
-        final int viewPagerCurrentIndex = mViewPager.getCurrentItem();
-        int numberOfFragment = mCrimpFragmentPagerAdapter.getCount();
-
-        if (DEBUG) Log.d(TAG, "onTabSelected. SelectedTab:"+selectedTabPosition+
-                " currentTab:"+currentTabPosition+
-                " viewPagerCurrent:"+viewPagerCurrentIndex+
-                " adapterCount:"+numberOfFragment);
-
-        // case 1
-        if(selectedTabPosition >= numberOfFragment){
-            activityHandler.postAtFrontOfQueue(new Runnable() {
-                @Override
-                public void run() {
-                    getSupportActionBar().setSelectedNavigationItem(viewPagerCurrentIndex);
-                }
-            });
-            return;
-        }
-
-        // case 2
-        if(viewPagerCurrentIndex == selectedTabPosition)
-            return;
-
-        // Do work here
-        if(viewPagerCurrentIndex == 2){
-            activityHandler.postAtFrontOfQueue(new Runnable() {
-                @Override
-                public void run() {
-                    getSupportActionBar().setSelectedNavigationItem(viewPagerCurrentIndex);
-                }
-            });
-
-            if(viewPagerCurrentIndex!=tab.getPosition()){
-                new AlertDialog.Builder(this)
-                        .setTitle("Navigate away from Score tab")
-                        .setMessage("Current session score will be lost.")
-                        .setPositiveButton("Navigate away", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Do stuff
-                                navigateAwayFromScore(selectedTabPosition);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        })
-                        .show();
-            }
-        }
-        else
-            mViewPager.setCurrentItem(selectedTabPosition);
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {}
-
-
 
     /*=========================================================================
-     * SpiceRequest Listener
+     * Other classes
      *=======================================================================*/
     private class HelpMeRequestListener implements RequestListener<HelpMeResponseBody> {
         private final String TAG = HelpMeRequestListener.class.getSimpleName();
@@ -412,7 +254,115 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         }
     }
 
+    private class HelloActivityViewPagerListener implements ViewPager.OnPageChangeListener{
 
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            // Note to self: when this method is called, the ViewPager.getCurrentItem() is already
+            // returning the parameter position. Therefore we should be careful not to have a loop
+            // and call ViewPager.setCurrentItem(int) again.
+
+            if (DEBUG)
+                Log.d(TAG, "onPageSelected(" + position + ") viewPagerCurrentItem:" + mViewPager.getCurrentItem()
+                    +" prev:"+prevPageIndex);
+
+            // Do onNavigateAway before onNavigateTo
+            switch(position){
+                case 0:
+                    if(mCrimpFragmentPagerAdapter.getScanFragment()!=null && prevPageIndex==1)
+                        mCrimpFragmentPagerAdapter.getScanFragment().onNavigateAway();
+                    if(mCrimpFragmentPagerAdapter.getScoreFragment()!=null && prevPageIndex==2)
+                        mCrimpFragmentPagerAdapter.getScoreFragment().onNavigateAway();
+                    if(mCrimpFragmentPagerAdapter.getRouteFragment()!=null)
+                        mCrimpFragmentPagerAdapter.getRouteFragment().onNavigateTo();
+                    break;
+                case 1:
+                    if(mCrimpFragmentPagerAdapter.getRouteFragment()!=null && prevPageIndex==0)
+                        mCrimpFragmentPagerAdapter.getRouteFragment().onNavigateAway();
+                    if(mCrimpFragmentPagerAdapter.getScoreFragment()!=null && prevPageIndex==2)
+                        mCrimpFragmentPagerAdapter.getScoreFragment().onNavigateAway();
+                    if(mCrimpFragmentPagerAdapter.getScanFragment()!=null)
+                        mCrimpFragmentPagerAdapter.getScanFragment().onNavigateTo();
+                    break;
+                case 2:
+                    if(mCrimpFragmentPagerAdapter.getRouteFragment()!=null && prevPageIndex==0)
+                        mCrimpFragmentPagerAdapter.getRouteFragment().onNavigateAway();
+                    if(mCrimpFragmentPagerAdapter.getScanFragment()!=null && prevPageIndex==1)
+                        mCrimpFragmentPagerAdapter.getScanFragment().onNavigateAway();
+                    if(mCrimpFragmentPagerAdapter.getScoreFragment()!=null)
+                        mCrimpFragmentPagerAdapter.getScoreFragment().onNavigateTo();
+                    break;
+            }
+
+            prevPageIndex = position;
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    }
+
+    private class HelloActivityOnTabSelectedListener implements TabLayout.OnTabSelectedListener {
+        private final ViewPager mViewPager;
+
+        public HelloActivityOnTabSelectedListener(ViewPager viewPager){
+            mViewPager = viewPager;
+        }
+
+        @Override
+        public void onTabSelected(TabLayout.Tab tab) {
+            if(mViewPager.getAdapter().getCount() <= tab.getPosition()){
+                activityHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTabLayout.getTabAt(mViewPager.getCurrentItem()).select();
+                    }
+                }, 200);
+            }
+            else if(mViewPager.getCurrentItem() == 2 && tab.getPosition() != 2){
+                final int selectedTabPosition = tab.getPosition();
+                new AlertDialog.Builder(HelloActivity.this)
+                        .setTitle("Navigate away from Score tab")
+                        .setMessage("Current session score will be lost.")
+                        .setPositiveButton("Navigate away", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Do stuff
+                                navigateAwayFromScore(selectedTabPosition);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                activityHandler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mTabLayout.getTabAt(mViewPager.getCurrentItem()).select();
+                                    }
+                                }, 200);
+                            }
+                        })
+                        .show();
+            }
+            else{
+                mViewPager.setCurrentItem(tab.getPosition());
+            }
+        }
+
+        @Override
+        public void onTabUnselected(TabLayout.Tab tab) {
+
+        }
+
+        @Override
+        public void onTabReselected(TabLayout.Tab tab) {
+
+        }
+    }
 
     /*=========================================================================
      * Other methods
@@ -428,9 +378,6 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         mViewPager.setIsAllowSwiping(true);
         mViewPager.setCurrentItem(targetPosition);
         mCrimpFragmentPagerAdapter.setCount(2);
-        mRouteTabTextView.setTextColor(getResources().getColor(R.color.white));
-        mScanTabTextView.setTextColor(getResources().getColor(R.color.white));
-        mScoreTabTextView.setTextColor(getResources().getColor(R.color.whiteWithTransparency));
         mClimber = new Climber();
     }
 
@@ -529,9 +476,6 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     @Override
     public void createAndSwitchToScanFragment() {
         mCrimpFragmentPagerAdapter.setCount(2);
-        mRouteTabTextView.setTextColor(getResources().getColor(R.color.white));
-        mScanTabTextView.setTextColor(getResources().getColor(R.color.white));
-        mScoreTabTextView.setTextColor(getResources().getColor(R.color.whiteWithTransparency));
         mViewPager.setCurrentItem(1);
     }
 
@@ -540,10 +484,6 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         if (DEBUG) Log.d(TAG, "Spinner selection change when we are showing mViewPager:" + mViewPager.getCurrentItem());
         if(mViewPager.getCurrentItem()==0){
             mCrimpFragmentPagerAdapter.setCount(1);
-
-            mRouteTabTextView.setTextColor(getResources().getColor(R.color.white));
-            mScanTabTextView.setTextColor(getResources().getColor(R.color.whiteWithTransparency));
-            mScoreTabTextView.setTextColor(getResources().getColor(R.color.whiteWithTransparency));
 
             mUser.setCategoryId(null);
             mUser.setRouteId(null);
@@ -574,7 +514,10 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
 
     @Override
     public void setCategories(Categories categories){
-        mCategories = new Categories(categories);
+        if(categories == null)
+            mCategories = null;
+        else
+            mCategories = new Categories(categories);
     }
 
     @Override
@@ -615,9 +558,6 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
     @Override
     public void createAndSwitchToScoreFragment() {
         mCrimpFragmentPagerAdapter.setCount(3);
-        mRouteTabTextView.setTextColor(getResources().getColor(R.color.whiteWithTransparency));
-        mScanTabTextView.setTextColor(getResources().getColor(R.color.whiteWithTransparency));
-        mScoreTabTextView.setTextColor(getResources().getColor(R.color.white));
         mViewPager.setCurrentItem(2);
         mViewPager.setIsAllowSwiping(false);
     }
@@ -655,5 +595,22 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         }
 
         return null;
+    }
+
+    @Override
+    public void collapseToolBar(){
+        AppBarLayout mAppBarLayout = (AppBarLayout) findViewById(R.id.app_bar_layout);
+        if(mAppBarLayout != null)
+            mAppBarLayout.setExpanded(false);
+    }
+
+    @Override
+    public String[] getCategoryNameAndRouteName(){
+        CategoriesResponseBody.Category category = mCategories.findCategoryById(mUser.getCategoryId());
+        CategoriesResponseBody.Category.Route route = category.findRouteById(mUser.getRouteId());
+
+        String[] result = {category.getCategoryName(), route.getRouteName()};
+
+        return result;
     }
 }

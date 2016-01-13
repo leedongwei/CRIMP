@@ -27,14 +27,14 @@ class DecodeThread extends Thread{
 
     private DecodeHandler mDecodeHandler;
     private Handler mainThreadHandler;
+    private Point transparentResolution;
 
     private final String PREFIX;	// Magic string to check if QR Code is valid
-    private Point previewResolution;	// Size of the previewView
 
-    public DecodeThread(Handler mainThreadHandler, String qrPrefix, Point previewResolution){
+    public DecodeThread(Handler mainThreadHandler, String qrPrefix, Point transparentResolution){
         this.mainThreadHandler = mainThreadHandler;
         PREFIX = qrPrefix;
-        this.previewResolution = previewResolution;
+        this.transparentResolution = transparentResolution;
         if (DEBUG) Log.d(TAG, "DecodeThread constructed.");
     }
 
@@ -42,7 +42,7 @@ class DecodeThread extends Thread{
     public void run(){
         if (DEBUG) Log.d(TAG, "DecodeThread begin running");
         Looper.prepare();
-        mDecodeHandler = new DecodeHandler(mainThreadHandler, PREFIX, previewResolution);
+        mDecodeHandler = new DecodeHandler(mainThreadHandler, PREFIX, transparentResolution);
         Message message = Message.obtain(mainThreadHandler, R.id.decode_handler_constructed);
         message.sendToTarget();
         Looper.loop();

@@ -77,7 +77,8 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
     private ScoringModule mScoringModule;
 
     // UI references
-    private TextView mRouteIdText;
+    private TextView mCategoryText;
+    private TextView mRouteText;
     private EditText mClimberIdEdit;
     private EditText mClimberNameEdit;
     private EditText mAccumulatedEdit;
@@ -111,12 +112,13 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_score, container, false);
 
-        mRouteIdText = (TextView) rootView.findViewById(R.id.scoring_route_text);
-        mClimberIdEdit = (EditText) rootView.findViewById(R.id.scoring_climber_id_edit);
-        mClimberNameEdit = (EditText) rootView.findViewById(R.id.scoring_climber_name_edit);
-        mCurrentSessionEdit = (EditText) rootView.findViewById(R.id.scoring_score_current_edit);
-        mAccumulatedEdit = (EditText) rootView.findViewById(R.id.scoring_score_history_edit);
-        mSubmitButton = (Button) rootView.findViewById(R.id.scoring_submit_button);
+        mCategoryText = (TextView) rootView.findViewById(R.id.score_category_text);
+        mRouteText = (TextView) rootView.findViewById(R.id.score_route_text);
+        mClimberIdEdit = (EditText) rootView.findViewById(R.id.score_climberId_edit);
+        mClimberNameEdit = (EditText) rootView.findViewById(R.id.score_climberName_edit);
+        mCurrentSessionEdit = (EditText) rootView.findViewById(R.id.score_current_edit);
+        mAccumulatedEdit = (EditText) rootView.findViewById(R.id.score_accumulated_edit);
+        mSubmitButton = (Button) rootView.findViewById(R.id.score_submit_button);
 
         mSubmitButton.setOnClickListener(this);
 
@@ -149,7 +151,7 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
 
             getChildFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.scoring_score_fragment, mScoringModule).commit();
+                    .replace(R.id.score_score_fragment, mScoringModule).commit();
         }
         else{
             Log.e(TAG, "Cannot find score type of selected route");
@@ -231,12 +233,13 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
     private void updateUI(){
         User userFromActivity;
         Climber climberFromActivity;
+        String[] categoryAndRoute = mToActivityMethod.getCategoryNameAndRouteName();
         switch (mState){
             case QUERYING:
-                userFromActivity = mToActivityMethod.getUser();
                 climberFromActivity = mToActivityMethod.getClimber();
-                mRouteIdText.setText(userFromActivity.getRouteId());
-                mClimberIdEdit.setText(climberFromActivity.getClimberId());
+                mCategoryText.setText(categoryAndRoute[0]);
+                mRouteText.setText(categoryAndRoute[1]);
+                mClimberIdEdit.setText(mToActivityMethod.getUser().getCategoryId() + climberFromActivity.getClimberId());
                 if(climberFromActivity.getClimberName()==null)
                     mClimberNameEdit.setText(null);
                 else
@@ -245,10 +248,10 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
                 //Don't touch mCurrentSessionEdit.
                 break;
             case NOT_QUERYING:
-                userFromActivity = mToActivityMethod.getUser();
                 climberFromActivity = mToActivityMethod.getClimber();
-                mRouteIdText.setText(userFromActivity.getRouteId());
-                mClimberIdEdit.setText(climberFromActivity.getClimberId());
+                mCategoryText.setText(categoryAndRoute[0]);
+                mRouteText.setText(categoryAndRoute[1]);
+                mClimberIdEdit.setText(mToActivityMethod.getUser().getCategoryId() + climberFromActivity.getClimberId());
                 mClimberNameEdit.setText(climberFromActivity.getClimberName());
                 mAccumulatedEdit.setText(climberFromActivity.getTotalScore());
                 //Don't touch mCurrentSessionEdit.
@@ -337,7 +340,7 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
     @Override
     public void onClick(View v) {
         switch(v.getId()){
-            case R.id.scoring_submit_button:
+            case R.id.score_submit_button:
                 submit();
                 break;
         }
@@ -352,7 +355,8 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
     @Override
     public void onNavigateTo(){
         if(DEBUG) Log.d(TAG, "NavigateTo");
-        mRouteIdText.setText(null);
+        mCategoryText.setText(null);
+        mRouteText.setText(null);
         mClimberIdEdit.setText(null);
         mClimberNameEdit.setText(null);
         mAccumulatedEdit.setText(null);
@@ -389,7 +393,6 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
                         // do nothing
                     }
                 })
-                .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
 
@@ -413,5 +416,6 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
         void saveScoreInstance(Bundle bundle);
         Bundle restoreScoreInstance();
         void resetClimber();
+        String[] getCategoryNameAndRouteName();
     }
 }

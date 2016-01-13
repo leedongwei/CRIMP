@@ -40,17 +40,23 @@
             android:textSize="32sp" />
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black_12"/>
+
     <LinearLayout android:id="@+id/scoring_button_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:weightSum="27.0"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/scoring_plus_one_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="4.0"
+            android:layout_weight="1"
             android:layout_marginRight="8dp"
             android:text="+1"
             android:onClick="scorePlusOne" />
@@ -59,7 +65,7 @@
             android:id="@+id/scoring_b_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="7.0"
+            android:layout_weight="1"
             android:layout_marginRight="8dp"
             android:text="B"
             android:onClick="scoreBonus" />
@@ -68,17 +74,17 @@
             android:id="@+id/scoring_t_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="5.0"
+            android:layout_weight="1"
             android:layout_marginRight="8dp"
             android:text="T"
             android:onClick="scoreTop" />
 
-        <Button
+        <ImageButton
             android:id="@+id/scoring_backspace_button"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="11.0"
-            android:text="Backspace"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:src="@drawable/ic_keyboard_backspace_black_24dp"
             android:enabled="false"
             android:onClick="scoreBackspace" />
     </LinearLayout>

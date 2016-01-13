@@ -1,127 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="16dp"
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.nusclimb.live.crimp.hello.score.ScoreFragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <Button
-        android:id="@+id/scoring_submit_button"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="16dp"
-        android:onClick="scoreSubmit"
-        android:text="submit" />
+        android:layout_height="match_parent"
+        android:padding="8dp">
 
-    <LinearLayout android:id="@+id/scoring_score_fragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_above="@id/scoring_submit_button">
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/scoring_route_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:layout_alignParentTop="true"/>
-
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@color/black"
-        android:layout_below="@id/scoring_route_text"/>
-
-    <TableLayout android:id="@+id/scoring_climber_info"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/scoring_route_text"
-        android:stretchColumns="1"
-        android:shrinkColumns="1" >
-
-        <TableRow >
-            <TextView
-                android:id="@+id/scoring_climber_id_text"
-                android:text="Climber Id" />
-
-            <EditText
-                android:id="@+id/scoring_climber_id_edit"
-                android:clickable="false"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false" />
-        </TableRow>
-
-        <TableRow >
-            <TextView
-                android:id="@+id/scoring_climber_name_text"
-                android:text="Climber name" />
-
-            <EditText
-                android:id="@+id/scoring_climber_name_edit"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:hint="loading..."/>
-        </TableRow>
-
-    </TableLayout>
-
-    <View
-        android:id="@+id/scoring_divider"
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@color/black"
-        android:layout_below="@id/scoring_climber_info"/>
-
-    <ScrollView android:id="@+id/scoring_scroll"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_below="@id/scoring_divider"
-        android:layout_above="@id/scoring_score_fragment">
-
-        <LinearLayout android:id="@+id/scoring_root"
+        <android.support.v7.widget.CardView
+            android:id="@+id/score_info_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:layout_marginBottom="8dp">
 
-            <TextView
-                android:id="@+id/scoring_old_score_text"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="Previous accumulated score" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/scoring_score_history_edit"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:text="loading..."/>
+                <TextView
+                    android:id="@+id/score_category_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="24sp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_alignParentTop="true"
+                    tools:text="Novice Man Qualifier"/>
 
-            <EditText
-                android:id="@+id/scoring_score_current_edit"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:hint="Current session score"
-                android:clickable="false"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false" />
+                <TextView
+                    android:id="@+id/score_route_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_below="@id/score_category_text"
+                    tools:text="Route 3"/>
 
-        </LinearLayout>
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/score_climberId_til"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@id/score_route_text"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-    </ScrollView>
+                    <EditText
+                        android:id="@+id/score_climberId_edit"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:hint="Climber ID"
+                        tools:text="NMQ003"
+                        android:layout_marginBottom="16dp"
+                        android:clickable="false"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"/>
 
-</RelativeLayout>
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/score_climberName_til"
+                    android:layout_toRightOf="@id/score_climberId_til"
+                    android:layout_below="@id/score_route_text"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/score_climberName_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Climber Name"
+                        tools:text="Tiffany"
+                        android:clickable="false"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:layout_marginBottom="16dp"/>
+
+                </android.support.design.widget.TextInputLayout>
+
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView android:id="@+id/score_score_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/score_info_card">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/score_accumulated_til"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/score_accumulated_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:hint="Accumulated Score"
+                        android:clickable="false"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        tools:text="111B"/>
+
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/score_current_til"
+                    android:layout_below="@id/score_accumulated_til"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/score_current_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Current Score"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        tools:text="11"/>
+
+                </android.support.design.widget.TextInputLayout>
+
+                <LinearLayout android:id="@+id/score_score_fragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_below="@id/score_current_til"/>
+
+                <Button
+                    android:id="@+id/score_submit_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/score_score_fragment"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:onClick="scoreSubmit"
+                    android:text="submit" />
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+    </RelativeLayout>
+</android.support.v4.widget.NestedScrollView>

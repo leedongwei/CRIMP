@@ -32,7 +32,7 @@ public class HintableArrayAdapter extends ArrayAdapter<HintableSpinnerItem> {
         HintableSpinnerItem item = getItem(position);
         if(item.isHint()) {
             TextView v = (TextView)super.getView(position, convertView, parent);
-            v.setTextColor(getContext().getResources().getColor(R.color.hint_color));
+            v.setTextColor(getContext().getResources().getColor(R.color.black_38));
             return v;
         }
         else{

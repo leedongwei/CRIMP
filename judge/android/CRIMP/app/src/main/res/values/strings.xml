@@ -112,6 +112,8 @@
     <!-- Other Bundle Key -->
     <string name="bundle_category_spinner_selected_index">bundle_categoryspinnerselectedindex</string>
     <string name="bundle_route_spinner_selected_index">bundle_routespinnerselectedindex</string>
+    <string name="bundle_hello_fragment_count">bundle_hellofragmentcount</string>
+    <string name="bundle_hello_previous_index">bundle_hellopreviousindex</string>
 
     
 
