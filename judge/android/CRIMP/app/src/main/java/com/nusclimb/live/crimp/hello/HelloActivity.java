@@ -70,18 +70,21 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
     private int prevPageIndex;
     private HelloActivityViewPagerListener mViewPagerListener;
 
+    @NonNull
     private User getmUser(){
         if(mUser == null)
             mUser = new User();
         return mUser;
     }
 
+    @NonNull
     private Categories getmCategories(){
         if(mCategories == null)
             mCategories = new Categories();
         return mCategories;
     }
 
+    @NonNull
     private Climber getmClimber(){
         if(mClimber == null)
             mClimber = new Climber();
@@ -100,18 +103,21 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
         return mViewPager;
     }
 
+    @NonNull
     private HelloActivityFragmentPagerAdapter getmFragmentPagerAdapter(){
         if(mFragmentPagerAdapter == null)
             mFragmentPagerAdapter = new HelloActivityFragmentPagerAdapter(getSupportFragmentManager());
         return mFragmentPagerAdapter;
     }
 
+    @NonNull
     private Handler getActivityHandler(){
         if(activityHandler == null)
             activityHandler = new Handler();
         return activityHandler;
     }
 
+    @NonNull
     private HelloActivityViewPagerListener getmViewPagerListener(){
         if(mViewPagerListener == null)
             mViewPagerListener = new HelloActivityViewPagerListener();
@@ -252,11 +258,12 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
     protected void onStop(){
         spiceManager.shouldStop();
         if (DEBUG) Log.d(TAG, "onStop");
+
+        mTabLayout = null;
+        mViewPager = null;
+
         super.onStop();
     }
-
-
-
 
     /*=========================================================================
      * Other classes
@@ -514,11 +521,13 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
     }
 
     @Override
+    @NonNull
     public User getUser(){
         return new User(getmUser());
     }
 
     @Override
+    @NonNull
     public Categories getCategories(){
         return new Categories(getmCategories());
     }

@@ -32,12 +32,8 @@
     <string name="route_fragment_next">Next</string>
     <string name="route_fragment_category_hint">Pick a category</string>
     <string name="route_fragment_route_hint">Pick a route</string>
-    <string name="route_fragment_greeting">"Hello "</string>
-    <string name="route_fragment_question">, you are route judge for</string>
-    <string name="route_fragment_replace_question1">" is already route judge for "</string>
-    <string name="route_fragment_replace_question2">", "</string>
-    <string name="route_fragment_replace_question3">".\n\nReplace "</string>
-    <string name="route_fragment_replace_question4">"?"</string>
+    <string name="route_fragment_greeting">"Hello %1$s, you are route judge for"</string>
+    <string name="route_fragment_replace_question">"%1$s is already route judge for %2$s, %3$s.\n\nReplace %4$s ?"</string>
     <string name="route_fragment_yes">Yes</string>
     <string name="route_fragment_no">No</string>
     <string name="route_fragment_retry">Retry</string>

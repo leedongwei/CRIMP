@@ -1,8 +1,8 @@
 package com.nusclimb.live.crimp.hello.route;
 
-import android.app.Activity;
-import android.graphics.Color;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,7 +12,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -29,6 +28,7 @@ import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,7 +41,7 @@ import java.util.List;
  */
 public class RouteFragment extends HelloActivityFragment implements SwipeRefreshLayout.OnRefreshListener{
     private final String TAG = RouteFragment.class.getSimpleName();
-    private final boolean DEBUG = false;
+    private final boolean DEBUG = true;
 
     private enum State{
         START(0),
@@ -94,7 +94,7 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
     private HintableArrayAdapter categoryAdapter;
     private HintableArrayAdapter routeAdapter;
     private State mState = State.START;
-    private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
+    private final SpiceManager spiceManager = new SpiceManager(CrimpService.class);
     private int categorySpinnerIndex;
     private int routeSpinnerIndex;
 
@@ -109,8 +109,86 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
     private Button mNextButton;
     private TextView mReplaceText;
     private LinearLayout mYesNoLayout;
-    private Button mYesButton;
-    private Button mNoButton;
+
+    @NonNull
+    private HintableArrayAdapter getCategoryAdapter(){
+        if(categoryAdapter == null) {
+            categoryAdapter = new HintableArrayAdapter(getActivity(),
+                    android.R.layout.simple_spinner_item, new ArrayList<HintableSpinnerItem>());
+            categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        }
+        return categoryAdapter;
+    }
+
+    @NonNull
+    private HintableArrayAdapter getRouteAdapter(){
+        if(routeAdapter == null) {
+            routeAdapter = new HintableArrayAdapter(getActivity(),
+                    android.R.layout.simple_spinner_item, new ArrayList<HintableSpinnerItem>());
+            routeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        }
+        return routeAdapter;
+    }
+
+    private SwipeRefreshLayout getmSwipeLayout(){
+        if(mSwipeLayout == null)
+            mSwipeLayout = (SwipeRefreshLayout) getView().findViewById(R.id.swipe_layout);
+        return mSwipeLayout;
+    }
+
+    private ProgressBar getmProgressBar(){
+        if(mProgressBar == null)
+            mProgressBar = (ProgressBar) getView().findViewById(R.id.route_wheel_progressbar);
+        return mProgressBar;
+    }
+
+    private TextView getmStatusText(){
+        if(mStatusText == null)
+            mStatusText = (TextView) getView().findViewById(R.id.route_request_status_text);
+        return mStatusText;
+    }
+
+    private Button getmRetryButton(){
+        if(mRetryButton == null)
+            mRetryButton = (Button) getView().findViewById(R.id.route_retry_button);
+        return mRetryButton;
+    }
+
+    private TextView getmHelloText(){
+        if(mHelloText == null)
+            mHelloText = (TextView) getView().findViewById(R.id.route_hello_text);
+        return mHelloText;
+    }
+
+    private Spinner getmCategorySpinner(){
+        if(mCategorySpinner == null)
+            mCategorySpinner = (Spinner) getView().findViewById(R.id.route_category_spinner);
+        return mCategorySpinner;
+    }
+
+    private Spinner getmRouteSpinner(){
+        if(mRouteSpinner == null)
+            mRouteSpinner = (Spinner) getView().findViewById(R.id.route_route_spinner);
+        return mRouteSpinner;
+    }
+
+    private Button getmNextButton(){
+        if(mNextButton == null)
+            mNextButton = (Button) getView().findViewById(R.id.route_next_button);
+        return mNextButton;
+    }
+
+    private TextView getmReplaceText(){
+        if(mReplaceText == null)
+            mReplaceText = (TextView) getView().findViewById(R.id.route_replace_text);
+        return mReplaceText;
+    }
+
+    private LinearLayout getmYesNoLayout(){
+        if(mYesNoLayout == null)
+            mYesNoLayout = (LinearLayout) getView().findViewById(R.id.route_yes_no_viewgroup);
+        return mYesNoLayout;
+    }
 
     public static RouteFragment newInstance() {
         return new RouteFragment();
@@ -120,7 +198,7 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
      * Fragment lifecycle methods
      *=======================================================================*/
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         try {
             mToActivityMethod = (RouteFragmentToActivityMethods) activity;
@@ -135,37 +213,7 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
-        // Create the view for this fragment. Set references for view object that we will be
-        // using in this class.
-
-        // Inflating rootView.
-        View rootView = inflater.inflate(R.layout.fragment_route, container, false);
-
-        // Get UI references.
-        mSwipeLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_layout);
-        mProgressBar = (ProgressBar) rootView.findViewById(R.id.route_wheel_progressbar);
-        mStatusText = (TextView) rootView.findViewById(R.id.route_request_status_text);
-        mRetryButton = (Button) rootView.findViewById(R.id.route_retry_button);
-        mHelloText = (TextView) rootView.findViewById(R.id.route_hello_text);
-        mCategorySpinner = (Spinner) rootView.findViewById(R.id.route_category_spinner);
-        mRouteSpinner = (Spinner) rootView.findViewById(R.id.route_route_spinner);
-        mNextButton = (Button) rootView.findViewById(R.id.route_next_button);
-        mReplaceText = (TextView) rootView.findViewById(R.id.route_replace_text);
-        mYesNoLayout = (LinearLayout) rootView.findViewById(R.id.route_yes_no_viewgroup);
-        mYesButton = (Button) rootView.findViewById(R.id.route_yes_button);
-        mNoButton = (Button) rootView.findViewById(R.id.route_no_button);
-
-        // Set button on click listener
-        mNextButton.setOnClickListener(this);
-        mNoButton.setOnClickListener(this);
-        mYesButton.setOnClickListener(this);
-        mRetryButton.setOnClickListener(this);
-
-        mSwipeLayout.setOnRefreshListener(this);
-
-        if (DEBUG) Log.d(TAG, "RouteFragment onCreateView");
-
-        return rootView;
+        return inflater.inflate(R.layout.fragment_route, container, false);
     }
 
     @Override
@@ -174,16 +222,13 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
         // Initialize all objects here.
         super.onActivityCreated(savedInstanceState);
 
-        // Note to self: A fragment's onSaveInstanceState() will only be called when its hosting
-        // Activity call its onSaveInstanceState() method. Therefore we decide to not use the
-        // parameter savedInstanceState as it this fragment's onSaveInstanceState method might not
-        // be called. Instead, we use our own bundle to store and restore information and send it
-        // to HelloActivity to keep.
-        Bundle mySaveInstanceState = mToActivityMethod.restoreRouteInstance();
+        // Set button on click listener
+        getmNextButton().setOnClickListener(this);
+        getView().findViewById(R.id.route_no_button).setOnClickListener(this);
+        getView().findViewById(R.id.route_yes_button).setOnClickListener(this);
+        getmRetryButton().setOnClickListener(this);
 
-        mState = State.toEnum(mySaveInstanceState.getInt(getString(R.string.bundle_route_state), State.START.getValue()));
-        categorySpinnerIndex = mySaveInstanceState.getInt(getString(R.string.bundle_category_spinner_selected_index), 0);
-        routeSpinnerIndex = mySaveInstanceState.getInt(getString(R.string.bundle_route_spinner_selected_index), 0);
+        getmSwipeLayout().setOnRefreshListener(this);
 
         if (DEBUG) Log.d(TAG, "onActivityCreated. mState:"+mState+" categoryIndex:"+categorySpinnerIndex
                 +" routeIndex:"+routeSpinnerIndex );
@@ -200,6 +245,11 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
     public void onResume() {
         super.onResume();
 
+        // Note to self: A fragment's onSaveInstanceState() will only be called when its hosting
+        // Activity call its onSaveInstanceState() method. Therefore we decide to not use the
+        // parameter savedInstanceState as it this fragment's onSaveInstanceState method might not
+        // be called. Instead, we use our own bundle to store and restore information and send it
+        // to HelloActivity to keep.
         Bundle mBundle = mToActivityMethod.restoreRouteInstance();
         State state = State.toEnum(mBundle.getInt(getString(R.string.bundle_route_state), State.START.getValue()));
         categorySpinnerIndex = mBundle.getInt(getString(R.string.bundle_category_spinner_selected_index), 0);
@@ -228,11 +278,10 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
 
         Bundle outState = new Bundle();
         outState.putInt(getString(R.string.bundle_route_state), state.getValue());
-        categorySpinnerIndex = mCategorySpinner.getSelectedItemPosition();
-        routeSpinnerIndex = mRouteSpinner.getSelectedItemPosition();
+        categorySpinnerIndex = getmCategorySpinner().getSelectedItemPosition();
+        routeSpinnerIndex = getmRouteSpinner().getSelectedItemPosition();
         outState.putInt(getString(R.string.bundle_category_spinner_selected_index), categorySpinnerIndex);
         outState.putInt(getString(R.string.bundle_route_spinner_selected_index), routeSpinnerIndex);
-
         mToActivityMethod.saveRouteInstance(outState);
 
         super.onPause();
@@ -242,6 +291,18 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
     public void onStop(){
         if (DEBUG) Log.d(TAG, "RouteFragment onStop");
         spiceManager.shouldStop();
+
+        mSwipeLayout = null;
+        mProgressBar = null;
+        mStatusText = null;
+        mRetryButton = null;
+        mHelloText = null;
+        mCategorySpinner = null;
+        mRouteSpinner = null;
+        mNextButton = null;
+        mReplaceText = null;
+        mYesNoLayout = null;
+
         super.onStop();
     }
 
@@ -277,33 +338,33 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
     private void updateUI(){
         switch (mState){
             case START:
-                mSwipeLayout.setEnabled(false);
-                if(!mSwipeLayout.isRefreshing())
-                    mSwipeLayout.setRefreshing(true);
-                mProgressBar.setVisibility(View.GONE);
-                mStatusText.setVisibility(View.GONE);
-                mRetryButton.setVisibility(View.GONE);
+                getmSwipeLayout().setEnabled(false);
+                if(!getmSwipeLayout().isRefreshing())
+                    getmSwipeLayout().setRefreshing(true);
+                getmProgressBar().setVisibility(View.GONE);
+                getmStatusText().setVisibility(View.GONE);
+                getmRetryButton().setVisibility(View.GONE);
                 showSpinnerForm(false);
                 showReplaceForm(false);
                 break;
             case CATEGORY_FAIL:
-                mSwipeLayout.setEnabled(false);
-                if(mSwipeLayout.isRefreshing())
-                    mSwipeLayout.setRefreshing(false);
-                mProgressBar.setVisibility(View.INVISIBLE);
-                mStatusText.setText(R.string.route_fragment_status_category_fail);
-                mStatusText.setVisibility(View.VISIBLE);
-                mRetryButton.setVisibility(View.VISIBLE);
+                getmSwipeLayout().setEnabled(false);
+                if(getmSwipeLayout().isRefreshing())
+                    getmSwipeLayout().setRefreshing(false);
+                getmProgressBar().setVisibility(View.INVISIBLE);
+                getmStatusText().setText(R.string.route_fragment_status_category_fail);
+                getmStatusText().setVisibility(View.VISIBLE);
+                getmRetryButton().setVisibility(View.VISIBLE);
                 showSpinnerForm(false);
                 showReplaceForm(false);
                 break;
             case PICKING:
-                mSwipeLayout.setEnabled(true);
-                if(mSwipeLayout.isRefreshing())
-                    mSwipeLayout.setRefreshing(false);
-                mProgressBar.setVisibility(View.GONE);
-                mStatusText.setVisibility(View.GONE);
-                mRetryButton.setVisibility(View.GONE);
+                getmSwipeLayout().setEnabled(true);
+                if(getmSwipeLayout().isRefreshing())
+                    getmSwipeLayout().setRefreshing(false);
+                getmProgressBar().setVisibility(View.GONE);
+                getmStatusText().setVisibility(View.GONE);
+                getmRetryButton().setVisibility(View.GONE);
                 initHelloText();
                 setupSpinner();
                 showSpinnerForm(true);
@@ -320,57 +381,57 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
                 }
                 break;
             case VERIFYING_1:
-                mSwipeLayout.setEnabled(false);
-                if(mSwipeLayout.isRefreshing())
-                    mSwipeLayout.setRefreshing(false);
-                mProgressBar.setVisibility(View.VISIBLE);
-                mStatusText.setText(R.string.route_fragment_status_report_in);
-                mStatusText.setVisibility(View.VISIBLE);
-                mRetryButton.setVisibility(View.GONE);
+                getmSwipeLayout().setEnabled(false);
+                if(getmSwipeLayout().isRefreshing())
+                    getmSwipeLayout().setRefreshing(false);
+                getmProgressBar().setVisibility(View.VISIBLE);
+                getmStatusText().setText(R.string.route_fragment_status_report_in);
+                getmStatusText().setVisibility(View.VISIBLE);
+                getmRetryButton().setVisibility(View.GONE);
                 showSpinnerForm(false);
                 showReplaceForm(false);
                 break;
             case VERIFY_1_NOT_OK:
-                mSwipeLayout.setEnabled(false);
-                if(mSwipeLayout.isRefreshing())
-                    mSwipeLayout.setRefreshing(false);
-                mProgressBar.setVisibility(View.GONE);
-                mStatusText.setVisibility(View.GONE);
-                mRetryButton.setVisibility(View.GONE);
+                getmSwipeLayout().setEnabled(false);
+                if(getmSwipeLayout().isRefreshing())
+                    getmSwipeLayout().setRefreshing(false);
+                getmProgressBar().setVisibility(View.GONE);
+                getmStatusText().setVisibility(View.GONE);
+                getmRetryButton().setVisibility(View.GONE);
                 showSpinnerForm(false);
                 showReplaceForm(true);
                 break;
             case VERIFY_1_FAIL:
-                mSwipeLayout.setEnabled(false);
-                if(mSwipeLayout.isRefreshing())
-                    mSwipeLayout.setRefreshing(false);
-                mProgressBar.setVisibility(View.INVISIBLE);
-                mStatusText.setText(R.string.route_fragment_status_report_in_fail);
-                mStatusText.setVisibility(View.VISIBLE);
-                mRetryButton.setVisibility(View.VISIBLE);
+                getmSwipeLayout().setEnabled(false);
+                if(getmSwipeLayout().isRefreshing())
+                    getmSwipeLayout().setRefreshing(false);
+                getmProgressBar().setVisibility(View.INVISIBLE);
+                getmStatusText().setText(R.string.route_fragment_status_report_in_fail);
+                getmStatusText().setVisibility(View.VISIBLE);
+                getmRetryButton().setVisibility(View.VISIBLE);
                 showSpinnerForm(false);
                 showReplaceForm(false);
                 break;
             case VERIFYING_2:
-                mSwipeLayout.setEnabled(false);
-                if(mSwipeLayout.isRefreshing())
-                    mSwipeLayout.setRefreshing(false);
+                getmSwipeLayout().setEnabled(false);
+                if(getmSwipeLayout().isRefreshing())
+                    getmSwipeLayout().setRefreshing(false);
 
-                mProgressBar.setVisibility(View.VISIBLE);
-                mStatusText.setText(R.string.route_fragment_status_report_in);
-                mStatusText.setVisibility(View.VISIBLE);
-                mRetryButton.setVisibility(View.GONE);
+                getmProgressBar().setVisibility(View.VISIBLE);
+                getmStatusText().setText(R.string.route_fragment_status_report_in);
+                getmStatusText().setVisibility(View.VISIBLE);
+                getmRetryButton().setVisibility(View.GONE);
                 showSpinnerForm(false);
                 showReplaceForm(false);
                 break;
             case VERIFYING_2_FAIL:
-                mSwipeLayout.setEnabled(false);
-                if(mSwipeLayout.isRefreshing())
-                    mSwipeLayout.setRefreshing(false);
-                mProgressBar.setVisibility(View.INVISIBLE);
-                mStatusText.setText(R.string.route_fragment_status_report_in_fail);
-                mStatusText.setVisibility(View.VISIBLE);
-                mRetryButton.setVisibility(View.VISIBLE);
+                getmSwipeLayout().setEnabled(false);
+                if(getmSwipeLayout().isRefreshing())
+                    getmSwipeLayout().setRefreshing(false);
+                getmProgressBar().setVisibility(View.INVISIBLE);
+                getmStatusText().setText(R.string.route_fragment_status_report_in_fail);
+                getmStatusText().setVisibility(View.VISIBLE);
+                getmRetryButton().setVisibility(View.VISIBLE);
                 showSpinnerForm(false);
                 showReplaceForm(false);
                 break;
@@ -391,14 +452,9 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
 
         switch (mState){
             case START:
-                if(mCategorySpinner.getOnItemSelectedListener()!=null)
-                    mCategorySpinner.setOnItemSelectedListener(null);
-                if(mRouteSpinner.getOnItemSelectedListener()!=null)
-                    mRouteSpinner.setOnItemSelectedListener(null);
-                mCategorySpinner.setAdapter(null);
-                mRouteSpinner.setAdapter(null);
-                categoryAdapter = null;
-                routeAdapter = null;
+                categorySpinnerIndex = 0;
+                routeSpinnerIndex = 0;
+                mToActivityMethod.onSpinnerSelectionChange();
                 CategoriesRequest mCategoriesRequest = new CategoriesRequest(mToActivityMethod.getUser().getUserId(),
                         mToActivityMethod.getUser().getAuthToken(), getActivity());
                 spiceManager.execute(mCategoriesRequest, new CategoriesRequestListener());
@@ -408,8 +464,8 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
             case PICKING:
                 break;
             case VERIFYING_1:
-                selectedCategoryId = ((HintableSpinnerItem) mCategorySpinner.getSelectedItem()).getId();
-                selectedRouteId = ((HintableSpinnerItem) mRouteSpinner.getSelectedItem()).getId();
+                selectedCategoryId = ((HintableSpinnerItem) getmCategorySpinner().getSelectedItem()).getId();
+                selectedRouteId = ((HintableSpinnerItem) getmRouteSpinner().getSelectedItem()).getId();
 
                 userFromActivity = mToActivityMethod.getUser();
                 ReportRequest mReportRequest1 = new ReportRequest(userFromActivity.getUserId(),
@@ -422,8 +478,8 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
             case VERIFY_1_FAIL:
                 break;
             case VERIFYING_2:
-                selectedCategoryId = ((HintableSpinnerItem) mCategorySpinner.getSelectedItem()).getId();
-                selectedRouteId = ((HintableSpinnerItem) mRouteSpinner.getSelectedItem()).getId();
+                selectedCategoryId = ((HintableSpinnerItem) getmCategorySpinner().getSelectedItem()).getId();
+                selectedRouteId = ((HintableSpinnerItem) getmRouteSpinner().getSelectedItem()).getId();
 
                 userFromActivity = mToActivityMethod.getUser();
                 ReportRequest mReportRequest2 = new ReportRequest(userFromActivity.getUserId(),
@@ -434,8 +490,8 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
             case VERIFYING_2_FAIL:
                 break;
             case ALL_OK:
-                selectedCategoryId = ((HintableSpinnerItem) mCategorySpinner.getSelectedItem()).getId();
-                selectedRouteId = ((HintableSpinnerItem) mRouteSpinner.getSelectedItem()).getId();
+                selectedCategoryId = ((HintableSpinnerItem) getmCategorySpinner().getSelectedItem()).getId();
+                selectedRouteId = ((HintableSpinnerItem) getmRouteSpinner().getSelectedItem()).getId();
                 mToActivityMethod.onCategoryRouteSelected(selectedCategoryId, selectedRouteId);
 
                 // Call a method to spawn the next tab into existence.
@@ -452,55 +508,45 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
      * UI methods
      *=======================================================================*/
     private void showSpinnerForm(boolean show) {
-        mHelloText.setVisibility(show ? View.VISIBLE : View.GONE);
-        mCategorySpinner.setVisibility(show ? View.VISIBLE : View.GONE);
-        mRouteSpinner.setVisibility(show ? View.VISIBLE : View.GONE);
-        mNextButton.setVisibility(show ? View.VISIBLE : View.GONE);
+        getmHelloText().setVisibility(show ? View.VISIBLE : View.GONE);
+        getmCategorySpinner().setVisibility(show ? View.VISIBLE : View.GONE);
+        getmRouteSpinner().setVisibility(show ? View.VISIBLE : View.GONE);
+        getmNextButton().setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void initHelloText(){
-        String userName = null;
-        if(mToActivityMethod.getUser() != null){
-            userName = mToActivityMethod.getUser().getUserName();
-        }
-        mHelloText.setText(getActivity().getString(R.string.route_fragment_greeting) +
-                userName +
-                getActivity().getString(R.string.route_fragment_question));
-    }
-
-    private void enableRouteSpinner(boolean enable){
-        mRouteSpinner.setEnabled(enable);
+        String userName = mToActivityMethod.getUser().getUserName();
+        String greeting = String.format(getString(R.string.route_fragment_greeting), userName);
+        getmHelloText().setText(greeting);
     }
 
     private void enableNextButtonIfPossible(boolean enable){
-        Categories.RouteItem selectedItem = (Categories.RouteItem)mRouteSpinner.getSelectedItem();
+        Categories.RouteItem selectedItem = (Categories.RouteItem)getmRouteSpinner().getSelectedItem();
         if(selectedItem==null){
             if (DEBUG) Log.d(TAG, "selectedItem is null");
         }
         else {
-            boolean isHint = ((Categories.RouteItem) mRouteSpinner.getSelectedItem()).isHint();
+            boolean isHint = ((Categories.RouteItem) getmRouteSpinner().getSelectedItem()).isHint();
             if (!enable)
-                mNextButton.setEnabled(false);
+                getmNextButton().setEnabled(false);
             else
-                mNextButton.setEnabled(!isHint);
+                getmNextButton().setEnabled(!isHint);
         }
     }
 
     private void showReplaceForm(boolean show){
-        mReplaceText.setVisibility(show ? View.VISIBLE : View.GONE);
-        mYesNoLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+        getmReplaceText().setVisibility(show ? View.VISIBLE : View.GONE);
+        getmYesNoLayout().setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void updateReplaceText(String currentJudge){
-        String question = currentJudge+getString(R.string.route_fragment_replace_question1)+
-                mCategorySpinner.getSelectedItem().toString()+
-                getString(R.string.route_fragment_replace_question2)+
-                mRouteSpinner.getSelectedItem().toString()+
-                getString(R.string.route_fragment_replace_question3)+
-                currentJudge+
-                getString(R.string.route_fragment_replace_question4);
+        String question = String.format(getString(R.string.route_fragment_replace_question),
+                currentJudge,
+                getmCategorySpinner().getSelectedItem().toString(),
+                getmRouteSpinner().getSelectedItem().toString(),
+                currentJudge);
 
-        mReplaceText.setText(question);
+        getmReplaceText().setText(question);
     }
 
     /**
@@ -508,34 +554,32 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
      * to spinner, set selection for spinner and set listener to spinner.
      */
     private void setupSpinner(){
-        if(categoryAdapter == null || routeAdapter == null){
-            String categoryHint = getString(R.string.route_fragment_category_hint);
-            String routeHint = getString(R.string.route_fragment_route_hint);
+        // Set listeners to null first. We don't want to be interrupted while
+        // setting up the spinner.
+        getmCategorySpinner().setOnItemSelectedListener(null);
+        getmRouteSpinner().setOnItemSelectedListener(null);
 
-            Categories categoryFromActivity = mToActivityMethod.getCategories();
-            List<HintableSpinnerItem> categoryList = categoryFromActivity.getCategoriesSpinnerListCopy(categoryHint, routeHint);
-            categoryAdapter = new HintableArrayAdapter(getActivity(),
-                    android.R.layout.simple_spinner_item, categoryList);
+        String categoryHint = getString(R.string.route_fragment_category_hint);
+        String routeHint = getString(R.string.route_fragment_route_hint);
 
-            List<HintableSpinnerItem> routeList = ((Categories.CategoryItem) (categoryList.get(categorySpinnerIndex))).getRoutes();
-            routeAdapter = new HintableArrayAdapter(getActivity(), android.R.layout.simple_spinner_item,routeList);
+        List<HintableSpinnerItem> categoryList = mToActivityMethod.getCategories().getCategoriesSpinnerListCopy(categoryHint, routeHint);
+        getCategoryAdapter().clear();
+        getCategoryAdapter().addAll(categoryList);
 
-            categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            routeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        }
-        if(mCategorySpinner.getAdapter()==null)
-            mCategorySpinner.setAdapter(categoryAdapter);
-        if(mRouteSpinner.getAdapter()==null)
-            mRouteSpinner.setAdapter(routeAdapter);
+        List<HintableSpinnerItem> routeList = ((Categories.CategoryItem) (categoryList.get(categorySpinnerIndex))).getRoutes();
+        getRouteAdapter().clear();
+        getRouteAdapter().addAll(routeList);
+
+        getmCategorySpinner().setAdapter(getCategoryAdapter());
+        getmRouteSpinner().setAdapter(routeAdapter);
 
         // Note to self: passing false as animate parameter will not trigger onSelectListener.
-        mCategorySpinner.setSelection(categorySpinnerIndex, false);
-        mRouteSpinner.setSelection(routeSpinnerIndex,false);
+        getmCategorySpinner().setSelection(categorySpinnerIndex, false);
+        getmRouteSpinner().setSelection(routeSpinnerIndex, false);
 
-        if(mCategorySpinner.getOnItemSelectedListener()==null)
-            mCategorySpinner.setOnItemSelectedListener(new CategoriesSpinnerListener());
-        if(mRouteSpinner.getOnItemSelectedListener()==null)
-            mRouteSpinner.setOnItemSelectedListener(new RouteSpinnerListener());
+        // Set the listener after we are done with spinner setup.
+        getmCategorySpinner().setOnItemSelectedListener(new CategoriesSpinnerListener());
+        getmRouteSpinner().setOnItemSelectedListener(new RouteSpinnerListener());
     }
 
     /*=========================================================================
@@ -567,7 +611,7 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
         // Note to self: Playing the refresh animation (i.e. SwipeLayout.setRefreshing(true))
         // and calling notifyDatasetChanged in FragmentPagerAdapter seems to lead to nullpointer
         // exception. I fix this by updating fragment count in HelloActivityFragmentPagerAdapter only
-        // AFTER SwipeLayout.setRefreshing(false). Might want to investigate this somemore.
+        // AFTER SwipeLayout.setRefreshing(false). Might want to investigate this further.
         changeState(State.START);
     }
 
@@ -587,8 +631,8 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
 
         Bundle outState = new Bundle();
         outState.putInt(getString(R.string.bundle_route_state), state.getValue());
-        categorySpinnerIndex = mCategorySpinner.getSelectedItemPosition();
-        routeSpinnerIndex = mRouteSpinner.getSelectedItemPosition();
+        categorySpinnerIndex = getmCategorySpinner().getSelectedItemPosition();
+        routeSpinnerIndex = getmRouteSpinner().getSelectedItemPosition();
         outState.putInt(getString(R.string.bundle_category_spinner_selected_index), categorySpinnerIndex);
         outState.putInt(getString(R.string.bundle_route_spinner_selected_index), routeSpinnerIndex);
 
@@ -619,26 +663,18 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
 
         @Override
         public void onRequestFailure(SpiceException e) {
-            if(mSwipeLayout.isRefreshing())
-                mSwipeLayout.setRefreshing(false);
-            if(mState == State.START) {
-                mToActivityMethod.setCategories(new Categories());
-                mToActivityMethod.onSpinnerSelectionChange();
-                categorySpinnerIndex = 0;
-                routeSpinnerIndex = 0;
+            if(getmSwipeLayout().isRefreshing())
+                getmSwipeLayout().setRefreshing(false);
+            if(mState == State.START)
                 changeState(State.CATEGORY_FAIL);
-            }
         }
 
         @Override
         public void onRequestSuccess(CategoriesResponseBody result) {
-            if(mSwipeLayout.isRefreshing())
-                mSwipeLayout.setRefreshing(false);
+            if(getmSwipeLayout().isRefreshing())
+                getmSwipeLayout().setRefreshing(false);
             if(mState == State.START) {
                 mToActivityMethod.setCategories(new Categories(result));
-                mToActivityMethod.onSpinnerSelectionChange();
-                categorySpinnerIndex = 0;
-                routeSpinnerIndex = 0;
                 changeState(State.PICKING);
             }
         }
@@ -681,7 +717,7 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
                 }
                 else if(mState == State.VERIFYING_2){
                     // This should not even happen
-                    mStatusText.setText(R.string.route_fragment_status_report_in_fail);
+                    getmStatusText().setText(R.string.route_fragment_status_report_in_fail);
                     mToActivityMethod.onCategoryRouteSelected(null, null);
                     changeState(State.VERIFYING_2_FAIL);
                 }
@@ -697,26 +733,25 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
     private class CategoriesSpinnerListener implements AdapterView.OnItemSelectedListener{
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            categorySpinnerIndex = mCategorySpinner.getSelectedItemPosition();
+            categorySpinnerIndex = getmCategorySpinner().getSelectedItemPosition();
             Categories.CategoryItem selectedCategory =
                     (Categories.CategoryItem)parent.getAdapter().getItem(position);
 
             if (DEBUG) Log.d(TAG, "CategorySpinnerListener selected item:" + selectedCategory.getText());
 
             if(selectedCategory.isHint()){
-                enableRouteSpinner(false);
-                mRouteSpinner.setSelection(routeAdapter.getFirstHintPosition(), false);
+                mRouteSpinner.setEnabled(false);
+                getmRouteSpinner().setSelection(getRouteAdapter().getFirstHintPosition(), false);
             }
             else{
-                enableRouteSpinner(true);
+                mRouteSpinner.setEnabled(true);
 
                 // Clear mRouteSpinner list, repopulate with updated route list and set selection
                 // to first hint item.
-                HintableArrayAdapter routeAdapter = (HintableArrayAdapter)mRouteSpinner.getAdapter();
+                HintableArrayAdapter routeAdapter = (HintableArrayAdapter)getmRouteSpinner().getAdapter();
                 routeAdapter.clear();
                 routeAdapter.addAll(selectedCategory.getRoutes());
-                routeAdapter.notifyDataSetChanged();
-                mRouteSpinner.setSelection(routeAdapter.getFirstHintPosition(), false);
+                getmRouteSpinner().setSelection(routeAdapter.getFirstHintPosition(), false);
             }
 
             // This method is called because category was changed by user.
@@ -740,10 +775,9 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
             // the selected item (i.e. selecting a different item). Will not be fired by user if
             // there is no change in selection (e.g. item1 selected -> click spinner ->
             // select back item1).
-            routeSpinnerIndex = mRouteSpinner.getSelectedItemPosition();
+            routeSpinnerIndex = getmRouteSpinner().getSelectedItemPosition();
             Categories.RouteItem selectedRoute =
                     (Categories.RouteItem)parent.getAdapter().getItem(position);
-
             if (DEBUG) Log.d(TAG, "RouteSpinnerListener selected item: "+selectedRoute.getText());
 
             // Find out if selected route is a hint. Enable next button if selectedRoute is not
@@ -774,7 +808,9 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
     public interface RouteFragmentToActivityMethods {
         void createAndSwitchToScanFragment();
         void onSpinnerSelectionChange();
+        @NonNull
         User getUser();
+        @NonNull
         Categories getCategories();
         void onCategoryRouteSelected(String categoryId, String routeId);
         void setCategories(Categories categories);

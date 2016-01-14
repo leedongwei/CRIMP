@@ -52,7 +52,6 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginBottom="16dp"
                 android:textSize="20sp"
-                android:text="@string/route_fragment_question"
                 android:visibility="gone"
                 tools:visibility="visible"
                 tools:text="Hello user, you are route judge for"/>
