@@ -108,6 +108,83 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
 
     private TextWatcher mTextWatcher;
 
+    private CameraManager getCameraManager(){
+        if(cameraManager == null)
+            cameraManager = new CameraManager();
+        return cameraManager;
+    }
+
+    // can only be called after onActivityCreated()
+    private Point getScreenResolution(){
+        if(screenResolution == null) {
+            WindowManager manager = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
+            Display display = manager.getDefaultDisplay();
+            screenResolution = new Point();    //application display size without system decoration
+            if (android.os.Build.VERSION.SDK_INT >= 13) {
+                display.getSize(screenResolution);
+            } else {
+                screenResolution.x = display.getWidth();
+                screenResolution.y = display.getHeight();
+            }
+        }
+
+        return screenResolution;
+    }
+
+    private PreviewView getPreviewSurface(){
+        if(previewSurface == null)
+            previewSurface = new PreviewView(getActivity());
+        return previewSurface;
+    }
+
+    private FrameLayout getmPreviewFrame(){
+        if(mPreviewFrame == null)
+            mPreviewFrame = (FrameLayout) getView().findViewById(R.id.scan_frame);
+        return mPreviewFrame;
+    }
+
+    private EditText getmCategoryIdEdit(){
+        if(mCategoryIdEdit == null)
+            mCategoryIdEdit = (EditText) getView().findViewById(R.id.scan_category_id_edit);
+        return mCategoryIdEdit;
+    }
+
+    private EditText getmClimberIdEdit(){
+        if(mClimberIdEdit == null)
+            mClimberIdEdit = (EditText) getView().findViewById(R.id.scan_climber_id_edit);
+        return mClimberIdEdit;
+    }
+
+    private Button getmRescanButton(){
+        if(mRescanButton == null)
+            mRescanButton = (Button)getView().findViewById(R.id.scan_rescan_button);
+        return mRescanButton;
+    }
+
+    private ImageButton getmFlashButton(){
+        if(mFlashButton == null)
+            mFlashButton = (ImageButton) getView().findViewById(R.id.scan_flash_button);
+        return mFlashButton;
+    }
+
+    private EditText getmClimberNameEdit(){
+        if(mClimberNameEdit == null)
+            mClimberNameEdit = (EditText) getView().findViewById(R.id.scan_climber_name_edit);
+        return mClimberNameEdit;
+    }
+
+    private Button getmNextButton(){
+        if(mNextButton == null)
+            mNextButton = (Button)getView().findViewById(R.id.scan_next_button);
+        return mNextButton;
+    }
+
+    private TextWatcher getmTextWatcher(){
+        if(mTextWatcher == null)
+            mTextWatcher = new ClimberIdTextWatcher(this);
+        return mTextWatcher;
+    }
+
     public static ScanFragment newInstance() {
         return new ScanFragment();
     }
@@ -129,7 +206,7 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
      */
     public void onReceiveDecodeHandlerConstructed(){
         if (DEBUG) Log.d(TAG, "onReceiveDecodeHandlerConstructed");
-        cameraManager = new CameraManager(getDecodeHandler());
+        getCameraManager().setDecodeHandler(getDecodeHandler());
         acquireCamera();
         createSurfaceAndAttach();
     }
@@ -201,7 +278,6 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        screenResolution = findScreenResolutionPx();
 
         Bundle mySaveInstanceState = mToActivityMethod.restoreScanInstance();
         mState = State.toEnum(mySaveInstanceState.getInt(getString(R.string.bundle_scan_state), State.SCANNING.getValue()));
@@ -217,8 +293,8 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
 
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int overlayHeight = 192 * metrics.densityDpi / 160;
-        int transparentHeight = screenResolution.y - overlayHeight;
-        Point transparentResolution = new Point(screenResolution.x, transparentHeight);
+        int transparentHeight = getScreenResolution().y - overlayHeight;
+        Point transparentResolution = new Point(getScreenResolution().x, transparentHeight);
 
         startThread(transparentResolution);
 
@@ -243,8 +319,8 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
         mToActivityMethod.saveScanInstance(myOutState);
 
         releaseCameraAndStopDecodeThread();
-        removePreviewView();
-        cameraManager = null;
+        getPreviewSurface().getHolder().removeCallback(this);
+        mPreviewFrame.removeView(getPreviewSurface());
         super.onPause();
     }
 
@@ -302,20 +378,12 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
         switch (mState){
             case SCANNING:
                 mScanFragmentHandler.resumeDecode();
-                if(cameraManager != null) {
-                    cameraManager.startPreview(previewSurface.getHolder());
-                    cameraManager.startScan();
-                }
-                else{
-                    Log.w(TAG, "cameraManager is null");
-                }
+                getCameraManager().startPreview(getPreviewSurface().getHolder());
+                getCameraManager().startScan();
                 break;
             case NOT_SCANNING:
                 mScanFragmentHandler.pauseDecode();
-                if(cameraManager != null)
-                    cameraManager.stopPreview();
-                else
-                    Log.w(TAG, "cameraManager is null");
+                getCameraManager().stopPreview();
                 break;
             default:
                 break;
@@ -330,16 +398,12 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         //surface is only ready after surfaceChanged is called.
-        cameraManager.set_isSurfaceReady(false);
         if(DEBUG) Log.d(TAG, "Preview view surface created.");
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        if(cameraManager != null){
-            cameraManager.set_isSurfaceReady(false);
-            cameraManager.stopPreview();
-        }
+        getCameraManager().stopPreview();
         if(DEBUG) Log.d(TAG, "Preview view surface destroyed.");
     }
 
@@ -348,7 +412,6 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
         // If your preview can change or rotate, take care of those events here.
         // Make sure to stop the preview before resizing or reformatting it.
         if(DEBUG) Log.d(TAG, "Preview view surface changed.");
-        cameraManager.set_isSurfaceReady(true);
         changeState(mState);
     }
 
@@ -461,20 +524,7 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
         return previewViewSize;
     }
 
-    private Point findScreenResolutionPx(){
-        WindowManager manager = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
-        Display display = manager.getDefaultDisplay();
-        Point screenResolution = new Point();	//application display size without system decoration
-        if(android.os.Build.VERSION.SDK_INT >= 13){
-            display.getSize(screenResolution);
-        }
-        else{
-            screenResolution.x = display.getWidth();
-            screenResolution.y = display.getHeight();
-        }
 
-        return screenResolution;
-    }
 
     /**
      * This method create previewSurface and translate it. No-op if previewSurface
@@ -482,41 +532,26 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
      * and camera resource is acquired.
      */
     private void createSurfaceAndAttach(){
-        if(previewSurface == null){
-            if (DEBUG) Log.d(TAG, "createSurfaceAndAttach");
-            Camera.Size temp = cameraManager.getBestPreviewSize();
+        if (DEBUG) Log.d(TAG, "createSurfaceAndAttach");
+        Camera.Size temp = getCameraManager().getPreviewSize();
 
-            DisplayMetrics metrics = getResources().getDisplayMetrics();
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
 
-            previewSurface = new PreviewView(getActivity());
-            int overlayHeight = 192 * metrics.densityDpi / 160;
-            int transparentHeight = screenResolution.y - overlayHeight;
-            int height = temp.width* screenResolution.x/temp.height;
+        int overlayHeight = 192 * metrics.densityDpi / 160;
+        int transparentHeight = getScreenResolution().y - overlayHeight;
+        int height = temp.width* getScreenResolution().x/temp.height;
 
-            // transparent view
-            View transparentView = getView().findViewById(R.id.scan_transparent);
-            ViewGroup.LayoutParams transparentLayoutParam = transparentView.getLayoutParams();
-            transparentLayoutParam.height = transparentHeight;
-            transparentView.setLayoutParams(transparentLayoutParam);
+        // transparent view
+        View transparentView = getView().findViewById(R.id.scan_transparent);
+        ViewGroup.LayoutParams transparentLayoutParam = transparentView.getLayoutParams();
+        transparentLayoutParam.height = transparentHeight;
+        transparentView.setLayoutParams(transparentLayoutParam);
 
-            //previewFrame
-            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(screenResolution.x, height);
-            previewSurface.setLayoutParams(layoutParams);
-            mPreviewFrame.addView(previewSurface);
-
-            previewSurface.getHolder().addCallback(this);
-        }
-    }
-
-    /**
-     * This method is use to remove previewView completely when the activity goes onPause().
-     */
-    private void removePreviewView(){
-        if(previewSurface != null){
-            previewSurface.getHolder().removeCallback(this);
-            mPreviewFrame.removeView(previewSurface);
-            previewSurface = null;
-        }
+        // attaching previewSurface to our frame
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(getScreenResolution().x, height);
+        getPreviewSurface().setLayoutParams(layoutParams);
+        mPreviewFrame.addView(getPreviewSurface());
+        getPreviewSurface().getHolder().addCallback(this);
     }
 
     /**
@@ -545,14 +580,8 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
                     "mScanFragmentHandler == null while trying to setRunning(false).");
         }
 
-        if (cameraManager != null) {
-            cameraManager.stopPreview();
-            cameraManager.releaseCamera();
-        }
-        else{
-            Log.e(TAG+".releaseCameraAndStopDecodeThread()",
-                    "cameraManager == null while trying to stopPreview() and releaseCameraAndStopDecodeThread()");
-        }
+        getCameraManager().stopPreview();
+        getCameraManager().releaseCamera();
 
         mScanFragmentHandler.onPause();
     }
@@ -563,11 +592,11 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     private void acquireCamera(){
         // We need camera resource. We will acquire camera in onResume and release in onPause.
         // Check if we have camera resource first.
-        if (!cameraManager.hasCamera()) {
+        if (!getCameraManager().hasCamera()) {
 
             DisplayMetrics metrics = getResources().getDisplayMetrics();
             Point targetResolution = new Point(screenResolution.x, screenResolution.y - (48*metrics.densityDpi/160));
-            boolean temp = cameraManager.acquireCamera(targetResolution);
+            boolean temp = getCameraManager().acquireCamera(targetResolution);
             if (!temp) {
                 // Error handling. Fail to get camera resource.
                 Log.e(TAG, "Failed to get camera resource.");
@@ -592,7 +621,7 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
      * Method to toggle the camera flash.
      */
     private void toggleFlash(){
-        cameraManager.setFlash(!cameraManager.isTorchOn());
+        getCameraManager().setFlash(!getCameraManager().isTorchOn());
     }
 
     /**
@@ -600,7 +629,7 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
      */
     private void next(){
         if(DEBUG) Log.d(TAG, "next");
-        cameraManager.setFlash(false);
+        getCameraManager().setFlash(false);
         mNextButton.setEnabled(false);
         mToActivityMethod.updateActivityClimberInfo(mClimberIdEdit.getText().toString(), mClimberNameEdit.getText().toString());
         mClimberIdEdit.setText(null);

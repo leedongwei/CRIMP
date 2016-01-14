@@ -4,10 +4,13 @@ import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.nusclimb.live.crimp.R;
+
+import junit.framework.Assert;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,34 +26,28 @@ class CameraManager implements Camera.PreviewCallback{
     private static final String TAG = CameraManager.class.getSimpleName();
     private final boolean DEBUG = false;
 
-    private boolean _isSurfaceReady;			// Whether the surface to show preview is ready (between
-                                                // surfaceCreated and surfaceDestroyed).
     private Camera camera;
     private Handler mDecodeHandler;
     private boolean _isPreviewing;			    // Whether we are displaying camera input on previewView.
     private boolean _isScanning;			    // Whether we are sending new camera input to decode.
-    private Camera.Size bestPreviewSize;
     private boolean _isTorchOn;
 
-    public CameraManager(Handler mDecodeHandler){
+    public CameraManager(){
         camera = null;
-        if(mDecodeHandler == null){
-            throw new NullPointerException("Constructor of CameraManager must have a valid DecodeHandler");
-        }
-        this.mDecodeHandler = mDecodeHandler;
         _isScanning = false;
         _isPreviewing = false;
-        bestPreviewSize = null;
         _isTorchOn = false;
 
         if (DEBUG) Log.d(TAG, "CameraManager is constructed!");
     }
 
-
-
     /*=========================================================================
      * Setter/Getter/Check state methods
      *=======================================================================*/
+    public void setDecodeHandler(@NonNull Handler decodeHandler){
+        mDecodeHandler = decodeHandler;
+    }
+
     public boolean isScanning(){
         return this._isScanning;
     }
@@ -63,22 +60,16 @@ class CameraManager implements Camera.PreviewCallback{
         return camera != null;
     }
 
-    public Camera.Size getBestPreviewSize(){
-        return bestPreviewSize;
-    }
-
-    public boolean isSurfaceReady(){
-        return _isSurfaceReady;
+    public Camera.Size getPreviewSize(){
+        if(camera != null)
+            return camera.getParameters().getPreviewSize();
+        else return null;
     }
 
     public boolean isTorchOn(){
         return _isTorchOn;
     }
 
-    public void set_isSurfaceReady(boolean isReady){
-        _isSurfaceReady = isReady;
-    }
-	
 	
 	/*=========================================================================
 	 * Public methods
@@ -89,7 +80,7 @@ class CameraManager implements Camera.PreviewCallback{
      * @param targetResolution Ideal resolution for our previewView.
      * @return True: Camera acquired. False: Camera acquisition failed.
      */
-    public boolean acquireCamera(Point targetResolution){
+    public boolean acquireCamera(@NonNull Point targetResolution){
         camera = getCameraInstance();
         if(camera == null){
             Log.w(TAG, "Acquire camera fail.");
@@ -108,6 +99,9 @@ class CameraManager implements Camera.PreviewCallback{
      */
     public void releaseCamera(){
         if (camera != null){
+            _isScanning = false;
+            _isPreviewing = false;
+            _isTorchOn = false;
             camera.release();
             camera = null;
         }
@@ -119,23 +113,20 @@ class CameraManager implements Camera.PreviewCallback{
      * Method to start previewing and display camera input onto surfaceView.
      * No-op if 1) camera resource not acquired and/or 2) already previewing
      *
-     * @param holder Holder of surfaceView
+     * @param holder Holder of surfaceView. Must be fully initialize and ready.
      */
-    public void startPreview(SurfaceHolder holder){
-        if(!_isSurfaceReady){
-            Log.e(TAG, "SurfaceHolder must be ready to start preview.");
-        }
-        else {
-            if (hasCamera() && !_isPreviewing) {
-                try {
-                    camera.setPreviewDisplay(holder);
-                    camera.startPreview();
-                    _isPreviewing = true;
-                    Log.i(TAG, "start previewing.");
-                } catch (IOException e) {
-                    Log.e(TAG, "IOE when attempting to setPreviewDisplay().");
-                }
+    public void startPreview(@NonNull SurfaceHolder holder){
+        if(holder == null)
+            throw new NullPointerException("SurfaceHolder is null when calling startPreview()");
 
+        if (hasCamera() && !_isPreviewing) {
+            try {
+                camera.setPreviewDisplay(holder);
+                camera.startPreview();
+                _isPreviewing = true;
+                Log.i(TAG, "start previewing.");
+            } catch (IOException e) {
+                Log.e(TAG, "IOE when attempting to setPreviewDisplay().");
             }
         }
     }
@@ -221,7 +212,7 @@ class CameraManager implements Camera.PreviewCallback{
             // Find available preview size with height closest to
             // targetResolution's width.
             double smallestDiff = 100000; // Some arbitrary huge number.
-            bestPreviewSize = supportedSize.get(0);
+            Camera.Size bestPreviewSize = supportedSize.get(0);
             for(Camera.Size s: supportedSize ){
                 if(s.width <= targetResolution.y){
                     double diff = Math.abs(s.height - targetResolution.x);
@@ -275,8 +266,15 @@ class CameraManager implements Camera.PreviewCallback{
     public void onPreviewFrame(byte[] data, Camera camera) {
         // Got preview data. Need to send over to ScanFragmentHandler.
         if (mDecodeHandler != null) {
-            Message message = mDecodeHandler.obtainMessage(R.id.decode, bestPreviewSize.width, bestPreviewSize.height, data);
-            message.sendToTarget();
+            if(!hasCamera() || !isPreviewing() || !isScanning()){
+                //do nothing
+            }
+            else {
+                Message message = mDecodeHandler.obtainMessage(R.id.decode,
+                        camera.getParameters().getPreviewSize().width,
+                        camera.getParameters().getPreviewSize().height, data);
+                message.sendToTarget();
+            }
         }
         else {
             throw new NullPointerException("Got preview callback, but no handler available");
