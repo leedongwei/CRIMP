@@ -52,9 +52,9 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
     private final String TAG = HelloActivity.class.getSimpleName();
     private final boolean DEBUG = false;
 
-    private Bundle routeBundle = new Bundle();
-    private Bundle scanBundle = new Bundle();
-    private Bundle scoreBundle = new Bundle();
+    private Bundle routeBundle;
+    private Bundle scanBundle;
+    private Bundle scoreBundle;
     private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
 
     // All the info
@@ -69,6 +69,27 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
     private Handler activityHandler;
     private int prevPageIndex;
     private HelloActivityViewPagerListener mViewPagerListener;
+
+    @NonNull
+    private Bundle getRouteBundle(){
+        if(routeBundle == null)
+            routeBundle = new Bundle();
+        return routeBundle;
+    }
+
+    @NonNull
+    private Bundle getScanBundle(){
+        if(scanBundle == null)
+            scanBundle = new Bundle();
+        return scanBundle;
+    }
+
+    @NonNull
+    private Bundle getScoreBundle(){
+        if(scoreBundle == null)
+            scoreBundle = new Bundle();
+        return scoreBundle;
+    }
 
     @NonNull
     private User getmUser(){
@@ -244,9 +265,9 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
         outState.putString(getString(R.string.bundle_climber_name), getmClimber().getClimberName());
         outState.putString(getString(R.string.bundle_total_score), getmClimber().getTotalScore());
 
-        outState.putBundle(getString(R.string.bundle_route_bundle), routeBundle);
-        outState.putBundle(getString(R.string.bundle_route_bundle), scanBundle);
-        outState.putBundle(getString(R.string.bundle_route_bundle), scoreBundle);
+        outState.putBundle(getString(R.string.bundle_route_bundle), getRouteBundle());
+        outState.putBundle(getString(R.string.bundle_route_bundle), getScanBundle());
+        outState.putBundle(getString(R.string.bundle_route_bundle), getScoreBundle());
 
         outState.putInt(getString(R.string.bundle_hello_fragment_count), getmFragmentPagerAdapter().getCount());
         outState.putInt(getString(R.string.bundle_hello_previous_index), prevPageIndex);
@@ -544,33 +565,33 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
     }
 
     @Override
-    public void saveRouteInstance(Bundle bundle){
+    public void saveRouteInstance(@NonNull Bundle bundle){
         routeBundle = bundle;
     }
 
     @Override
     public Bundle restoreRouteInstance(){
-        return routeBundle;
+        return getRouteBundle();
     }
 
     @Override
-    public void saveScanInstance(Bundle bundle){
+    public void saveScanInstance(@NonNull Bundle bundle){
         scanBundle = bundle;
     }
 
     @Override
     public Bundle restoreScanInstance(){
-        return scanBundle;
+        return getScanBundle();
     }
 
     @Override
-    public void saveScoreInstance(Bundle bundle){
+    public void saveScoreInstance(@NonNull Bundle bundle){
         scoreBundle = bundle;
     }
 
     @Override
     public Bundle restoreScoreInstance(){
-        return scoreBundle;
+        return getScoreBundle();
     }
 
     @Override

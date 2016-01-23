@@ -56,7 +56,7 @@ import com.nusclimb.live.crimp.hello.HelloActivityFragment;
  */
 public class ScanFragment extends HelloActivityFragment implements SurfaceHolder.Callback, ClimberIdTextWatcher.ToFragmentInteraction {
     private final String TAG = ScanFragment.class.getSimpleName();
-    private final boolean DEBUG = false;
+    private final boolean DEBUG = true;
 
     public enum State{
         SCANNING(0),
@@ -196,8 +196,8 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
      * @param climberName climber name
      */
     public void updateClimberWithScanResult(String climberId, String climberName){
-        mClimberIdEdit.setText(climberId);
-        mClimberNameEdit.setText(climberName);
+        getmClimberIdEdit().setText(climberId);
+        getmClimberNameEdit().setText(climberName);
     }
 
     /**
@@ -250,25 +250,10 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
                              Bundle savedInstanceState){
         View rootView = inflater.inflate(R.layout.fragment_scan, container, false);
 
-        // Get UI references.
-        mPreviewFrame = (FrameLayout) rootView.findViewById(R.id.scan_frame);
-        mCategoryIdEdit = (EditText) rootView.findViewById(R.id.scan_category_id_edit);
-        mClimberIdEdit = (EditText) rootView.findViewById(R.id.scan_climber_id_edit);
-        mRescanButton = (Button) rootView.findViewById(R.id.scan_rescan_button);
-        mFlashButton = (ImageButton) rootView.findViewById(R.id.scan_flash_button);
-        mClimberNameEdit = (EditText) rootView.findViewById(R.id.scan_climber_name_edit);
-        mNextButton = (Button) rootView.findViewById(R.id.scan_next_button);
-
-        mFlashButton.setOnClickListener(this);
-        mNextButton.setOnClickListener(this);
-        mRescanButton.setOnClickListener(this);
-
-        mTextWatcher = new ClimberIdTextWatcher(this);
-        mClimberIdEdit.addTextChangedListener(mTextWatcher);
 
         // Update buttons.
         if(!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)){
-            mFlashButton.setEnabled(false);
+            getmFlashButton().setEnabled(false);
         }
 
         if (DEBUG) Log.d(TAG, "ScanFragment onCreateView");
@@ -279,6 +264,12 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
+        // add all the listeners for view.
+        getmFlashButton().setOnClickListener(this);
+        getmNextButton().setOnClickListener(this);
+        getmRescanButton().setOnClickListener(this);
+        getmClimberIdEdit().addTextChangedListener(getmTextWatcher());
+
         Bundle mySaveInstanceState = mToActivityMethod.restoreScanInstance();
         mState = State.toEnum(mySaveInstanceState.getInt(getString(R.string.bundle_scan_state), State.SCANNING.getValue()));
 
@@ -286,10 +277,16 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     }
 
     @Override
+    public void onStart(){
+        super.onStart();
+    }
+
+    @Override
     public void onResume(){
         super.onResume();
         if (DEBUG) Log.d(TAG, "ScanFragment onResume");
 
+        getmClimberIdEdit().addTextChangedListener(getmTextWatcher());
 
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int overlayHeight = 192 * metrics.densityDpi / 160;
@@ -303,8 +300,8 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
         String climberNameEditString = myBundle.getString(getString(R.string.bundle_climber_name));
         State state = State.toEnum(myBundle.getInt(getString(R.string.bundle_scan_state), State.SCANNING.getValue()));
 
-        mClimberIdEdit.setText(climberIdEditString);
-        mClimberNameEdit.setText(climberNameEditString);
+        getmClimberIdEdit().setText(climberIdEditString);
+        getmClimberNameEdit().setText(climberNameEditString);
         mState = state; //TODO
     }
 
@@ -312,16 +309,33 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     public void onPause(){
         if (DEBUG) Log.d(TAG, "ScanFragment onPause");
 
+        getmClimberIdEdit().removeTextChangedListener(getmTextWatcher());
+
         Bundle myOutState = new Bundle();
         myOutState.putInt(getString(R.string.bundle_scan_state), mState.getValue());
-        myOutState.putString(getString(R.string.bundle_climber_id), mClimberIdEdit.getText().toString());
-        myOutState.putString(getString(R.string.bundle_climber_name), mClimberNameEdit.getText().toString());
+        myOutState.putString(getString(R.string.bundle_climber_id), getmClimberIdEdit().getText().toString());
+        myOutState.putString(getString(R.string.bundle_climber_name), getmClimberNameEdit().getText().toString());
         mToActivityMethod.saveScanInstance(myOutState);
 
         releaseCameraAndStopDecodeThread();
         getPreviewSurface().getHolder().removeCallback(this);
-        mPreviewFrame.removeView(getPreviewSurface());
+        getmPreviewFrame().removeView(getPreviewSurface());
         super.onPause();
+    }
+
+    @Override
+    public void onStop(){
+        mPreviewFrame = null;
+        mCategoryIdEdit = null;
+        mClimberIdEdit = null;
+        mRescanButton = null;
+        mFlashButton = null;
+        mClimberNameEdit = null;
+        mNextButton = null;
+        previewSurface = null;
+        mTextWatcher = null;        // just in case fragment gets destroyed
+        screenResolution = null;    // resolution might change when we stop the app
+        super.onStop();
     }
 
     @Override
@@ -343,7 +357,7 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
      * @param state Hello state to set {@code mState} to.
      */
     public void changeState(State state) {
-        if(DEBUG) Log.d(TAG, "Change state: " + mState + " -> " + state);
+        //if(DEBUG) Log.d(TAG, "Change state: " + mState + " -> " + state);
 
         mState = state;
         updateUI();
@@ -356,14 +370,14 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     private void updateUI(){
         switch (mState){
             case SCANNING:
-                mRescanButton.setEnabled(false);
-                mCategoryIdEdit.setText(mToActivityMethod.getCategoryId());
+                getmRescanButton().setEnabled(false);
+                getmCategoryIdEdit().setText(mToActivityMethod.getCategoryId());
                 // Don't touch mClimberIdEdit.
                 // Don't touch mClimberNameEdit. It is left as it is.
                 break;
             case NOT_SCANNING:
-                mRescanButton.setEnabled(true);
-                mCategoryIdEdit.setText(mToActivityMethod.getCategoryId());
+                getmRescanButton().setEnabled(true);
+                getmCategoryIdEdit().setText(mToActivityMethod.getCategoryId());
                 // Don't touch mClimberNameEdit. It is left as it is.
                 break;
             default:
@@ -418,8 +432,8 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     @Override
     public void onNavigateAway(){
         if (DEBUG) Log.d(TAG, "NavigateAway. mState:" +mState);
-        String climberIdEditString = mClimberIdEdit.getText().toString();
-        String climberNameEditString = mClimberNameEdit.getText().toString();
+        String climberIdEditString = getmClimberIdEdit().getText().toString();
+        String climberNameEditString = getmClimberNameEdit().getText().toString();
 
         Bundle myBundle = new Bundle();
         myBundle.putString(getString(R.string.bundle_climber_id), climberIdEditString);
@@ -440,8 +454,8 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
 
         if (DEBUG) Log.d(TAG, "NavigateTo. state:"+state);
 
-        mClimberIdEdit.setText(climberIdEditString);
-        mClimberNameEdit.setText(climberNameEditString);
+        getmClimberIdEdit().setText(climberIdEditString);
+        getmClimberNameEdit().setText(climberNameEditString);
 
         if(climberIdEditString == null || climberIdEditString.length()==0){
             state = State.SCANNING;
@@ -471,8 +485,8 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
 
     @Override
     public void onClimberIdEditTextChange(String climberId){
-        mClimberNameEdit.setText(null);
-        mNextButton.setEnabled(climberId.length() == 3);
+        getmClimberNameEdit().setText(null);
+        getmNextButton().setEnabled(climberId.length() == 3);
     }
 
 
@@ -550,7 +564,7 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
         // attaching previewSurface to our frame
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(getScreenResolution().x, height);
         getPreviewSurface().setLayoutParams(layoutParams);
-        mPreviewFrame.addView(getPreviewSurface());
+        getmPreviewFrame().addView(getPreviewSurface());
         getPreviewSurface().getHolder().addCallback(this);
     }
 
@@ -613,7 +627,7 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     private void rescan(){
         if(DEBUG) Log.d(TAG, "rescan");
         mToActivityMethod.updateActivityClimberInfo(null, null);
-        mClimberIdEdit.setText(null);
+        getmClimberIdEdit().setText(null);
         changeState(State.SCANNING);
     }
 
@@ -630,10 +644,11 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     private void next(){
         if(DEBUG) Log.d(TAG, "next");
         getCameraManager().setFlash(false);
-        mNextButton.setEnabled(false);
-        mToActivityMethod.updateActivityClimberInfo(mClimberIdEdit.getText().toString(), mClimberNameEdit.getText().toString());
-        mClimberIdEdit.setText(null);
-        mClimberNameEdit.setText(null);
+        getmNextButton().setEnabled(false);
+        mToActivityMethod.updateActivityClimberInfo(getmClimberIdEdit().getText().toString(),
+                getmClimberNameEdit().getText().toString());
+        getmClimberIdEdit().setText(null);
+        getmClimberNameEdit().setText(null);
         changeState(State.NOT_SCANNING);
         mToActivityMethod.createAndSwitchToScoreFragment();
     }
