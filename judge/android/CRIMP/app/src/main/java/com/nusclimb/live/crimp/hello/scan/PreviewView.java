@@ -14,6 +14,7 @@ import android.view.SurfaceView;
 public class PreviewView extends SurfaceView {
     private static final String TAG = PreviewView.class.getSimpleName();
     private final boolean DEBUG = false;
+    public boolean isReady = false;
 
     public PreviewView(Context context) {
         super(context);

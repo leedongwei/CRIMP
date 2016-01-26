@@ -3,10 +3,7 @@ package com.nusclimb.live.crimp.hello.scan;
 import android.graphics.Point;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
-
-import com.nusclimb.live.crimp.R;
 
 /**
  * Worker thread for handling decode operation. A DecodeHandler instance will
@@ -21,19 +18,15 @@ class DecodeThread extends Thread{
     private static final String TAG = DecodeThread.class.getSimpleName();
     private final boolean DEBUG = false;
 
-    // Bundle keys
-    public static final String BARCODE_BITMAP = "barcode_bitmap";
-    public static final String BARCODE_SCALED_FACTOR = "barcode_scaled_factor";
-
     private DecodeHandler mDecodeHandler;
-    private Handler mainThreadHandler;
-    private Point transparentResolution;
+    private final Handler mainHandler;
+    private final String qrPrefix;
+    private final Point transparentResolution;
 
-    private final String PREFIX;	// Magic string to check if QR Code is valid
-
-    public DecodeThread(Handler mainThreadHandler, String qrPrefix, Point transparentResolution){
-        this.mainThreadHandler = mainThreadHandler;
-        PREFIX = qrPrefix;
+    public DecodeThread(Handler mainHandler, String qrPrefix, Point transparentResolution){
+        super();
+        this.mainHandler = mainHandler;
+        this.qrPrefix = qrPrefix;
         this.transparentResolution = transparentResolution;
         if (DEBUG) Log.d(TAG, "DecodeThread constructed.");
     }
@@ -42,18 +35,13 @@ class DecodeThread extends Thread{
     public void run(){
         if (DEBUG) Log.d(TAG, "DecodeThread begin running");
         Looper.prepare();
-        mDecodeHandler = new DecodeHandler(mainThreadHandler, PREFIX, transparentResolution);
-        Message message = Message.obtain(mainThreadHandler, R.id.decode_handler_constructed);
-        message.sendToTarget();
+
+        mDecodeHandler = new DecodeHandler(mainHandler, qrPrefix, transparentResolution);
+
         Looper.loop();
     }
 
-    /**
-     * Getter for the DecodeHandler object associated with this DecodeThread.
-     *
-     * @return DecodeHandler object
-     */
-    public DecodeHandler getHandler(){
+    public Handler getHandler(){
         return mDecodeHandler;
     }
 }

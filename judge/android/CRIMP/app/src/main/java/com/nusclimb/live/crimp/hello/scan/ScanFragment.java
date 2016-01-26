@@ -1,6 +1,5 @@
 package com.nusclimb.live.crimp.hello.scan;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -200,23 +199,8 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
         getmClimberNameEdit().setText(climberName);
     }
 
-    /**
-     * This method initialize cameraManager, acquire camera and create a preview view.
-     * This is called when DecodeHandler has been constructed.
-     */
-    public void onReceiveDecodeHandlerConstructed(){
-        if (DEBUG) Log.d(TAG, "onReceiveDecodeHandlerConstructed");
-        getCameraManager().setDecodeHandler(getDecodeHandler());
-        acquireCamera();
-        createSurfaceAndAttach();
-    }
-
     public Handler getDecodeHandler(){
         return mDecodeThread.getHandler();
-    }
-
-    public Thread getDecodeThread(){
-        return mDecodeThread;
     }
 
 
@@ -277,32 +261,44 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     }
 
     @Override
-    public void onStart(){
-        super.onStart();
-    }
-
-    @Override
     public void onResume(){
         super.onResume();
         if (DEBUG) Log.d(TAG, "ScanFragment onResume");
 
+        mScanFragmentHandler.setRunning(true);
+
         getmClimberIdEdit().addTextChangedListener(getmTextWatcher());
 
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int overlayHeight = 192 * metrics.densityDpi / 160;
-        int transparentHeight = getScreenResolution().y - overlayHeight;
-        Point transparentResolution = new Point(getScreenResolution().x, transparentHeight);
-
-        startThread(transparentResolution);
-
+        // TODO: perhaps we could remove this?
+        // set text of EditView.
         Bundle myBundle = mToActivityMethod.restoreScanInstance();
         String climberIdEditString = myBundle.getString(getString(R.string.bundle_climber_id));
         String climberNameEditString = myBundle.getString(getString(R.string.bundle_climber_name));
         State state = State.toEnum(myBundle.getInt(getString(R.string.bundle_scan_state), State.SCANNING.getValue()));
-
+        mState = state;
         getmClimberIdEdit().setText(climberIdEditString);
         getmClimberNameEdit().setText(climberNameEditString);
-        mState = state; //TODO
+
+        // Calculate the size of a transparent view. This transparent view is the ideal
+        // size for our preview view.
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int overlayHeight = 192 * metrics.densityDpi / 160;
+        int transparentHeight = getScreenResolution().y - overlayHeight;
+        Point transparentResolution = new Point(getScreenResolution().x, transparentHeight);
+        startThread(transparentResolution);
+
+        // We acquire camera FIRST then create a preview surface. When the preview surface is ready,
+        // it will call changeState() to start the previewing.
+        Point targetResolution = new Point(screenResolution.x, screenResolution.y - (48*metrics.densityDpi/160));
+        boolean temp = getCameraManager().acquireCamera(targetResolution);
+        if (!temp) {
+            // Error handling. Fail to get camera resource.
+            Log.e(TAG, "Failed to get camera resource.");
+        }
+        else{
+            Log.i(TAG, "Camera resource acquired.");
+        }
+        createSurfaceAndAttach();
     }
 
     @Override
@@ -318,6 +314,8 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
         mToActivityMethod.saveScanInstance(myOutState);
 
         releaseCameraAndStopDecodeThread();
+
+        // We remove surface because it might be possible for user to change device resolution
         getPreviewSurface().getHolder().removeCallback(this);
         getmPreviewFrame().removeView(getPreviewSurface());
         super.onPause();
@@ -344,8 +342,6 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
         mToActivityMethod = null;
         super.onDetach();
     }
-
-
 
     /*=========================================================================
      * Main flow methods.
@@ -391,12 +387,14 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
     private void doWork(){
         switch (mState){
             case SCANNING:
-                mScanFragmentHandler.resumeDecode();
-                getCameraManager().startPreview(getPreviewSurface().getHolder());
-                getCameraManager().startScan();
+                //mScanFragmentHandler.resumeDecode();
+                if(getPreviewSurface().isReady) {
+                    getCameraManager().startPreview(getPreviewSurface().getHolder());
+                    getCameraManager().startScan(getDecodeHandler());
+                }
                 break;
             case NOT_SCANNING:
-                mScanFragmentHandler.pauseDecode();
+                //getmScanFragmentHandler().pauseDecode();
                 getCameraManager().stopPreview();
                 break;
             default:
@@ -426,6 +424,7 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
         // If your preview can change or rotate, take care of those events here.
         // Make sure to stop the preview before resizing or reformatting it.
         if(DEBUG) Log.d(TAG, "Preview view surface changed.");
+        getPreviewSurface().isReady = true;
         changeState(mState);
     }
 
@@ -495,62 +494,17 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
      * Private methods
      *=======================================================================*/
     /**
-     * This method calculate the size of preview surface view. We want the
-     * width of preview view to be the entire display width. Aspect ratio
-     * of the preview view is the inverse of device real resolution aspect ratio.
-     *
-     * Need to be attached to activity.
-     */
-    @SuppressLint("NewApi")
-    private Point calculatePreviewResolution() {
-        WindowManager manager = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
-        Display display = manager.getDefaultDisplay();
-        Point screenResolution = new Point();	//application display size without system decoration
-        Point realResolution = new Point();		//display size including system decoration
-        if(android.os.Build.VERSION.SDK_INT >= 13){
-            display.getSize(screenResolution);
-        }
-        else{
-            screenResolution.x = display.getWidth();
-            screenResolution.y = display.getHeight();
-        }
-
-        // display.getRealSize only work from api lvl 17 onward.
-        if(android.os.Build.VERSION.SDK_INT >= 17){
-            if (DEBUG) Log.v(TAG, "Using Display.getRealSize().");
-            display.getRealSize(realResolution);
-        }
-        else{
-            //TODO not working as intended.
-            if (DEBUG) Log.v(TAG, "Using Display.getMetrics().");
-            DisplayMetrics displaymetrics = new DisplayMetrics();
-            display.getMetrics(displaymetrics);
-            realResolution.y = displaymetrics.heightPixels;
-            realResolution.x = displaymetrics.widthPixels;
-        }
-
-        Point previewViewSize = new Point();
-        previewViewSize.x = screenResolution.x;
-        previewViewSize.y = (int) (screenResolution.x * ((double)realResolution.x/realResolution.y));
-        if (DEBUG) Log.v(TAG, "screenReso: X" + screenResolution.x + " x Y" + screenResolution.y +
-                "\nrealReso: X" + realResolution.x + " x Y" + realResolution.y +
-                "\npreviewReso: X" + previewViewSize.x + " x Y" + previewViewSize.y);
-        return previewViewSize;
-    }
-
-
-
-    /**
      * This method create previewSurface and translate it. No-op if previewSurface
      * already exist. Important: This method can only be called after we have CameraManager
      * and camera resource is acquired.
      */
     private void createSurfaceAndAttach(){
         if (DEBUG) Log.d(TAG, "createSurfaceAndAttach");
+
+        // Calculate the size for our preview surface. This should be close to our ideal size
+        // calculated when we call startThread()
         Camera.Size temp = getCameraManager().getPreviewSize();
-
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-
         int overlayHeight = 192 * metrics.densityDpi / 160;
         int transparentHeight = getScreenResolution().y - overlayHeight;
         int height = temp.width* getScreenResolution().x/temp.height;
@@ -590,7 +544,7 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
             mScanFragmentHandler.setRunning(false);
         }
         else{
-            Log.e(TAG + ".releaseCameraAndStopDecodeThread()",
+            Log.e(TAG,
                     "mScanFragmentHandler == null while trying to setRunning(false).");
         }
 
@@ -598,27 +552,6 @@ public class ScanFragment extends HelloActivityFragment implements SurfaceHolder
         getCameraManager().releaseCamera();
 
         mScanFragmentHandler.onPause();
-    }
-
-    /**
-     * This method tries to acquire camera resource using camera manager.
-     */
-    private void acquireCamera(){
-        // We need camera resource. We will acquire camera in onResume and release in onPause.
-        // Check if we have camera resource first.
-        if (!getCameraManager().hasCamera()) {
-
-            DisplayMetrics metrics = getResources().getDisplayMetrics();
-            Point targetResolution = new Point(screenResolution.x, screenResolution.y - (48*metrics.densityDpi/160));
-            boolean temp = getCameraManager().acquireCamera(targetResolution);
-            if (!temp) {
-                // Error handling. Fail to get camera resource.
-                Log.e(TAG, "Failed to get camera resource.");
-            }
-            else{
-                Log.i(TAG, "Camera resource acquired.");
-            }
-        }
     }
 
     /**

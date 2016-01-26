@@ -1,10 +1,13 @@
 package com.nusclimb.live.crimp.hello.scan;
 
-import java.io.ByteArrayOutputStream;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.Map;
+import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.graphics.Rect;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
@@ -16,14 +19,11 @@ import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.nusclimb.live.crimp.R;
 
-import android.graphics.Bitmap;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.util.Log;
+import java.io.ByteArrayOutputStream;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
 
 /**
  * Handler to {@code DecodeThread}. Process {@code Message} associated with
@@ -39,12 +39,17 @@ public class DecodeHandler extends Handler{
 
     private final String PREFIX;	// Magic string to check if QR Code is valid
 
-    private Handler mainThreadHandler;
+    // Bundle keys
+    private static final String BARCODE_BITMAP = "barcode_bitmap";
+    private static final String BARCODE_SCALED_FACTOR = "barcode_scaled_factor";
+
+    private final Handler mainThreadHandler;
     private final Point transparentResolution;
     private final MultiFormatReader multiFormatReader;  // ZXing stuff. For decoding QR code.
     private boolean running;
 
     DecodeHandler(Handler mainThreadHandler, String qrPrefix, Point transparentResolution) {
+        super();
         PREFIX = qrPrefix;
         this.mainThreadHandler = mainThreadHandler;
         this.transparentResolution = transparentResolution;
@@ -64,28 +69,23 @@ public class DecodeHandler extends Handler{
 
     @Override
     public void handleMessage(Message message) {
-        switch (message.what) {
-            case R.id.decode:
-                if(DEBUG) Log.d(TAG, "decode msg received. running:"+running);
-                if(running)
+        if(running){
+            switch (message.what) {
+                case R.id.decode:
+                    if(DEBUG) Log.d(TAG, "decode msg received");
                     decode((byte[]) message.obj, message.arg1, message.arg2);
-                break;
-            case R.id.decode_pause:
-                if(DEBUG) Log.d(TAG, "decode_pause msg received. running:"+running);
-                running = false;
-                break;
-            case R.id.decode_resume:
-                if(DEBUG) Log.d(TAG, "decode_resume msg received. running:"+running);
-                running = true;
-                break;
-            case R.id.quit:
-                if (DEBUG) Log.d(TAG+".handleMessage()", "DecodeHandler receive msg 'quit'.");
-                running = false;
-                Looper.myLooper().quit();
-                break;
-            default:
-                Log.w(TAG+".handleMessage()", "DecodeHandler receive unknown msg '" + message.what + "'.");
-                break;
+                    break;
+                case R.id.quit:
+                    if (DEBUG) Log.d(TAG+".handleMessage()", "DecodeHandler receive msg 'quit'.");
+                    running = false;
+                    removeMessages(R.id.decode);
+                    removeMessages(R.id.quit);
+                    Looper.myLooper().quit();
+                    break;
+                default:
+                    Log.w(TAG+".handleMessage()", "DecodeHandler receive unknown msg '" + message.what + "'.");
+                    break;
+            }
         }
     }
 
@@ -121,8 +121,7 @@ public class DecodeHandler extends Handler{
             if(result == null){
                 if (DEBUG) Log.d(TAG+".decode()", "Found non BA2015 result: " + rawResult.getText());
                 if (mainThreadHandler != null) {
-                    Message message = Message.obtain(mainThreadHandler, R.id.decode_failed);
-                    message.sendToTarget();
+                    Message.obtain(mainThreadHandler, R.id.decode_failed).sendToTarget();
                 }
             }
             else{
@@ -138,8 +137,7 @@ public class DecodeHandler extends Handler{
         }
         else {
             if (mainThreadHandler != null) {
-                Message message = Message.obtain(mainThreadHandler, R.id.decode_failed);
-                message.sendToTarget();
+                Message.obtain(mainThreadHandler, R.id.decode_failed).sendToTarget();
             }
         }
     }
@@ -175,8 +173,8 @@ public class DecodeHandler extends Handler{
         Bitmap bitmap = Bitmap.createBitmap(pixels, 0, width, width, height, Bitmap.Config.ARGB_8888);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
-        bundle.putByteArray(DecodeThread.BARCODE_BITMAP, out.toByteArray());
-        bundle.putFloat(DecodeThread.BARCODE_SCALED_FACTOR, (float) width / source.getWidth());
+        bundle.putByteArray(BARCODE_BITMAP, out.toByteArray());
+        bundle.putFloat(BARCODE_SCALED_FACTOR, (float) width / source.getWidth());
     }
 
     /**

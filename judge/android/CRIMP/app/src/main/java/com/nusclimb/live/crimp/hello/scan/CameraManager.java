@@ -10,8 +10,6 @@ import android.view.SurfaceHolder;
 
 import com.nusclimb.live.crimp.R;
 
-import junit.framework.Assert;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -28,34 +26,13 @@ class CameraManager implements Camera.PreviewCallback{
 
     private Camera camera;
     private Handler mDecodeHandler;
-    private boolean _isPreviewing;			    // Whether we are displaying camera input on previewView.
-    private boolean _isScanning;			    // Whether we are sending new camera input to decode.
-    private boolean _isTorchOn;
-
-    public CameraManager(){
-        camera = null;
-        _isScanning = false;
-        _isPreviewing = false;
-        _isTorchOn = false;
-
-        if (DEBUG) Log.d(TAG, "CameraManager is constructed!");
-    }
+    private boolean isPreviewing;	    // Whether we are displaying camera input on previewView.
+    private boolean isScanning;		    // Whether we are sending new camera input to decode.
+    private boolean isTorchOn;
 
     /*=========================================================================
      * Setter/Getter/Check state methods
      *=======================================================================*/
-    public void setDecodeHandler(@NonNull Handler decodeHandler){
-        mDecodeHandler = decodeHandler;
-    }
-
-    public boolean isScanning(){
-        return this._isScanning;
-    }
-
-    public boolean isPreviewing(){
-        return this._isPreviewing;
-    }
-
     public boolean hasCamera(){
         return camera != null;
     }
@@ -67,9 +44,8 @@ class CameraManager implements Camera.PreviewCallback{
     }
 
     public boolean isTorchOn(){
-        return _isTorchOn;
+        return isTorchOn;
     }
-
 	
 	/*=========================================================================
 	 * Public methods
@@ -81,6 +57,10 @@ class CameraManager implements Camera.PreviewCallback{
      * @return True: Camera acquired. False: Camera acquisition failed.
      */
     public boolean acquireCamera(@NonNull Point targetResolution){
+        if (camera != null) {
+            return false;
+        }
+
         camera = getCameraInstance();
         if(camera == null){
             Log.w(TAG, "Acquire camera fail.");
@@ -99,9 +79,9 @@ class CameraManager implements Camera.PreviewCallback{
      */
     public void releaseCamera(){
         if (camera != null){
-            _isScanning = false;
-            _isPreviewing = false;
-            _isTorchOn = false;
+            isScanning = false;
+            isPreviewing = false;
+            isTorchOn = false;
             camera.release();
             camera = null;
         }
@@ -116,14 +96,11 @@ class CameraManager implements Camera.PreviewCallback{
      * @param holder Holder of surfaceView. Must be fully initialize and ready.
      */
     public void startPreview(@NonNull SurfaceHolder holder){
-        if(holder == null)
-            throw new NullPointerException("SurfaceHolder is null when calling startPreview()");
-
-        if (hasCamera() && !_isPreviewing) {
+        if (hasCamera() && !isPreviewing) {
             try {
                 camera.setPreviewDisplay(holder);
                 camera.startPreview();
-                _isPreviewing = true;
+                isPreviewing = true;
                 Log.i(TAG, "start previewing.");
             } catch (IOException e) {
                 Log.e(TAG, "IOE when attempting to setPreviewDisplay().");
@@ -136,9 +113,9 @@ class CameraManager implements Camera.PreviewCallback{
      * and/or 2) not previewing.
      */
     public void stopPreview(){
-        if(_isPreviewing && hasCamera() ){
+        if(isPreviewing && hasCamera() ){
             camera.stopPreview();
-            _isPreviewing = false;
+            isPreviewing = false;
             Log.i(TAG, "Camera preview stopped.");
         }
     }
@@ -146,10 +123,11 @@ class CameraManager implements Camera.PreviewCallback{
     /**
      * Method to start scanning. No-op if not previewing.
      */
-    public void startScan(){
-        if(_isPreviewing){
+    public void startScan(@NonNull Handler decodeHandler){
+        mDecodeHandler = decodeHandler;
+        if(isPreviewing){
             camera.setOneShotPreviewCallback(this);
-            _isScanning = true;
+            isScanning = true;
         }
         else{
             Log.w(TAG, "Attempt to start scan fail due to preview not started yet.");
@@ -170,13 +148,13 @@ class CameraManager implements Camera.PreviewCallback{
                 if(flashMode.contains(Camera.Parameters.FLASH_MODE_TORCH)){
                     params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
                     camera.setParameters(params);
-                    _isTorchOn = true;
+                    isTorchOn = true;
                 }
                 else{
                     if(flashMode.contains(Camera.Parameters.FLASH_MODE_ON)){
                         params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
                         camera.setParameters(params);
-                        _isTorchOn = true;
+                        isTorchOn = true;
                     }
                 }
             }
@@ -184,7 +162,7 @@ class CameraManager implements Camera.PreviewCallback{
                 if(flashMode.contains(Camera.Parameters.FLASH_MODE_OFF)){
                     params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
                     camera.setParameters(params);
-                    _isTorchOn = false;
+                    isTorchOn = false;
                 }
             }
         }
@@ -266,7 +244,7 @@ class CameraManager implements Camera.PreviewCallback{
     public void onPreviewFrame(byte[] data, Camera camera) {
         // Got preview data. Need to send over to ScanFragmentHandler.
         if (mDecodeHandler != null) {
-            if(!hasCamera() || !isPreviewing() || !isScanning()){
+            if(!hasCamera() || !isPreviewing || !isScanning){
                 //do nothing
             }
             else {
@@ -281,6 +259,6 @@ class CameraManager implements Camera.PreviewCallback{
         }
 
         // We only send 1 frame to decode. Stop scanning and wait for decode result.
-        _isScanning = false;
+        isScanning = false;
     }
 }
