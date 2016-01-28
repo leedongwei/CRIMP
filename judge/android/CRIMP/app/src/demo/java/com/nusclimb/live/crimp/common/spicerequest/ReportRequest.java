@@ -6,14 +6,6 @@ import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.json.ReportResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-
 /**
  * Spice request for POST '/api/judge/report'
  *
@@ -55,59 +47,5 @@ public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>
             response.setState(0);
 
         return response;
-    }
-
-    /**
-     * Jackson POJO for Report request body.
-     */
-    private static class HttpBody {
-        @JsonProperty("category_id")
-        private String categoryId;
-        @JsonProperty("route_id")
-        private String routeId;
-        @JsonProperty("force")
-        private boolean force;
-
-        public HttpBody(String categoryId, String routeId, boolean force){
-            this.categoryId = categoryId;
-            this.routeId = routeId;
-            this.force = force;
-        }
-
-        @Override
-        public String toString(){
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\n");
-            sb.append("\tcategory_id: "+categoryId+",\n");
-            sb.append("\troute_id: "+routeId+",\n");
-            sb.append("\tforce: "+force+"\n");
-            sb.append("}");
-
-            return sb.toString();
-        }
-
-        public boolean isForce() {
-            return force;
-        }
-
-        public void setForce(boolean force) {
-            this.force = force;
-        }
-
-        public String getCategoryId() {
-            return categoryId;
-        }
-
-        public void setCategoryId(String categoryId) {
-            this.categoryId = categoryId;
-        }
-
-        public String getRouteId() {
-            return routeId;
-        }
-
-        public void setRouteId(String routeId) {
-            this.routeId = routeId;
-        }
     }
 }

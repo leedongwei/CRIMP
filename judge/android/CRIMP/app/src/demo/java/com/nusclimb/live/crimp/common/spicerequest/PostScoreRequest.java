@@ -6,14 +6,6 @@ import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.json.PostScoreResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-
 /**
  * Spice request for POST '/api/judge/score/:category_id/:route_id/:climber_id'
  *
@@ -104,35 +96,5 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    /**
-     * Jackson POJO for PostScore request body.
-     */
-    private static class HttpBody {
-        @JsonProperty("score_string")
-        private String scoreString;
-
-        public HttpBody(String scoreString) {
-            this.scoreString = scoreString;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\n");
-            sb.append("\tscore_string: " + scoreString + "\n");
-            sb.append("}");
-
-            return sb.toString();
-        }
-
-        public String getScoreString() {
-            return scoreString;
-        }
-
-        public void setScoreString(String scoreString) {
-            this.scoreString = scoreString;
-        }
     }
 }

@@ -6,13 +6,6 @@ import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.json.GetScoreResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-
 /**
  * Spice request for GET '/api/judge/score/:category_id/:route_id/:climber_id'
  *
