@@ -42,33 +42,25 @@ public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonito
         this.insert = insert;
         this.context = context;
 
-        if(context.getResources().getBoolean(R.bool.is_production_app))
-            this.url = context.getString(R.string.crimp_production)+context.getString(R.string.activemonitor_api);
-        else
-            this.url = context.getString(R.string.crimp_staging)+context.getString(R.string.activemonitor_api);
+        this.url = context.getString(R.string.crimp_base_url)+context.getString(R.string.activemonitor_api);
     }
 
     @Override
     public ActiveMonitorResponseBody loadDataFromNetwork() throws Exception {
-        if(context.getResources().getBoolean(R.bool.is_debug)){
-            return new ActiveMonitorResponseBody();
-        }
-        else{
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Cache-Control", "no-cache");
-            headers.set("x-user-id", xUserId);
-            headers.set("x-auth-token", xAuthToken);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Cache-Control", "no-cache");
+        headers.set("x-user-id", xUserId);
+        headers.set("x-auth-token", xAuthToken);
 
-            HttpBody body = new HttpBody(categoryId, routeId, climberId, insert);
-            HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
+        HttpBody body = new HttpBody(categoryId, routeId, climberId, insert);
+        HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
 
-            RestTemplate mRestTemplate = getRestTemplate();
-            ResponseEntity<ActiveMonitorResponseBody> response = mRestTemplate.exchange(url,
-                    HttpMethod.POST, request, ActiveMonitorResponseBody.class);
+        RestTemplate mRestTemplate = getRestTemplate();
+        ResponseEntity<ActiveMonitorResponseBody> response = mRestTemplate.exchange(url,
+                HttpMethod.POST, request, ActiveMonitorResponseBody.class);
 
-            return response.getBody();
-        }
+        return response.getBody();
     }
 
     /**

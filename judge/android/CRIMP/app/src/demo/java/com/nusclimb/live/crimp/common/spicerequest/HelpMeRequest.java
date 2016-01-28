@@ -38,34 +38,12 @@ public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponseBody>
         this.routeId = routeId;
         this.context = context;
 
-        boolean isProductionApp = context.getResources().getBoolean(R.bool.is_production_app);
-        if(isProductionApp)
-            this.url = context.getString(R.string.crimp_production)+context.getString(R.string.helpme_api);
-        else
-            this.url = context.getString(R.string.crimp_staging)+context.getString(R.string.helpme_api);
+        this.url = context.getString(R.string.crimp_base_url)+context.getString(R.string.helpme_api);
     }
 
     @Override
     public HelpMeResponseBody loadDataFromNetwork() throws Exception {
-        if(context.getResources().getBoolean(R.bool.is_debug)){
-            return new HelpMeResponseBody();
-        }
-        else{
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Cache-Control", "no-cache");
-            headers.set("x-user-id", xUserId);
-            headers.set("x-auth-token", xAuthToken);
-
-            HttpBody body = new HttpBody(categoryId, routeId);
-            HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
-
-            RestTemplate mRestTemplate = getRestTemplate();
-            ResponseEntity<HelpMeResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,
-                    request, HelpMeResponseBody.class);
-
-            return response.getBody();
-        }
+        return new HelpMeResponseBody();
     }
 
     /**

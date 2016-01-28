@@ -39,45 +39,22 @@ public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>
         this.routeId = routeId;
         this.force = force;
         this.context = context;
-
-        boolean isProductionApp = context.getResources().getBoolean(R.bool.is_production_app);
-        if(isProductionApp)
-            this.url = context.getString(R.string.crimp_production)+context.getString(R.string.report_api);
-        else
-            this.url = context.getString(R.string.crimp_staging)+context.getString(R.string.report_api);
+        this.url = context.getString(R.string.crimp_base_url)+context.getString(R.string.report_api);
     }
 
     @Override
     public ReportResponseBody loadDataFromNetwork() throws Exception {
-        if(context.getResources().getBoolean(R.bool.is_debug)){
-            ReportResponseBody response = new ReportResponseBody();
-            response.setAdminId(xUserId);
-            response.setAdminName("John Smith");
-            response.setCategoryId(categoryId);
-            response.setRouteId(routeId);
-            if(force)
-                response.setState(1);
-            else
-                response.setState(0);
+        ReportResponseBody response = new ReportResponseBody();
+        response.setAdminId(xUserId);
+        response.setAdminName("John Smith");
+        response.setCategoryId(categoryId);
+        response.setRouteId(routeId);
+        if(force)
+            response.setState(1);
+        else
+            response.setState(0);
 
-            return response;
-        }
-        else {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Cache-Control", "no-cache");
-            headers.set("x-user-id", xUserId);
-            headers.set("x-auth-token", xAuthToken);
-
-            HttpBody body = new HttpBody(categoryId, routeId, force);
-            HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
-
-            RestTemplate mRestTemplate = getRestTemplate();
-            ResponseEntity<ReportResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,
-                    request, ReportResponseBody.class);
-
-            return response.getBody();
-        }
+        return response;
     }
 
     /**

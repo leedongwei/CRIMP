@@ -41,38 +41,26 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
         this.climberId = climberId;
         this.scoreString = scoreString;
         this.context = context;
-
-        if(context.getResources().getBoolean(R.bool.is_production_app)) {
-            this.url = context.getString(R.string.crimp_production) + context.getString(R.string.post_score_api)
-                    + categoryId + "/" + routeId + "/" + climberId;
-        }
-        else {
-            this.url = context.getString(R.string.crimp_staging) + context.getString(R.string.post_score_api)
-                    + categoryId + "/" + routeId + "/" + climberId;
-        }
+        this.url = context.getString(R.string.crimp_base_url) + context.getString(R.string.post_score_api)
+                + categoryId + "/" + routeId + "/" + climberId;
     }
 
     @Override
     public PostScoreResponseBody loadDataFromNetwork() throws Exception {
-        if(context.getResources().getBoolean(R.bool.is_debug)){
-            return new PostScoreResponseBody();
-        }
-        else {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Cache-Control", "no-cache");
-            headers.set("x-user-id", xUserId);
-            headers.set("x-auth-token", xAuthToken);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Cache-Control", "no-cache");
+        headers.set("x-user-id", xUserId);
+        headers.set("x-auth-token", xAuthToken);
 
-            HttpBody body = new HttpBody(scoreString);
-            HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
+        HttpBody body = new HttpBody(scoreString);
+        HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
 
-            RestTemplate mRestTemplate = getRestTemplate();
-            ResponseEntity<PostScoreResponseBody> response = mRestTemplate.exchange(url,
-                    HttpMethod.POST, request, PostScoreResponseBody.class);
+        RestTemplate mRestTemplate = getRestTemplate();
+        ResponseEntity<PostScoreResponseBody> response = mRestTemplate.exchange(url,
+                HttpMethod.POST, request, PostScoreResponseBody.class);
 
-            return response.getBody();
-        }
+        return response.getBody();
     }
 
     public String getxUserId() {

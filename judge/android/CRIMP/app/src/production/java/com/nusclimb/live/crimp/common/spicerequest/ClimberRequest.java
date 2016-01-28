@@ -33,40 +33,24 @@ public class ClimberRequest extends SpringAndroidSpiceRequest<ClimberResponseBod
         this.xAuthToken = xAuthToken;
         this.climberId = climberId;
         this.context = context;
-
-        if(context.getResources().getBoolean(R.bool.is_production_app)) {
-            this.url = context.getString(R.string.crimp_production) + context.getString(R.string.climber_api)
-                    + climberId;
-        }
-        else {
-            this.url = context.getString(R.string.crimp_staging) + context.getString(R.string.climber_api)
-                    + climberId;
-        }
+        this.url = context.getString(R.string.crimp_base_url) + context.getString(R.string.climber_api)
+                + climberId;
     }
 
     @Override
     public ClimberResponseBody loadDataFromNetwork() throws Exception {
-        if(context.getResources().getBoolean(R.bool.is_debug)){
-            ClimberResponseBody response = new ClimberResponseBody();
-            response.setClimberId(climberId);
-            response.setClimberName("climbername");
-            response.setTotalScore("totalscore");
-            return response;
-        }
-        else {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Cache-Control", "no-cache");
-            headers.set("x-user-id", xUserId);
-            headers.set("x-auth-token", xAuthToken);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Cache-Control", "no-cache");
+        headers.set("x-user-id", xUserId);
+        headers.set("x-auth-token", xAuthToken);
 
-            HttpEntity request = new HttpEntity(headers);
+        HttpEntity request = new HttpEntity(headers);
 
-            RestTemplate mRestTemplate = getRestTemplate();
-            ResponseEntity<ClimberResponseBody> response = mRestTemplate.exchange(url,
-                    HttpMethod.GET, request, ClimberResponseBody.class);
+        RestTemplate mRestTemplate = getRestTemplate();
+        ResponseEntity<ClimberResponseBody> response = mRestTemplate.exchange(url,
+                HttpMethod.GET, request, ClimberResponseBody.class);
 
-            return response.getBody();
-        }
+        return response.getBody();
     }
 }

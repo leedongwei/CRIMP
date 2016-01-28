@@ -31,37 +31,16 @@ public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponseBody> {
         super(LoginResponseBody.class);
         this.context = context;
         this.accessToken = accessToken;
-        this.isProductionApp = context.getResources().getBoolean(R.bool.is_production_app);
-        if(this.isProductionApp)
-            this.url = context.getString(R.string.crimp_production)+context.getString(R.string.login_api);
-        else
-            this.url = context.getString(R.string.crimp_staging)+context.getString(R.string.login_api);
-
+        this.url = context.getString(R.string.crimp_base_url)+context.getString(R.string.login_api);
     }
 
     @Override
     public LoginResponseBody loadDataFromNetwork() throws Exception {
-        if(context.getResources().getBoolean(R.bool.is_debug)){
-            LoginResponseBody response = new LoginResponseBody();
-            response.setxUserId("debuguserid");
-            response.setxAuthToken("debugauthtoken");
+        LoginResponseBody response = new LoginResponseBody();
+        response.setxUserId("debuguserid");
+        response.setxAuthToken("debugauthtoken");
 
-            return response;
-        }
-        else{
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Cache-Control", "no-cache");
-
-            HttpBody body = new HttpBody(accessToken, isProductionApp);
-            HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
-
-            RestTemplate mRestTemplate = getRestTemplate();
-            ResponseEntity<LoginResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,
-                    request, LoginResponseBody.class);
-
-            return response.getBody();
-        }
+        return response;
     }
 
     /**
