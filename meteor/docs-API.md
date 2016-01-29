@@ -12,7 +12,7 @@
 * `accessToken` is the access token issued by facebook upon login.
 * `x-user-id` is an id given by CRIMP server.
 * `x-auth-token` is an authentication token given by CRIMP server.
-
+<br>
 
 
 
@@ -25,7 +25,7 @@
 * [POST '/api/judge/helpme'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#post-apijudgehelpme)
 * [POST '/api/judge/activemonitor'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#post-apijudgeactivemonitor)
 * [POST '/api/judge/score/:category_id/:route_id/:climber_id'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#post-apijudgescorecategory_idroute_idclimber_id)
-
+<br>
 
 
 
@@ -60,7 +60,7 @@ Body: {
         },
         {
           "route_id": "NMQRO3",
-          "route_name": "Route 3"
+          "route_name": "Route 3",
           "score": "1254"
         }
       ],
@@ -84,7 +84,7 @@ Body: {
         },
         {
           "route_id": "NWQRO3",
-          "route_name": "Route 3"
+          "route_name": "Route 3",
           "score": "1254"
         }
       ],
@@ -99,7 +99,7 @@ Body: {
 }
 ```
 * `score`, `scores_finalized`, `time_start` and `time_end` are for features that are yet to be implemented. Client should expect these fields to be present during API calls but should not use them for any meaningful operations.
-
+<br>
 
 
 
@@ -108,7 +108,7 @@ Body: {
 * Not used.
 
 #### Request
-```
+```json
 header: {
   "x-user-id": "A6kvTowyvNz...",
   "x-auth-token": "RCDBy6X3zS8..."'
@@ -116,7 +116,7 @@ header: {
 ```
 
 #### Response
-```
+```json
 Body: {
   "climber_id": "NMQ001",
   "climber_name": "DongWei",
@@ -124,7 +124,7 @@ Body: {
 }
 ```
 * `total_score` is for features that are yet to be implemented. Client should expect this field to be present during API calls but should not use is for any meaningful operations.
-
+<br>
 
 
 
@@ -132,7 +132,7 @@ Body: {
 * Get the score of a climber on a specific route
 
 #### Request
-```
+```json
 header: {
   "x-user-id": "A6kvTowyvNz...",
   "x-auth-token": "RCDBy6X3zS8..."
@@ -140,7 +140,7 @@ header: {
 ```
 
 #### Response
-```
+```json
 Body: {
   "category_id": "NMQ",
   "route_id": "NMQBB6"
@@ -150,7 +150,7 @@ Body: {
 }
 ```
 * `score_string` is a raw value with no semantics. Interpretation of this field should be done by the client.
-
+<br>
 
 
 
@@ -158,7 +158,7 @@ Body: {
 * Obtain credential necesary for making other API calls using a facebook access token.
 
 #### Request
-```
+```json
 Body: {
   "accessToken": "CAAE1913yZC2ABAAO6...",
   "isProductionApp": true     // ignored on staging
@@ -166,13 +166,13 @@ Body: {
 ```
 
 #### Response
-```
+```json
 Body: {
   "x-user-id": "A6kvTowyvNz...",
   "x-auth-token": "RCDBy6X3zS8..."
 }
 ```
-
+<br>
 
 
 
@@ -181,7 +181,7 @@ Body: {
 * Used by admin to make sure that the judges are on the right route
 
 #### Request
-```
+```json
 header: {
   "x-user-id": "A6kvTowyvNz...",
   "x-auth-token": "RCDBy6X3zS8..."
@@ -198,7 +198,7 @@ body: {
 * Removal can be enforced by setting `force` to true, which covers the case when judges are substituted from duty
 
 #### Response
-```
+```json
 Body: {
   "admin_id": "A6kvTowyvNz...",
   "admin_name": "Weizhi"
@@ -211,7 +211,7 @@ Body: {
 * `state` 1 if you're successfully set as judge, 0 if you're not the judge
 * `admin_id` and `admin_name` be your's if successful, someone else's if failed.
 * Request will fail when there is already a judge on that route
-
+<br>
 
 
 
@@ -220,7 +220,7 @@ Body: {
 * <b>Not implemented yet</b>
 
 #### Request
-```
+```json
 header: {
   "x-user-id": "A6kvTowyvNz...",
   "x-auth-token": "RCDBy6X3zS8..."
@@ -232,11 +232,11 @@ body: {
 ```
 
 #### Response
-```
+```json
 body: {}
 ```
 * Response is immediate to acknowledge that the server has received it. It does not mean that the admin has acknowledged it.
-
+<br>
 
 
 
@@ -244,7 +244,7 @@ body: {}
 * Insert/remove a climber from ActiveMonitor
 
 #### Request
-```
+```json
 header: {
   "x-user-id": "A6kvTowyvNz...",
   "x-auth-token": "RCDBy6X3zS8..."
@@ -258,10 +258,10 @@ body: {
 ```
 
 #### Response
-```
+```json
 Body: {}
 ```
-
+<br>
 
 
 
@@ -272,7 +272,7 @@ Body: {}
 * A successful score update will remove climber from `ActiveClimber`
 
 #### Request
-```
+```json
 header: {
   "x-user-id": "A6kvTowyvNz...",
   "x-auth-token": "RCDBy6X3zS8..."
@@ -283,7 +283,7 @@ body: {
 ```
 
 #### Response
-```
+```json
 body: {}
 ```
 * Check response code to see if it failed.
