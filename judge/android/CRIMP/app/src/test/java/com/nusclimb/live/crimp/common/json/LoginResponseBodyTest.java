@@ -27,14 +27,12 @@ public class LoginResponseBodyTest {
     @Test
     public void testSerializeAndDeserialize() throws IOException {
         System.out.println("Testing LoginResponseBody serialization and deserialization");
-        ObjectWriter ow = new ObjectMapper().writer();
+        ObjectMapper mapper = new ObjectMapper();
         String serializeForm=null;
-        serializeForm = ow.writeValueAsString(mLoginResponseBody);
+        serializeForm = mapper.writeValueAsString(mLoginResponseBody);
 
-        ObjectReader objReader = new ObjectMapper().reader()
-                .withType(LoginResponseBody.class);
         LoginResponseBody deserializeForm = null;
-        deserializeForm = objReader.readValue(serializeForm);
+        deserializeForm = mapper.readValue(serializeForm, LoginResponseBody.class);
 
         Assert.assertEquals(mLoginResponseBody.getxUserId(), deserializeForm.getxUserId());
         Assert.assertEquals(mLoginResponseBody.getxAuthToken(), deserializeForm.getxAuthToken());

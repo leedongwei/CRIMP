@@ -30,14 +30,11 @@ public class GetScoreResponseBodyTest {
     @Test
     public void testSerializeAndDeserialize() throws IOException {
         System.out.println("Testing GetScoreResponseBody serialization and deserialization");
-        ObjectWriter ow = new ObjectMapper().writer();
+        ObjectMapper mapper = new ObjectMapper();
         String serializeForm=null;
-        serializeForm = ow.writeValueAsString(mGetScoreResponseBody);
-
-        ObjectReader objReader = new ObjectMapper().reader()
-                .withType(GetScoreResponseBody.class);
+        serializeForm = mapper.writeValueAsString(mGetScoreResponseBody);
         GetScoreResponseBody deserializeForm = null;
-        deserializeForm = objReader.readValue(serializeForm);
+        deserializeForm = mapper.readValue(serializeForm, GetScoreResponseBody.class);
 
         Assert.assertEquals(mGetScoreResponseBody.getCategoryId(), deserializeForm.getCategoryId());
         Assert.assertEquals(mGetScoreResponseBody.getRouteId(), deserializeForm.getRouteId());

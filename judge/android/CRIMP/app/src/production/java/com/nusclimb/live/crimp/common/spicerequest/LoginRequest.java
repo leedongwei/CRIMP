@@ -78,21 +78,5 @@ public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponseBody> {
             }
             return prettyString;
         }
-
-        public String getAccessToken() {
-            return accessToken;
-        }
-
-        public void setAccessToken(String accessToken) {
-            this.accessToken = accessToken;
-        }
-
-        public boolean isProductionApp() {
-            return isProductionApp;
-        }
-
-        public void setIsProductionApp(boolean isProductionApp) {
-            this.isProductionApp = isProductionApp;
-        }
     }
 }

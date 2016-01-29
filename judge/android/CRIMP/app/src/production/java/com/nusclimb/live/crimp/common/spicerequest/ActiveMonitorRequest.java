@@ -95,37 +95,5 @@ public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonito
             }
             return prettyString;
         }
-
-        public String getCategoryId() {
-            return categoryId;
-        }
-
-        public void setCategoryId(String categoryId) {
-            this.categoryId = categoryId;
-        }
-
-        public String getRouteId() {
-            return routeId;
-        }
-
-        public void setRouteId(String routeId) {
-            this.routeId = routeId;
-        }
-
-        public String getClimberId() {
-            return climberId;
-        }
-
-        public void setClimberId(String climberId) {
-            this.climberId = climberId;
-        }
-
-        public boolean isInsert() {
-            return insert;
-        }
-
-        public void setInsert(boolean insert) {
-            this.insert = insert;
-        }
     }
 }

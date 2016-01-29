@@ -142,13 +142,5 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
             }
             return prettyString;
         }
-
-        public String getScoreString() {
-            return scoreString;
-        }
-
-        public void setScoreString(String scoreString) {
-            this.scoreString = scoreString;
-        }
     }
 }

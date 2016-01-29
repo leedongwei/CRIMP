@@ -134,14 +134,14 @@
     <orderEntry type="library" exported="" scope="TEST" name="espresso-core-2.2.1" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="runner-0.4.1" level="project" />
     <orderEntry type="library" exported="" name="jackson-core-asl-1.9.13" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="javax.annotation-api-1.2" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="okhttp-3.0.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="javax.annotation-api-1.2" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-23.1.0" level="project" />
     <orderEntry type="library" exported="" name="spring-android-rest-template-1.0.1.RELEASE" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="javax.inject-1" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="rules-0.4.1" level="project" />
-    <orderEntry type="library" exported="" name="robospice-cache-1.4.14" level="project" />
     <orderEntry type="library" exported="" name="robospice-1.4.14" level="project" />
+    <orderEntry type="library" exported="" name="robospice-cache-1.4.14" level="project" />
     <orderEntry type="library" exported="" name="design-23.1.1" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="okhttp-ws-3.0.1" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="javawriter-2.1.1" level="project" />

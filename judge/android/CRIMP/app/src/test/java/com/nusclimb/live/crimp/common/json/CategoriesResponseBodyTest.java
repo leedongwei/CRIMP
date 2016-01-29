@@ -184,14 +184,11 @@ public class CategoriesResponseBodyTest {
     @Test
     public void testSerializeAndDeserialize() throws IOException {
         System.out.println("Testing CategoriesResponseBody serialization and deserialization");
-        ObjectWriter ow = new ObjectMapper().writer();
+        ObjectMapper mapper = new ObjectMapper();
         String serializeForm=null;
-        serializeForm = ow.writeValueAsString(mCategoriesResponseBody);
-
-        ObjectReader objReader = new ObjectMapper().reader()
-                .withType(CategoriesResponseBody.class);
+        serializeForm = mapper.writeValueAsString(mCategoriesResponseBody);
         CategoriesResponseBody deserializeForm = null;
-        deserializeForm = objReader.readValue(serializeForm);
+        deserializeForm = mapper.readValue(serializeForm, CategoriesResponseBody.class);
 
         Assert.assertNotSame(mCategoriesResponseBody, deserializeForm);
         ArrayList<CategoriesResponseBody.Category> cloneCategories =

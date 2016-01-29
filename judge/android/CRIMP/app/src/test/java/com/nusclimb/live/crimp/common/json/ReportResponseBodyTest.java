@@ -31,14 +31,11 @@ public class ReportResponseBodyTest {
     @Test
     public void testSerializeAndDeserialize() throws IOException {
         System.out.println("Testing ReportResponseBody serialization and deserialization");
-        ObjectWriter ow = new ObjectMapper().writer();
+        ObjectMapper mapper = new ObjectMapper();
         String serializeForm=null;
-        serializeForm = ow.writeValueAsString(mReportResponseBody);
-
-        ObjectReader objReader = new ObjectMapper().reader()
-                .withType(ReportResponseBody.class);
+        serializeForm = mapper.writeValueAsString(mReportResponseBody);
         ReportResponseBody deserializeForm = null;
-        deserializeForm = objReader.readValue(serializeForm);
+        deserializeForm = mapper.readValue(serializeForm, ReportResponseBody.class);
 
         Assert.assertEquals(mReportResponseBody.getAdminId(), deserializeForm.getAdminId());
         Assert.assertEquals(mReportResponseBody.getAdminName(), deserializeForm.getAdminName());

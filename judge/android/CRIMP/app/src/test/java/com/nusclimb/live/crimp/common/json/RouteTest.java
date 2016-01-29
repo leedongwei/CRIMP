@@ -40,14 +40,12 @@ public class RouteTest {
     @Test
     public void testSerializeAndDeserialize() throws IOException {
         System.out.println("Testing Route serialization and deserialization");
-        ObjectWriter ow = new ObjectMapper().writer();
+        ObjectMapper mapper = new ObjectMapper();
         String serializeForm=null;
-        serializeForm = ow.writeValueAsString(mRoute);
-
-        ObjectReader objReader = new ObjectMapper().reader()
-                .withType(CategoriesResponseBody.Category.Route.class);
+        serializeForm = mapper.writeValueAsString(mRoute);
         CategoriesResponseBody.Category.Route deserializeForm = null;
-        deserializeForm = objReader.readValue(serializeForm);
+        deserializeForm = mapper.readValue(serializeForm,
+                CategoriesResponseBody.Category.Route.class);
 
         Assert.assertEquals(mRoute.getRouteId(), deserializeForm.getRouteId());
         Assert.assertEquals(mRoute.getRouteName(), deserializeForm.getRouteName());

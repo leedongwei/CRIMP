@@ -85,21 +85,5 @@ public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponseBody>
             }
             return prettyString;
         }
-
-        public String getCategoryId() {
-            return categoryId;
-        }
-
-        public void setCategoryId(String categoryId) {
-            this.categoryId = categoryId;
-        }
-
-        public String getRouteId() {
-            return routeId;
-        }
-
-        public void setRouteId(String routeId) {
-            this.routeId = routeId;
-        }
     }
 }

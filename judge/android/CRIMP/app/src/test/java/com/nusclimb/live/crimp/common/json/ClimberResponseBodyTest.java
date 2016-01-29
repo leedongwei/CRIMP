@@ -29,14 +29,11 @@ public class ClimberResponseBodyTest {
     @Test
     public void testSerializeAndDeserialize() throws IOException {
         System.out.println("Testing ClimberResponseBody serialization and deserialization");
-        ObjectWriter ow = new ObjectMapper().writer();
+        ObjectMapper mapper = new ObjectMapper();
         String serializeForm=null;
-        serializeForm = ow.writeValueAsString(mClimberResponseBody);
-
-        ObjectReader objReader = new ObjectMapper().reader()
-                .withType(ClimberResponseBody.class);
+        serializeForm = mapper.writeValueAsString(mClimberResponseBody);
         ClimberResponseBody deserializeForm = null;
-        deserializeForm = objReader.readValue(serializeForm);
+        deserializeForm = mapper.readValue(serializeForm, ClimberResponseBody.class);
 
         Assert.assertEquals(mClimberResponseBody.getClimberId(), deserializeForm.getClimberId());
         Assert.assertEquals(mClimberResponseBody.getClimberName(), deserializeForm.getClimberName());

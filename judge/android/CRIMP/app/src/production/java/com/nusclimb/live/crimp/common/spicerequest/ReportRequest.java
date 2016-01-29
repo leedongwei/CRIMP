@@ -90,29 +90,5 @@ public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>
             }
             return prettyString;
         }
-
-        public boolean isForce() {
-            return force;
-        }
-
-        public void setForce(boolean force) {
-            this.force = force;
-        }
-
-        public String getCategoryId() {
-            return categoryId;
-        }
-
-        public void setCategoryId(String categoryId) {
-            this.categoryId = categoryId;
-        }
-
-        public String getRouteId() {
-            return routeId;
-        }
-
-        public void setRouteId(String routeId) {
-            this.routeId = routeId;
-        }
     }
 }

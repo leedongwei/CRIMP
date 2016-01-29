@@ -87,14 +87,11 @@ public class CategoryTest {
     @Test
     public void testSerializeAndDeserialize() throws IOException {
         System.out.println("Testing Category serialization and deserialization");
-        ObjectWriter ow = new ObjectMapper().writer();
+        ObjectMapper mapper = new ObjectMapper();
         String serializeForm=null;
-        serializeForm = ow.writeValueAsString(mCategory);
-
-        ObjectReader objReader = new ObjectMapper().reader()
-                .withType(CategoriesResponseBody.Category.class);
+        serializeForm = mapper.writeValueAsString(mCategory);
         CategoriesResponseBody.Category deserializeForm = null;
-        deserializeForm = objReader.readValue(serializeForm);
+        deserializeForm = mapper.readValue(serializeForm, CategoriesResponseBody.Category.class);
 
         Assert.assertNotSame(mCategory, deserializeForm);
         Assert.assertEquals(mCategory.getCategoryName(), deserializeForm.getCategoryName());
