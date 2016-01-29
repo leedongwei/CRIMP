@@ -111,7 +111,7 @@ Body: {
 ```json
 header: {
   "x-user-id": "A6kvTowyvNz...",
-  "x-auth-token": "RCDBy6X3zS8..."'
+  "x-auth-token": "RCDBy6X3zS8..."
 }
 ```
 
@@ -143,7 +143,7 @@ header: {
 ```json
 Body: {
   "category_id": "NMQ",
-  "route_id": "NMQBB6"
+  "route_id": "NMQBB6",
   "climber_id": "NMQ001",
   "climber_name": "DongWei",
   "score_string": "11B11"
@@ -161,9 +161,10 @@ Body: {
 ```json
 Body: {
   "accessToken": "CAAE1913yZC2ABAAO6...",
-  "isProductionApp": true     // ignored on staging
+  "isProductionApp": true
 }
 ```
+* `isProductionApp` is ignored on staging.
 
 #### Response
 ```json
@@ -201,9 +202,9 @@ body: {
 ```json
 Body: {
   "admin_id": "A6kvTowyvNz...",
-  "admin_name": "Weizhi"
-  "category_id": "NWQ"
-  "route_id": "NWQRO1"
+  "admin_name": "Weizhi",
+  "category_id": "NWQ",
+  "route_id": "NWQRO1",
   "state": 1
 }
 ```
@@ -226,7 +227,7 @@ header: {
   "x-auth-token": "RCDBy6X3zS8..."
 }
 body: {
-  "category_id": "NWQ"
+  "category_id": "NWQ",
   "route_id": "NWQRO1"
 }
 ```
@@ -252,10 +253,12 @@ header: {
 body: {
   "category_id": "NMQ",
   "route_id": "NMQRO1",
-  "climber_id": "NMQ009",     // not needed for removal
-  "insert": true              // true => insert, false => remove
+  "climber_id": "NMQ009",     
+  "insert": true              
 }
 ```
+* `climber_id` is not needed for removal.
+* `insert` if true then insert else remove.
 
 #### Response
 ```json
@@ -278,7 +281,7 @@ header: {
   "x-auth-token": "RCDBy6X3zS8..."
 }
 body: {
-  "score_string": "11T"    // Important! See note below.
+  "score_string": "11T"    
 }
 ```
 
