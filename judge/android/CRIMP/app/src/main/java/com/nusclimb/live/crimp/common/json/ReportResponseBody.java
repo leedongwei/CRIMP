@@ -1,6 +1,10 @@
 package com.nusclimb.live.crimp.common.json;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
+
+import java.io.IOException;
 
 /**
  * Response body for POST '/api/judge/report'
@@ -21,16 +25,14 @@ public class ReportResponseBody {
 
     @Override
     public String toString(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\n");
-        sb.append("\tadmin_id: "+adminId+",\n");
-        sb.append("\tadmin_name: "+adminName+",\n");
-        sb.append("\tcategory_id: "+categoryId+",\n");
-        sb.append("\troute_id: "+routeId+",\n");
-        sb.append("\tstate: "+state+"\n");
-        sb.append("}");
-
-        return sb.toString();
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String prettyString = null;
+        try {
+            prettyString = ow.writeValueAsString(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return prettyString;
     }
 
     public int getState() {

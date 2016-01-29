@@ -296,7 +296,8 @@ public class LoginActivity extends Activity {
                         +" TOKEN="+AccessToken.getCurrentAccessToken().getToken());
                 mUser.setFacebookAccessToken(AccessToken.getCurrentAccessToken().getToken());
                 mUser.setUserName(Profile.getCurrentProfile().getName());
-                LoginRequest mLoginRequest = new LoginRequest(mUser.getFacebookAccessToken(), this);
+                String url = getString(R.string.crimp_base_url)+getString(R.string.login_api);
+                LoginRequest mLoginRequest = new LoginRequest(mUser.getFacebookAccessToken(), url);
                 spiceManager.execute(mLoginRequest, new LoginRequestListener());
                 break;
             case VERIFIED_OK:

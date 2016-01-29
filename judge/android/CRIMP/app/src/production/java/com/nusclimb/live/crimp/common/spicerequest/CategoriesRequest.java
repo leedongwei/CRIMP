@@ -23,18 +23,15 @@ import java.util.ArrayList;
 public class CategoriesRequest extends SpringAndroidSpiceRequest<CategoriesResponseBody> {
     private static final String TAG = CategoriesRequest.class.getSimpleName();
 
-    private Context context;
     private String xUserId;
     private String xAuthToken;
     private String url;
 
-    public CategoriesRequest(String xUserId, String xAuthToken, Context context) {
+    public CategoriesRequest(String xUserId, String xAuthToken, String url) {
         super(CategoriesResponseBody.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
-        this.context = context;
-
-        this.url = context.getString(R.string.crimp_base_url)+context.getString(R.string.categories_api);
+        this.url = url;
     }
 
     @Override

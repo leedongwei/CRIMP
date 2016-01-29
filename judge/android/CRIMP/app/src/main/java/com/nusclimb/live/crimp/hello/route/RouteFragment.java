@@ -450,13 +450,18 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
         String selectedRouteId;
         User userFromActivity;
 
+        String categoriesUrl = getString(R.string.crimp_base_url) +
+                getString(R.string.categories_api);
+        String reportUrl = getString(R.string.crimp_base_url) +
+                getString(R.string.report_api);
+
         switch (mState){
             case START:
                 categorySpinnerIndex = 0;
                 routeSpinnerIndex = 0;
                 mToActivityMethod.onSpinnerSelectionChange();
                 CategoriesRequest mCategoriesRequest = new CategoriesRequest(mToActivityMethod.getUser().getUserId(),
-                        mToActivityMethod.getUser().getAuthToken(), getActivity());
+                        mToActivityMethod.getUser().getAuthToken(), categoriesUrl);
                 spiceManager.execute(mCategoriesRequest, new CategoriesRequestListener());
                 break;
             case CATEGORY_FAIL:
@@ -470,7 +475,7 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
                 userFromActivity = mToActivityMethod.getUser();
                 ReportRequest mReportRequest1 = new ReportRequest(userFromActivity.getUserId(),
                         userFromActivity.getAuthToken(), selectedCategoryId, selectedRouteId,
-                        false, getActivity());
+                        false, reportUrl);
                 spiceManager.execute(mReportRequest1, new ReportRequestListener());
                 break;
             case VERIFY_1_NOT_OK:
@@ -484,7 +489,7 @@ public class RouteFragment extends HelloActivityFragment implements SwipeRefresh
                 userFromActivity = mToActivityMethod.getUser();
                 ReportRequest mReportRequest2 = new ReportRequest(userFromActivity.getUserId(),
                         userFromActivity.getAuthToken(), selectedCategoryId, selectedRouteId,
-                        true, getActivity());
+                        true, reportUrl);
                 spiceManager.execute(mReportRequest2, new ReportRequestListener());
                 break;
             case VERIFYING_2_FAIL:

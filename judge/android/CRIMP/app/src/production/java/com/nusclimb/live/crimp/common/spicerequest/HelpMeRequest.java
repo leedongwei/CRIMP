@@ -7,12 +7,16 @@ import com.nusclimb.live.crimp.common.json.HelpMeResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
 
 /**
  * Spice request for POST '/api/judge/helpme'
@@ -22,7 +26,6 @@ import org.springframework.web.client.RestTemplate;
 public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponseBody>{
     private static final String TAG = HelpMeRequest.class.getSimpleName();
 
-    private Context context;
     private String xUserId;
     private String xAuthToken;
     private String categoryId;
@@ -30,15 +33,13 @@ public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponseBody>
     private String url;
 
     public HelpMeRequest(String xUserId, String xAuthToken, String categoryId,
-                         String routeId, Context context) {
+                         String routeId, String url) {
         super(HelpMeResponseBody.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
         this.categoryId = categoryId;
         this.routeId = routeId;
-        this.context = context;
-
-        this.url = context.getString(R.string.crimp_base_url)+context.getString(R.string.helpme_api);
+        this.url = url;
     }
 
     @Override
@@ -75,13 +76,14 @@ public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponseBody>
 
         @Override
         public String toString(){
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\n");
-            sb.append("\tcategory_id: "+categoryId+",\n");
-            sb.append("\troute_id: "+routeId+"\n");
-            sb.append("}");
-
-            return sb.toString();
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String prettyString = null;
+            try {
+                prettyString = ow.writeValueAsString(this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return prettyString;
         }
 
         public String getCategoryId() {

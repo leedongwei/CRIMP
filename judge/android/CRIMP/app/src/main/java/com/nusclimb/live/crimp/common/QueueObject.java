@@ -2,6 +2,7 @@ package com.nusclimb.live.crimp.common;
 
 import android.content.Context;
 
+import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.spicerequest.PostScoreRequest;
 import com.nusclimb.live.crimp.uploadlist.UploadStatus;
 
@@ -24,8 +25,10 @@ public class QueueObject {
         this.status = UploadStatus.PAUSED;
 
         // Score request
+        String url = String.format("%s%s%s/%s%s",context.getString(R.string.crimp_base_url),
+                context.getString(R.string.post_score_api), categoryId, routeId, climberId);
         this.request = new PostScoreRequest(xUserId, xAuthToken, categoryId,
-                routeId, climberId, currentScore, context);
+                routeId, climberId, currentScore, url);
     }
 
     public PostScoreRequest getRequest(){

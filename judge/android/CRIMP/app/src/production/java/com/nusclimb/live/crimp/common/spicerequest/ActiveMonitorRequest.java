@@ -7,12 +7,16 @@ import com.nusclimb.live.crimp.common.json.ActiveMonitorResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
 
 /**
  * Spice request for POST '/api/judge/activemonitor'
@@ -22,7 +26,6 @@ import org.springframework.web.client.RestTemplate;
 public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonitorResponseBody> {
     private static final String TAG = ActiveMonitorRequest.class.getSimpleName();
 
-    private Context context;
     private String xUserId;
     private String xAuthToken;
     private String categoryId;
@@ -32,7 +35,7 @@ public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonito
     private String url;
 
     public ActiveMonitorRequest(String xUserId, String xAuthToken, String categoryId,
-                                String routeId, String climberId, boolean insert, Context context) {
+                                String routeId, String climberId, boolean insert, String url) {
         super(ActiveMonitorResponseBody.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
@@ -40,9 +43,7 @@ public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonito
         this.routeId = routeId;
         this.climberId = climberId;
         this.insert = insert;
-        this.context = context;
-
-        this.url = context.getString(R.string.crimp_base_url)+context.getString(R.string.activemonitor_api);
+        this.url = url;
     }
 
     @Override
@@ -85,15 +86,14 @@ public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonito
 
         @Override
         public String toString(){
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\n");
-            sb.append("\tcategory_id: "+categoryId+",\n");
-            sb.append("\troute_id: "+routeId+",\n");
-            sb.append("\tclimber_id: "+climberId+",\n");
-            sb.append("\tinsert: "+insert+"\n");
-            sb.append("}");
-
-            return sb.toString();
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String prettyString = null;
+            try {
+                prettyString = ow.writeValueAsString(this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return prettyString;
         }
 
         public String getCategoryId() {

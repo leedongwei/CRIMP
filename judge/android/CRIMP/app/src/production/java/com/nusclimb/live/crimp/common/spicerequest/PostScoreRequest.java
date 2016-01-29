@@ -7,12 +7,16 @@ import com.nusclimb.live.crimp.common.json.PostScoreResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
 
 /**
  * Spice request for POST '/api/judge/score/:category_id/:route_id/:climber_id'
@@ -22,7 +26,6 @@ import org.springframework.web.client.RestTemplate;
 public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreResponseBody> {
     private static final String TAG = PostScoreRequest.class.getSimpleName();
 
-    private Context context;
     private String xUserId;
     private String xAuthToken;
     private String categoryId;
@@ -32,7 +35,7 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
     private String url;
 
     public PostScoreRequest(String xUserId, String xAuthToken, String categoryId,
-                            String routeId, String climberId, String scoreString, Context context) {
+                            String routeId, String climberId, String scoreString, String url) {
         super(PostScoreResponseBody.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
@@ -40,9 +43,7 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
         this.routeId = routeId;
         this.climberId = climberId;
         this.scoreString = scoreString;
-        this.context = context;
-        this.url = context.getString(R.string.crimp_base_url) + context.getString(R.string.post_score_api)
-                + categoryId + "/" + routeId + "/" + climberId;
+        this.url = url;
     }
 
     @Override
@@ -132,12 +133,14 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
 
         @Override
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\n");
-            sb.append("\tscore_string: " + scoreString + "\n");
-            sb.append("}");
-
-            return sb.toString();
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String prettyString = null;
+            try {
+                prettyString = ow.writeValueAsString(this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return prettyString;
         }
 
         public String getScoreString() {

@@ -505,8 +505,10 @@ public class HelloActivity extends AppCompatActivity implements RouteFragment.Ro
                         "A ticket has been sent to the admins. Please wait for assistance.",
                         Toast.LENGTH_SHORT);
                 toast.show();
+                String url = getString(R.string.crimp_base_url)+getString(R.string.helpme_api);
                 HelpMeRequest mHelpMeRequest = new HelpMeRequest(getmUser().getUserId(),
-                        getmUser().getAuthToken(), getmUser().getCategoryId(), getmUser().getRouteId(), this);
+                        getmUser().getAuthToken(), getmUser().getCategoryId(),
+                        getmUser().getRouteId(), url);
                 spiceManager.execute(mHelpMeRequest, new HelpMeRequestListener());
                 return true;
             case R.id.action_logout:

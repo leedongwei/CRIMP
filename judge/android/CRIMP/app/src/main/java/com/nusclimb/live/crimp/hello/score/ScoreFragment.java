@@ -173,9 +173,10 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
         User userFromActivity = mToActivityMethod.getUser();
         Climber climberFromActivity = mToActivityMethod.getClimber();
         String climberIdFromActivity = climberFromActivity.getClimberId();
+        String url = getString(R.string.crimp_base_url) + getString(R.string.activemonitor_api);
         ActiveMonitorRequest mActiveMonitorRequest = new ActiveMonitorRequest(userFromActivity.getUserId(),
                 userFromActivity.getAuthToken(), userFromActivity.getCategoryId(), userFromActivity.getRouteId(),
-                climberIdFromActivity, true, getActivity());
+                climberIdFromActivity, true, url);
         spiceManager.execute(mActiveMonitorRequest, new ActiveMonitorRequestListener());
         changeState(mState);
     }
@@ -268,9 +269,14 @@ public class ScoreFragment extends HelloActivityFragment implements ScoringModul
         switch (mState){
             case QUERYING:
                 //Send query request
-                GetScoreRequest mGetScoreRequest = new GetScoreRequest(mToActivityMethod.getUser().getUserId(),
-                        mToActivityMethod.getUser().getAuthToken(), mToActivityMethod.getUser().getCategoryId(), mToActivityMethod.getUser().getRouteId(),
-                        mToActivityMethod.getClimber().getClimberId(), getActivity());
+                String url = String.format("%s%s%s/%s/%s", getString(R.string.crimp_base_url),
+                        getString(R.string.get_score_api),
+                        mToActivityMethod.getUser().getCategoryId(),
+                        mToActivityMethod.getUser().getRouteId(),
+                        mToActivityMethod.getClimber().getClimberId());
+                GetScoreRequest mGetScoreRequest = new GetScoreRequest(
+                        mToActivityMethod.getUser().getUserId(),
+                        mToActivityMethod.getUser().getAuthToken(), url);
                 spiceManager.execute(mGetScoreRequest, new GetScoreRequestListener());
                 break;
             case NOT_QUERYING:

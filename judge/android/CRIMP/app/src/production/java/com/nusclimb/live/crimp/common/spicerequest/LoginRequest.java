@@ -7,12 +7,16 @@ import com.nusclimb.live.crimp.common.json.LoginResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
 
 /**
  * Spice request for POST '/api/judge/login'
@@ -22,16 +26,15 @@ import org.springframework.web.client.RestTemplate;
 public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponseBody> {
     private static final String TAG = LoginRequest.class.getSimpleName();
 
-    private Context context;
     private String accessToken;
-    private boolean isProductionApp;
+    // TODO: this field is present in the api doc. Talk to dw to ask him to remove this.
+    private boolean isProductionApp = true;
     private String url;
 
-    public LoginRequest(String accessToken, Context context) {
+    public LoginRequest(String accessToken, String url) {
         super(LoginResponseBody.class);
-        this.context = context;
         this.accessToken = accessToken;
-        this.url = context.getString(R.string.crimp_base_url)+context.getString(R.string.login_api);
+        this.url = url;
     }
 
     @Override
@@ -66,13 +69,14 @@ public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponseBody> {
 
         @Override
         public String toString(){
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\n");
-            sb.append("\taccessToken: "+accessToken+",\n");
-            sb.append("\tisProductionApp: "+isProductionApp+"\n");
-            sb.append("}");
-
-            return sb.toString();
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String prettyString = null;
+            try {
+                prettyString = ow.writeValueAsString(this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return prettyString;
         }
 
         public String getAccessToken() {

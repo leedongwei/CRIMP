@@ -1,6 +1,10 @@
 package com.nusclimb.live.crimp.common.json;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
+
+import java.io.IOException;
 
 /**
  * Response body for GET '/api/judge/score/:category_id/:route_id/:climber_id'
@@ -21,16 +25,14 @@ public class GetScoreResponseBody {
 
     @Override
     public String toString(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\n");
-        sb.append("\tcategory_id: "+categoryId+",\n");
-        sb.append("\troute_id: "+routeId+",\n");
-        sb.append("\tclimber_id: "+climberId+",\n");
-        sb.append("\tclimber_name: "+climberName+",\n");
-        sb.append("\tscore_string: "+scoreString+"\n");
-        sb.append("}");
-
-        return sb.toString();
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String prettyString = null;
+        try {
+            prettyString = ow.writeValueAsString(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return prettyString;
     }
 
     public String getCategoryId() {

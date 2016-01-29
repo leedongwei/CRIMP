@@ -21,25 +21,15 @@ import org.springframework.web.client.RestTemplate;
 public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreResponseBody> {
     private static final String TAG = GetScoreRequest.class.getSimpleName();
 
-    private Context context;
     private String xUserId;
     private String xAuthToken;
-    private String categoryId;
-    private String routeId;
-    private String climberId;
     private String url;
 
-    public GetScoreRequest(String xUserId, String xAuthToken, String categoryId, String routeId,
-                           String climberId, Context context) {
+    public GetScoreRequest(String xUserId, String xAuthToken, String url) {
         super(GetScoreResponseBody.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
-        this.categoryId = categoryId;
-        this.routeId = routeId;
-        this.climberId = climberId;
-        this.context = context;
-        this.url = context.getString(R.string.crimp_base_url) + context.getString(R.string.get_score_api)
-                +categoryId+"/"+routeId+"/"+climberId;
+        this.url = url;
     }
 
     @Override

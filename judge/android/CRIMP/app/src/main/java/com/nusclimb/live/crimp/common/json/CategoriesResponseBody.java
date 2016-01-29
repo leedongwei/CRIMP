@@ -3,7 +3,10 @@ package com.nusclimb.live.crimp.common.json;
 import android.support.annotation.NonNull;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -52,31 +55,14 @@ public class CategoriesResponseBody{
 
     @Override
     public String toString(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\n");
-        sb.append("\tcategories: [\n");
-
-        if(categories!=null) {
-            if (categories.size() <= 1) {
-                for (Category c : categories) {
-                    sb.append("\t" + c.toString());
-                }
-            } else {
-                sb.append("\t" + categories.get(0).toString());
-
-                for (int i = 1; i < categories.size(); i++) {
-                    sb.append(",\n");
-                    sb.append("\t" + categories.get(i).toString());
-                }
-            }
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String prettyString = null;
+        try {
+            prettyString = ow.writeValueAsString(this);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        else{
-            sb.append("null");
-        }
-        sb.append("\t]\n");
-        sb.append("}");
-
-        return sb.toString();
+        return prettyString;
     }
 
     public ArrayList<Category> getCategories() {
@@ -142,34 +128,14 @@ public class CategoriesResponseBody{
         }
 
         public String toString(){
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\n");
-            sb.append("\tcategory_name: '"+categoryName+"',\n");
-            sb.append("\tcategory_id: '"+categoryId+"',\n");
-            sb.append("\tscores_finalized: "+scoresFinalized+",\n");
-            sb.append("\ttime_start: "+timeStart+",\n");
-            sb.append("\ttime_end: "+timeEnd+",\n");
-            sb.append("\troutes: [\n");
-            if(routes!=null) {
-                if (routes.size() <= 1) {
-                    for (Route r : routes) {
-                        sb.append(r.toString());
-                    }
-                } else {
-                    sb.append(routes.get(0).toString());
-                    for (int i = 1; i < routes.size(); i++) {
-                        sb.append(",\n");
-                        sb.append(routes.get(i).toString());
-                    }
-                }
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String prettyString = null;
+            try {
+                prettyString = ow.writeValueAsString(this);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            else{
-                sb.append("null");
-            }
-            sb.append("\t]\n");
-            sb.append("}");
-
-            return sb.toString();
+            return prettyString;
         }
 
         public String getCategoryName() {
@@ -249,14 +215,14 @@ public class CategoriesResponseBody{
 
             @Override
             public String toString(){
-                StringBuilder sb = new StringBuilder();
-                sb.append("{\n");
-                sb.append("\troute_id: "+routeId+",\n");
-                sb.append("\troute_name: "+routeName+",\n");
-                sb.append("\tscore: "+score+"\n");
-                sb.append("}");
-
-                return sb.toString();
+                ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+                String prettyString = null;
+                try {
+                    prettyString = ow.writeValueAsString(this);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return prettyString;
             }
 
             public String getRouteId() {

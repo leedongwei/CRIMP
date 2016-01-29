@@ -7,12 +7,16 @@ import com.nusclimb.live.crimp.common.json.ReportResponseBody;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
 
 /**
  * Spice request for POST '/api/judge/report'
@@ -22,7 +26,6 @@ import org.springframework.web.client.RestTemplate;
 public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>{
     private static final String TAG = ReportRequest.class.getSimpleName();
 
-    private Context context;
     private String xUserId;
     private String xAuthToken;
     private String categoryId;
@@ -31,15 +34,14 @@ public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>
     private String url;
 
     public ReportRequest(String xUserId, String xAuthToken, String categoryId,
-                         String routeId, boolean force, Context context) {
+                         String routeId, boolean force, String url) {
         super(ReportResponseBody.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
         this.categoryId = categoryId;
         this.routeId = routeId;
         this.force = force;
-        this.context = context;
-        this.url = context.getString(R.string.crimp_base_url)+context.getString(R.string.report_api);
+        this.url = url;
     }
 
     @Override
@@ -79,14 +81,14 @@ public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>
 
         @Override
         public String toString(){
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\n");
-            sb.append("\tcategory_id: "+categoryId+",\n");
-            sb.append("\troute_id: "+routeId+",\n");
-            sb.append("\tforce: "+force+"\n");
-            sb.append("}");
-
-            return sb.toString();
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String prettyString = null;
+            try {
+                prettyString = ow.writeValueAsString(this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return prettyString;
         }
 
         public boolean isForce() {
