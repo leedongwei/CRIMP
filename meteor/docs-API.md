@@ -3,7 +3,7 @@
 * Exposes a HTTP, REST API for the judges' mobile app
 * When there is an error processing the request, the server will reply with the appropriate HTTP response code (i.e. 4xx, 5xx).
 
-<br>
+<br><br><br>
 
 ## Terminology
 * `category_id` is a unique identifier for category and consist of three alphanumeric characters in uppercase (e.g. `NMF`, `IA3`). A category can be associated with multiple routes.
@@ -12,7 +12,7 @@
 * `accessToken` is the access token issued by facebook upon login.
 * `x-user-id` is an id given by CRIMP server.
 * `x-auth-token` is an authentication token given by CRIMP server.
-<br>
+<br><br><br>
 
 
 
@@ -25,7 +25,7 @@
 * [POST '/api/judge/helpme'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#post-apijudgehelpme)
 * [POST '/api/judge/activemonitor'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#post-apijudgeactivemonitor)
 * [POST '/api/judge/score/:category_id/:route_id/:climber_id'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#post-apijudgescorecategory_idroute_idclimber_id)
-<br>
+<br><br><br>
 
 
 
@@ -99,7 +99,7 @@ Body: {
 }
 ```
 * `score`, `scores_finalized`, `time_start` and `time_end` are for features that are yet to be implemented. Client should expect these fields to be present during API calls but should not use them for any meaningful operations.
-<br>
+<br><br><br>
 
 
 
@@ -124,7 +124,7 @@ Body: {
 }
 ```
 * `total_score` is for features that are yet to be implemented. Client should expect this field to be present during API calls but should not use is for any meaningful operations.
-<br>
+<br><br><br>
 
 
 
@@ -150,7 +150,7 @@ Body: {
 }
 ```
 * `score_string` is a raw value with no semantics. Interpretation of this field should be done by the client.
-<br>
+<br><br><br>
 
 
 
@@ -173,7 +173,7 @@ Body: {
   "x-auth-token": "RCDBy6X3zS8..."
 }
 ```
-<br>
+<br><br><br>
 
 
 
@@ -212,7 +212,7 @@ Body: {
 * `state` 1 if you're successfully set as judge, 0 if you're not the judge
 * `admin_id` and `admin_name` be your's if successful, someone else's if failed.
 * Request will fail when there is already a judge on that route
-<br>
+<br><br><br>
 
 
 
@@ -237,7 +237,7 @@ body: {
 body: {}
 ```
 * Response is immediate to acknowledge that the server has received it. It does not mean that the admin has acknowledged it.
-<br>
+<br><br><br>
 
 
 
@@ -264,7 +264,7 @@ body: {
 ```json
 Body: {}
 ```
-<br>
+<br><br><br>
 
 
 
