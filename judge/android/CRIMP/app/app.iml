@@ -140,8 +140,8 @@
     <orderEntry type="library" exported="" name="spring-android-rest-template-1.0.1.RELEASE" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="javax.inject-1" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="rules-0.4.1" level="project" />
-    <orderEntry type="library" exported="" name="robospice-1.4.14" level="project" />
     <orderEntry type="library" exported="" name="robospice-cache-1.4.14" level="project" />
+    <orderEntry type="library" exported="" name="robospice-1.4.14" level="project" />
     <orderEntry type="library" exported="" name="design-23.1.1" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="okhttp-ws-3.0.1" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="javawriter-2.1.1" level="project" />

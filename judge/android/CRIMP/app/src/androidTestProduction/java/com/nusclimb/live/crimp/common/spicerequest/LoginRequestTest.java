@@ -84,6 +84,39 @@ public class LoginRequestTest {
         server.shutdown();
     }
 
+    @Test
+    public void testWrongResponse() throws Exception {
+        // TODO: i am deliberating putting this syntax error here. I tried to do something but
+        // was interrupted. this method need to do something.
+        qwert;
+        // Prepare server
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setBody(serverResponseString)
+                .setHeader("Content-Type", "application/json; charset=utf-8"));
+        server.start();
+        HttpUrl baseUrl = server.url("/api/judge/login");
+
+        JacksonSpringAndroidSpiceService mService = new JacksonSpringAndroidSpiceService();
+        LoginRequest mRequest = new LoginRequest("accessToken", baseUrl.toString());
+        mRequest.setRestTemplate(mService.createRestTemplate());
+        LoginResponseBody actualResponse = mRequest.loadDataFromNetwork();
+
+        // Check what we received if deserialized properly into LoginResponseBody.
+        assertThat(actualResponse.getxUserId(), is(equalTo(serverResponseObject.getxUserId())));
+        assertThat(actualResponse.getxAuthToken(), is(equalTo(serverResponseObject.getxAuthToken())));
+
+        // Check what we send to server is correct.
+        RecordedRequest request = server.takeRequest();
+        ObjectMapper mapper = new ObjectMapper();
+        RequestBody requestBody = mapper.readValue(request.getBody().readUtf8(), RequestBody.class);
+        assertThat(request.getMethod(), is(equalTo("POST")));
+        assertThat(requestBody.accessToken, is(equalTo("accessToken")));
+        assertThat(requestBody.isProductionApp, is(equalTo(true)));
+        assertThat(requestBody.map.size(), is(equalTo(0)));
+
+        server.shutdown();
+    }
+
     private static class RequestBody{
         public HashMap<String, Object> map = new HashMap<>();
         @JsonProperty("accessToken")
