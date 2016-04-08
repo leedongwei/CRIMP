@@ -335,8 +335,8 @@ body: {
 #### Response
 ```json
 Body: {
-  "climber_id": 79
-  "climber_name": "Dongie"
+  "climber_id": 79,
+  "climber_name": "Dongie",
   "active_route": 14
 }
 ```
