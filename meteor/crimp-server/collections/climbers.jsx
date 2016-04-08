@@ -74,19 +74,19 @@ CRIMP.schema.climber = new SimpleSchema({
 Climbers.attachSchema(CRIMP.schema.climber);
 
 Meteor.methods({
-  addClimber: function(data) {
-    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
-      throw new Meteor.Error(403, "Access denied");
-    }
+  addClimber(data) {
+    CRIMP.checkPermission(CRIMP.roles.trusted);
+    check(data, Object);
 
-    var scores = {},
-        routeCount = Categories
-                      .find({'category_id': data.category_id})
-                      .fetch()[0].route_count;
+    var scores = {};
+    var routeCount = Categories
+                      .findOne({ 'category_id': data.category_id })
+                      .route_count;
     data.climber_id = data.category_id + data.number;
 
+
     if (!routeCount) {
-      return console.error('Could not find category ' + data.category_id);
+      return console.error(`Could not find category ${data.category_id}`);
     }
 
     // Step 1: Create the X number of scoring documents associated with
@@ -101,11 +101,11 @@ Meteor.methods({
         score_string: '',
         score_top: 0,
         score_bonus: 0
-      }
+      };
 
       scores[i] = Scores.insert(scoreDocument,
                     { removeEmptyStrings: false, autoConvert: false },
-                    function(error, result) {
+                    (error, result) => {
         if (error)  throw error;
       });
 
@@ -122,25 +122,14 @@ Meteor.methods({
 
   },
 
-  findClimber: function(data) {
-    return Climbers.find(data).fetch();
-  },
 
-  updateClimber: function(data) {
-    if (!Roles.userIsInRole(Meteor.user(), CRIMP.roles.trusted)) {
-      throw new Meteor.Error(403, "Access denied");
-    }
+  /**
+   *  Delete a climber and all associated scoring documents
+   *
+   *  @param
+   *    {string} climberId - climber_id of a climber
+   */
+  deleteClimber(climberId) {
 
-    return Climbers.update(selector, modifier, function(error, updatedCount) {
-      if (error)  throw error;
-    });
-  },
-
-  deleteClimber: function(data) {
-    // Climbers.remove(data, function(error, removedCount) {
-    //   if (error)  throw error;
-    // });
-
-    // TODO: Delete score documents when deleting climber
   }
 });

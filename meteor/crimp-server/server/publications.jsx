@@ -29,9 +29,11 @@ Meteor.publish('getCategories', () => {
 
 /**
  *  @param
- *    {string} category - category_id of any category
+ *    {object} category - contains only category_id
  */
 Meteor.publish('getClimbers', (category) => {
+  check(category, Object)
+
   if (category) {
     return Climbers.find(category, {
       fields: {
@@ -45,9 +47,11 @@ Meteor.publish('getClimbers', (category) => {
 
 /**
  *  @param
- *    {string} category - category_id of any category
+ *    {object} category - contains only category_id
  */
 Meteor.publish('getScores', (category) => {
+  check(category, Object)
+
   if (category) {
     return Scores.find(category, {
       fields: {
@@ -69,7 +73,9 @@ Meteor.publish('getScores', (category) => {
  *  Admin-exclusive publications
  *
  *  Note: Do not use ES6 arrow functions for publications which require the
- *  use of this.userId to get user identity.
+ *  use of this.userId to get user identity. In addition, we are not using
+ *  CRIMP.checkPermission for this as I do not want to throw an error for bad
+ *  subscriptions.
  *
  *  Refer to https://github.com/babel/babel/issues/730
  */
@@ -106,9 +112,11 @@ Meteor.publish('adminAllUsers', function() {
  *  data from the Score document
  *
  *  @param
- *    {string} category - category_id of any category
+ *    {object} category - contains only category_id
  */
 Meteor.publish('adminScores', function(category) {
+  check(category, Object)
+
   if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted) &&
       category) {
     return Scores.find(category);
@@ -120,6 +128,14 @@ Meteor.publish('adminScores', function(category) {
 Meteor.publish('adminRecentScores', function() {
   if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
     return RecentScores.find({});
+  }
+
+  return;
+});
+
+Meteor.publish('adminHelpMe', function() {
+  if (Roles.userIsInRole(this.userId, CRIMP.roles.trusted)) {
+    return HelpMe.find({});
   }
 
   return;
