@@ -59,7 +59,7 @@ Body: {
       ]
     },
     {
-      "category_id": 24
+      "category_id": 24,
       "category_name": "Novice Women Qualifiers",
       "acronym": "NWQ",
       "routes": [
