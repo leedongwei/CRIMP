@@ -8,14 +8,15 @@
 
 
 ## API List
-* [GET '/api/judge/categories'](#get-apijudgecategories)
-* [GET '/api/judge/climberscore/{?climber_id}{?category_id}{?route_id}'](#get-apijudgeclimberscoreclimber_idcategory_idroute_id)
-* [POST '/api/judge/login'](#post-apijudgelogin)
-* [POST '/api/judge/report'](#post-apijudgereport)
-* [POST '/api/judge/helpme'](#post-apijudgehelpme)
-* [POST '/api/judge/setactiveclimber'](#post-apijudgesetactiveclimber)
-* [POST '/api/judge/clearactiveclimber'](#post-apijudgeclearactiveclimber)
-* [POST '/api/judge/score/:route_id/:climber_id'](#post-apijudgescoreroute_idclimber_id)
+* [GET '/api/judge/categories'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#get-apijudgecategories)
+* [GET '/api/judge/climberscore/{?climber_id}{?category_id}{?route_id}'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#get-apijudgeclimberscoreclimber_idcategory_idroute_id)
+* [PUT '/api/judge/setactive'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgesetactive)
+* [PUT '/api/judge/clearactive'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgeclearactive)
+* [POST '/api/judge/login'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgelogin)
+* [POST '/api/judge/report'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgereport)
+* [POST '/api/judge/helpme'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgehelpme)
+* [POST '/api/judge/score/:route_id/:climber_id'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgescoreroute_idclimber_id)
+* [POST '/api/judge/logout'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgelogout)
 <br><br><br>
 
 
@@ -103,19 +104,21 @@ Body: {
 
 
 
-## GET '/api/judge/climberscore/{?climber_id}{?category_id}{?route_id}'
+## GET '/api/judge/climberscore/{?climber_id}{?category_id}{?route_id}{?marker_id}'
 * Get score
 
 #### Request
 ##### Query parameters
-* `climber_id` get score of this climber.
-* `category_id` get score of this category.
-* `route_id` get score for this route.
+* `climber_id` get score with this climber_id.
+* `category_id` get score with this category_id.
+* `route_id` get score with this route_id.
+* `marker_id` get score with this marker_id.
 
 ```json
 header: {
   "fb_user_id": 29,
-  "fb_access_token": "RCDBy6X3zS8..."
+  "fb_access_token": "RCDBy6X3zS8...",
+  "sequential_token": 98
 }
 ```
 
@@ -129,21 +132,25 @@ Body: {
 	  "climber_name": "Antonio Paul",
 	  "scores": [
 	    {
+		  "marker_id": "NMQ004",
 		  "category_id": 26,
 		  "route_id": 53,
 		  "score": "11B1T"
 		},
 		{
+		  "marker_id": "NMQ004",
 		  "category_id": 26,
 		  "route_id": 54,
 		  "score": "11"
 		},
 		{
+		  "marker_id": "NMQ004",
 		  "category_id": 26,
 		  "route_id": 55,
 		  "score": "11T"
 		},
 		{
+		  "marker_id": "IMQ024",
 		  "category_id": 59,
 		  "route_id": 234,
 		  "score": "2360"
@@ -155,11 +162,13 @@ Body: {
 	  "climber_name": "Romani",
 	  "scores": [
 	    {
+		  "marker_id": "OMQ007",
 		  "category_id": 2,
 		  "route_id": 47,
 		  "score": ""
 		},
 		{
+		  "marker_id": "OMQ007",
 		  "category_id": 2,
 		  "route_id": 48,
 		  "score": "11BB"
@@ -179,16 +188,19 @@ Body: {
 	  "climber_name": "Antonio Paul",
 	  "scores": [
 	    {
+		  "marker_id": "NMQ004",
 		  "category_id": 26,
 		  "route_id": 53,
 		  "score": "11B1T"
 		},
 		{
+		  "marker_id": "NMQ004",
 		  "category_id": 26,
 		  "route_id": 54,
 		  "score": "11"
 		},
 		{
+		  "marker_id": "NMQ004",
 		  "category_id": 26,
 		  "route_id": 55,
 		  "score": "11T"
@@ -200,6 +212,7 @@ Body: {
 	  "climber_name": "Romani",
 	  "scores": [
 	    {
+		  "marker_id": "NMQ008",
 		  "category_id": 26,
 		  "route_id": 47,
 		  "score": ""
@@ -219,6 +232,7 @@ Body: {
 	  "climber_name": "Antonio Paul",
 	  "scores": [
 		{
+		  "marker_id": "NMQ004",
 		  "category_id": 26,
 		  "route_id": 54,
 		  "score": "11"
@@ -234,6 +248,59 @@ Body: {
 
 
 
+## PUT '/api/judge/setactive'
+* Set a climber for a route
+
+#### Request
+```json
+header: {
+  "fb_user_id": 28,
+  "fb_access_token": "RCDBy6X3zS8...",
+  "sequential_token": 98
+}
+body: {
+  "route_id": 14,
+  "climber_id": 79            
+}
+```
+
+#### Response
+```json
+Body: {
+  "climber_id": 79,
+  "climber_name": "Dongie",
+  "active_route": 14
+}
+```
+<br><br><br>
+
+
+
+## PUT '/api/judge/clearactive'
+* clear a climber for a route
+
+#### Request
+```json
+header: {
+  "fb_user_id": 28,
+  "fb_access_token": "RCDBy6X3zS8...",
+  "sequential_token": 98
+}
+body: {
+  "route_id": 14  
+}
+```
+
+#### Response
+```json
+Body: {
+  "route_id": 14
+}
+```
+<br><br><br>
+
+
+
 ## POST '/api/judge/login'
 * Login and let the server know about user.
 
@@ -241,7 +308,8 @@ Body: {
 ```json
 Body: {
   "fb_user_id": 23,
-  "fb_access_token": "CAAE1913yZC2ABAAO6..."
+  "fb_access_token": "CAAE1913yZC2ABAAO6...",
+  "force_login": true
 }
 ```
 
@@ -250,7 +318,8 @@ Body: {
 Body: {
   "fb_user_id": 23,
   "fb_access_token": "CAAE1913yZC2ABAAO6...",
-  "user_name": "John Doe"
+  "user_name": "John Doe",
+  "remind_logout": true
 }
 ```
 <br><br><br>
@@ -265,7 +334,8 @@ Body: {
 ```json
 header: {
   "fb_user_id": 23,
-  "fb_access_token": "RCDBy6X3zS8..."
+  "fb_access_token": "RCDBy6X3zS8...",
+  "sequential_token": 98
 }
 
 body: {
@@ -282,7 +352,7 @@ Body: {
   "user_name": "Weizhi",
   "category_id": "14",
   "route_id": "66",
-  "judging_token": 29
+  "sequential_token": 29
 }
 ```
 * `fb_user_id` and `user_name` refers to the active judge as seen by server.
@@ -297,7 +367,8 @@ Body: {
 ```json
 header: {
   "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8..."
+  "fb_access_token": "RCDBy6X3zS8...",
+  "sequential_token": 98
 }
 body: {
   "route_id": 33
@@ -317,57 +388,6 @@ body: {
 
 
 
-## POST '/api/judge/setactiveclimber'
-* Set a climber for a route
-
-#### Request
-```json
-header: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8..."
-}
-body: {
-  "route_id": 14,
-  "climber_id": 79
-}
-```
-
-#### Response
-```json
-Body: {
-  "climber_id": 79,
-  "climber_name": "Dongie",
-  "active_route": 14
-}
-```
-<br><br><br>
-
-
-
-## POST '/api/judge/clearactiveclimber'
-* clear a climber for a route
-
-#### Request
-```json
-header: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8..."
-}
-body: {
-  "route_id": 14
-}
-```
-
-#### Response
-```json
-Body: {
-  "route_id": 14
-}
-```
-<br><br><br>
-
-
-
 ## POST '/api/judge/score/:route_id/:climber_id'
 * Used by judges to update the score of a climber on a specific route
 * If `scores_finalized` is `true` for a category, then the scores will not be updated any more.
@@ -377,7 +397,8 @@ Body: {
 ```json
 header: {
   "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8..."
+  "fb_access_token": "RCDBy6X3zS8...",
+  "sequential_token": 98
 }
 body: {
   "score_string": "11T"
@@ -398,3 +419,23 @@ body: {
 * `score_string` should only cover climb on that attempt and are appended to whatever score_string accumulated by previous attempt.
   * e.g. sending in `11B` followed by `1T` will make the overall score_string to be `11B1T`.
 * `score_string` is a raw value with no semantics. Interpretation of this field should be done by the client.
+<br><br><br>
+
+
+
+## POST '/api/judge/logout'
+* Used to logout.
+
+#### Request
+```json
+body: {
+  "fb_user_id": 28,
+  "fb_access_token": "RCDBy6X3zS8...",
+  "sequential_token": 98
+}
+```
+
+#### Response
+```json
+body: {}
+```
