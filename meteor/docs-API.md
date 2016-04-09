@@ -8,14 +8,14 @@
 
 
 ## API List
-* [GET '/api/judge/categories'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#get-apijudgecategories)
-* [GET '/api/judge/climberscore/{?climber_id}{?category_id}{?route_id}'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#get-apijudgeclimberscoreclimber_idcategory_idroute_id)
-* [POST '/api/judge/login'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#post-apijudgelogin)
-* [POST '/api/judge/report'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#post-apijudgereport)
-* [POST '/api/judge/helpme'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#post-apijudgehelpme)
-* [POST '/api/judge/setactiveclimber'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#post-apijudgesetactiveclimber)
-* [POST '/api/judge/clearactiveclimber'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#post-apijudgeclearactiveclimber)
-* [POST '/api/judge/score/:route_id/:climber_id'](https://github.com/leedongwei/CRIMP/blob/feature/dongwei/meteor/docs-API.md#post-apijudgescoreroute_idclimber_id)
+* [GET '/api/judge/categories'](#get-apijudgecategories)
+* [GET '/api/judge/climberscore/{?climber_id}{?category_id}{?route_id}'](#get-apijudgeclimberscoreclimber_idcategory_idroute_id)
+* [POST '/api/judge/login'](#post-apijudgelogin)
+* [POST '/api/judge/report'](#post-apijudgereport)
+* [POST '/api/judge/helpme'](#post-apijudgehelpme)
+* [POST '/api/judge/setactiveclimber'](#post-apijudgesetactiveclimber)
+* [POST '/api/judge/clearactiveclimber'](#post-apijudgeclearactiveclimber)
+* [POST '/api/judge/score/:route_id/:climber_id'](#post-apijudgescoreroute_idclimber_id)
 <br><br><br>
 
 
@@ -328,7 +328,7 @@ header: {
 }
 body: {
   "route_id": 14,
-  "climber_id": 79            
+  "climber_id": 79
 }
 ```
 
@@ -354,7 +354,7 @@ header: {
   "fb_access_token": "RCDBy6X3zS8..."
 }
 body: {
-  "route_id": 14  
+  "route_id": 14
 }
 ```
 
