@@ -126,7 +126,7 @@ header: {
 ##### No query parameters
 ```json
 Body: {
-  "climber_score": [
+  "climber_scores": [
     {
 	  "climber_id": 14,
 	  "climber_name": "Antonio Paul",
@@ -182,7 +182,7 @@ Body: {
 ##### Query parameter: category_id=26
 ```json
 Body: {
-  "climber_score": [
+  "climber_scores": [
     {
 	  "climber_id": 14,
 	  "climber_name": "Antonio Paul",
@@ -226,7 +226,7 @@ Body: {
 ##### Query parameter: climber_id=14&route_id=54
 ```json
 Body: {
-  "climber_score": [
+  "climber_scores": [
     {
 	  "climber_id": 14,
 	  "climber_name": "Antonio Paul",
@@ -351,8 +351,7 @@ Body: {
   "fb_user_id": 23,
   "user_name": "Weizhi",
   "category_id": "14",
-  "route_id": "66",
-  "sequential_token": 29
+  "route_id": "66"
 }
 ```
 * `fb_user_id` and `user_name` refers to the active judge as seen by server.
