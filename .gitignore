@@ -120,8 +120,7 @@ jspm_packages
 ## meteor
 ######################
 **/.meteor/local
-**/.meteor/meteorite
 **/.meteor/.gitignore
-**/meteor/**/settings.json
-**/.demeteorized
+#**/meteor/**/settings.json
+#**/.demeteorized
 
