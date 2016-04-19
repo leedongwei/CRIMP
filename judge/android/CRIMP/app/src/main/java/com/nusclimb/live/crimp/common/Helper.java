@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,7 +38,7 @@ public class Helper {
     // Map containing alias of names for each round.
     private static final Map<String, StringPair> roundMap;
     static {
-        Map<String, StringPair> aMap = new HashMap<String, StringPair>() ;
+        Map<String, StringPair> aMap = new HashMap<>() ;
         aMap.put("U17M Qualifier", new StringPair("U17M", "UMQ"));
         aMap.put("U17M Final", new StringPair("U17M", "UMF"));
 
@@ -120,7 +121,7 @@ public class Helper {
     private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
 
     /**
-     * Generate a value suitable for use in {@link #setId(int)}.
+     * Generate a value suitable for use in View.setId(int).
      * This value will not collide with ID values generated at build time by aapt for R.id.
      *
      * @return a generated ID value
@@ -207,7 +208,7 @@ public class Helper {
      * @return Converted List.
      */
     public static List<Integer> primitiveToList(int[] primitive){
-        List<Integer> myList = new ArrayList<Integer>();
+        List<Integer> myList = new ArrayList<>();
 
         for(int i : primitive){
             myList.add(i);
@@ -223,11 +224,9 @@ public class Helper {
      * @return Converted List.
      */
     public static List<String> primitiveToList(String[] primitive){
-        List<String> myList = new ArrayList<String>();
+        List<String> myList = new ArrayList<>();
 
-        for(String i : primitive){
-            myList.add(i);
-        }
+        Collections.addAll(myList, primitive);
 
         return myList;
     }
@@ -252,10 +251,9 @@ public class Helper {
     public static String getCurrentTimeStamp(){
         try {
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM, HH:mm:ss");
-            String currentTimeStamp = dateFormat.format(new Date()); // Find todays date
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM, HH:mm:ss", Locale.US);
 
-            return currentTimeStamp;
+            return dateFormat.format(new Date());
         }
         catch (Exception e) {
             e.printStackTrace();

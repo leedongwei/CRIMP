@@ -1,270 +1,63 @@
 package com.nusclimb.live.crimp.hello;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Vibrator;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.TextView;
+import android.widget.ArrayAdapter;
 
-import com.facebook.FacebookSdk;
-import com.facebook.login.LoginManager;
-import com.nusclimb.live.crimp.CrimpFragmentPagerAdapter;
+import com.nusclimb.live.crimp.CrimpApplication2;
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.BusProvider;
-import com.nusclimb.live.crimp.common.busevent.InRouteTab;
-import com.nusclimb.live.crimp.common.busevent.InScanTab;
-import com.nusclimb.live.crimp.common.busevent.InScoreTab;
-import com.nusclimb.live.crimp.common.busevent.RouteFinish;
-import com.nusclimb.live.crimp.common.busevent.RouteNotFinish;
-import com.nusclimb.live.crimp.common.busevent.RouteOnPause;
-import com.nusclimb.live.crimp.common.busevent.RouteOnResume;
-import com.nusclimb.live.crimp.common.busevent.ScanFinish;
-import com.nusclimb.live.crimp.common.busevent.ScanNotFinish;
-import com.nusclimb.live.crimp.common.busevent.ScanOnPause;
-import com.nusclimb.live.crimp.common.busevent.ScanOnResume;
-import com.nusclimb.live.crimp.common.busevent.ScoreFinish;
-import com.nusclimb.live.crimp.common.busevent.ScoreOnPause;
-import com.nusclimb.live.crimp.common.busevent.ScoreOnResume;
-import com.nusclimb.live.crimp.common.busevent.StartScan;
-import com.nusclimb.live.crimp.login.LoginActivity;
-import com.nusclimb.live.crimp.service.CrimpService;
-import com.octo.android.robospice.SpiceManager;
-import com.squareup.otto.Subscribe;
+import com.nusclimb.live.crimp.common.dao.Category;
+import com.nusclimb.live.crimp.common.dao.Climber;
+import com.nusclimb.live.crimp.common.dao.User;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-/**
- * @author Lin Weizhi (ecc.weizhi@gmail.com)
- */
-public class HelloActivity extends ActionBarActivity implements ActionBar.TabListener{
-    private final String TAG = HelloActivity.class.getSimpleName();
+import static android.support.v4.view.ViewPager.SCROLL_STATE_DRAGGING;
+import static android.support.v4.view.ViewPager.SCROLL_STATE_IDLE;
+import static android.support.v4.view.ViewPager.SCROLL_STATE_SETTLING;
 
-    // For doing tab manipulation
-    private ActionBar mActionBar;
-    private ViewPager mViewPager;
-    private CrimpFragmentPagerAdapter mCrimpFragmentPagerAdapter;
-    private Handler activityHandler;
+public class HelloActivity extends AppCompatActivity {
+    private static final String TAG = "HelloActivity";
+    private static final boolean DEBUG = true;
 
-    // Fragment State. For use with Bus.
-    private boolean isRouteOnResume = false;
-    private boolean isScanOnResume = false;
-    private boolean isScoreOnResume = false;
-    private int currentTab = 0;
-    private int tabCount = 1;
+    public static final String SAVE_USER = "save_user";
+    public static final String SAVE_CATEGORIES = "save_categories";
+    public static final String SAVE_CATEGORIES_TXID = "save_categories_txid";
 
-    // Info from fragments
-    private String xUserId;                         // From LoginActivity
-    private String xAuthToken;                      // From LoginActivity
-    private String[] categoryIdListAsArray;         // From LoginActivity
-    private String[] categoryNameListAsArray;       // From LoginActivity
-    private int[] categoryRouteCountListAsArray;    // From LoginActivity
-    private String routeId;                         // From RouteFragment
-    private String climberId;                       // From ScanFragment
-    private String climberName;                     // From ScanFragment (optional)
+    private Bundle routeBundle;
+    private Bundle scanBundle;
+    private Bundle scoreBundle;
 
-    private SpiceManager spiceManager = new SpiceManager(CrimpService.class);
+    // All the info
+    private User mUser;
+    private ArrayList<Category> mCategoryList;
+    private Climber mClimber;
 
-    public SpiceManager getSpiceManager(){
-        return spiceManager;
-    }
+    // Views
+    private AppBarLayout mAppBar;
+    private Toolbar mToolbar;
+    private TabLayout mTabLayout;
+    private HelloViewPager mPager;
 
-    public String getxUserId(){
-        return xUserId;
-    }
+    private HelloPagerAdapter mAdapter;
+    private HintableArrayAdapter categoryAdapter;
+    private HintableArrayAdapter routeAdapter;
 
-    public String getxAuthToken(){
-        return xAuthToken;
-    }
+    private UUID categoriesTxId;
 
-    public String getRouteId(){
-        return routeId;
-    }
-
-    public String getClimberId(){
-        return climberId;
-    }
-
-    public String getClimberName(){
-        return climberName;
-    }
-
-    public List<SpinnerItem> getCategoryList(){
-        List<SpinnerItem> categorySpinnerItemList = new ArrayList<SpinnerItem>();
-        for(int i=0; i<categoryIdListAsArray.length; i++){
-            categorySpinnerItemList.add(new CategorySpinnerItem(categoryNameListAsArray[i],
-                    categoryIdListAsArray[i], categoryRouteCountListAsArray[i], false));
-        }
-
-        return categorySpinnerItemList;
-    }
-
-    private void updateTabEnableView(){
-        for(int i=0; i<3; i++){
-            if(i<tabCount){
-                mActionBar.getTabAt(i).setCustomView(null);
-            }
-            else{
-                TextView tv = new TextView(this);
-                tv.setBackgroundColor(Color.BLACK);
-                mActionBar.getTabAt(i).setCustomView(tv);
-            }
-        }
-    }
-
-
-    /*=========================================================================
-   * Bus methods
-   *=======================================================================*/
-    @Subscribe
-    public void onReceiveRouteNotFinish(RouteNotFinish event){
-        Log.d(TAG+".onReceiveRouteFinish()", "Received RouteNotFinish event. Set tab count to 1.");
-
-        tabCount = 1;
-        updateTabEnableView();
-        mCrimpFragmentPagerAdapter.set_count(tabCount);
-    }
-
-    @Subscribe
-    public void onReceiveRouteFinish(RouteFinish event){
-        Log.d(TAG+".onReceiveRouteFinish()", "Received RouteFinish event. Set tab count to 2. Select tab 1. routeId="+event.getRouteId());
-
-        routeId = event.getRouteId();
-
-        tabCount = 2;
-        currentTab = 1;
-        updateTabEnableView();
-        mCrimpFragmentPagerAdapter.set_count(tabCount);
-        mActionBar.setSelectedNavigationItem(currentTab);
-    }
-
-    @Subscribe
-    public void onReceiveScanNotFinish(ScanNotFinish event){
-        if(tabCount<=2){
-            Log.d(TAG + ".onReceiveScanNotFinish()", "Received ScanNotFinish event. Tab count unchanged.");
-        }
-        else {
-            Log.d(TAG + ".onReceiveScanNotFinish()", "Received ScanNotFinish event. Set tab count to 2.");
-            tabCount = 2;
-            updateTabEnableView();
-            mCrimpFragmentPagerAdapter.set_count(tabCount);
-        }
-    }
-
-    @Subscribe
-    public void onReceiveScanFinish(ScanFinish event){
-        Log.d(TAG+".onReceiveScanFinish()", "Received ScanFinish event. Set tab count to 3. Select tab 2. cid = "+event.getClimberId()+"; cname = "+event.getClimberName());
-        climberId = event.getClimberId();
-        climberName = event.getClimberName();
-
-        tabCount = 3;
-        currentTab = 2;
-        updateTabEnableView();
-        mCrimpFragmentPagerAdapter.set_count(tabCount);
-        mActionBar.setSelectedNavigationItem(currentTab);
-    }
-
-    @Subscribe
-    public void onReceiveScoreFinish(ScoreFinish event){
-        Log.d(TAG+".onReceiveScoreFinish()", "Received ScoreFinish event.");
-
-        climberId = null;
-        climberName = null;
-
-        tabCount = 2;
-        currentTab = 1;
-        mActionBar.setSelectedNavigationItem(currentTab);
-        updateTabEnableView();
-        mCrimpFragmentPagerAdapter.set_count(tabCount);
-    }
-
-    @Subscribe
-    public void onReceiveRouteOnResume(RouteOnResume event){
-        isRouteOnResume = true;
-
-        if(isRouteOnResume && isScanOnResume && isScoreOnResume){
-            updateTabEnableView();
-            mCrimpFragmentPagerAdapter.set_count(tabCount);
-            mActionBar.setSelectedNavigationItem(currentTab);
-            Log.d(TAG + ".onReceiveRouteOnResume()", "Received RouteOnResume event. Set tab count to " + tabCount);
-        }
-        else{
-            Log.d(TAG + ".onReceiveRouteOnResume()", "Received RouteOnResume event.");
-        }
-    }
-
-    @Subscribe
-    public void onReceivedRouteOnPause(RouteOnPause event){
-        isRouteOnResume = false;
-    }
-
-
-
-    @Subscribe
-    public void onReceiveScanOnResume(ScanOnResume event){
-        Log.d(TAG + ".onReceiveScanOnResume", "Received ScanOnResume event.");
-
-        isScanOnResume = true;
-        if(tabCount>= 2){
-            Log.d(TAG + ".onReceiveScanOnResume", "Post StartScan event.");
-            BusProvider.getInstance().post(new StartScan());
-        }
-
-        if(isRouteOnResume && isScanOnResume && isScoreOnResume){
-            Log.d(TAG + ".onReceiveScanOnResume", "Set tab count to "+tabCount);
-            updateTabEnableView();
-            mCrimpFragmentPagerAdapter.set_count(tabCount);
-            mActionBar.setSelectedNavigationItem(currentTab);
-        }
-    }
-
-    @Subscribe
-    public void onReceivedScanOnPause(ScanOnPause event){
-        isScanOnResume = false;
-    }
-
-    @Subscribe
-    public void onReceiveScoreOnResume(ScoreOnResume event){
-        isScoreOnResume = true;
-
-        if(isRouteOnResume && isScanOnResume && isScoreOnResume){
-            Log.d(TAG + ".onReceiveScoreOnResume()", "Received ScoreOnResume event. Set tab count to "+tabCount);
-            updateTabEnableView();
-            mCrimpFragmentPagerAdapter.set_count(tabCount);
-            mActionBar.setSelectedNavigationItem(currentTab);
-        }
-        else{
-            Log.d(TAG + ".onReceiveScoreOnResume()", "Received ScoreOnResume event.");
-        }
-    }
-
-    @Subscribe
-    public void onReceiveScoreOnPause(ScoreOnPause event){
-        isScoreOnResume = false;
-    }
-
-
-
-
-    /*=========================================================================
-     * Lifecycle methods
-     *=======================================================================*/
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -273,343 +66,198 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         // keep the device's screen turned on and bright.
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_hello);
 
-        activityHandler = new Handler();
+        /* Note to self: This activity UI has only 4 components:
+         * 1) mAppBar: Wrap up mToolbar and mTabLayout to provide many of the features of material
+         * designs app bar concept, namely scrolling gestures.
+         *
+         * 2) mToolbar: A bar with title.
+         *
+         * 3) mTabLayout: A bar with tabs
+         *
+         * 4) mPager: ViewPager showing fragments.
+         */
+        // Find reference to views
+        mAppBar = (AppBarLayout) findViewById(R.id.app_bar_layout);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        mPager = (HelloViewPager) findViewById(R.id.pager);
 
-        // Instantiate object for tab manipulation
-        mActionBar = getSupportActionBar();
-        mCrimpFragmentPagerAdapter = new CrimpFragmentPagerAdapter(getSupportFragmentManager(), this);
-        mViewPager = (ViewPager) findViewById(R.id.pager);
+        /* Note to self: ActionBar and ViewPager are separated. User can switch between
+         * fragments by using either ActionBar or ViewPager. When ActionBar is used, we set
+         * ViewPager to match the ActionBar and vice versa.
+         *
+         * ActionBar (the top bar) is just navigation "buttons" and does not have "content".
+         *
+         * ViewPager (the entire content area) has an adapter which contains a list of fragments.
+         * When we swipe the ViewPager, the adapter will pull the correct fragment from its list
+         * and display it.
+         */
+        setSupportActionBar(mToolbar);
 
-        // Specify that we will be displaying tabs in the action bar.
-        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        // Add route, scan, score tab to action bar.
-        ActionBar.Tab routeTab = mActionBar.newTab()
-                .setText(mCrimpFragmentPagerAdapter.getPageTitle(0))
-                .setTabListener(this);
-        mActionBar.addTab(routeTab);
-
-        ActionBar.Tab scanTab = mActionBar.newTab()
-                .setText(mCrimpFragmentPagerAdapter.getPageTitle(1))
-                .setTabListener(this);
-        mActionBar.addTab(scanTab);
-
-        ActionBar.Tab scoreTab = mActionBar.newTab()
-                .setText(mCrimpFragmentPagerAdapter.getPageTitle(2))
-                .setTabListener(this);
-        mActionBar.addTab(scoreTab);
-
-        mViewPager.setAdapter(mCrimpFragmentPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            private final String TAG = ViewPager.SimpleOnPageChangeListener.class.getSimpleName();
-
-            @Override
-            public void onPageSelected(int position) {
-                // When swiping between different app sections, select the corresponding tab.
-                // We can also use ActionBar.Tab#select() to do this if we have a reference to the
-                // Tab.
-                Log.d(TAG + ".onPageSelected", "called with position = " + position);
-                currentTab = position;
-                mActionBar.setSelectedNavigationItem(currentTab);
-            }
-        });
-        mViewPager.setOffscreenPageLimit(2);
-
+        // Load/instantiate data we already have.
         if(savedInstanceState == null){
-            // Newly created activity
-            xUserId = getIntent().getExtras().getString(getString(R.string.bundle_x_user_id));
-            xAuthToken = getIntent().getExtras().getString(getString(R.string.bundle_x_auth_token));
-            categoryIdListAsArray = getIntent().getExtras().getStringArray(getString(R.string.bundle_category_id_list));
-            categoryNameListAsArray = getIntent().getExtras().getStringArray(getString(R.string.bundle_category_name_list));
-            categoryRouteCountListAsArray = getIntent().getExtras().getIntArray(getString(R.string.bundle_category_route_count_list));
-
-            Log.d(TAG + ".onCreate()", "Newly created.\n"+
-                    "xUserId="+xUserId+"\n"+
-                    "xAuthToken="+xAuthToken+"\n"+
-                    "categoryIdListAsArray="+ categoryIdListAsArray.length +"\n"+
-                    "categoryNameListAsArray="+categoryNameListAsArray.length+"\n"+
-                    "categoryRouteCountListAsArray="+categoryRouteCountListAsArray.length);
+            mUser = (User)getIntent().getSerializableExtra(SAVE_USER);
+            mCategoryList = new ArrayList<>();
+            categoriesTxId = null;
         }
         else{
-            // Restored activity
-            tabCount = savedInstanceState.getInt(getString(R.string.bundle_tab_count));
-            currentTab = savedInstanceState.getInt(getString(R.string.bundle_current_tab));
-
-            xUserId = savedInstanceState.getString(getString(R.string.bundle_x_user_id));
-            xAuthToken = savedInstanceState.getString(getString(R.string.bundle_x_auth_token));
-            categoryIdListAsArray = savedInstanceState.getStringArray(getString(R.string.bundle_category_id_list));
-            categoryNameListAsArray = savedInstanceState.getStringArray(getString(R.string.bundle_category_name_list));
-            categoryRouteCountListAsArray = savedInstanceState.getIntArray(getString(R.string.bundle_category_route_count_list));
-
-            if(tabCount == 2){
-                routeId = savedInstanceState.getString(getString(R.string.bundle_route_id));
-            }
-            else if(tabCount == 3){
-                climberId = savedInstanceState.getString(getString(R.string.bundle_climber_id));
-                climberName = savedInstanceState.getString(getString(R.string.bundle_climber_name));
-            }
-
-            String temp = "Restored.";
-            temp = temp + "\nxUserId=" + xUserId;
-            temp = temp + "\nxAuthToken" + xAuthToken;
-            temp = temp + "\ncategoryIdListAsArray=" + categoryIdListAsArray.length;
-            temp = temp + "\ncategoryNameListAsArray=" + categoryNameListAsArray.length;
-            temp = temp + "\ncategoryRouteCountListAsArray=" + categoryRouteCountListAsArray.length;
-            if(tabCount == 2){
-                temp = temp + "\nrouteId=" + routeId;
-            }
-            else if(tabCount == 3){
-                temp = temp + "\nclimberId=" + climberId;
-                temp = temp + "\nclimberName=" + climberName;
-            }
-            temp = temp + "\ntabCount=" + tabCount;
-            temp = temp + "\ncurrentTab=" + currentTab;
-
-
-            Log.d(TAG+".onCreate()", temp);
+            mUser = (User)savedInstanceState.getSerializable(SAVE_USER);
+            mCategoryList = (ArrayList<Category>)savedInstanceState.getSerializable(SAVE_CATEGORIES);
+            categoriesTxId = (UUID)savedInstanceState.getSerializable(SAVE_CATEGORIES_TXID);
         }
+
+        // prepare route tab
+        categoryAdapter = new HintableArrayAdapter(this, android.R.layout.simple_spinner_item, "this is a hint");
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        routeAdapter = new HintableArrayAdapter(this, android.R.layout.simple_spinner_item, "this is a hint");
+        routeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // prepare view pager
+        mAdapter = new HelloPagerAdapter(this);
+
+        mTabLayout.addTab(mTabLayout.newTab().setText(mAdapter.getPageTitle(0)));
+        mTabLayout.addTab(mTabLayout.newTab().setText(mAdapter.getPageTitle(1)));
+        mTabLayout.addTab(mTabLayout.newTab().setText(mAdapter.getPageTitle(2)));
+        mTabLayout.setOnTabSelectedListener(new HelloOnTabSelectedListener(mPager, mTabLayout));
+
+        mPager.setAdapter(mAdapter);
+        mPager.addOnPageChangeListener(new HelloPageChangeListener(mTabLayout));
+
+
+
+
+
     }
 
     @Override
     protected void onStart(){
         super.onStart();
-        Log.v(TAG + ".onStart()", "start");
-        spiceManager.start(this);
-    }
+        CrimpApplication2.getBusInstance().register(this);
 
-    @Override
-    protected void onResume(){
-        super.onResume();
-        BusProvider.getInstance().register(this);
-        Log.v(TAG + ".onResume()", "registered BusProvider");
-    }
+        if(categoriesTxId == null && categoryAdapter.getCount() <= 1){
+            if(DEBUG) Log.d(TAG, "shld request category");
+        }
 
-    @Override
-    protected void onPause(){
-        super.onPause();
-        BusProvider.getInstance().unregister(this);
-        Log.v(TAG + ".onPause()", "unregistered BusProvider");
     }
 
     @Override
     protected void onStop(){
-        Log.v(TAG + ".onStop()", "stop");
-        spiceManager.shouldStop();
+        CrimpApplication2.getBusInstance().unregister(this);
         super.onStop();
     }
 
     @Override
     protected void onSaveInstanceState (Bundle outState){
         super.onSaveInstanceState(outState);
-
-        outState.putString(getString(R.string.bundle_x_user_id), xUserId);
-        outState.putString(getString(R.string.bundle_x_auth_token), xAuthToken);
-        outState.putStringArray(getString(R.string.bundle_category_id_list), categoryIdListAsArray);
-        outState.putStringArray(getString(R.string.bundle_category_name_list), categoryNameListAsArray);
-        outState.putIntArray(getString(R.string.bundle_category_route_count_list), categoryRouteCountListAsArray);
-        outState.putInt(getString(R.string.bundle_tab_count), tabCount);
-        outState.putInt(getString(R.string.bundle_current_tab), currentTab);
-
-        if(tabCount == 2)
-            outState.putString(getString(R.string.bundle_route_id), routeId);
-        if(tabCount == 3) {
-            outState.putString(getString(R.string.bundle_climber_id), climberId);
-            outState.putString(getString(R.string.bundle_climber_name), climberName);
-        }
-
-        String temp = "xUserId=" + xUserId;
-        temp = temp + "\nxAuthToken" + xAuthToken;
-        temp = temp + "\ncategoryIdListAsArray=" + categoryIdListAsArray.length;
-        temp = temp + "\ncategoryNameListAsArray=" + categoryNameListAsArray.length;
-        temp = temp + "\ncategoryRouteCountListAsArray=" + categoryRouteCountListAsArray.length;
-        if(tabCount == 2){
-            temp = temp + "\nrouteId=" + routeId;
-        }
-        else if(tabCount == 3){
-            temp = temp + "\nclimberId=" + climberId;
-            temp = temp + "\nclimberName=" + climberName;
-        }
-        temp = temp + "\ntabCount=" + tabCount;
-        temp = temp + "\ncurrentTab=" + currentTab;
-
-        Log.d(TAG + ".onSavedInstanceState()", temp);
     }
 
 
 
-    /*=========================================================================
-     * ActionBar.TabListener interface methods
-     *=======================================================================*/
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
 
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        if(tab.getPosition() >= tabCount) {
-            Log.d(TAG+".onTabSelected()", "selected "+tab.getPosition()+" >= count "+tabCount);
 
-            final int currentTabPosition = currentTab;
 
-            activityHandler.postAtFrontOfQueue(new Runnable() {
-                @Override
-                public void run() {
-                    getSupportActionBar().setSelectedNavigationItem(
-                            currentTabPosition);
-                }
-            });
+    /*
+    private class HelloActivityOnTabSelectedListener implements TabLayout.OnTabSelectedListener {
+        private final ViewPager mViewPager;
+
+        public HelloActivityOnTabSelectedListener(ViewPager viewPager){
+            mViewPager = viewPager;
         }
-        else {
-            Log.d(TAG+".onTabSelected()", "selected "+tab.getPosition()+" < count "+tabCount);
-            // When the given tab is selected, switch to the corresponding page in the ViewPager.
-            currentTab = tab.getPosition();
-            mViewPager.setCurrentItem(currentTab);
 
-            switch(currentTab){
-                case 0:
-                    Log.d(TAG+".onTabSelected()", "Posted InRouteTab to bus.");
-                    BusProvider.getInstance().post(new InRouteTab());
-                    break;
-                case 1:
-                    Log.d(TAG+".onTabSelected()", "Posted InScanTab("+routeId+") to bus.");
-                    BusProvider.getInstance().post(new InScanTab(routeId));
-                    break;
-                case 2:
-                    Log.d(TAG+".onTabSelected()", "Posted InScoreTab to bus.");
-                    BusProvider.getInstance().post(new InScoreTab());
-                    break;
-                default:
-                    break;
+        @Override
+        public void onTabSelected(TabLayout.Tab tab) {
+            if(mViewPager.getAdapter().getCount() <= tab.getPosition()){
+                getActivityHandler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        getmTabLayout().getTabAt(mViewPager.getCurrentItem()).select();
+                    }
+                }, 200);
+            }
+            else if(mViewPager.getCurrentItem() == 2 && tab.getPosition() != 2){
+                final int selectedTabPosition = tab.getPosition();
+                AlertDialog alertDialog = new AlertDialog.Builder(HelloActivity.this)
+                        .setTitle("Navigate away from Score tab")
+                        .setMessage("Current session score will be lost.")
+                        .setPositiveButton("Navigate away", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Do stuff
+                                navigateAwayFromScore(selectedTabPosition);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                getActivityHandler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        getmTabLayout().getTabAt(mViewPager.getCurrentItem()).select();
+                                    }
+                                }, 200);
+                            }
+                        })
+                        .create();
+                alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        getActivityHandler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                getmTabLayout().getTabAt(mViewPager.getCurrentItem()).select();
+                            }
+                        }, 200);
+                    }
+                });
+                alertDialog.show();
+            }
+            else{
+                mViewPager.setCurrentItem(tab.getPosition());
             }
         }
-    }
 
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        Log.d(TAG + ".onTabReselected()", "tab.position = " + tab.getPosition());
-    }
+        @Override
+        public void onTabUnselected(TabLayout.Tab tab) {
 
-
-
-    /*=========================================================================
-     * Button onClick methods
-     *=======================================================================*/
-    public void routeNext(View view){
-        Log.v(TAG + ".routeNext()", "Button clicked.");
-        RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
-        rf.next();
-    }
-
-    public void routeYes(View view){
-        Log.v(TAG+".routeYes()", "Button clicked.");
-        RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
-        rf.yes();
-    }
-
-    public void routeNo(View view){
-        Log.v(TAG+".routeNo()", "Button clicked.");
-        RouteFragment rf = (RouteFragment) getFirstMatchingFragment(RouteFragment.class);
-        rf.no();
-    }
-
-    public void scanRescan(View view){
-        Log.v(TAG+".scanRescan()", "Button clicked.");
-        ScanFragment sf = (ScanFragment) getFirstMatchingFragment(ScanFragment.class);
-        sf.rescan();
-    }
-
-    public void scanFlash(View view){
-        Log.v(TAG+".scanFlash()", "Button clicked.");
-        ScanFragment sf = (ScanFragment) getFirstMatchingFragment(ScanFragment.class);
-        sf.toggleFlash();
-    }
-
-    public void scanNext(View view){
-        Log.v(TAG + ".scanNext()", "Button clicked.");
-        ScanFragment sf = (ScanFragment) getFirstMatchingFragment(ScanFragment.class);
-        sf.next();
-    }
-
-    public void scorePlusOne(View view){
-        Log.v(TAG+".scorePlusOne()", "Button clicked.");
-        // Get instance of Vibrator from current Context
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        // Vibrate for 50 milliseconds
-        v.vibrate(50);
-        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
-        sf.plusOne();
-    }
-
-    public void scoreBonus(View view){
-        Log.v(TAG+".scorePlusOne()", "Button clicked.");
-        // Get instance of Vibrator from current Context
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        // Vibrate for 50 milliseconds
-        v.vibrate(50);
-        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
-        sf.bonus();
-    }
-
-    public void scoreTop(View view){
-        Log.v(TAG + ".scorePlusOne()", "Button clicked.");
-        // Get instance of Vibrator from current Context
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        // Vibrate for 50 milliseconds
-        v.vibrate(50);
-        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
-        sf.top();
-    }
-
-    public void scoreBackspace(View view){
-        Log.v(TAG + ".scorePlusOne()", "Button clicked.");
-        // Get instance of Vibrator from current Context
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        // Vibrate for 50 milliseconds
-        v.vibrate(50);
-        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
-        sf.backspace();
-    }
-
-    public void scoreSubmit(View view){
-        Log.v(TAG + ".scoreSubmit()", "Button clicked.");
-        ScoreFragment sf = (ScoreFragment) getFirstMatchingFragment(ScoreFragment.class);
-        sf.submit();
-    }
-
-
-    /*=========================================================================
-     * Other methods
-     *=======================================================================*/
-    private Fragment getFirstMatchingFragment(Class clazz){
-        List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
-        for(Fragment fr: fragmentList){
-            if( fr.getClass().getSimpleName().equals(clazz.getSimpleName())){
-                return fr;
-            }
         }
-        return null;
-    }
 
+        @Override
+        public void onTabReselected(TabLayout.Tab tab) {
+
+        }
+    }
+    */
+
+    /*
     @Override
-    public void onBackPressed()
-    {
+    public void onBackPressed() {
+        final int currentTab = getmViewPager().getCurrentItem();
         switch(currentTab){
             case 0:
-                //super.onBackPressed();
                 break;
             case 1:
-                currentTab = 0;
-                mActionBar.setSelectedNavigationItem(currentTab);
+                getmViewPager().setCurrentItem(currentTab - 1);
                 break;
             case 2:
-                // TODO prompt user
-                currentTab = 1;
-                mActionBar.setSelectedNavigationItem(currentTab);
+                new AlertDialog.Builder(this)
+                        .setTitle("Navigate away from Score tab")
+                        .setMessage("Current session score will be lost.")
+                        .setPositiveButton("Navigate away", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Do stuff
+                                navigateAwayFromScore(1);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Do nothing
+                            }
+                        })
+                        .show();
                 break;
         }
     }
+    */
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -618,19 +266,54 @@ public class HelloActivity extends ActionBarActivity implements ActionBar.TabLis
         return true;
     }
 
+    /*
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
+            case R.id.action_helpme:
+                Toast toast = Toast.makeText(this,
+                        "A ticket has been sent to the admins. Please wait for assistance.",
+                        Toast.LENGTH_SHORT);
+                toast.show();
+                String url = getString(R.string.crimp_base_url)+getString(R.string.helpme_api);
+                HelpMeRequest mHelpMeRequest = new HelpMeRequest(getmUser().getUserId(),
+                        getmUser().getAuthToken(), getmUser().getCategoryId(),
+                        getmUser().getRouteId(), url);
+                spiceManager.execute(mHelpMeRequest, new HelpMeRequestListener());
+                return true;
             case R.id.action_logout:
-                LoginManager.getInstance().logOut();
-                Intent mIntent = new Intent(getApplicationContext(), LoginActivity.class);
-                finish();
-                startActivity(mIntent);
+                new AlertDialog.Builder(this)
+                        .setMessage("Logout?")
+                        .setPositiveButton("Logout", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Do stuff
+                                LoginManager.getInstance().logOut();
+                                Intent mIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                                finish();
+                                startActivity(mIntent);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+    */
+
+/*
+    @Override
+    public void collapseToolBar(){
+        AppBarLayout mAppBarLayout = (AppBarLayout) findViewById(R.id.app_bar_layout);
+        if(mAppBarLayout != null)
+            mAppBarLayout.setExpanded(false);
+    }
+    */
 }

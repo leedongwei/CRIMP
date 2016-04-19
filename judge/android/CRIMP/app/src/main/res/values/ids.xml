@@ -15,9 +15,11 @@
     <!-- Scan states for use with Message and Handler -->
     <item type="id" name="decode"/>
     <item type="id" name="decode_pause"/>
+    <item type="id" name="decode_resume"/>
     <item type="id" name="decode_failed"/>
     <item type="id" name="decode_succeeded"/>
     <item type="id" name="quit"/>
+    <item type="id" name="decode_handler_constructed"/>
 
     <!-- Broadcast message type -->
     <item type="id" name="service_created" />
