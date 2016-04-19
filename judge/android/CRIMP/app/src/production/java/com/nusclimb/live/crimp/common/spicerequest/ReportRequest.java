@@ -1,9 +1,6 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
-import android.content.Context;
-
-import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.json.ReportResponseBody;
+import com.nusclimb.live.crimp.network.model.ReportJackson;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -23,7 +20,7 @@ import java.io.IOException;
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>{
+public class ReportRequest extends SpringAndroidSpiceRequest<ReportJackson>{
     private static final String TAG = ReportRequest.class.getSimpleName();
 
     private String xUserId;
@@ -35,7 +32,7 @@ public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>
 
     public ReportRequest(String xUserId, String xAuthToken, String categoryId,
                          String routeId, boolean force, String url) {
-        super(ReportResponseBody.class);
+        super(ReportJackson.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
         this.categoryId = categoryId;
@@ -45,7 +42,7 @@ public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>
     }
 
     @Override
-    public ReportResponseBody loadDataFromNetwork() throws Exception {
+    public ReportJackson loadDataFromNetwork() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Cache-Control", "no-cache");
@@ -56,8 +53,8 @@ public class ReportRequest extends SpringAndroidSpiceRequest<ReportResponseBody>
         HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
 
         RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<ReportResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,
-                request, ReportResponseBody.class);
+        ResponseEntity<ReportJackson> response = mRestTemplate.exchange(url, HttpMethod.POST,
+                request, ReportJackson.class);
 
         return response.getBody();
     }

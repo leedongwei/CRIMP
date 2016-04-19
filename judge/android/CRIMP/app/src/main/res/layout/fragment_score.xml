@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.nusclimb.live.crimp.hello.score.ScoreFragment"
+    tools:context="com.nusclimb.live.crimp.hello.HelloActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -11,13 +11,13 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="8dp">
+        android:layout_margin="16dp">
 
         <android.support.v7.widget.CardView
             android:id="@+id/score_info_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="4dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -50,6 +50,7 @@
                     android:layout_below="@id/score_route_text"
                     android:layout_marginTop="16dp"
                     android:layout_marginLeft="16dp"
+                    android:layout_marginBottom="16dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
@@ -58,12 +59,11 @@
                         android:layout_width="80dp"
                         android:layout_height="wrap_content"
                         android:hint="Climber ID"
-                        tools:text="NMQ003"
-                        android:layout_marginBottom="16dp"
                         android:clickable="false"
                         android:cursorVisible="false"
                         android:focusable="false"
-                        android:focusableInTouchMode="false"/>
+                        android:focusableInTouchMode="false"
+                        tools:text="NMQ003"/>
 
                 </android.support.design.widget.TextInputLayout>
 
@@ -73,6 +73,7 @@
                     android:layout_below="@id/score_route_text"
                     android:layout_marginTop="16dp"
                     android:layout_marginRight="16dp"
+                    android:layout_marginBottom="16dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
@@ -85,17 +86,19 @@
                         android:clickable="false"
                         android:cursorVisible="false"
                         android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        android:layout_marginBottom="16dp"/>
+                        android:focusableInTouchMode="false" />
 
                 </android.support.design.widget.TextInputLayout>
 
             </RelativeLayout>
+
         </android.support.v7.widget.CardView>
 
-        <android.support.v7.widget.CardView android:id="@+id/score_score_card"
+        <android.support.v7.widget.CardView
+            android:id="@+id/score_score_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:layout_below="@id/score_info_card">
 
             <RelativeLayout
@@ -106,6 +109,8 @@
                     android:id="@+id/score_accumulated_til"
                     android:layout_alignParentTop="true"
                     android:layout_marginTop="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
@@ -113,8 +118,6 @@
                         android:id="@+id/score_accumulated_edit"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="16dp"
-                        android:layout_marginRight="16dp"
                         android:hint="Accumulated Score"
                         android:clickable="false"
                         android:cursorVisible="false"
@@ -128,6 +131,7 @@
                     android:id="@+id/score_current_til"
                     android:layout_below="@id/score_accumulated_til"
                     android:layout_width="match_parent"
+                    android:layout_marginBottom="4dp"
                     android:layout_height="wrap_content">
 
                     <EditText
@@ -145,10 +149,12 @@
 
                 </android.support.design.widget.TextInputLayout>
 
-                <LinearLayout android:id="@+id/score_score_fragment"
+                <ViewStub android:id="@+id/score_score_fragment"
+                    android:inflatedId="@id/score_score_fragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp"
                     android:layout_below="@id/score_current_til"/>
 
                 <Button
@@ -161,7 +167,10 @@
                     android:layout_marginRight="16dp"
                     android:onClick="scoreSubmit"
                     android:text="submit" />
+
             </RelativeLayout>
         </android.support.v7.widget.CardView>
+
     </RelativeLayout>
+
 </android.support.v4.widget.NestedScrollView>

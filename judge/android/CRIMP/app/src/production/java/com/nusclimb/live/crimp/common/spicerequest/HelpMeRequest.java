@@ -1,9 +1,6 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
-import android.content.Context;
-
-import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.json.HelpMeResponseBody;
+import com.nusclimb.live.crimp.network.model.HelpMeJackson;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -23,7 +20,7 @@ import java.io.IOException;
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponseBody>{
+public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeJackson>{
     private static final String TAG = HelpMeRequest.class.getSimpleName();
 
     private String xUserId;
@@ -34,7 +31,7 @@ public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponseBody>
 
     public HelpMeRequest(String xUserId, String xAuthToken, String categoryId,
                          String routeId, String url) {
-        super(HelpMeResponseBody.class);
+        super(HelpMeJackson.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
         this.categoryId = categoryId;
@@ -43,7 +40,7 @@ public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponseBody>
     }
 
     @Override
-    public HelpMeResponseBody loadDataFromNetwork() throws Exception {
+    public HelpMeJackson loadDataFromNetwork() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Cache-Control", "no-cache");
@@ -54,8 +51,8 @@ public class HelpMeRequest extends SpringAndroidSpiceRequest<HelpMeResponseBody>
         HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
 
         RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<HelpMeResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,
-                request, HelpMeResponseBody.class);
+        ResponseEntity<HelpMeJackson> response = mRestTemplate.exchange(url, HttpMethod.POST,
+                request, HelpMeJackson.class);
 
         return response.getBody();
     }

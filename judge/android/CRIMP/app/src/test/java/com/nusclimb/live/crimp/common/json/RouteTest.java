@@ -1,11 +1,10 @@
 package com.nusclimb.live.crimp.common.json;
 
+import com.nusclimb.live.crimp.network.model.CategoriesJackson;
+
 import junit.framework.Assert;
 
-import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
-import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,11 +15,11 @@ import java.io.IOException;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class RouteTest {
-    private CategoriesResponseBody.Category.Route mRoute;
+    private CategoriesJackson.Category.Route mRoute;
 
     @Before
     public void setup(){
-        mRoute = new CategoriesResponseBody.Category.Route();
+        mRoute = new CategoriesJackson.Category.Route();
         mRoute.setRouteId("routeId");
         mRoute.setRouteName("routeName");
         mRoute.setScore("score");
@@ -29,8 +28,8 @@ public class RouteTest {
     @Test
     public void testRoute(){
         System.out.println("Testing Route constructor");
-        CategoriesResponseBody.Category.Route cloneRoute =
-                new CategoriesResponseBody.Category.Route(mRoute);
+        CategoriesJackson.Category.Route cloneRoute =
+                new CategoriesJackson.Category.Route(mRoute);
         Assert.assertEquals(mRoute.getRouteId(), cloneRoute.getRouteId());
         Assert.assertEquals(mRoute.getRouteName(), cloneRoute.getRouteName());
         Assert.assertEquals(mRoute.getScore(), cloneRoute.getScore());
@@ -43,9 +42,9 @@ public class RouteTest {
         ObjectMapper mapper = new ObjectMapper();
         String serializeForm=null;
         serializeForm = mapper.writeValueAsString(mRoute);
-        CategoriesResponseBody.Category.Route deserializeForm = null;
+        CategoriesJackson.Category.Route deserializeForm = null;
         deserializeForm = mapper.readValue(serializeForm,
-                CategoriesResponseBody.Category.Route.class);
+                CategoriesJackson.Category.Route.class);
 
         Assert.assertEquals(mRoute.getRouteId(), deserializeForm.getRouteId());
         Assert.assertEquals(mRoute.getRouteName(), deserializeForm.getRouteName());

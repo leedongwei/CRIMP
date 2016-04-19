@@ -1,11 +1,10 @@
 package com.nusclimb.live.crimp.common.json;
 
+import com.nusclimb.live.crimp.network.model.ClimberJackson;
+
 import junit.framework.Assert;
 
-import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
-import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,33 +15,33 @@ import java.io.IOException;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class ClimberResponseBodyTest {
-    private ClimberResponseBody mClimberResponseBody;
+    private ClimberJackson mClimberJackson;
 
     @Before
     public void setup(){
-        mClimberResponseBody = new ClimberResponseBody();
-        mClimberResponseBody.setClimberId("climberId");
-        mClimberResponseBody.setClimberName("climberName");
-        mClimberResponseBody.setTotalScore("totalScore");
+        mClimberJackson = new ClimberJackson();
+        mClimberJackson.setClimberId("climberId");
+        mClimberJackson.setClimberName("climberName");
+        mClimberJackson.setTotalScore("totalScore");
     }
 
     @Test
     public void testSerializeAndDeserialize() throws IOException {
-        System.out.println("Testing ClimberResponseBody serialization and deserialization");
+        System.out.println("Testing ClimberJackson serialization and deserialization");
         ObjectMapper mapper = new ObjectMapper();
         String serializeForm=null;
-        serializeForm = mapper.writeValueAsString(mClimberResponseBody);
-        ClimberResponseBody deserializeForm = null;
-        deserializeForm = mapper.readValue(serializeForm, ClimberResponseBody.class);
+        serializeForm = mapper.writeValueAsString(mClimberJackson);
+        ClimberJackson deserializeForm = null;
+        deserializeForm = mapper.readValue(serializeForm, ClimberJackson.class);
 
-        Assert.assertEquals(mClimberResponseBody.getClimberId(), deserializeForm.getClimberId());
-        Assert.assertEquals(mClimberResponseBody.getClimberName(), deserializeForm.getClimberName());
-        Assert.assertEquals(mClimberResponseBody.getTotalScore(), deserializeForm.getTotalScore());
-        Assert.assertNotSame(mClimberResponseBody, deserializeForm);
+        Assert.assertEquals(mClimberJackson.getClimberId(), deserializeForm.getClimberId());
+        Assert.assertEquals(mClimberJackson.getClimberName(), deserializeForm.getClimberName());
+        Assert.assertEquals(mClimberJackson.getTotalScore(), deserializeForm.getTotalScore());
+        Assert.assertNotSame(mClimberJackson, deserializeForm);
     }
 
     @After
     public void tearDown(){
-        mClimberResponseBody = null;
+        mClimberJackson = null;
     }
 }

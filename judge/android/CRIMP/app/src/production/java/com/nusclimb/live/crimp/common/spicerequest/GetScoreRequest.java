@@ -1,9 +1,6 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
-import android.content.Context;
-
-import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.json.GetScoreResponseBody;
+import com.nusclimb.live.crimp.network.model.GetScoreJackson;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.springframework.http.HttpEntity;
@@ -18,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreResponseBody> {
+public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreJackson> {
     private static final String TAG = GetScoreRequest.class.getSimpleName();
 
     private String xUserId;
@@ -26,14 +23,14 @@ public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreResponseB
     private String url;
 
     public GetScoreRequest(String xUserId, String xAuthToken, String url) {
-        super(GetScoreResponseBody.class);
+        super(GetScoreJackson.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
         this.url = url;
     }
 
     @Override
-    public GetScoreResponseBody loadDataFromNetwork() throws Exception {
+    public GetScoreJackson loadDataFromNetwork() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Cache-Control", "no-cache");
@@ -43,8 +40,8 @@ public class GetScoreRequest extends SpringAndroidSpiceRequest<GetScoreResponseB
         HttpEntity request = new HttpEntity(headers);
 
         RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<GetScoreResponseBody> response = mRestTemplate.exchange(url,
-                HttpMethod.GET, request, GetScoreResponseBody.class);
+        ResponseEntity<GetScoreJackson> response = mRestTemplate.exchange(url,
+                HttpMethod.GET, request, GetScoreJackson.class);
 
         return response.getBody();
     }

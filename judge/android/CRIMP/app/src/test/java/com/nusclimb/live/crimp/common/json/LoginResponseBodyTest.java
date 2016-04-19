@@ -1,10 +1,10 @@
 package com.nusclimb.live.crimp.common.json;
 
+import com.nusclimb.live.crimp.network.model.LoginJackson;
+
 import junit.framework.Assert;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
-import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,32 +15,32 @@ import java.io.IOException;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class LoginResponseBodyTest {
-    private LoginResponseBody mLoginResponseBody;
+    private LoginJackson mLoginJackson;
 
     @Before
     public void setup(){
-        mLoginResponseBody = new LoginResponseBody();
-        mLoginResponseBody.setxUserId("userId");
-        mLoginResponseBody.setxAuthToken("authToken");
+        mLoginJackson = new LoginJackson();
+        mLoginJackson.setxUserId("userId");
+        mLoginJackson.setxAuthToken("authToken");
     }
 
     @Test
     public void testSerializeAndDeserialize() throws IOException {
-        System.out.println("Testing LoginResponseBody serialization and deserialization");
+        System.out.println("Testing LoginJackson serialization and deserialization");
         ObjectMapper mapper = new ObjectMapper();
         String serializeForm=null;
-        serializeForm = mapper.writeValueAsString(mLoginResponseBody);
+        serializeForm = mapper.writeValueAsString(mLoginJackson);
 
-        LoginResponseBody deserializeForm = null;
-        deserializeForm = mapper.readValue(serializeForm, LoginResponseBody.class);
+        LoginJackson deserializeForm = null;
+        deserializeForm = mapper.readValue(serializeForm, LoginJackson.class);
 
-        Assert.assertEquals(mLoginResponseBody.getxUserId(), deserializeForm.getxUserId());
-        Assert.assertEquals(mLoginResponseBody.getxAuthToken(), deserializeForm.getxAuthToken());
-        Assert.assertNotSame(mLoginResponseBody, deserializeForm);
+        Assert.assertEquals(mLoginJackson.getxUserId(), deserializeForm.getxUserId());
+        Assert.assertEquals(mLoginJackson.getxAuthToken(), deserializeForm.getxAuthToken());
+        Assert.assertNotSame(mLoginJackson, deserializeForm);
     }
 
     @After
     public void tearDown(){
-        mLoginResponseBody = null;
+        mLoginJackson = null;
     }
 }

@@ -1,0 +1,26 @@
+package com.nusclimb.live.crimp.network.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+
+/**
+ * @author Lin Weizhi (ecc.weizhi@gmail.com)
+ */
+public class GetScoreJs implements Serializable{
+    @JsonIgnore
+    private static final long serialVersionUID = 1L;
+
+    @JsonProperty("climber_scores")
+    private ArrayList<ClimberScoreJs> climberScores;
+
+    public ArrayList<ClimberScoreJs> getClimberScores() {
+        return climberScores;
+    }
+
+    public void setClimberScores(ArrayList<ClimberScoreJs> climberScores) {
+        this.climberScores = climberScores;
+    }
+}

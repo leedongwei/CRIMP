@@ -1,11 +1,10 @@
 package com.nusclimb.live.crimp.common.json;
 
+import com.nusclimb.live.crimp.network.model.CategoriesJackson;
+
 import junit.framework.Assert;
 
-import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
-import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,27 +16,27 @@ import java.util.ArrayList;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class CategoryTest {
-    CategoriesResponseBody.Category.Route mRoute1;
-    CategoriesResponseBody.Category.Route mRoute2;
+    CategoriesJackson.Category.Route mRoute1;
+    CategoriesJackson.Category.Route mRoute2;
 
-    private CategoriesResponseBody.Category mCategory;
+    private CategoriesJackson.Category mCategory;
 
     @Before
     public void setup(){
-        mRoute1 = new CategoriesResponseBody.Category.Route();
+        mRoute1 = new CategoriesJackson.Category.Route();
         mRoute1.setRouteId("routeId1");
         mRoute1.setRouteName("routeName1");
         mRoute1.setScore("score1");
 
-        mRoute2 = new CategoriesResponseBody.Category.Route();
+        mRoute2 = new CategoriesJackson.Category.Route();
         mRoute2.setRouteId("routeId2");
         mRoute2.setRouteName("routeName2");
         mRoute2.setScore("score2");
 
-        mCategory = new CategoriesResponseBody.Category();
+        mCategory = new CategoriesJackson.Category();
         mCategory.setCategoryName("categoryName");
         mCategory.setCategoryId("categoryId");
-        ArrayList<CategoriesResponseBody.Category.Route> routes = new ArrayList<>();
+        ArrayList<CategoriesJackson.Category.Route> routes = new ArrayList<>();
         routes.add(mRoute1);
         routes.add(mRoute2);
         mCategory.setRoutes(routes);
@@ -49,8 +48,8 @@ public class CategoryTest {
     @Test
     public void testCategory(){
         System.out.println("Testing Category constructor");
-        CategoriesResponseBody.Category cloneCategory =
-                new CategoriesResponseBody.Category(mCategory);
+        CategoriesJackson.Category cloneCategory =
+                new CategoriesJackson.Category(mCategory);
         Assert.assertNotSame(mCategory, cloneCategory);
         Assert.assertEquals(mCategory.getCategoryName(), cloneCategory.getCategoryName());
         Assert.assertEquals(mCategory.getCategoryId(), cloneCategory.getCategoryId());
@@ -58,7 +57,7 @@ public class CategoryTest {
         Assert.assertEquals(mCategory.getTimeStart(), cloneCategory.getTimeStart());
         Assert.assertEquals(mCategory.getTimeEnd(), cloneCategory.getTimeEnd());
 
-        ArrayList<CategoriesResponseBody.Category.Route> cloneRoutes = cloneCategory.getRoutes();
+        ArrayList<CategoriesJackson.Category.Route> cloneRoutes = cloneCategory.getRoutes();
         Assert.assertNotSame(mCategory.getRoutes(), cloneRoutes);
         Assert.assertNotNull(cloneRoutes);
         Assert.assertEquals(2, cloneRoutes.size());
@@ -77,10 +76,10 @@ public class CategoryTest {
     @Test
     public void testfindRouteById(){
         System.out.println("Testing Category.findRouteById()");
-        CategoriesResponseBody.Category.Route foundRoute1 = mCategory.findRouteById("routeId1");
+        CategoriesJackson.Category.Route foundRoute1 = mCategory.findRouteById("routeId1");
         Assert.assertSame(mRoute1, foundRoute1);
 
-        CategoriesResponseBody.Category.Route foundRoute2 = mCategory.findRouteById("routeId2");
+        CategoriesJackson.Category.Route foundRoute2 = mCategory.findRouteById("routeId2");
         Assert.assertSame(mRoute2, foundRoute2);
     }
 
@@ -90,8 +89,8 @@ public class CategoryTest {
         ObjectMapper mapper = new ObjectMapper();
         String serializeForm=null;
         serializeForm = mapper.writeValueAsString(mCategory);
-        CategoriesResponseBody.Category deserializeForm = null;
-        deserializeForm = mapper.readValue(serializeForm, CategoriesResponseBody.Category.class);
+        CategoriesJackson.Category deserializeForm = null;
+        deserializeForm = mapper.readValue(serializeForm, CategoriesJackson.Category.class);
 
         Assert.assertNotSame(mCategory, deserializeForm);
         Assert.assertEquals(mCategory.getCategoryName(), deserializeForm.getCategoryName());
@@ -100,7 +99,7 @@ public class CategoryTest {
         Assert.assertEquals(mCategory.getTimeStart(), deserializeForm.getTimeStart());
         Assert.assertEquals(mCategory.getTimeEnd(), deserializeForm.getTimeEnd());
 
-        ArrayList<CategoriesResponseBody.Category.Route> cloneRoutes = deserializeForm.getRoutes();
+        ArrayList<CategoriesJackson.Category.Route> cloneRoutes = deserializeForm.getRoutes();
         Assert.assertNotNull(cloneRoutes);
         Assert.assertEquals(2, cloneRoutes.size());
 

@@ -1,9 +1,6 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
-import android.content.Context;
-
-import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.json.ClimberResponseBody;
+import com.nusclimb.live.crimp.network.model.ClimberJackson;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.springframework.http.HttpEntity;
@@ -18,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class ClimberRequest extends SpringAndroidSpiceRequest<ClimberResponseBody> {
+public class ClimberRequest extends SpringAndroidSpiceRequest<ClimberJackson> {
     private static final String TAG = ClimberRequest.class.getSimpleName();
 
     private String xUserId;
@@ -26,14 +23,14 @@ public class ClimberRequest extends SpringAndroidSpiceRequest<ClimberResponseBod
     private String url;
 
     public ClimberRequest(String xUserId, String xAuthToken, String url) {
-        super(ClimberResponseBody.class);
+        super(ClimberJackson.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
         this.url = url;
     }
 
     @Override
-    public ClimberResponseBody loadDataFromNetwork() throws Exception {
+    public ClimberJackson loadDataFromNetwork() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Cache-Control", "no-cache");
@@ -43,8 +40,8 @@ public class ClimberRequest extends SpringAndroidSpiceRequest<ClimberResponseBod
         HttpEntity request = new HttpEntity(headers);
 
         RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<ClimberResponseBody> response = mRestTemplate.exchange(url,
-                HttpMethod.GET, request, ClimberResponseBody.class);
+        ResponseEntity<ClimberJackson> response = mRestTemplate.exchange(url,
+                HttpMethod.GET, request, ClimberJackson.class);
 
         return response.getBody();
     }

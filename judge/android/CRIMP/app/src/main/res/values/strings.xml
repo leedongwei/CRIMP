@@ -65,11 +65,6 @@
     <string name="uploadedit_activity_no_cancel_task">Don\'t cancel task</string>
 
 
-
-
-
-
-
     <!-- User Bundle Key -->
     <string name="bundle_access_token">bundle_access_token</string>
     <string name="bundle_user_name">bundle_user_name</string>
@@ -111,8 +106,6 @@
     <string name="bundle_hello_fragment_count">bundle_hellofragmentcount</string>
     <string name="bundle_hello_previous_index">bundle_hellopreviousindex</string>
 
-    
-
 
     <string name="bundle_category_spinner_selection">bundle_categoryspinnerselection</string>
     <string name="bundle_route_spinner_selection">bundle_routespinnerselection</string>
@@ -122,7 +115,6 @@
     <string name="bundle_current_judge">bundle_currentjudge</string>
     <string name="bundle_tab_count">bundle_tabcount</string>
     <string name="bundle_current_tab">bundle_currenttab</string>
-
 
 
     <!-- SharedPreferences key -->
@@ -142,16 +134,10 @@
     <string name="intent_score">intent_score</string>
 
 
-
-
-
-
     <string name="action_settings">Settings</string>
     <string name="action_helpme">Help me</string>
     <string name="action_logout">Logout</string>
     <string name="title_activity_upload_list">UploadListActivity</string>
-
-
 
 
     <!-- Intent Key -->
@@ -167,7 +153,6 @@
     <string name="intent_r_id">.rId</string>
     <string name="intent_c_id">.cId</string>
     <string name="intent_score_append">.appendScore</string>
-
 
 
     <string name="intent_key_current_selected_tab">.currentSelectedTab</string>

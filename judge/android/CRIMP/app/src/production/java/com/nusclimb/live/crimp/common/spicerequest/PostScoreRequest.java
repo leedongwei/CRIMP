@@ -1,9 +1,6 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
-import android.content.Context;
-
-import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.json.PostScoreResponseBody;
+import com.nusclimb.live.crimp.network.model.PostScoreJackson;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -23,7 +20,7 @@ import java.io.IOException;
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreResponseBody> {
+public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreJackson> {
     private static final String TAG = PostScoreRequest.class.getSimpleName();
 
     private String xUserId;
@@ -36,7 +33,7 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
 
     public PostScoreRequest(String xUserId, String xAuthToken, String categoryId,
                             String routeId, String climberId, String scoreString, String url) {
-        super(PostScoreResponseBody.class);
+        super(PostScoreJackson.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
         this.categoryId = categoryId;
@@ -47,7 +44,7 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
     }
 
     @Override
-    public PostScoreResponseBody loadDataFromNetwork() throws Exception {
+    public PostScoreJackson loadDataFromNetwork() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Cache-Control", "no-cache");
@@ -58,8 +55,8 @@ public class PostScoreRequest extends SpringAndroidSpiceRequest<PostScoreRespons
         HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
 
         RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<PostScoreResponseBody> response = mRestTemplate.exchange(url,
-                HttpMethod.POST, request, PostScoreResponseBody.class);
+        ResponseEntity<PostScoreJackson> response = mRestTemplate.exchange(url,
+                HttpMethod.POST, request, PostScoreJackson.class);
 
         return response.getBody();
     }

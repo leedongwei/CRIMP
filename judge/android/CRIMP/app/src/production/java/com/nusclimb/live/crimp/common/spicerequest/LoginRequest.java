@@ -1,9 +1,6 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
-import android.content.Context;
-
-import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.json.LoginResponseBody;
+import com.nusclimb.live.crimp.network.model.LoginJackson;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -23,7 +20,7 @@ import java.io.IOException;
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponseBody> {
+public class LoginRequest extends SpringAndroidSpiceRequest<LoginJackson> {
     private static final String TAG = LoginRequest.class.getSimpleName();
 
     private String accessToken;
@@ -32,13 +29,13 @@ public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponseBody> {
     private String url;
 
     public LoginRequest(String accessToken, String url) {
-        super(LoginResponseBody.class);
+        super(LoginJackson.class);
         this.accessToken = accessToken;
         this.url = url;
     }
 
     @Override
-    public LoginResponseBody loadDataFromNetwork() throws Exception {
+    public LoginJackson loadDataFromNetwork() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Cache-Control", "no-cache");
@@ -47,8 +44,8 @@ public class LoginRequest extends SpringAndroidSpiceRequest<LoginResponseBody> {
         HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
 
         RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<LoginResponseBody> response = mRestTemplate.exchange(url, HttpMethod.POST,
-                request, LoginResponseBody.class);
+        ResponseEntity<LoginJackson> response = mRestTemplate.exchange(url, HttpMethod.POST,
+                request, LoginJackson.class);
 
         return response.getBody();
     }

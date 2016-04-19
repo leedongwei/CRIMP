@@ -1,6 +1,6 @@
 package com.nusclimb.live.crimp.common.json;
 
-import com.nusclimb.live.crimp.common.json.ActiveMonitorResponseBody;
+import com.nusclimb.live.crimp.network.model.ActiveMonitorJackson;
 
 import junit.framework.Assert;
 
@@ -9,21 +9,21 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ActiveMonitorResponseBodyTest {
-    private ActiveMonitorResponseBody mActiveMonitorResponseBody;
+    private ActiveMonitorJackson mActiveMonitorJackson;
 
     @Before
     public void setUp() {
-        mActiveMonitorResponseBody = new ActiveMonitorResponseBody();
+        mActiveMonitorJackson = new ActiveMonitorJackson();
     }
 
     @Test
     public void testToString(){
-        System.out.println("Testing ActiveMonitorResponseBody.toString()");
-        Assert.assertEquals("{}", mActiveMonitorResponseBody.toString());
+        System.out.println("Testing ActiveMonitorJackson.toString()");
+        Assert.assertEquals("{}", mActiveMonitorJackson.toString());
     }
 
     @After
     public void tearDown(){
-        mActiveMonitorResponseBody = null;
+        mActiveMonitorJackson = null;
     }
 }

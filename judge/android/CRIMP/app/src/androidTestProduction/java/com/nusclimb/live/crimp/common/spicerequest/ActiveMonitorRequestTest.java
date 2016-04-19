@@ -3,25 +3,19 @@ package com.nusclimb.live.crimp.common.spicerequest;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.InstrumentationTestCase;
-import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 
-import com.nusclimb.live.crimp.common.json.ActiveMonitorResponseBody;
-import com.nusclimb.live.crimp.common.json.LoginResponseBody;
+import com.nusclimb.live.crimp.network.model.ActiveMonitorJackson;
 import com.octo.android.robospice.JacksonSpringAndroidSpiceService;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
-import org.codehaus.jackson.map.ObjectWriter;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
@@ -37,7 +31,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class ActiveMonitorRequestTest extends InstrumentationTestCase{
-    private ActiveMonitorResponseBody serverResponseObject;
+    private ActiveMonitorJackson serverResponseObject;
     private String serverResponseString;
 
     @Before
@@ -47,7 +41,7 @@ public class ActiveMonitorRequestTest extends InstrumentationTestCase{
                 .getAssets().open("api/judge/POSTactivemonitor");
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS);
-        serverResponseObject = mapper.readValue(inputStream, ActiveMonitorResponseBody.class);
+        serverResponseObject = mapper.readValue(inputStream, ActiveMonitorJackson.class);
         serverResponseString = mapper.writeValueAsString(serverResponseObject);
         inputStream.close();
     }
@@ -65,7 +59,7 @@ public class ActiveMonitorRequestTest extends InstrumentationTestCase{
         ActiveMonitorRequest mRequest = new ActiveMonitorRequest("userId", "authToken",
                 "categoryId", "routeId", "climberId", true, baseUrl.toString());
         mRequest.setRestTemplate(mService.createRestTemplate());
-        ActiveMonitorResponseBody actualResponse = mRequest.loadDataFromNetwork();
+        ActiveMonitorJackson actualResponse = mRequest.loadDataFromNetwork();
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS);

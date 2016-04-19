@@ -4,26 +4,19 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.MediumTest;
 
-import com.nusclimb.live.crimp.common.json.ActiveMonitorResponseBody;
-import com.nusclimb.live.crimp.common.json.CategoriesResponseBody;
-import com.nusclimb.live.crimp.common.json.LoginResponseBody;
+import com.nusclimb.live.crimp.network.model.LoginJackson;
 import com.octo.android.robospice.JacksonSpringAndroidSpiceService;
 
 import org.codehaus.jackson.annotate.JsonAnySetter;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
-import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.Hashtable;
 
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
@@ -40,7 +33,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class LoginRequestTest {
-    private LoginResponseBody serverResponseObject;
+    private LoginJackson serverResponseObject;
     private String serverResponseString;
 
     @Before
@@ -49,7 +42,7 @@ public class LoginRequestTest {
         InputStream inputStream = InstrumentationRegistry.getContext().getResources()
                 .getAssets().open("api/judge/POSTlogin");
         ObjectMapper mapper = new ObjectMapper();
-        serverResponseObject = mapper.readValue(inputStream, LoginResponseBody.class);
+        serverResponseObject = mapper.readValue(inputStream, LoginJackson.class);
         serverResponseString = mapper.writeValueAsString(serverResponseObject);
         inputStream.close();
     }
@@ -66,9 +59,9 @@ public class LoginRequestTest {
         JacksonSpringAndroidSpiceService mService = new JacksonSpringAndroidSpiceService();
         LoginRequest mRequest = new LoginRequest("accessToken", baseUrl.toString());
         mRequest.setRestTemplate(mService.createRestTemplate());
-        LoginResponseBody actualResponse = mRequest.loadDataFromNetwork();
+        LoginJackson actualResponse = mRequest.loadDataFromNetwork();
 
-        // Check what we received if deserialized properly into LoginResponseBody.
+        // Check what we received if deserialized properly into LoginJackson.
         assertThat(actualResponse.getxUserId(), is(equalTo(serverResponseObject.getxUserId())));
         assertThat(actualResponse.getxAuthToken(), is(equalTo(serverResponseObject.getxAuthToken())));
 
@@ -99,9 +92,9 @@ public class LoginRequestTest {
         JacksonSpringAndroidSpiceService mService = new JacksonSpringAndroidSpiceService();
         LoginRequest mRequest = new LoginRequest("accessToken", baseUrl.toString());
         mRequest.setRestTemplate(mService.createRestTemplate());
-        LoginResponseBody actualResponse = mRequest.loadDataFromNetwork();
+        LoginJackson actualResponse = mRequest.loadDataFromNetwork();
 
-        // Check what we received if deserialized properly into LoginResponseBody.
+        // Check what we received if deserialized properly into LoginJackson.
         assertThat(actualResponse.getxUserId(), is(equalTo(serverResponseObject.getxUserId())));
         assertThat(actualResponse.getxAuthToken(), is(equalTo(serverResponseObject.getxAuthToken())));
 

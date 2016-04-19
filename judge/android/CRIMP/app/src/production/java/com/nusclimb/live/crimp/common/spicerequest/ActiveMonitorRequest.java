@@ -1,9 +1,6 @@
 package com.nusclimb.live.crimp.common.spicerequest;
 
-import android.content.Context;
-
-import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.json.ActiveMonitorResponseBody;
+import com.nusclimb.live.crimp.network.model.ActiveMonitorJackson;
 import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -23,7 +20,7 @@ import java.io.IOException;
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonitorResponseBody> {
+public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonitorJackson> {
     private static final String TAG = ActiveMonitorRequest.class.getSimpleName();
 
     private String xUserId;
@@ -36,7 +33,7 @@ public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonito
 
     public ActiveMonitorRequest(String xUserId, String xAuthToken, String categoryId,
                                 String routeId, String climberId, boolean insert, String url) {
-        super(ActiveMonitorResponseBody.class);
+        super(ActiveMonitorJackson.class);
         this.xUserId = xUserId;
         this.xAuthToken = xAuthToken;
         this.categoryId = categoryId;
@@ -47,7 +44,7 @@ public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonito
     }
 
     @Override
-    public ActiveMonitorResponseBody loadDataFromNetwork() throws Exception {
+    public ActiveMonitorJackson loadDataFromNetwork() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Cache-Control", "no-cache");
@@ -58,8 +55,8 @@ public class ActiveMonitorRequest extends SpringAndroidSpiceRequest<ActiveMonito
         HttpEntity<HttpBody> request = new HttpEntity<>(body, headers);
 
         RestTemplate mRestTemplate = getRestTemplate();
-        ResponseEntity<ActiveMonitorResponseBody> response = mRestTemplate.exchange(url,
-                HttpMethod.POST, request, ActiveMonitorResponseBody.class);
+        ResponseEntity<ActiveMonitorJackson> response = mRestTemplate.exchange(url,
+                HttpMethod.POST, request, ActiveMonitorJackson.class);
 
         return response.getBody();
     }
