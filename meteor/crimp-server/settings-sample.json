@@ -1,3 +1,8 @@
+/**
+ *  Enter your settings and save as 'settings.json' to access them in the
+ *  program using Meteor.settings
+ */
+
 {
   "public": {
 

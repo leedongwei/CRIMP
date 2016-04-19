@@ -50,6 +50,7 @@ Template.admin_dashboard.onCreated(function() {
   Meteor.subscribe('adminActiveMonitor');
   Meteor.subscribe('adminAllUsers');
   Meteor.subscribe('adminRecentScores');
+  Meteor.subscribe('adminHelpMe');
 });
 
 
@@ -86,7 +87,10 @@ Template.admin_dashboard.events({
 
     data['user_id'] = event.target.getAttribute('data-userId');
     data['user_role'] = $('#admin-approvejudge-' + data.user_id).val();
+
+    // TODO: Check if this is needed
     data['currentUser'] = Meteor.user();
+
     Meteor.call('changeUserRole', data);
   }
 });

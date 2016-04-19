@@ -40,8 +40,9 @@ CRIMP.roles = {
  *    {array} roles - Any of the groups above (e.g. CRIMP.roles.trusted)
  */
 CRIMP.checkPermission = function(roles) {
-  if (!Meteor.user() ||
-      !Roles.userIsInRole(Meteor.user(), roles)) {
-    throw new Meteor.Error(403, 'Access denied');
-  }
+  if (!Meteor.user())
+    throw new Meteor.Error(401, 'Unauthorized');
+
+  if (!Roles.userIsInRole(Meteor.user(), roles))
+    throw new Meteor.Error(403, 'Forbidden');
 };

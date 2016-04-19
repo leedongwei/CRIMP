@@ -13,7 +13,6 @@ alanning:roles
 nimble:restivus
 http
 meteorhacks:kadira
-meteorhacks:kadira-profiler
 meteorhacks:zones
 ewall:foundation
 fourseven:scss
@@ -22,3 +21,8 @@ momentjs:moment
 reactive-dict
 ongoworks:security
 grigio:babel
+meteorhacks:npm
+
+
+npm-container
+mike:mocha
