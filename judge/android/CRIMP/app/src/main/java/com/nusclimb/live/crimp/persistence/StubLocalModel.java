@@ -4,6 +4,8 @@ import android.util.Log;
 
 import java.io.Serializable;
 
+import timber.log.Timber;
+
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
@@ -27,7 +29,7 @@ public class StubLocalModel implements LocalModel {
 
     @Override
     public boolean putData(String key, Serializable value) {
-        if(DEBUG) Log.d(TAG, "putData for key:" + key);
+        Timber.d("putData for key: %s", key);
         return false;
     }
 }

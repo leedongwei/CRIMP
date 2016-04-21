@@ -15,6 +15,8 @@ import com.nusclimb.live.crimp.network.model.SetActiveJs;
 
 import java.io.IOException;
 
+import timber.log.Timber;
+
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
@@ -31,7 +33,7 @@ public class StubWS implements CrimpWS {
 
     @Override
     public CategoriesJs getCategories() throws IOException {
-        if(DEBUG) Log.d(TAG, "sending getCategories request...");
+        Timber.d("sending getCategories request...");
         try {
             Thread.sleep(TIME_TO_RESPOND);
         } catch (InterruptedException e) {

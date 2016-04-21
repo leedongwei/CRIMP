@@ -14,6 +14,8 @@ import com.nusclimb.live.crimp.persistence.StubLocalModel;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
+import timber.log.Timber;
+
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
@@ -34,6 +36,9 @@ public class CrimpApplication2 extends Application {
         //DaoMaster.DevOpenHelper mDbHelper = new DaoMaster.DevOpenHelper(this, DB_NAME, null);
         //db = mDbHelper.getWritableDatabase();
         //mDaoMaster = new DaoMaster(db);
+        if(BuildConfig.DEBUG){
+            Timber.plant(new Timber.DebugTree());
+        }
 
     }
 

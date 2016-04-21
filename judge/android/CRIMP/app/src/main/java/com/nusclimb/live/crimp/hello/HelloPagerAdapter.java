@@ -24,6 +24,8 @@ import com.nusclimb.live.crimp.R;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import timber.log.Timber;
+
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
@@ -43,6 +45,9 @@ public class HelloPagerAdapter extends PagerAdapter {
         canDisplay = new boolean[COUNT];
         for(int i=0; i<COUNT; i++){
             canDisplay[i] = true;
+        }
+        for(int i=0; i<COUNT; i++){
+            viewArray.add(null);
         }
     }
 
@@ -116,6 +121,8 @@ public class HelloPagerAdapter extends PagerAdapter {
 
         container.addView(layout);
         viewArray.set(position, new WeakReference<>(layout));
+
+        Timber.d("instantiated page %d", position);
         return layout;
     }
 
