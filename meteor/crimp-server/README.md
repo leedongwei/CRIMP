@@ -13,17 +13,22 @@ This is a draft document that I will brain-dump into as I work on the meteor app
     -e ROOT_URL=http://crimp-dev.com \
     -e MONGO_URL=mongodb://url \
     -e MONGO_OPLOG_URL=mongodb://oplog_url \
-    -v /Users/dongwei/Documents/Projects/crimp-build/bundle:/bundle \
-    -p 8080:80 \
-    meteorhacks/meteord:base`
-
-* `docker run -d \
-    -e ROOT_URL=http://crimp-dev.com \
-    -e MONGO_URL=mongodb://url \
-    -e MONGO_OPLOG_URL=mongodb://oplog_url \
     -v /Users/dongwei/Documents/Projects/meteor-build:/bundle \
     -p 8080:80 \
     meteorhacks/meteord:base`
+
+
+## Build local Docker image
+* `docker build -t leedongwei/crimp-dev .`
+* `docker run -d \
+    -e ROOT_URL=http://localhost \
+    -e MONGO_URL=mongodb://url \
+    -e MONGO_OPLOG_URL=mongodb://oplog_url \
+    -p 8080:80 \
+    leedongwei/crimp-dev`
+* Go to Kitematic to check if it is running correct
+* Git push to repo to trigger automated build on Docker hub
+
 
 
 ## Deploy using Docker + AWS
@@ -34,3 +39,10 @@ This is a draft document that I will brain-dump into as I work on the meteor app
 ## Delete local Docker stuff
 * Containers: `docker rm $(docker ps -a -q)`
 * Images: `docker rmi $(docker images -q)`
+
+
+## Set custom URL
+* Find the IP Address of your AWS server
+* Find the port of your Docker container
+* Go to the CNAME records of your domain
+* Add a URL-redirect
