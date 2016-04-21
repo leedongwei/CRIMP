@@ -19,11 +19,19 @@ import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.dao.Category;
 import com.nusclimb.live.crimp.common.dao.Climber;
 import com.nusclimb.live.crimp.common.dao.User;
+import com.nusclimb.live.crimp.common.event.ResponseReceived;
+import com.nusclimb.live.crimp.network.model.CategoriesJs;
+import com.nusclimb.live.crimp.network.model.CategoryJs;
+import com.nusclimb.live.crimp.network.model.RouteJs;
+import com.nusclimb.live.crimp.servicehelper.ServiceHelper;
+import com.squareup.otto.Subscribe;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import timber.log.Timber;
 
 import static android.support.v4.view.ViewPager.SCROLL_STATE_DRAGGING;
 import static android.support.v4.view.ViewPager.SCROLL_STATE_IDLE;
@@ -128,7 +136,7 @@ public class HelloActivity extends AppCompatActivity {
 
 
 
-
+        Timber.d("onCreate end");
     }
 
     @Override
@@ -137,9 +145,13 @@ public class HelloActivity extends AppCompatActivity {
         CrimpApplication2.getBusInstance().register(this);
 
         if(categoriesTxId == null && categoryAdapter.getCount() <= 1){
-            if(DEBUG) Log.d(TAG, "shld request category");
+            categoriesTxId = ServiceHelper.getCategories(this, categoriesTxId);
         }
+    }
 
+    @Override
+    protected void onResume(){
+        super.onResume();
     }
 
     @Override
@@ -154,7 +166,56 @@ public class HelloActivity extends AppCompatActivity {
     }
 
 
+    @Subscribe
+    public void RestResponseReceived(ResponseReceived event) {
+        Timber.d("Received response %s", event.txId);
+        if(event.txId.equals(categoriesTxId)){
+            // TODO: React to the event somehow! REMEMBER TO CLEAR THE TXID
+            CategoriesJs categories = CrimpApplication2.getLocalModel()
+                    .fetch(categoriesTxId.toString(), CategoriesJs.class);
 
+            //TODO REMOVE INJECTION
+            RouteJs route1a = new RouteJs();
+            route1a.setRouteName("route 1a");
+            RouteJs route1b = new RouteJs();
+            route1b.setRouteName("route 1b");
+            RouteJs route2a = new RouteJs();
+            route2a.setRouteName("route 2a");
+            RouteJs route2b = new RouteJs();
+            route2b.setRouteName("route 2b");
+
+            CategoryJs category1 = new CategoryJs();
+            category1.setCategoryName("category 1");
+            ArrayList<RouteJs> cat1Route = new ArrayList<>();
+            cat1Route.add(route1a);
+            cat1Route.add(route1b);
+            category1.setRoutes(cat1Route);
+
+            CategoryJs category2 = new CategoryJs();
+            category2.setCategoryName("category 2");
+            ArrayList<RouteJs> cat2Route = new ArrayList<>();
+            cat2Route.add(route2a);
+            cat2Route.add(route2b);
+            category2.setRoutes(cat2Route);
+
+            ArrayList<CategoryJs> categoryList = new ArrayList<>();
+            categoryList.add(category1);
+            categoryList.add(category2);
+
+            categories = new CategoriesJs();  //TODO INJECTION
+            categories.setCategories(categoryList);
+
+            ArrayList<String> categoryNames = new ArrayList<>();
+            for(CategoryJs c:categories.getCategories()){
+                categoryNames.add(c.getCategoryName());
+            }
+
+            categoryAdapter.addAll(categoryNames);
+        }
+        else{
+
+        }
+    }
 
 
 

@@ -10,12 +10,17 @@ import com.nusclimb.live.crimp.CrimpApplication2;
 import com.nusclimb.live.crimp.common.event.RequestFailed;
 import com.nusclimb.live.crimp.common.event.ResponseReceived;
 import com.nusclimb.live.crimp.network.model.CategoriesJs;
+import com.nusclimb.live.crimp.network.model.CategoryJs;
 import com.nusclimb.live.crimp.network.model.GetScoreJs;
 import com.nusclimb.live.crimp.network.model.LoginJs;
 import com.nusclimb.live.crimp.network.model.RequestBean;
+import com.nusclimb.live.crimp.network.model.RouteJs;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.UUID;
+
+import timber.log.Timber;
 
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
@@ -68,13 +73,43 @@ public class CrimpService extends IntentService{
         switch(intent.getAction()){
             case ACTION_GET_CATEGORIES:
                 CategoriesJs categoriesJs = getCategories();
+                //TODO INJECTION
+                RouteJs route1a = new RouteJs();
+                route1a.setRouteName("route 1a");
+                RouteJs route1b = new RouteJs();
+                route1b.setRouteName("route 1b");
+                RouteJs route2a = new RouteJs();
+                route2a.setRouteName("route 2a");
+                RouteJs route2b = new RouteJs();
+                route2b.setRouteName("route 2b");
+
+                CategoryJs category1 = new CategoryJs();
+                category1.setCategoryName("category 1");
+                ArrayList<RouteJs> cat1Route = new ArrayList<>();
+                cat1Route.add(route1a);
+                cat1Route.add(route1b);
+                category1.setRoutes(cat1Route);
+
+                CategoryJs category2 = new CategoryJs();
+                category2.setCategoryName("category 2");
+                ArrayList<RouteJs> cat2Route = new ArrayList<>();
+                cat2Route.add(route2a);
+                cat2Route.add(route2b);
+                category2.setRoutes(cat2Route);
+
+                ArrayList<CategoryJs> categoryList = new ArrayList<>();
+                categoryList.add(category1);
+                categoryList.add(category2);
+
+                categoriesJs = new CategoriesJs();  //TODO INJECTION
+                categoriesJs.setCategories(categoryList);
 
                 if(categoriesJs != null){
                     //TODO UPDATE TRANSACTION LOG
 
                     // write to local model
                     CrimpApplication2.getLocalModel().putData(txId.toString(), categoriesJs);
-                    if(DEBUG) Log.d(TAG, "Posting responseReceived: "+txId);
+                    Timber.d("Posting responseReceived: %s", txId);
                     CrimpApplication2.getBusInstance().post(new ResponseReceived(txId));
                 }
                 else{
@@ -144,11 +179,11 @@ public class CrimpService extends IntentService{
         try {
             categoriesJs = CrimpApplication2.getCrimpWS().getCategories();
         } catch (IOException e){
-            if(DEBUG) Log.d(TAG, "IOE while doing getCategories. e:"+e.getMessage());
+            Timber.e(e, "IOE while doing getCategories");
         }
 
         for(int i=1; categoriesJs==null && i<=RETRY; i++){
-            if(DEBUG) Log.d(TAG, "getCategories returns null. Retry("+(i)+") in "+backOff+"ms...");
+            Timber.d("getCategories returns null. Retry(%d) in %dms...",i ,backOff);
 
             try {
                 Thread.sleep(backOff);
@@ -160,7 +195,7 @@ public class CrimpService extends IntentService{
             try {
                 categoriesJs = CrimpApplication2.getCrimpWS().getCategories();
             } catch (IOException e){
-                if(DEBUG) Log.d(TAG, "IOE while doing getCategories. e:"+e.getMessage());
+                Timber.d(e, "IOE while doing getCategories");
             }
 
             backOff = backOff * 2;
