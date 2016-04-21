@@ -121,6 +121,6 @@ jspm_packages
 ######################
 **/.meteor/local
 **/.meteor/.gitignore
-#**/meteor/**/settings.json
-#**/.demeteorized
+meteor/**/settings.json
+meteor/**/bundle
 
