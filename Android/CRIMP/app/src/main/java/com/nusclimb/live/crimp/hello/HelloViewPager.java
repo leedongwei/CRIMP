@@ -6,13 +6,12 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import timber.log.Timber;
+
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class HelloViewPager extends ViewPager {
-    private static final String TAG = "HelloViewPager";
-    private static final boolean DEBUG = true;
-
     private boolean restrictSwipe = true;
     private float initialXValue;
 
@@ -31,7 +30,7 @@ public class HelloViewPager extends ViewPager {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if(restrictSwipe && !isValidSwipe(event)){
-            if(DEBUG) Log.d(TAG, "Invalid swipe");
+            Timber.d("Invalid swipe");
             return false;
         }
 
@@ -41,7 +40,7 @@ public class HelloViewPager extends ViewPager {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         if(restrictSwipe && !isValidSwipe(event)){
-            if(DEBUG) Log.d(TAG, "Invalid swipe");
+            Timber.d("Invalid swipe");
             return false;
         }
 
@@ -53,14 +52,14 @@ public class HelloViewPager extends ViewPager {
 
         SwipeDirection direction = checkSwipeDirection(event);
         int currentItem = getCurrentItem();
-        HelloPagerAdapter adapter = (HelloPagerAdapter) getAdapter();
+        HelloFragmentAdapter adapter = (HelloFragmentAdapter) getAdapter();
 
         boolean[] canDisplay;
         if(adapter != null){
             canDisplay = adapter.getCanDisplay();
 
-            if(DEBUG) Log.d(TAG, "curr: "+currentItem+" canDisplay:" + canDisplay[0]+","+
-                    canDisplay[1]+","+canDisplay[2]+" direction:"+direction);
+            Timber.d("currentItem: %d canDisplay:[%b,%b,%b] direction:%s",currentItem,canDisplay[0],
+                    canDisplay[1],canDisplay[2],direction);
 
             switch(direction){
                 case None:
@@ -76,9 +75,7 @@ public class HelloViewPager extends ViewPager {
                     }
                     break;
             }
-
         }
-
         return isValid;
     }
 
@@ -96,13 +93,13 @@ public class HelloViewPager extends ViewPager {
 
         if(event.getAction()==MotionEvent.ACTION_MOVE) {
             float diffX = event.getX() - initialXValue;
-            if(DEBUG) Log.d(TAG, "diffx: "+diffX);
+            Timber.d("diffx: %f", diffX);
             if (diffX > 0 ) {
-                if(DEBUG) Log.d(TAG, "Detected left to right swipe");
+                Timber.d("Detected left to right swipe");
                 return SwipeDirection.LeftToRight;
             }
             else if(diffX < 0){
-                if(DEBUG) Log.d(TAG, "Detected right to left swipe");
+                Timber.d("Detected right to left swipe");
                 return SwipeDirection.RightToLeft;
             }
         }

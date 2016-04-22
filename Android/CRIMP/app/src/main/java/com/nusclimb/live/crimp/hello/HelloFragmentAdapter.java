@@ -1,25 +1,28 @@
 package com.nusclimb.live.crimp.hello;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.view.ViewGroup;
 
-import com.nusclimb.live.crimp.hello.Route.RouteFragment;
-import com.nusclimb.live.crimp.hello.Scan.ScanFragment;
-import com.nusclimb.live.crimp.hello.Score.ScoreFragment;
+import com.nusclimb.live.crimp.hello.route.RouteFragment;
+import com.nusclimb.live.crimp.hello.scan.ScanFragment;
+import com.nusclimb.live.crimp.hello.score.ScoreFragment;
 
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class HelloFragmentAdapter extends FragmentStatePagerAdapter {
-    private static final String TAG = "FragmentAdapter";
-    private static final boolean DEBUG = true;
-
     private static final int COUNT = 3;
-    private boolean[] canDisplay = new boolean[COUNT];
+
+    private Fragment[] fragmentArray = new Fragment[COUNT];
+    private boolean[] canDisplay;
+    private Context mContext;
 
     public HelloFragmentAdapter(FragmentManager fm) {
         super(fm);
+        canDisplay = new boolean[COUNT];
         for(int i=0; i<COUNT; i++){
             canDisplay[i] = true;
         }
@@ -30,24 +33,6 @@ public class HelloFragmentAdapter extends FragmentStatePagerAdapter {
     }
 
     @Override
-    public Fragment getItem(int position) {
-        Fragment fragment = null;
-        switch(position) {
-            case 0:
-                fragment = RouteFragment.newInstance(position, getPageTitle(position).toString());
-                break;
-            case 1:
-                fragment = ScanFragment.newInstance(position, getPageTitle(position).toString());
-                break;
-            case 2:
-                fragment = ScoreFragment.newInstance(position, getPageTitle(position).toString());
-                break;
-        }
-
-        return fragment;
-    }
-
-    @Override
     public CharSequence getPageTitle(int position){
         switch(position) {
             case 0: return "Route";
@@ -55,6 +40,34 @@ public class HelloFragmentAdapter extends FragmentStatePagerAdapter {
             case 2: return "Score";
             default: return null;
         }
+    }
+
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object){
+        super.destroyItem(container, position, object);
+        fragmentArray[position] = null;
+    }
+
+    @Override
+    public Fragment getItem(int position) {
+        switch(position){
+            case 0:
+                fragmentArray[position] = RouteFragment.newInstance(position,
+                        getPageTitle(position).toString());
+                break;
+            case 1:
+                fragmentArray[position] = ScanFragment.newInstance(position,
+                        getPageTitle(position).toString());
+                break;
+            case 2:
+                fragmentArray[position] = ScoreFragment.newInstance(position,
+                        getPageTitle(position).toString());
+                break;
+            default:
+                return null;
+        }
+
+        return fragmentArray[position];
     }
 
     @Override

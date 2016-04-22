@@ -2,6 +2,8 @@ package com.nusclimb.live.crimp.common.dao;
 
 import android.support.annotation.NonNull;
 
+import com.nusclimb.live.crimp.network.model.RouteJs;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -24,6 +26,14 @@ public class Route implements Serializable {
         this.scoreType = scoreType;
         this.timeStart = timeStart;
         this.timeEnd = timeEnd;
+    }
+
+    public Route(RouteJs routeJs){
+        this.routeId = routeJs.getRouteId();
+        this.routeName = routeJs.getRouteName();
+        this.scoreType = routeJs.getScoreType();
+        this.timeStart = routeJs.getTimeStart();
+        this.timeEnd = routeJs.getTimeEnd();
     }
 
     @NonNull

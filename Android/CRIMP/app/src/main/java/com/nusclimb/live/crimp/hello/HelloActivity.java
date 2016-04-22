@@ -3,41 +3,24 @@ package com.nusclimb.live.crimp.hello;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ArrayAdapter;
 
-import com.nusclimb.live.crimp.CrimpApplication2;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.dao.Category;
 import com.nusclimb.live.crimp.common.dao.Climber;
 import com.nusclimb.live.crimp.common.dao.User;
-import com.nusclimb.live.crimp.common.event.ResponseReceived;
-import com.nusclimb.live.crimp.network.model.CategoriesJs;
-import com.nusclimb.live.crimp.network.model.CategoryJs;
-import com.nusclimb.live.crimp.network.model.RouteJs;
-import com.nusclimb.live.crimp.servicehelper.ServiceHelper;
-import com.squareup.otto.Subscribe;
+import com.nusclimb.live.crimp.hello.route.RouteFragment;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-import timber.log.Timber;
-
-import static android.support.v4.view.ViewPager.SCROLL_STATE_DRAGGING;
-import static android.support.v4.view.ViewPager.SCROLL_STATE_IDLE;
-import static android.support.v4.view.ViewPager.SCROLL_STATE_SETTLING;
-
-public class HelloActivity extends AppCompatActivity {
+public class HelloActivity extends AppCompatActivity implements
+        RouteFragment.RouteFragmentInterface{
     private static final String TAG = "HelloActivity";
     private static final boolean DEBUG = true;
 
@@ -60,9 +43,7 @@ public class HelloActivity extends AppCompatActivity {
     private TabLayout mTabLayout;
     private HelloViewPager mPager;
 
-    private HelloPagerAdapter mAdapter;
-    private HintableArrayAdapter categoryAdapter;
-    private HintableArrayAdapter routeAdapter;
+    private HelloFragmentAdapter mFragmentAdapter;
 
     private UUID categoriesTxId;
 
@@ -107,115 +88,31 @@ public class HelloActivity extends AppCompatActivity {
         // Load/instantiate data we already have.
         if(savedInstanceState == null){
             mUser = (User)getIntent().getSerializableExtra(SAVE_USER);
-            mCategoryList = new ArrayList<>();
-            categoriesTxId = null;
         }
         else{
             mUser = (User)savedInstanceState.getSerializable(SAVE_USER);
             mCategoryList = (ArrayList<Category>)savedInstanceState.getSerializable(SAVE_CATEGORIES);
-            categoriesTxId = (UUID)savedInstanceState.getSerializable(SAVE_CATEGORIES_TXID);
         }
-
-        // prepare route tab
-        categoryAdapter = new HintableArrayAdapter(this, android.R.layout.simple_spinner_item, "this is a hint");
-        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        routeAdapter = new HintableArrayAdapter(this, android.R.layout.simple_spinner_item, "this is a hint");
-        routeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         // prepare view pager
-        mAdapter = new HelloPagerAdapter(this);
+        mFragmentAdapter = new HelloFragmentAdapter(getSupportFragmentManager());
 
-        mTabLayout.addTab(mTabLayout.newTab().setText(mAdapter.getPageTitle(0)));
-        mTabLayout.addTab(mTabLayout.newTab().setText(mAdapter.getPageTitle(1)));
-        mTabLayout.addTab(mTabLayout.newTab().setText(mAdapter.getPageTitle(2)));
+        mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(0)));
+        mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(1)));
+        mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(2)));
         mTabLayout.setOnTabSelectedListener(new HelloOnTabSelectedListener(mPager, mTabLayout));
 
-        mPager.setAdapter(mAdapter);
+        mPager.setAdapter(mFragmentAdapter);
         mPager.addOnPageChangeListener(new HelloPageChangeListener(mTabLayout));
-
-
-
-
-        Timber.d("onCreate end");
-    }
-
-    @Override
-    protected void onStart(){
-        super.onStart();
-        CrimpApplication2.getBusInstance().register(this);
-
-        if(categoriesTxId == null && categoryAdapter.getCount() <= 1){
-            categoriesTxId = ServiceHelper.getCategories(this, categoriesTxId);
-        }
-    }
-
-    @Override
-    protected void onResume(){
-        super.onResume();
-    }
-
-    @Override
-    protected void onStop(){
-        CrimpApplication2.getBusInstance().unregister(this);
-        super.onStop();
     }
 
     @Override
     protected void onSaveInstanceState (Bundle outState){
         super.onSaveInstanceState(outState);
+        outState.putSerializable(SAVE_USER, mUser);
+        outState.putSerializable(SAVE_CATEGORIES, mCategoryList);
     }
 
-
-    @Subscribe
-    public void RestResponseReceived(ResponseReceived event) {
-        Timber.d("Received response %s", event.txId);
-        if(event.txId.equals(categoriesTxId)){
-            // TODO: React to the event somehow! REMEMBER TO CLEAR THE TXID
-            CategoriesJs categories = CrimpApplication2.getLocalModel()
-                    .fetch(categoriesTxId.toString(), CategoriesJs.class);
-
-            //TODO REMOVE INJECTION
-            RouteJs route1a = new RouteJs();
-            route1a.setRouteName("route 1a");
-            RouteJs route1b = new RouteJs();
-            route1b.setRouteName("route 1b");
-            RouteJs route2a = new RouteJs();
-            route2a.setRouteName("route 2a");
-            RouteJs route2b = new RouteJs();
-            route2b.setRouteName("route 2b");
-
-            CategoryJs category1 = new CategoryJs();
-            category1.setCategoryName("category 1");
-            ArrayList<RouteJs> cat1Route = new ArrayList<>();
-            cat1Route.add(route1a);
-            cat1Route.add(route1b);
-            category1.setRoutes(cat1Route);
-
-            CategoryJs category2 = new CategoryJs();
-            category2.setCategoryName("category 2");
-            ArrayList<RouteJs> cat2Route = new ArrayList<>();
-            cat2Route.add(route2a);
-            cat2Route.add(route2b);
-            category2.setRoutes(cat2Route);
-
-            ArrayList<CategoryJs> categoryList = new ArrayList<>();
-            categoryList.add(category1);
-            categoryList.add(category2);
-
-            categories = new CategoriesJs();  //TODO INJECTION
-            categories.setCategories(categoryList);
-
-            ArrayList<String> categoryNames = new ArrayList<>();
-            for(CategoryJs c:categories.getCategories()){
-                categoryNames.add(c.getCategoryName());
-            }
-
-            categoryAdapter.addAll(categoryNames);
-        }
-        else{
-
-        }
-    }
 
 
 
@@ -377,4 +274,6 @@ public class HelloActivity extends AppCompatActivity {
             mAppBarLayout.setExpanded(false);
     }
     */
+
+
 }
