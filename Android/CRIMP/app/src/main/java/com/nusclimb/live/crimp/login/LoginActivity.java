@@ -224,12 +224,14 @@ public class LoginActivity extends AppCompatActivity {
         result.setFbAccessToken("stubAccessToken");
         result.setFbUserId("stubUserId");
         result.setUserName("stubUserName");
+        result.setSequentialToken(1);
         result.setRemindLogout(false);
 
         txId = null;
         mUser.setName(result.getUserName());
         mUser.setUserId(result.getFbUserId());
         mUser.setAccessToken(result.getFbAccessToken());
+        mUser.setSequentialToken(result.getSequentialToken());
 
         if(result.isRemindLogout()){
             AlertDialog dialog = LoginReminder.create(this, new Action() {

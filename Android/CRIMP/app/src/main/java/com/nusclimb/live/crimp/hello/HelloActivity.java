@@ -11,13 +11,10 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.nusclimb.live.crimp.R;
-import com.nusclimb.live.crimp.common.dao.Category;
 import com.nusclimb.live.crimp.common.dao.Climber;
 import com.nusclimb.live.crimp.common.dao.User;
 import com.nusclimb.live.crimp.hello.route.RouteFragment;
-
-import java.util.ArrayList;
-import java.util.UUID;
+import com.nusclimb.live.crimp.network.model.CategoriesJs;
 
 public class HelloActivity extends AppCompatActivity implements
         RouteFragment.RouteFragmentInterface{
@@ -26,16 +23,23 @@ public class HelloActivity extends AppCompatActivity implements
 
     public static final String SAVE_USER = "save_user";
     public static final String SAVE_CATEGORIES = "save_categories";
-    public static final String SAVE_CATEGORIES_TXID = "save_categories_txid";
-
-    private Bundle routeBundle;
-    private Bundle scanBundle;
-    private Bundle scoreBundle;
+    public static final String SAVE_CATEGORY_INDEX = "save_category_index";
+    public static final String SAVE_ROUTE_INDEX = "save_route_index";
+    public static final String SAVE_STAGE = "save_stage";
+    public static final String SAVE_COMMITTED_CATEGORY = "save_committed_category";
+    public static final String SAVE_COMMITTED_ROUTE = "save_committed_route";
 
     // All the info
     private User mUser;
-    private ArrayList<Category> mCategoryList;
+    private CategoriesJs mCategories;
     private Climber mClimber;
+    private int mStage;
+
+    // Route fragment info
+    private int mCategoryPosition;
+    private int mRoutePosition;
+    private int mCommittedCategoryPosition;
+    private int mCommittedRoutePosition;
 
     // Views
     private AppBarLayout mAppBar;
@@ -44,8 +48,6 @@ public class HelloActivity extends AppCompatActivity implements
     private HelloViewPager mPager;
 
     private HelloFragmentAdapter mFragmentAdapter;
-
-    private UUID categoriesTxId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -91,7 +93,12 @@ public class HelloActivity extends AppCompatActivity implements
         }
         else{
             mUser = (User)savedInstanceState.getSerializable(SAVE_USER);
-            mCategoryList = (ArrayList<Category>)savedInstanceState.getSerializable(SAVE_CATEGORIES);
+            mCategories = (CategoriesJs) savedInstanceState.getSerializable(SAVE_CATEGORIES);
+            mCategoryPosition = savedInstanceState.getInt(SAVE_CATEGORY_INDEX, 0);
+            mRoutePosition = savedInstanceState.getInt(SAVE_ROUTE_INDEX, 0);
+            mStage = savedInstanceState.getInt(SAVE_STAGE);
+            mCommittedCategoryPosition = savedInstanceState.getInt(SAVE_COMMITTED_CATEGORY, 0);
+            mCommittedRoutePosition = savedInstanceState.getInt(SAVE_COMMITTED_ROUTE, 0);
         }
 
         // prepare view pager
@@ -110,81 +117,13 @@ public class HelloActivity extends AppCompatActivity implements
     protected void onSaveInstanceState (Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putSerializable(SAVE_USER, mUser);
-        outState.putSerializable(SAVE_CATEGORIES, mCategoryList);
+        outState.putSerializable(SAVE_CATEGORIES, mCategories);
+        outState.putInt(SAVE_CATEGORY_INDEX, mCategoryPosition);
+        outState.putInt(SAVE_ROUTE_INDEX, mRoutePosition);
+        outState.putInt(SAVE_STAGE, mStage);
+        outState.putInt(SAVE_COMMITTED_CATEGORY, mCommittedCategoryPosition);
+        outState.putInt(SAVE_COMMITTED_ROUTE, mCommittedRoutePosition);
     }
-
-
-
-
-    /*
-    private class HelloActivityOnTabSelectedListener implements TabLayout.OnTabSelectedListener {
-        private final ViewPager mViewPager;
-
-        public HelloActivityOnTabSelectedListener(ViewPager viewPager){
-            mViewPager = viewPager;
-        }
-
-        @Override
-        public void onTabSelected(TabLayout.Tab tab) {
-            if(mViewPager.getAdapter().getCount() <= tab.getPosition()){
-                getActivityHandler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        getmTabLayout().getTabAt(mViewPager.getCurrentItem()).select();
-                    }
-                }, 200);
-            }
-            else if(mViewPager.getCurrentItem() == 2 && tab.getPosition() != 2){
-                final int selectedTabPosition = tab.getPosition();
-                AlertDialog alertDialog = new AlertDialog.Builder(HelloActivity.this)
-                        .setTitle("Navigate away from Score tab")
-                        .setMessage("Current session score will be lost.")
-                        .setPositiveButton("Navigate away", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Do stuff
-                                navigateAwayFromScore(selectedTabPosition);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                getActivityHandler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        getmTabLayout().getTabAt(mViewPager.getCurrentItem()).select();
-                                    }
-                                }, 200);
-                            }
-                        })
-                        .create();
-                alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        getActivityHandler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                getmTabLayout().getTabAt(mViewPager.getCurrentItem()).select();
-                            }
-                        }, 200);
-                    }
-                });
-                alertDialog.show();
-            }
-            else{
-                mViewPager.setCurrentItem(tab.getPosition());
-            }
-        }
-
-        @Override
-        public void onTabUnselected(TabLayout.Tab tab) {
-
-        }
-
-        @Override
-        public void onTabReselected(TabLayout.Tab tab) {
-
-        }
-    }
-    */
 
     /*
     @Override
@@ -222,6 +161,66 @@ public class HelloActivity extends AppCompatActivity implements
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_hello, menu);
         return true;
+    }
+
+    @Override
+    public User getUser(){
+        return mUser;
+    }
+
+    @Override
+    public void setCategoriesJs(CategoriesJs categories) {
+        mCategories = categories;
+    }
+
+    @Override
+    public CategoriesJs getCategoriesJs() {
+        return mCategories;
+    }
+
+    @Override
+    public void setCategoryPosition(int categoryPosition) {
+        mCategoryPosition = categoryPosition;
+    }
+
+    @Override
+    public int getCategoryPosition() {
+        return mCategoryPosition;
+    }
+
+    @Override
+    public void setRoutePosition(int routePosition) {
+        mRoutePosition = routePosition;
+    }
+
+    @Override
+    public int getRoutePosition() {
+        return mRoutePosition;
+    }
+
+    @Override
+    public int getStage(){
+        return mStage;
+    }
+
+    @Override
+    public void setCommittedCategoryPosition(int categoryPosition) {
+        mCommittedCategoryPosition = categoryPosition;
+    }
+
+    @Override
+    public int getCommittedCategoryPosition() {
+        return mCommittedCategoryPosition;
+    }
+
+    @Override
+    public void setCommittedRoutePosition(int routePosition) {
+        mCommittedRoutePosition = routePosition;
+    }
+
+    @Override
+    public int getCommittedRoutePosition() {
+        return mCommittedRoutePosition;
     }
 
     /*

@@ -57,4 +57,19 @@ public class CategoryJs implements Serializable{
     public void setRoutes(ArrayList<RouteJs> routes) {
         this.routes = routes;
     }
+
+    @JsonIgnore
+    public RouteJs getRouteById(long id){
+        if (routes == null){
+            return null;
+        }
+
+        for(RouteJs routeJs:routes){
+            if(routeJs.getRouteId() == id){
+                return routeJs;
+            }
+        }
+
+        return null;
+    }
 }

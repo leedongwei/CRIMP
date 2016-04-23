@@ -1,10 +1,10 @@
-package com.nusclimb.live.crimp.login;
+package com.nusclimb.live.crimp.hello.route;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 
+import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.Action;
 
 import timber.log.Timber;
@@ -12,18 +12,21 @@ import timber.log.Timber;
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class LoginReminder {
-    public static AlertDialog create(Context context, final Action login, final Action cancel){
+public class ReplaceDialog {
+    public static AlertDialog create(Context context, final Action replace, final Action cancel,
+                                     String currentJudge, String categoryName, String routeName){
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-        builder.setTitle("Continue with login?")
-                .setMessage("Psst... we noticed you might have forgotten to logout CRIMP from " +
-                        "another device. Please logout CRIMP from other devices before continuing.")
+        String question = String.format(context.getString(R.string.route_fragment_replace_question),
+                currentJudge, categoryName, routeName, currentJudge);
+
+        builder.setTitle("Replace current route judge?")
+                .setMessage(question)
                 .setPositiveButton("Login", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Timber.d("Pressed on Positive button");
-                        login.act();
+                        replace.act();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

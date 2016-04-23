@@ -105,7 +105,7 @@ public class ServiceHelper {
     }
 
     @NonNull
-    public static UUID reportIn(@NonNull Context context, @Nullable UUID txId, long fbUserId,
+    public static UUID reportIn(@NonNull Context context, @Nullable UUID txId, String fbUserId,
                                 @NonNull String fbAccessToken, long sequentialToken,
                                 long categoryId, long routeId, boolean force){
         //TODO STUB
@@ -121,7 +121,7 @@ public class ServiceHelper {
     }
 
     @NonNull
-    public static UUID requestHelp(@NonNull Context context, @Nullable UUID txId, long fbUserId,
+    public static UUID requestHelp(@NonNull Context context, @Nullable UUID txId, String fbUserId,
                                    @NonNull String fbAccessToken, long sequentialToken,
                                    long routeId){
         //TODO STUB
@@ -138,7 +138,7 @@ public class ServiceHelper {
 
     @NonNull
     public static UUID postScore(@NonNull Context context, @Nullable UUID txId, long routeId,
-                                 long climberId, long fbUserId, @NonNull String fbAccessToken,
+                                 long climberId, String fbUserId, @NonNull String fbAccessToken,
                                  long sequentialToken, @NonNull String score){
         //TODO STUB
         if(txId == null){

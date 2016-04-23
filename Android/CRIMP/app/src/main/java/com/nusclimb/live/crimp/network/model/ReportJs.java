@@ -17,7 +17,7 @@ public class ReportJs implements Serializable{
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("fb_user_id")
-    private long fbUserId;
+    private String fbUserId;
     @JsonProperty("user_name")
     private String userName;
     @JsonProperty("category_id")
@@ -25,11 +25,11 @@ public class ReportJs implements Serializable{
     @JsonProperty("route_id")
     private long routeId;
 
-    public long getFbUserId() {
+    public String getFbUserId() {
         return fbUserId;
     }
 
-    public void setFbUserId(long fbUserId) {
+    public void setFbUserId(String fbUserId) {
         this.fbUserId = fbUserId;
     }
 

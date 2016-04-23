@@ -24,6 +24,8 @@ public class LoginJs implements Serializable{
     private String userName;
     @JsonProperty("remind_logout")
     private boolean remindLogout;
+    @JsonProperty("sequential_token")
+    private long sequentialToken;
 
     public String getFbUserId() {
         return fbUserId;
@@ -55,5 +57,13 @@ public class LoginJs implements Serializable{
 
     public void setRemindLogout(boolean remindLogout) {
         this.remindLogout = remindLogout;
+    }
+
+    public long getSequentialToken() {
+        return sequentialToken;
+    }
+
+    public void setSequentialToken(long sequentialToken) {
+        this.sequentialToken = sequentialToken;
     }
 }

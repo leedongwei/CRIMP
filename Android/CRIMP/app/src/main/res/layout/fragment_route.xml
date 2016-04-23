@@ -83,30 +83,6 @@
                 tools:visibility="gone"
                 tools:text="Tom is already route judge for NMF, Route 2.\n\nReplace Tom?"/>
 
-            <LinearLayout android:id="@+id/route_yes_no_viewgroup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_below="@id/route_replace_text"
-                android:visibility="gone"
-                tools:visibility="gone">
-
-                <Button android:id="@+id/route_yes_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_margin="8dp"
-                    android:text="@string/route_fragment_yes" />
-
-                <Button android:id="@+id/route_no_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_toRightOf="@id/route_yes_button"
-                    android:layout_margin="8dp"
-                    android:text="@string/route_fragment_no"/>
-            </LinearLayout>
-
         </RelativeLayout>
 
     </android.support.v4.widget.NestedScrollView>
