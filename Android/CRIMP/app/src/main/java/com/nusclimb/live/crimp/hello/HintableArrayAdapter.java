@@ -16,16 +16,30 @@ import java.util.List;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class HintableArrayAdapter extends ArrayAdapter<String> {
+    private final String mHint;
 
     public HintableArrayAdapter(Context context, int resource, @NonNull String hint) {
         super(context, resource);
-        insert(hint, 0);
+        mHint = hint;
+        insert(mHint, 0);
     }
 
     public HintableArrayAdapter(Context context, int resource, List<String> objects,
                                 @NonNull String hint) {
         super(context, resource, objects);
-        insert(hint, 0);
+        mHint = hint;
+        insert(mHint, 0);
+    }
+
+    @Override
+    public void clear(){
+        super.clear();
+        insert(mHint, 0);
+    }
+
+    @Override
+    public void remove(String object){
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -28,27 +28,6 @@
                 android:visibility="gone"
                 tools:visibility="gone"/>
 
-            <TextView android:id="@+id/route_request_status_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/route_wheel_progressbar"
-                android:layout_centerHorizontal="true"
-                android:layout_margin="8dp"
-                android:visibility="gone"
-                tools:text="Status message"
-                tools:visibility="gone"/>
-
-            <Button
-                android:id="@+id/route_retry_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/route_fragment_retry"
-                android:layout_below="@id/route_request_status_text"
-                android:layout_centerInParent="true"
-                android:layout_margin="8dp"
-                android:visibility="gone"
-                tools:visibility="gone"/>
-
             <!-- spinner -->
             <TextView android:id="@+id/route_hello_text"
                 android:layout_width="match_parent"
@@ -59,7 +38,7 @@
                 android:layout_marginBottom="8dp"
                 android:textSize="20sp"
                 android:visibility="visible"
-                tools:visibility="gone"
+                tools:visibility="visible"
                 tools:text="Hello user, you are route judge for"/>
 
             <Spinner
@@ -70,7 +49,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_below="@id/route_hello_text"
                 android:visibility="visible"
-                tools:visibility="gone"/>
+                tools:visibility="visible"/>
 
             <Spinner
                 android:id="@+id/route_route_spinner"
@@ -80,7 +59,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_below="@id/route_category_spinner"
                 android:visibility="visible"
-                tools:visibility="gone"/>
+                tools:visibility="visible"/>
 
             <Button
                 android:id="@+id/route_next_button"
@@ -91,7 +70,7 @@
                 android:enabled="false"
                 android:layout_below="@id/route_route_spinner"
                 android:visibility="visible"
-                tools:visibility="gone"/>
+                tools:visibility="visible"/>
 
             <!-- replace user -->
             <TextView android:id="@+id/route_replace_text"
@@ -101,7 +80,7 @@
                 android:textSize="20sp"
                 android:layout_margin="8dp"
                 android:visibility="gone"
-                tools:visibility="visible"
+                tools:visibility="gone"
                 tools:text="Tom is already route judge for NMF, Route 2.\n\nReplace Tom?"/>
 
             <LinearLayout android:id="@+id/route_yes_no_viewgroup"
@@ -110,7 +89,7 @@
                 android:orientation="horizontal"
                 android:layout_below="@id/route_replace_text"
                 android:visibility="gone"
-                tools:visibility="visible">
+                tools:visibility="gone">
 
                 <Button android:id="@+id/route_yes_button"
                     android:layout_width="0dp"

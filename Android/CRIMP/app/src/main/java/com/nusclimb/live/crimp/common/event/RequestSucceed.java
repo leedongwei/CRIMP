@@ -5,10 +5,10 @@ import java.util.UUID;
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class ResponseReceived {
+public class RequestSucceed {
     public final UUID txId;
 
-    public ResponseReceived(UUID txId){
+    public RequestSucceed(UUID txId){
         this.txId = txId;
     }
 }

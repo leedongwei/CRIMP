@@ -2,13 +2,12 @@ package com.nusclimb.live.crimp.service;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.nusclimb.live.crimp.CrimpApplication2;
 import com.nusclimb.live.crimp.common.event.RequestFailed;
-import com.nusclimb.live.crimp.common.event.ResponseReceived;
+import com.nusclimb.live.crimp.common.event.RequestSucceed;
 import com.nusclimb.live.crimp.network.model.CategoriesJs;
 import com.nusclimb.live.crimp.network.model.CategoryJs;
 import com.nusclimb.live.crimp.network.model.GetScoreJs;
@@ -110,7 +109,7 @@ public class CrimpService extends IntentService{
                     // write to local model
                     CrimpApplication2.getLocalModel().putData(txId.toString(), categoriesJs);
                     Timber.d("Posting responseReceived: %s", txId);
-                    CrimpApplication2.getBusInstance().post(new ResponseReceived(txId));
+                    CrimpApplication2.getBusInstance().post(new RequestSucceed(txId));
                 }
                 else{
                     //TODO UPDATE TRANSACTION LOG
@@ -128,7 +127,7 @@ public class CrimpService extends IntentService{
                     // write to local model
                     CrimpApplication2.getLocalModel().putData(txId.toString(), getScoreJs);
                     if(DEBUG) Log.d(TAG, "Posting responseReceived: "+txId);
-                    CrimpApplication2.getBusInstance().post(new ResponseReceived(txId));
+                    CrimpApplication2.getBusInstance().post(new RequestSucceed(txId));
                 }
                 else{
                     //TODO UPDATE TRANSACTION LOG
@@ -151,7 +150,7 @@ public class CrimpService extends IntentService{
                     // write to local model
                     CrimpApplication2.getLocalModel().putData(txId.toString(), loginJs);
                     if(DEBUG) Log.d(TAG, "Posting responseReceived: "+txId);
-                    CrimpApplication2.getBusInstance().post(new ResponseReceived(txId));
+                    CrimpApplication2.getBusInstance().post(new RequestSucceed(txId));
                 }
                 else{
                     //TODO UPDATE TRANSACTION LOG

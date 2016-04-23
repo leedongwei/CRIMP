@@ -11,12 +11,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
-import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
-import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -25,13 +23,15 @@ import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.Action;
 import com.nusclimb.live.crimp.common.dao.User;
 import com.nusclimb.live.crimp.common.event.RequestFailed;
-import com.nusclimb.live.crimp.common.event.ResponseReceived;
+import com.nusclimb.live.crimp.common.event.RequestSucceed;
 import com.nusclimb.live.crimp.hello.HelloActivity;
 import com.nusclimb.live.crimp.network.model.LoginJs;
 import com.nusclimb.live.crimp.servicehelper.ServiceHelper;
 import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
+
+import timber.log.Timber;
 
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
@@ -210,13 +210,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Subscribe
-    public void RestResponseReceived(ResponseReceived event) {
+    public void requestSucceedReceived(RequestSucceed event) {
         if(!event.txId.equals(txId)){
             return;
         }
 
         // TODO: React to the event somehow! REMEMBER TO CLEAR THE TXID
-        if(DEBUG) Log.d(TAG, "Received event: ResponseReceived for txId:"+event.txId);
+        Timber.d("Received RequestSucceed %s", event.txId);
 
         //TODO REMOVE THIS INJECTION
         final LoginJs result1 = CrimpApplication2.getLocalModel().fetch(txId.toString(), LoginJs.class);
@@ -255,13 +255,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Subscribe
-    public void RequestFailedReceived(RequestFailed event) {
+    public void requestFailedReceived(RequestFailed event) {
         if(!event.txId.equals(txId)){
             return;
         }
 
         // TODO: React to the event somehow! REMEMBER TO CLEAR THE TXID
-        if(DEBUG) Log.d(TAG, "Received event: RequestFailed for txId:"+event.txId);
+        Timber.d("Received RequestFailed %s", event.txId);
         txId = null;
         doLogout();
         showErrorUI("Server exploded");
