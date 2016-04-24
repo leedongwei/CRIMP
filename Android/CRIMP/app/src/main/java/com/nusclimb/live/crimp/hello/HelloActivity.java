@@ -28,12 +28,13 @@ public class HelloActivity extends AppCompatActivity implements
     public static final String SAVE_STAGE = "save_stage";
     public static final String SAVE_COMMITTED_CATEGORY = "save_committed_category";
     public static final String SAVE_COMMITTED_ROUTE = "save_committed_route";
+    public static final String SAVE_CAN_DISPLAY = "save_can_display";
 
     // All the info
     private User mUser;
     private CategoriesJs mCategories;
     private Climber mClimber;
-    private int mStage;
+    private boolean[] mCanDisplay;
 
     // Route fragment info
     private int mCategoryPosition;
@@ -90,19 +91,26 @@ public class HelloActivity extends AppCompatActivity implements
         // Load/instantiate data we already have.
         if(savedInstanceState == null){
             mUser = (User)getIntent().getSerializableExtra(SAVE_USER);
+            mCanDisplay = new boolean[]{true, true, false};
         }
         else{
             mUser = (User)savedInstanceState.getSerializable(SAVE_USER);
             mCategories = (CategoriesJs) savedInstanceState.getSerializable(SAVE_CATEGORIES);
             mCategoryPosition = savedInstanceState.getInt(SAVE_CATEGORY_INDEX, 0);
             mRoutePosition = savedInstanceState.getInt(SAVE_ROUTE_INDEX, 0);
-            mStage = savedInstanceState.getInt(SAVE_STAGE);
             mCommittedCategoryPosition = savedInstanceState.getInt(SAVE_COMMITTED_CATEGORY, 0);
             mCommittedRoutePosition = savedInstanceState.getInt(SAVE_COMMITTED_ROUTE, 0);
+            mCanDisplay = savedInstanceState.getBooleanArray(SAVE_CAN_DISPLAY);
+            if(mCanDisplay == null){
+                mCanDisplay = new boolean[]{true, true, false};
+            }
         }
 
         // prepare view pager
         mFragmentAdapter = new HelloFragmentAdapter(getSupportFragmentManager());
+        for(int i=0; i<mCanDisplay.length; i++){
+            mFragmentAdapter.getCanDisplay()[i] = mCanDisplay[i];
+        }
 
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(0)));
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(1)));
@@ -120,9 +128,9 @@ public class HelloActivity extends AppCompatActivity implements
         outState.putSerializable(SAVE_CATEGORIES, mCategories);
         outState.putInt(SAVE_CATEGORY_INDEX, mCategoryPosition);
         outState.putInt(SAVE_ROUTE_INDEX, mRoutePosition);
-        outState.putInt(SAVE_STAGE, mStage);
         outState.putInt(SAVE_COMMITTED_CATEGORY, mCommittedCategoryPosition);
         outState.putInt(SAVE_COMMITTED_ROUTE, mCommittedRoutePosition);
+        outState.putBooleanArray(SAVE_CAN_DISPLAY, mCanDisplay);
     }
 
     /*
@@ -199,11 +207,6 @@ public class HelloActivity extends AppCompatActivity implements
     }
 
     @Override
-    public int getStage(){
-        return mStage;
-    }
-
-    @Override
     public void setCommittedCategoryPosition(int categoryPosition) {
         mCommittedCategoryPosition = categoryPosition;
     }
@@ -221,6 +224,25 @@ public class HelloActivity extends AppCompatActivity implements
     @Override
     public int getCommittedRoutePosition() {
         return mCommittedRoutePosition;
+    }
+
+    @Override
+    public void goToScanTab() {
+        mCommittedCategoryPosition = mCategoryPosition;
+        mCommittedRoutePosition = mRoutePosition;
+
+        mCanDisplay[1] = true;
+        mFragmentAdapter.getCanDisplay()[1] = true;
+
+        mPager.setCurrentItem(1);
+    }
+
+    @Override
+    public void setCanDisplay(boolean[] canDisplay){
+        this.mCanDisplay = canDisplay;
+        for(int i=0; i<mCanDisplay.length; i++){
+            mFragmentAdapter.getCanDisplay()[i] = mCanDisplay[i];
+        }
     }
 
     /*

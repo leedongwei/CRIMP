@@ -160,6 +160,7 @@ public class CrimpService extends IntentService{
                 }
                 break;
             case ACTION_REPORT_IN:
+                CrimpApplication2.getBusInstance().post(new RequestSucceed(txId));
                 break;
             case ACTION_REQUEST_HELP:
                 break;

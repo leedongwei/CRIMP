@@ -187,7 +187,17 @@ public class RouteFragment extends Fragment {
 
             showDefaultHasCategories();
             mCategorySpinner.setSelection(mParent.getCategoryPosition());
-            mRouteSpinner.setSelection(mParent.getRoutePosition());
+            if(mParent.getCategoryPosition() != 0){
+                Timber.d("set enable true on routespinner");
+                mRouteSpinner.setEnabled(true);
+                mRouteSpinner.setSelection(mParent.getRoutePosition());
+            }
+
+            if(mParent.getRoutePosition()!=0 &&
+                    (mParent.getCategoryPosition() != mParent.getCommittedCategoryPosition() ||
+                            mParent.getRoutePosition() != mParent.getCommittedRoutePosition())){
+                mRouteNextButton.setEnabled(true);
+            }
         }
 
     }
@@ -283,6 +293,14 @@ public class RouteFragment extends Fragment {
             if(reportJs.getFbUserId().equals(mParent.getUser().getUserId())){
                 // Succeed
                 Timber.d("Report in is successful");
+                mHelloText.setVisibility(View.VISIBLE);
+                mCategorySpinner.setVisibility(View.VISIBLE);
+                mRouteSpinner.setVisibility(View.VISIBLE);
+                mRouteNextButton.setVisibility(View.VISIBLE);
+                mRouteNextButton.setEnabled(false);
+                mLoadWheel.setVisibility(View.GONE);
+
+                mParent.goToScanTab();
             }
             else{
                 Timber.d("Report in requires replace");
@@ -307,6 +325,7 @@ public class RouteFragment extends Fragment {
                         mCategorySpinner.setVisibility(View.VISIBLE);
                         mRouteSpinner.setVisibility(View.VISIBLE);
                         mRouteNextButton.setVisibility(View.VISIBLE);
+                        mRouteNextButton.setEnabled(true);
                         mLoadWheel.setVisibility(View.GONE);
                     }
                 }, reportJs.getUserName(), category.getCategoryName(), route.getRouteName());
@@ -375,6 +394,7 @@ public class RouteFragment extends Fragment {
         mRouteAdapter.clear();
         mRouteAdapter.addAll(routeNameList);
         mRouteSpinner.setEnabled(true);
+        mParent.setRoutePosition(0);
         mRouteSpinner.setSelection(0);
         mRouteNextButton.setEnabled(false);
     }
@@ -397,6 +417,7 @@ public class RouteFragment extends Fragment {
         mHelloText.setVisibility(View.GONE);
         mCategorySpinner.setVisibility(View.GONE);
         mRouteSpinner.setVisibility(View.GONE);
+        mRouteNextButton.setEnabled(false);
         mRouteNextButton.setVisibility(View.GONE);
         mLoadWheel.setVisibility(View.VISIBLE);
 
@@ -427,6 +448,7 @@ public class RouteFragment extends Fragment {
         mRouteSpinner.setSelection(mParent.getRoutePosition());
         mRouteNextButton.setEnabled(false);
         mParent.setCategoriesJs(null);
+        mParent.setCanDisplay(new boolean[]{true, false, false});
 
         mCategoriesTxId = ServiceHelper.getCategories(getActivity(), mCategoriesTxId);
     }
@@ -439,11 +461,12 @@ public class RouteFragment extends Fragment {
         int getCategoryPosition();
         void setRoutePosition(int routePosition);
         int getRoutePosition();
-        int getStage();
         void setCommittedCategoryPosition(int categoryPosition);
         int getCommittedCategoryPosition();
         void setCommittedRoutePosition(int routePosition);
         int getCommittedRoutePosition();
+        void goToScanTab();
+        void setCanDisplay(boolean[] canDisplay);
     }
 
 }
