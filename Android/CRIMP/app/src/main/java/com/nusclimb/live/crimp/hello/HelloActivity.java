@@ -91,7 +91,7 @@ public class HelloActivity extends AppCompatActivity implements
         // Load/instantiate data we already have.
         if(savedInstanceState == null){
             mUser = (User)getIntent().getSerializableExtra(SAVE_USER);
-            mCanDisplay = new boolean[]{true, true, false};
+            mCanDisplay = new boolean[]{true, false, false};
         }
         else{
             mUser = (User)savedInstanceState.getSerializable(SAVE_USER);
@@ -102,7 +102,7 @@ public class HelloActivity extends AppCompatActivity implements
             mCommittedRoutePosition = savedInstanceState.getInt(SAVE_COMMITTED_ROUTE, 0);
             mCanDisplay = savedInstanceState.getBooleanArray(SAVE_CAN_DISPLAY);
             if(mCanDisplay == null){
-                mCanDisplay = new boolean[]{true, true, false};
+                mCanDisplay = new boolean[]{true, false, false};
             }
         }
 

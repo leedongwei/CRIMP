@@ -42,7 +42,7 @@ public class HelloViewPager extends ViewPager {
         }
         else{
             // If we don't even have adapter why do we even bother.
-            return super.onInterceptTouchEvent(event);
+            return super.onTouchEvent(event);
         }
 
         switch(event.getAction()){
