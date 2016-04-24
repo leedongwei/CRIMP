@@ -19,7 +19,6 @@ import com.nusclimb.live.crimp.common.Action;
 import com.nusclimb.live.crimp.common.dao.User;
 import com.nusclimb.live.crimp.common.event.RequestFailed;
 import com.nusclimb.live.crimp.common.event.RequestSucceed;
-import com.nusclimb.live.crimp.hello.HintableArrayAdapter;
 import com.nusclimb.live.crimp.network.model.CategoriesJs;
 import com.nusclimb.live.crimp.network.model.CategoryJs;
 import com.nusclimb.live.crimp.network.model.ReportJs;
@@ -468,5 +467,4 @@ public class RouteFragment extends Fragment {
         void goToScanTab();
         void setCanDisplay(boolean[] canDisplay);
     }
-
 }

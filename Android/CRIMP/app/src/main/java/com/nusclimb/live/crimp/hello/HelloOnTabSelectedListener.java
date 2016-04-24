@@ -8,10 +8,10 @@ import android.support.v4.view.ViewPager;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class HelloOnTabSelectedListener implements TabLayout.OnTabSelectedListener{
-    private final ViewPager mViewPager;
+    private final HelloViewPager mViewPager;
     private final TabLayout mTabLayout;
 
-    public HelloOnTabSelectedListener(ViewPager viewPager, TabLayout tabLayout) {
+    public HelloOnTabSelectedListener(HelloViewPager viewPager, TabLayout tabLayout) {
         mViewPager = viewPager;
         this.mTabLayout = tabLayout;
     }
