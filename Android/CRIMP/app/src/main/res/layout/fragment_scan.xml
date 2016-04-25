@@ -12,12 +12,11 @@
         android:layout_height="match_parent"
         android:paddingBottom="8dp">
 
-        <FrameLayout android:id="@+id/scan_frame"
+        <SurfaceView android:id="@+id/scan_frame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            tools:layout_height="380dp"
-            tools:background="@color/black"/>
+            tools:layout_height="380dp"/>
 
         <View android:id="@+id/scan_transparent"
             android:layout_width="match_parent"

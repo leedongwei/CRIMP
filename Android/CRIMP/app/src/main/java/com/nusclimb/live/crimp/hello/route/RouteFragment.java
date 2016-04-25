@@ -84,7 +84,6 @@ public class RouteFragment extends Fragment {
         mRouteAdapter = new HintableArrayAdapter(context, android.R.layout.simple_spinner_item,
                 "this is a route hint");
         mRouteAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
     }
 
     @Override
