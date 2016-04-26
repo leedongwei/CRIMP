@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 import timber.log.Timber;
 
@@ -36,7 +35,9 @@ import timber.log.Timber;
  *
  */
 public class DecodeHandler extends Handler{
-    public static final int INITIALIZAE = 1;
+    public static final int INITIALIZE = 1;
+    public static final int DECODE = 2;
+    public static final int QUIT = 3;
 
 
     private String prefix;
@@ -46,7 +47,6 @@ public class DecodeHandler extends Handler{
 
     private final Handler mainThreadHandler;
     private final MultiFormatReader multiFormatReader;  // ZXing stuff. For decoding QR code.
-
 
     public DecodeHandler(Handler mainThreadHandler) {
         this.mainThreadHandler = mainThreadHandler;
@@ -68,18 +68,18 @@ public class DecodeHandler extends Handler{
         }
 
         switch (message.what) {
-            case INITIALIZAE:
+            case INITIALIZE:
                 prefix = (String)message.obj;
                 transparentResolution = new Point(message.arg1, message.arg2);
                 isInitialized = true;
                 break;
 
-            case R.id.decode:
+            case DECODE:
                 if(isInitialized){
                     decode((byte[]) message.obj, message.arg1, message.arg2);
                 }
                 break;
-            case R.id.quit:
+            case QUIT:
                 running = false;
                 Looper.myLooper().quit();
                 break;

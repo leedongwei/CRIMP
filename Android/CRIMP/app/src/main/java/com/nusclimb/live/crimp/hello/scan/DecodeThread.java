@@ -37,6 +37,7 @@ class DecodeThread extends Thread{
         Looper.prepare();
         mDecodeHandler = new DecodeHandler(mainThreadHandler);
         Looper.loop();
+        Timber.d("DecodeThread terminating");
     }
 
     /**

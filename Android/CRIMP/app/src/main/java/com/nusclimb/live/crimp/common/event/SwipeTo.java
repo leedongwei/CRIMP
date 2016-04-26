@@ -4,11 +4,9 @@ package com.nusclimb.live.crimp.common.event;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class SwipeTo {
-    public Integer position;
-    public String title;
+    public final int position;
 
-    public SwipeTo(Integer position, String title) {
+    public SwipeTo(int position) {
         this.position = position;
-        this.title = title;
     }
 }

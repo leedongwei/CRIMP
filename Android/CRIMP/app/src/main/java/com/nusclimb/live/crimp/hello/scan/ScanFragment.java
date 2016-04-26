@@ -2,11 +2,11 @@ package com.nusclimb.live.crimp.hello.scan;
 
 import android.content.Context;
 import android.graphics.Point;
-import android.os.Build;
+import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -20,8 +20,8 @@ import android.widget.RelativeLayout;
 
 import com.nusclimb.live.crimp.CrimpApplication2;
 import com.nusclimb.live.crimp.R;
-
-import java.lang.reflect.Method;
+import com.nusclimb.live.crimp.common.event.SwipeTo;
+import com.squareup.otto.Subscribe;
 
 import timber.log.Timber;
 
@@ -50,8 +50,12 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     private ScanFragmentHandler mScanFragmentHandler;
     private DecodeThread mDecodeThread;
     private CrimpCameraManager mCameraManager;
-    private int displayRotation;
-
+    private int mDisplayRotation;
+    private Point mTargetResolution;
+    private float mAspectRatio;
+    private boolean isShowing;
+    private int mPosition;
+    private boolean mIsSurfaceReady;
 
     public static ScanFragment newInstance(int position, String title){
         ScanFragment f = new ScanFragment();
@@ -69,6 +73,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
         super.onCreate(savedInstanceState);
         mScanFragmentHandler = new ScanFragmentHandler(this);
         mCameraManager = new CrimpCameraManager();
+
+        mPosition = getArguments().getInt(ARGS_POSITION);
     }
 
     @Override
@@ -90,18 +96,18 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
         final int dpTabLayoutHeight = 48;
         // Remaining height is the height of the space available after subtract away TabLayout.
         final int dpRemainingHeight = (int) (dpHeight - dpTabLayoutHeight);
-        final float aspectRatio = dpRemainingHeight / dpWidth;
+        mAspectRatio = dpRemainingHeight / dpWidth;
 
         WindowManager windowManager = (WindowManager)context
                 .getSystemService(Context.WINDOW_SERVICE);
-        displayRotation = windowManager.getDefaultDisplay().getRotation();
+        mDisplayRotation = windowManager.getDefaultDisplay().getRotation();
         Timber.d("----------Display information:----------\n" +
                 "Without decoration(px): W%dpx, H%dpx\n" +
                 "Without decoration(dp): W%fdp, H%fdp\n" +
                 "Logical density: %f, aspect ratio (after removing TabLayout): %f\n" +
                 "displayRotation: %d degree",
                 displayMetrics.widthPixels, displayMetrics.heightPixels, dpWidth, dpHeight,
-                displayMetrics.density, aspectRatio, displayRotation);
+                displayMetrics.density, mAspectRatio, mDisplayRotation);
     }
 
     @Override
@@ -120,6 +126,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
         mScanNextButton = (Button)rootView.findViewById(R.id.scan_next_button);
 
         mPreviewFrame.getHolder().addCallback(this);
+        mPreviewFrame.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
         return rootView;
     }
@@ -136,19 +143,60 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
 
         mDecodeThread = new DecodeThread(mScanFragmentHandler);
         mCameraManager.setDecodeThread(mDecodeThread);
+        if(mDecodeThread.getState() == Thread.State.NEW) {
+            mDecodeThread.start();
+        }
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if(isShowing && mParent.getIsScanning()){
+            mCameraManager.acquireCamera(mTargetResolution, mAspectRatio);
+            Camera.Size bestPreviewSize = mCameraManager.getBestPreviewSize();
+            mCameraManager.startPreview(mPreviewFrame.getHolder());
+        }
+
+
+
+    }
+
+    @Override
+    public void onPause(){
+
+        super.onPause();
     }
 
     @Override
     public void onStop(){
         CrimpApplication2.getBusInstance().unregister(this);
+        Message quitMessage = mDecodeThread.getHandler().obtainMessage();
+        quitMessage.what = DecodeHandler.QUIT;
+        quitMessage.sendToTarget();
         super.onStop();
+    }
+
+    @Subscribe
+    public void onReceivedSwipeTo(SwipeTo event){
+        Timber.d("onReceivedSwipeTo: %d", event.position);
+        if(event.position == mPosition){
+            isShowing = true;
+            if(mParent.getIsScanning()){
+                mCameraManager.acquireCamera(mTargetResolution, mAspectRatio);
+                Camera.Size bestPreviewSize = mCameraManager.getBestPreviewSize();
+                mCameraManager.startPreview(mPreviewFrame.getHolder());
+            }
+        }
+        else{
+            isShowing = false;
+        }
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         Timber.d("Surface created");
         if(mCameraManager != null){
-            mCameraManager.setIsSurfaceReady(true);
+            mCameraManager.setIsSurfaceReady(true, holder);
         }
     }
 
@@ -161,11 +209,12 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     public void surfaceDestroyed(SurfaceHolder holder) {
         Timber.d("Surface destroyed");
         if(mCameraManager != null){
-            mCameraManager.setIsSurfaceReady(false);
+            mCameraManager.setIsSurfaceReady(false, holder);
         }
     }
 
     public interface ScanFragmentInterface{
-
+        void setIsScanning(boolean isScanning);
+        boolean getIsScanning();
     }
 }

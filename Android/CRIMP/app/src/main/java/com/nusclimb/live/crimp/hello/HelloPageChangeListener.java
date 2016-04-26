@@ -4,6 +4,9 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 
+import com.nusclimb.live.crimp.CrimpApplication2;
+import com.nusclimb.live.crimp.common.event.SwipeTo;
+
 import java.lang.ref.WeakReference;
 
 import static android.support.v4.view.ViewPager.SCROLL_STATE_DRAGGING;
@@ -44,10 +47,11 @@ public class HelloPageChangeListener implements ViewPager.OnPageChangeListener{
 
     @Override
     public void onPageSelected(int position) {
-            /* Note to self: when this method is called, the ViewPager.getCurrentItem() is already
-             * returning the parameter position. Therefore we should be careful not to have a loop
-             * and call ViewPager.setCurrentItem(int) again.
-             */
+        /* Note to self: when this method is called, the ViewPager.getCurrentItem() is already
+         * returning the parameter position. Therefore we should be careful not to have a loop
+         * and call ViewPager.setCurrentItem(int) again.
+         */
+        CrimpApplication2.getBusInstance().post(new SwipeTo(position));
         if(DEBUG) Log.d(TAG, "onPageSelected: "+position);
         final TabLayout tabLayout = mTabLayoutRef.get();
         if (tabLayout != null && tabLayout.getSelectedTabPosition() != position) {

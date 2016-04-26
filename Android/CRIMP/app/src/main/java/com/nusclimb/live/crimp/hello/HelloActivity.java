@@ -10,12 +10,15 @@ import android.view.MenuInflater;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.nusclimb.live.crimp.CrimpApplication2;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.dao.Climber;
 import com.nusclimb.live.crimp.common.dao.User;
+import com.nusclimb.live.crimp.common.event.SwipeTo;
 import com.nusclimb.live.crimp.hello.route.RouteFragment;
 import com.nusclimb.live.crimp.hello.scan.ScanFragment;
 import com.nusclimb.live.crimp.network.model.CategoriesJs;
+import com.squareup.otto.Produce;
 
 public class HelloActivity extends AppCompatActivity implements
         RouteFragment.RouteFragmentInterface,
@@ -31,6 +34,7 @@ public class HelloActivity extends AppCompatActivity implements
     public static final String SAVE_COMMITTED_CATEGORY = "save_committed_category";
     public static final String SAVE_COMMITTED_ROUTE = "save_committed_route";
     public static final String SAVE_CAN_DISPLAY = "save_can_display";
+    public static final String SAVE_IS_SCANNING = "save_is_scanning";
 
     // All the info
     private User mUser;
@@ -43,6 +47,9 @@ public class HelloActivity extends AppCompatActivity implements
     private int mRoutePosition;
     private int mCommittedCategoryPosition;
     private int mCommittedRoutePosition;
+
+    // Scan fragment info
+    private boolean mIsScanning;
 
     // Views
     private AppBarLayout mAppBar;
@@ -94,6 +101,7 @@ public class HelloActivity extends AppCompatActivity implements
         if(savedInstanceState == null){
             mUser = (User)getIntent().getSerializableExtra(SAVE_USER);
             mCanDisplay = new boolean[]{true, false, false};
+            mIsScanning = true;
         }
         else{
             mUser = (User)savedInstanceState.getSerializable(SAVE_USER);
@@ -106,6 +114,7 @@ public class HelloActivity extends AppCompatActivity implements
             if(mCanDisplay == null){
                 mCanDisplay = new boolean[]{true, false, false};
             }
+            mIsScanning = savedInstanceState.getBoolean(SAVE_IS_SCANNING, true);
         }
 
         // prepare view pager
@@ -124,6 +133,23 @@ public class HelloActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onStart(){
+        super.onStart();
+        CrimpApplication2.getBusInstance().register(this);
+    }
+
+    @Override
+    protected void onStop(){
+        CrimpApplication2.getBusInstance().unregister(this);
+        super.onStop();
+    }
+
+    @Produce
+    public SwipeTo produceCurrentTab() {
+        return new SwipeTo(mPager.getCurrentItem());
+    }
+
+    @Override
     protected void onSaveInstanceState (Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putSerializable(SAVE_USER, mUser);
@@ -133,6 +159,7 @@ public class HelloActivity extends AppCompatActivity implements
         outState.putInt(SAVE_COMMITTED_CATEGORY, mCommittedCategoryPosition);
         outState.putInt(SAVE_COMMITTED_ROUTE, mCommittedRoutePosition);
         outState.putBooleanArray(SAVE_CAN_DISPLAY, mCanDisplay);
+        outState.putBoolean(SAVE_IS_SCANNING, mIsScanning);
     }
 
     /*
@@ -245,6 +272,16 @@ public class HelloActivity extends AppCompatActivity implements
         for(int i=0; i<mCanDisplay.length; i++){
             mFragmentAdapter.getCanDisplay()[i] = mCanDisplay[i];
         }
+    }
+
+    @Override
+    public void setIsScanning(boolean isScanning){
+        mIsScanning = isScanning;
+    }
+
+    @Override
+    public boolean getIsScanning(){
+        return mIsScanning;
     }
 
     /*

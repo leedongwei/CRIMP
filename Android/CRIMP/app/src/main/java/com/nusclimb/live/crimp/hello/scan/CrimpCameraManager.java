@@ -73,6 +73,11 @@ class CrimpCameraManager implements Camera.PreviewCallback{
     private int mDisplayRotation;
 
     /**
+     * True: there is a call to startPreview() but SurfaceView is not ready yet.
+     */
+    private boolean startPreviewPending = false;
+
+    /**
      * Method to acquire camera resource and initialize camera parameter.
      *
      * @param targetResolution Ideal resolution for our previewView.
@@ -116,6 +121,7 @@ class CrimpCameraManager implements Camera.PreviewCallback{
     public void startPreview(SurfaceHolder holder){
         if(!mIsSurfaceReady){
             Timber.d("SurfaceHolder not ready to start preview.");
+            startPreviewPending = true;
         }
         else {
             if (mCamera!=null && !mIsPreviewing) {
@@ -136,6 +142,7 @@ class CrimpCameraManager implements Camera.PreviewCallback{
      * and/or 2) not previewing.
      */
     public void stopPreview(){
+        startPreviewPending = false;
         if(mIsPreviewing && mCamera!=null ){
             mCamera.stopPreview();
             mIsPreviewing = false;
@@ -191,13 +198,16 @@ class CrimpCameraManager implements Camera.PreviewCallback{
     }
 
     /**
-     * Perform rotation of camera by 90 degree, find available preview
-     * size with height closest to targetResolution's width, and set autofocus.
+     * Perform rotation of camera by 90 degree, find ideal preview
+     * size base on target resolution and aspect ratio and set autofocus.
      *
-     * @param targetResolution target resolution of previewView.
+     * @param targetResolution target resolution of our ideal SurfaceView
+     * @param targetAspectRatio aspect ratio of our ideal SurfaceView
      */
-    private void initCamera(Point targetResolution, float aspectRatio){
+    private void initCamera(Point targetResolution, float targetAspectRatio){
         if(mCamera != null){
+            // make targetAspectRatio slightly bigger in case floating point operation screw us up.
+            targetAspectRatio = targetAspectRatio + 0.0001f;
 
             /* We want to find how much we need to rotate the camera picture clockwise by in degree.
              * This is done by adding CameraInfo.orientation with Display.getOrientation. We also
@@ -211,42 +221,45 @@ class CrimpCameraManager implements Camera.PreviewCallback{
             }
             mCamera.setDisplayOrientation(angleToRotateClockwise);
 
-            /* We want to find out which preview size to use. The ideal preview size should have
-             * the long size barely smaller than the target height and the short side as close to
-             * the target width as possible.
+            /* We want to find out which preview size to use. The ideal preview size is the largest
+             * resolution with aspect ratio less than the target aspect ratio.
              */
             Camera.Parameters param = mCamera.getParameters();
             List<Camera.Size> supportedSize = param.getSupportedPreviewSizes();
-            double smallestDiff = 100000; // Some arbitrary huge number.
+            mBestPreviewSize = supportedSize.get(0);
+            int longestHeight = 0;
             switch(angleToRotateClockwise){
                 case 0:     // deliberate fall through
                 case 180:
-                    // Find available preview size with width closest to
-                    // targetResolution's width and height <= targetResolution's height.
-                    mBestPreviewSize = supportedSize.get(0);
+                    // The ideal preview size is the one with longest height and aspect ratio less
+                    // than target aspect ratio.
                     for (Camera.Size s : supportedSize) {
-                        if (s.height <= targetResolution.y) {
-                            double diff = Math.abs(s.width - targetResolution.x);
-                            if (diff < smallestDiff) {
-                                smallestDiff = diff;
+                        final float aspectRatio = ((float)s.height)/(float)s.width;
+                        if(aspectRatio <= targetAspectRatio){
+                            if(s.height > longestHeight){
+                                longestHeight = s.height;
                                 mBestPreviewSize = s;
                             }
                         }
+                        Timber.d("Rotated: %ddegree, Resolution: H%dpx, W%dpx, Ratio: %f, target: %f",
+                                angleToRotateClockwise, s.height, s.width, aspectRatio, targetAspectRatio);
                     }
                     break;
                 case 90:    // deliberate fall through
                 case 270:
-                    // Find available preview size with height closest to
-                    // targetResolution's width and width <= targetResolution's height.
-                    mBestPreviewSize = supportedSize.get(0);
+                    // The ideal preview size is the one with longest height and aspect ratio less
+                    // than target aspect ratio. Since we rotated by 90/270 degrees, we will use the
+                    // preview width as height and vice versa.
                     for (Camera.Size s : supportedSize) {
-                        if (s.width <= targetResolution.y) {
-                            double diff = Math.abs(s.height - targetResolution.x);
-                            if (diff < smallestDiff) {
-                                smallestDiff = diff;
+                        final float aspectRatio = ((float)s.width)/(float)s.height;
+                        if(aspectRatio <= targetAspectRatio){
+                            if(s.width > longestHeight){
+                                longestHeight = s.width;
                                 mBestPreviewSize = s;
                             }
                         }
+                        Timber.d("Rotated: %ddegree, Resolution: H%dpx, W%dpx, Ratio: %f, target: %f",
+                                angleToRotateClockwise, s.height, s.width, aspectRatio, targetAspectRatio);
                     }
                     break;
                 default:
@@ -350,8 +363,12 @@ class CrimpCameraManager implements Camera.PreviewCallback{
         return mIsTorchOn;
     }
 
-    public void setIsSurfaceReady(boolean isReady){
+    public void setIsSurfaceReady(boolean isReady, SurfaceHolder holder){
+        Timber.d("setIsSurfaceReady: %b, startPreviewPending: %b", isReady, startPreviewPending);
         mIsSurfaceReady = isReady;
+        if(startPreviewPending){
+            startPreview(holder);
+        }
     }
 
 }
