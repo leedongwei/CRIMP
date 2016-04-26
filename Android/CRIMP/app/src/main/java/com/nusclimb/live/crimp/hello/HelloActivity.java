@@ -14,10 +14,12 @@ import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.dao.Climber;
 import com.nusclimb.live.crimp.common.dao.User;
 import com.nusclimb.live.crimp.hello.route.RouteFragment;
+import com.nusclimb.live.crimp.hello.scan.ScanFragment;
 import com.nusclimb.live.crimp.network.model.CategoriesJs;
 
 public class HelloActivity extends AppCompatActivity implements
-        RouteFragment.RouteFragmentInterface{
+        RouteFragment.RouteFragmentInterface,
+        ScanFragment.ScanFragmentInterface{
     private static final String TAG = "HelloActivity";
     private static final boolean DEBUG = true;
 

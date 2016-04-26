@@ -2,6 +2,7 @@ package com.nusclimb.live.crimp.hello.scan;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
@@ -19,6 +20,8 @@ import android.widget.RelativeLayout;
 
 import com.nusclimb.live.crimp.CrimpApplication2;
 import com.nusclimb.live.crimp.R;
+
+import java.lang.reflect.Method;
 
 import timber.log.Timber;
 
@@ -47,6 +50,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     private ScanFragmentHandler mScanFragmentHandler;
     private DecodeThread mDecodeThread;
     private CrimpCameraManager mCameraManager;
+    private int displayRotation;
 
 
     public static ScanFragment newInstance(int position, String title){
@@ -77,10 +81,27 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
                     + " must implement ScanFragmentInterface");
         }
 
-        WindowManager windowManager = (WindowManager)getActivity()
+        // We want to get the screen size and rotation.
+        // Context.getResources().getDisplayMetrics() gives the resolution of the screen without
+        // screen decorations (i.e. Navigation bar) in pixels.
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+        final int dpTabLayoutHeight = 48;
+        // Remaining height is the height of the space available after subtract away TabLayout.
+        final int dpRemainingHeight = (int) (dpHeight - dpTabLayoutHeight);
+        final float aspectRatio = dpRemainingHeight / dpWidth;
+
+        WindowManager windowManager = (WindowManager)context
                 .getSystemService(Context.WINDOW_SERVICE);
-        int rotation = windowManager.getDefaultDisplay().getRotation();
-        mCameraManager.setDisplayRotation(rotation);
+        displayRotation = windowManager.getDefaultDisplay().getRotation();
+        Timber.d("----------Display information:----------\n" +
+                "Without decoration(px): W%dpx, H%dpx\n" +
+                "Without decoration(dp): W%fdp, H%fdp\n" +
+                "Logical density: %f, aspect ratio (after removing TabLayout): %f\n" +
+                "displayRotation: %d degree",
+                displayMetrics.widthPixels, displayMetrics.heightPixels, dpWidth, dpHeight,
+                displayMetrics.density, aspectRatio, displayRotation);
     }
 
     @Override
@@ -115,17 +136,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
 
         mDecodeThread = new DecodeThread(mScanFragmentHandler);
         mCameraManager.setDecodeThread(mDecodeThread);
-
-        WindowManager manager = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
-        Display display = manager.getDefaultDisplay();
-        Point screenResolution = new Point();	//application display size without system decoration
-        screenResolution.x = display.getWidth();
-        screenResolution.y = display.getHeight();
-
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int overlayHeight = 192 * metrics.densityDpi / 160;
-        int transparentHeight = screenResolution.y - overlayHeight;
-        Point transparentResolution = new Point(screenResolution.x, transparentHeight);
     }
 
     @Override

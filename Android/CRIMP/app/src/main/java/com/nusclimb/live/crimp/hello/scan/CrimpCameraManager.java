@@ -78,7 +78,7 @@ class CrimpCameraManager implements Camera.PreviewCallback{
      * @param targetResolution Ideal resolution for our previewView.
      * @return True: Camera acquired. False: Camera acquisition failed.
      */
-    public boolean acquireCamera(Point targetResolution){
+    public boolean acquireCamera(Point targetResolution, float aspectRatio){
         mCamera = getCameraInstance();
         if(mCamera == null){
             Timber.d("Acquire camera failed");
@@ -86,7 +86,7 @@ class CrimpCameraManager implements Camera.PreviewCallback{
         }
         else{
             Timber.d("Acquire camera succeed");
-            initCamera(targetResolution);
+            initCamera(targetResolution, aspectRatio);
             return true;
         }
     }
@@ -196,7 +196,7 @@ class CrimpCameraManager implements Camera.PreviewCallback{
      *
      * @param targetResolution target resolution of previewView.
      */
-    private void initCamera(Point targetResolution){
+    private void initCamera(Point targetResolution, float aspectRatio){
         if(mCamera != null){
 
             /* We want to find how much we need to rotate the camera picture clockwise by in degree.

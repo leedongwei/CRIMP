@@ -14,7 +14,7 @@
 
         <SurfaceView android:id="@+id/scan_frame"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_alignParentTop="true"
             tools:layout_height="380dp"/>
 

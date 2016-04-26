@@ -55,20 +55,24 @@ class ScanFragmentHandler extends Handler{
     }
 
     public void pauseDecode(){
+        /*
         setRunning(false);
         Message pauseMessage = Message.obtain(fragment.getDecodeHandler(), R.id.decode_pause);
         pauseMessage.sendToTarget();
 
         removeMessages(R.id.decode_succeeded);
         removeMessages(R.id.decode_failed);
+        */
     }
 
     public void resumeDecode(){
+        /*
         setRunning(true);
         if(fragment.getDecodeHandler() != null){
             Message resumeMessage = Message.obtain(fragment.getDecodeHandler(), R.id.decode_resume);
             resumeMessage.sendToTarget();
         }
+        */
     }
 
     /**
@@ -76,6 +80,7 @@ class ScanFragmentHandler extends Handler{
      * Kills the DecodeThread and do stuff.
      */
     public void onPause(){
+        /*
         Message quit = Message.obtain(fragment.getDecodeHandler(), R.id.quit);
         quit.sendToTarget();
 
@@ -89,5 +94,6 @@ class ScanFragmentHandler extends Handler{
         // Be absolutely sure we don't send any queued up messages
         removeMessages(R.id.decode_succeeded);
         removeMessages(R.id.decode_failed);
+        */
     }
 }
