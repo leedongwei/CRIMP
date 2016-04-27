@@ -1,7 +1,6 @@
 package com.nusclimb.live.crimp.hello.scan;
 
 import android.content.Context;
-import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Message;
@@ -47,15 +46,17 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     private EditText mClimberNameText;
     private Button mScanNextButton;
 
-    private ScanFragmentHandler mScanFragmentHandler;
+    private ScanFragmentHandler mMainHandler;
     private DecodeThread mDecodeThread;
     private CrimpCameraManager mCameraManager;
     private int mDisplayRotation;
-    private Point mTargetResolution;
+    private int mTargetWidth;
     private float mAspectRatio;
-    private boolean isShowing;
     private int mPosition;
     private boolean mIsSurfaceReady;
+
+    private boolean mIsShowing;
+    private boolean mIsOnResume;
 
     public static ScanFragment newInstance(int position, String title){
         ScanFragment f = new ScanFragment();
@@ -71,7 +72,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        mScanFragmentHandler = new ScanFragmentHandler(this);
+        mMainHandler = new ScanFragmentHandler(this);
         mCameraManager = new CrimpCameraManager();
 
         mPosition = getArguments().getInt(ARGS_POSITION);
@@ -87,10 +88,12 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
                     + " must implement ScanFragmentInterface");
         }
 
-        // We want to get the screen size and rotation.
+        // We need 3 things: 1) screen width(px), 2)ideal aspect ratio of SurfaceVIew,
+        // 3)display rotation
         // Context.getResources().getDisplayMetrics() gives the resolution of the screen without
         // screen decorations (i.e. Navigation bar) in pixels.
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        mTargetWidth = displayMetrics.widthPixels;
         float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
         float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
         final int dpTabLayoutHeight = 48;
@@ -126,14 +129,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
         mScanNextButton = (Button)rootView.findViewById(R.id.scan_next_button);
 
         mPreviewFrame.getHolder().addCallback(this);
-        mPreviewFrame.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
         return rootView;
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState){
-
     }
 
     @Override
@@ -141,8 +138,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
         super.onStart();
         CrimpApplication2.getBusInstance().register(this);
 
-        mDecodeThread = new DecodeThread(mScanFragmentHandler);
-        mCameraManager.setDecodeThread(mDecodeThread);
+        mDecodeThread = new DecodeThread(mMainHandler);
         if(mDecodeThread.getState() == Thread.State.NEW) {
             mDecodeThread.start();
         }
@@ -151,19 +147,16 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     @Override
     public void onResume(){
         super.onResume();
-        if(isShowing && mParent.getIsScanning()){
-            mCameraManager.acquireCamera(mTargetResolution, mAspectRatio);
-            Camera.Size bestPreviewSize = mCameraManager.getBestPreviewSize();
-            mCameraManager.startPreview(mPreviewFrame.getHolder());
-        }
+        mIsOnResume = true;
 
-
-
+        onStateChangeCheckSurface();
     }
 
     @Override
     public void onPause(){
+        mIsOnResume = false;
 
+        onStateChangeCheckSurface();
         super.onPause();
     }
 
@@ -179,22 +172,14 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     @Subscribe
     public void onReceivedSwipeTo(SwipeTo event){
         Timber.d("onReceivedSwipeTo: %d", event.position);
-        if(event.position == mPosition){
-            isShowing = true;
-            if(mParent.getIsScanning()){
-                mCameraManager.acquireCamera(mTargetResolution, mAspectRatio);
-                Camera.Size bestPreviewSize = mCameraManager.getBestPreviewSize();
-                mCameraManager.startPreview(mPreviewFrame.getHolder());
-            }
-        }
-        else{
-            isShowing = false;
-        }
+        mIsShowing = (event.position == mPosition);
+        onStateChangeCheckSurface();
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         Timber.d("Surface created");
+        mIsSurfaceReady = true;
         if(mCameraManager != null){
             mCameraManager.setIsSurfaceReady(true, holder);
         }
@@ -208,8 +193,35 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         Timber.d("Surface destroyed");
+        mIsSurfaceReady = false;
         if(mCameraManager != null){
             mCameraManager.setIsSurfaceReady(false, holder);
+        }
+    }
+
+    /**
+     * This method is called when something happen that might affect whether we will be scanning.
+     * Do a check start scan if necessary.
+     */
+    private void onStateChangeCheckSurface(){
+        if(mIsOnResume && mIsShowing && mParent.getIsScanning()){
+            mCameraManager.acquireCamera(mTargetWidth, mAspectRatio, mDisplayRotation);
+
+            if(!mIsSurfaceReady){
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mPreviewFrame.getLayoutParams();
+                params.height = mCameraManager.getPxScreenHeight();
+                params.width = mTargetWidth;
+                mPreviewFrame.setLayoutParams(params);
+                mTransparentView.setLayoutParams(params);
+            }
+
+            mCameraManager.startPreview(mPreviewFrame.getHolder());
+
+            mCameraManager.startScan(mDecodeThread);
+        }
+        else{
+            mCameraManager.stopPreview();
+            mCameraManager.releaseCamera();
         }
     }
 

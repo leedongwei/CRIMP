@@ -1,11 +1,8 @@
 package com.nusclimb.live.crimp.hello.scan;
 
-import android.content.Context;
-import android.graphics.Point;
 import android.hardware.Camera;
-import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
+import android.support.annotation.NonNull;
 import android.view.Display;
 import android.view.SurfaceHolder;
 
@@ -67,23 +64,31 @@ class CrimpCameraManager implements Camera.PreviewCallback{
     private boolean mIsTorchOn;
 
     /**
-     * Rotation of the screen from its "natural" orientation.
-     * {@see Display#getRotation()}
-     */
-    private int mDisplayRotation;
-
-    /**
      * True: there is a call to startPreview() but SurfaceView is not ready yet.
      */
-    private boolean startPreviewPending = false;
+    private boolean mStartPreviewPending = false;
+
+    /**
+     * True: there is a call to startScan() but somehow we are not able to start scan straight away.
+     */
+    private boolean mStartScanPending = false;
+
+    private int mPxScreenHeight;
 
     /**
      * Method to acquire camera resource and initialize camera parameter.
      *
-     * @param targetResolution Ideal resolution for our previewView.
+     * @param targetWidth ideal width for our SurfaceView
+     * @param aspectRatio aspect ratio of our ideal SurfaceView
+     * @param displayRotation rotation of the screen from its "natural" orientation
      * @return True: Camera acquired. False: Camera acquisition failed.
+     * @see Display#getRotation()
      */
-    public boolean acquireCamera(Point targetResolution, float aspectRatio){
+    public boolean acquireCamera(int targetWidth, float aspectRatio, int displayRotation){
+        if(mCamera != null){
+            return true;
+        }
+
         mCamera = getCameraInstance();
         if(mCamera == null){
             Timber.d("Acquire camera failed");
@@ -91,7 +96,7 @@ class CrimpCameraManager implements Camera.PreviewCallback{
         }
         else{
             Timber.d("Acquire camera succeed");
-            initCamera(targetResolution, aspectRatio);
+            initCamera(targetWidth, aspectRatio, displayRotation);
             return true;
         }
     }
@@ -102,9 +107,15 @@ class CrimpCameraManager implements Camera.PreviewCallback{
      */
     public void releaseCamera(){
         if (mCamera != null){
+            mBestPreviewSize = null;
+            mCameraId = -1;
+            mDecodeThread = null;
             mIsPreviewing = false;
             mIsScanning = false;
             mIsTorchOn = false;
+            mStartPreviewPending = false;
+            mStartScanPending = false;
+            mPxScreenHeight = 0;
             mCamera.release();
             mCamera = null;
         }
@@ -114,22 +125,29 @@ class CrimpCameraManager implements Camera.PreviewCallback{
 
     /**
      * Method to start previewing and display camera input onto surfaceView.
-     * No-op if 1) camera resource not acquired and/or 2) already previewing
      *
      * @param holder Holder of surfaceView
      */
-    public void startPreview(SurfaceHolder holder){
+    public void startPreview(@NonNull SurfaceHolder holder){
+        if(mCamera == null){
+            throw new NullPointerException("Camera must be instantiated to start preview");
+        }
+
         if(!mIsSurfaceReady){
             Timber.d("SurfaceHolder not ready to start preview.");
-            startPreviewPending = true;
+            mStartPreviewPending = true;
         }
         else {
-            if (mCamera!=null && !mIsPreviewing) {
+            mStartPreviewPending = false;
+            if (!mIsPreviewing) {
                 try {
                     mCamera.setPreviewDisplay(holder);
                     mCamera.startPreview();
                     mIsPreviewing = true;
                     Timber.d("start previewing");
+                    if(mStartScanPending){
+                        startScan(mDecodeThread);
+                    }
                 } catch (IOException e) {
                     Timber.e(e, "IOE when attempting to setPreviewDisplay().");
                 }
@@ -142,7 +160,8 @@ class CrimpCameraManager implements Camera.PreviewCallback{
      * and/or 2) not previewing.
      */
     public void stopPreview(){
-        startPreviewPending = false;
+        mStartScanPending = false;
+        mStartPreviewPending = false;
         if(mIsPreviewing && mCamera!=null ){
             mCamera.stopPreview();
             mIsPreviewing = false;
@@ -151,14 +170,31 @@ class CrimpCameraManager implements Camera.PreviewCallback{
     }
 
     /**
-     * Method to start scanning. No-op if not previewing.
+     * Method to start scanning.
      */
-    public void startScan(){
+    public void startScan(DecodeThread decodeThread){
+        if(mIsScanning){
+            return;
+        }
+
+        if(decodeThread.getState()==Thread.State.NEW ||
+                decodeThread.getState()==Thread.State.TERMINATED){
+            throw new IllegalThreadStateException("DecodeThread must be running when starting scan");
+        }
+
+        if(decodeThread.getHandler() == null){
+            throw new NullPointerException("DecodeThread must have a non null handler");
+        }
+
+        mDecodeThread = decodeThread;
+
         if(mIsPreviewing){
+            mStartScanPending = false;
             mCamera.setOneShotPreviewCallback(this);
             mIsScanning = true;
         }
         else{
+            mStartScanPending = true;
             Timber.d("Attempt to start scan fail due to preview not started yet.");
         }
     }
@@ -201,10 +237,12 @@ class CrimpCameraManager implements Camera.PreviewCallback{
      * Perform rotation of camera by 90 degree, find ideal preview
      * size base on target resolution and aspect ratio and set autofocus.
      *
-     * @param targetResolution target resolution of our ideal SurfaceView
+     * @param targetWidth target width of our ideal SurfaceView
      * @param targetAspectRatio aspect ratio of our ideal SurfaceView
+     * @param displayRotation rotation of the screen from its "natural" orientation
+     * @see Display#getRotation()
      */
-    private void initCamera(Point targetResolution, float targetAspectRatio){
+    private void initCamera(int targetWidth, float targetAspectRatio, int displayRotation){
         if(mCamera != null){
             // make targetAspectRatio slightly bigger in case floating point operation screw us up.
             targetAspectRatio = targetAspectRatio + 0.0001f;
@@ -215,7 +253,7 @@ class CrimpCameraManager implements Camera.PreviewCallback{
              */
             Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
             Camera.getCameraInfo(mCameraId, cameraInfo);
-            int angleToRotateClockwise = cameraInfo.orientation + mDisplayRotation;
+            int angleToRotateClockwise = cameraInfo.orientation + displayRotation;
             while(angleToRotateClockwise >= 360){
                 angleToRotateClockwise = angleToRotateClockwise - 360;
             }
@@ -238,6 +276,9 @@ class CrimpCameraManager implements Camera.PreviewCallback{
                         if(aspectRatio <= targetAspectRatio){
                             if(s.height > longestHeight){
                                 longestHeight = s.height;
+                                // We will scale the s.width to screen width and therefore need to
+                                // calculate what is the scaled height.
+                                mPxScreenHeight = targetWidth * s.height / s.width;
                                 mBestPreviewSize = s;
                             }
                         }
@@ -255,6 +296,9 @@ class CrimpCameraManager implements Camera.PreviewCallback{
                         if(aspectRatio <= targetAspectRatio){
                             if(s.width > longestHeight){
                                 longestHeight = s.width;
+                                // We will scale the s.height to screen width and therefore need to
+                                // calculate what is the scaled height.
+                                mPxScreenHeight = targetWidth * s.width / s.height;
                                 mBestPreviewSize = s;
                             }
                         }
@@ -321,6 +365,7 @@ class CrimpCameraManager implements Camera.PreviewCallback{
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
+        mIsScanning = false;
         if(mDecodeThread != null && mDecodeThread.getHandler() != null){
             Message message = mDecodeThread.getHandler().obtainMessage(R.id.decode,
                     mBestPreviewSize.width, mBestPreviewSize.height, data);
@@ -331,32 +376,8 @@ class CrimpCameraManager implements Camera.PreviewCallback{
         }
     }
 
-    public void setDisplayRotation(int displayRotation){
-        mDisplayRotation = displayRotation;
-    }
-
-    public void setDecodeThread(DecodeThread decodeThread){
-        mDecodeThread = decodeThread;
-    }
-
-    public boolean isScanning(){
-        return this.mIsScanning;
-    }
-
-    public boolean isPreviewing(){
-        return this.mIsPreviewing;
-    }
-
     public boolean hasCamera(){
         return mCamera != null;
-    }
-
-    public Camera.Size getBestPreviewSize(){
-        return mBestPreviewSize;
-    }
-
-    public boolean isSurfaceReady(){
-        return mIsSurfaceReady;
     }
 
     public boolean isTorchOn(){
@@ -364,11 +385,15 @@ class CrimpCameraManager implements Camera.PreviewCallback{
     }
 
     public void setIsSurfaceReady(boolean isReady, SurfaceHolder holder){
-        Timber.d("setIsSurfaceReady: %b, startPreviewPending: %b", isReady, startPreviewPending);
+        Timber.d("setIsSurfaceReady: %b, startPreviewPending: %b", isReady, mStartPreviewPending);
         mIsSurfaceReady = isReady;
-        if(startPreviewPending){
+        if(mStartPreviewPending){
             startPreview(holder);
         }
+    }
+
+    public int getPxScreenHeight(){
+        return mPxScreenHeight;
     }
 
 }
