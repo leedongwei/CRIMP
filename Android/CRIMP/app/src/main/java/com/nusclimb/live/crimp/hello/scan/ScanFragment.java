@@ -37,7 +37,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     private ScanFragmentInterface mParent;
 
     private SurfaceView mPreviewFrame;
-    private View mTransparentView;
     private RelativeLayout mInputLayout;
     private EditText mCategoryIdText;
     private ImageButton mFlashButton;
@@ -119,7 +118,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
         View rootView = inflater.inflate(R.layout.fragment_scan, container, false);
 
         mPreviewFrame = (SurfaceView) rootView.findViewById(R.id.scan_frame);
-        mTransparentView = rootView.findViewById(R.id.scan_transparent);
         mInputLayout = (RelativeLayout) rootView.findViewById(R.id.scan_form);
         mCategoryIdText = (EditText)rootView.findViewById(R.id.scan_category_id_edit);
         mFlashButton = (ImageButton)rootView.findViewById(R.id.scan_flash_button);
@@ -212,8 +210,15 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
                 params.height = mCameraManager.getPxScreenHeight();
                 params.width = mTargetWidth;
                 mPreviewFrame.setLayoutParams(params);
-                mTransparentView.setLayoutParams(params);
             }
+
+            //TODO MIGHT WANT TO REMOVE THIS
+            Message message = mDecodeThread.getHandler().obtainMessage();
+            message.what = DecodeHandler.INITIALIZE;
+            message.obj = "<BA2015>";
+            message.arg1 = mTargetWidth;
+            message.arg2 = mCameraManager.getPxScreenHeight();
+            message.sendToTarget();
 
             mCameraManager.startPreview(mPreviewFrame.getHolder());
 

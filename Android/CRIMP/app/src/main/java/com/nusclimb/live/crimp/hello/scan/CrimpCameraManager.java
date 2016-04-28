@@ -189,13 +189,14 @@ class CrimpCameraManager implements Camera.PreviewCallback{
         mDecodeThread = decodeThread;
 
         if(mIsPreviewing){
+            Timber.d("Scan started");
             mStartScanPending = false;
             mCamera.setOneShotPreviewCallback(this);
             mIsScanning = true;
         }
         else{
             mStartScanPending = true;
-            Timber.d("Attempt to start scan fail due to preview not started yet.");
+            Timber.d("Attempt to start scan fail due to preview not started yet. Will start scan once preview started.");
         }
     }
 
@@ -367,7 +368,7 @@ class CrimpCameraManager implements Camera.PreviewCallback{
     public void onPreviewFrame(byte[] data, Camera camera) {
         mIsScanning = false;
         if(mDecodeThread != null && mDecodeThread.getHandler() != null){
-            Message message = mDecodeThread.getHandler().obtainMessage(R.id.decode,
+            Message message = mDecodeThread.getHandler().obtainMessage(DecodeHandler.DECODE,
                     mBestPreviewSize.width, mBestPreviewSize.height, data);
             message.sendToTarget();
         }

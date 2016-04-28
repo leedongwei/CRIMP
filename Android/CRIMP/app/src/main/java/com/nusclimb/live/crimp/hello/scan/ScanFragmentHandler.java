@@ -8,7 +8,12 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.util.Log;
 
+import timber.log.Timber;
+
 class ScanFragmentHandler extends Handler{
+    public static final int DECODE_SUCCEED = 1;
+    public static final int DECODE_FAIL = 2;
+
     private ScanFragment fragment;
     private boolean running;
 
@@ -22,11 +27,10 @@ class ScanFragmentHandler extends Handler{
 
     @Override
     public void handleMessage(Message message) {
-        if(!running){
-            return;
-        }
+        Timber.d("received message %d", message.what);
+
         switch (message.what) {
-            case R.id.decode_succeeded:
+            case DECODE_SUCCEED:
                 /*
                 if(running){
                     String result = (String) message.obj;
@@ -42,7 +46,7 @@ class ScanFragmentHandler extends Handler{
                 }
                 */
                 break;
-            case R.id.decode_failed:
+            case DECODE_FAIL:
                 /*
                 if(running){
                     fragment.changeState(ScanFragment.State.SCANNING);
@@ -50,50 +54,8 @@ class ScanFragmentHandler extends Handler{
                 */
                 break;
             default:
+                Timber.d("Unknown message received");
                 break;
         }
-    }
-
-    public void pauseDecode(){
-        /*
-        setRunning(false);
-        Message pauseMessage = Message.obtain(fragment.getDecodeHandler(), R.id.decode_pause);
-        pauseMessage.sendToTarget();
-
-        removeMessages(R.id.decode_succeeded);
-        removeMessages(R.id.decode_failed);
-        */
-    }
-
-    public void resumeDecode(){
-        /*
-        setRunning(true);
-        if(fragment.getDecodeHandler() != null){
-            Message resumeMessage = Message.obtain(fragment.getDecodeHandler(), R.id.decode_resume);
-            resumeMessage.sendToTarget();
-        }
-        */
-    }
-
-    /**
-     * This method will be called when QRScanActivity enter onPause() state.
-     * Kills the DecodeThread and do stuff.
-     */
-    public void onPause(){
-        /*
-        Message quit = Message.obtain(fragment.getDecodeHandler(), R.id.quit);
-        quit.sendToTarget();
-
-        try {
-            // Wait at most half a second; should be enough time, and onPause() will timeout quickly
-            fragment.getDecodeThread().join(500L);
-        } catch (InterruptedException e) {
-            // continue
-        }
-
-        // Be absolutely sure we don't send any queued up messages
-        removeMessages(R.id.decode_succeeded);
-        removeMessages(R.id.decode_failed);
-        */
     }
 }

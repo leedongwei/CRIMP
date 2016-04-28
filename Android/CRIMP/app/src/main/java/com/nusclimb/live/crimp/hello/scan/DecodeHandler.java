@@ -63,6 +63,8 @@ public class DecodeHandler extends Handler{
 
     @Override
     public void handleMessage(Message message) {
+        Timber.d("Received message what:%d, arg1:%d, arg2:%d. Running:%b",
+                message.what, message.arg1, message.arg2, running);
         if(!running){
             return;
         }
@@ -98,6 +100,7 @@ public class DecodeHandler extends Handler{
      * @param height The height of the preview frame.
      */
     private void decode(byte[] data, int width, int height) {
+        Timber.d("Starts decoding");
         // Obtained a Result from decoding data.
         long start = System.currentTimeMillis();
         Result rawResult = null;
@@ -137,6 +140,7 @@ public class DecodeHandler extends Handler{
             }
         }
         else {
+            Timber.d("Did not decode anything");
             if (mainThreadHandler != null) {
                 Message message = Message.obtain(mainThreadHandler, R.id.decode_failed);
                 message.sendToTarget();

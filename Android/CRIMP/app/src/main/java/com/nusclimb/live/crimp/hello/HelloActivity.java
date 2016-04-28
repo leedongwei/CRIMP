@@ -19,6 +19,7 @@ import com.nusclimb.live.crimp.hello.route.RouteFragment;
 import com.nusclimb.live.crimp.hello.scan.ScanFragment;
 import com.nusclimb.live.crimp.network.model.CategoriesJs;
 import com.squareup.otto.Produce;
+import com.squareup.otto.Subscribe;
 
 public class HelloActivity extends AppCompatActivity implements
         RouteFragment.RouteFragmentInterface,
@@ -198,6 +199,14 @@ public class HelloActivity extends AppCompatActivity implements
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_hello, menu);
         return true;
+    }
+
+    @Subscribe
+    public void onReceivedSwipeTo(SwipeTo event){
+        if(event.position == 1){
+            if(mAppBar != null)
+                mAppBar.setExpanded(false);
+        }
     }
 
     @Override

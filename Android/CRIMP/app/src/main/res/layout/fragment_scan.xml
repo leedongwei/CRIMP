@@ -18,15 +18,8 @@
             android:layout_alignParentTop="true"
             tools:layout_height="380dp"/>
 
-        <View android:id="@+id/scan_transparent"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
-            android:background="@color/transparent"
-            tools:layout_height="380dp"/>
-
         <RelativeLayout android:id="@+id/scan_form"
-            android:layout_below="@id/scan_transparent"
+            android:layout_below="@id/scan_frame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
