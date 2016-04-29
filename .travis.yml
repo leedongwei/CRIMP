@@ -18,4 +18,4 @@ before_install:
 script:
 - echo $ADB_INSTALL_TIMEOUT
 - android list target
-- ./android/CRIMP/gradlew build
+- ./android/CRIMP/gradlew --info build
