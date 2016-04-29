@@ -53,6 +53,10 @@ android {
             res.srcDirs = ['src/tests/res']
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 repositories {
