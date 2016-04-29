@@ -39,6 +39,20 @@ android {
         // assign a different package name to each flavor: since each flavor definition creates a
         // different app, they each need a distinct package name.
     }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            java.srcDirs = ['src/main/java']
+            res.srcDirs = ['src/main/res']
+        }
+
+        androidTest.setRoot('src/test')
+        androidTest {
+            java.srcDirs = ['src/tests/java']
+            res.srcDirs = ['src/tests/res']
+        }
+    }
 }
 
 repositories {

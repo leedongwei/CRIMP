@@ -31,4 +31,4 @@ android:
 env:
     - TEST_DIR=android/CRIMP
 
-script: cd $TEST_DIR
+script: cd $TEST_DIR && ./gradlew test
