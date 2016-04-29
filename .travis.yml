@@ -31,4 +31,7 @@ android:
 env:
     - TEST_DIR=android/CRIMP
 
+before_install:
+    - chmod +x gradlew
+
 script: cd $TEST_DIR && ./gradlew test
