@@ -15,5 +15,3 @@ android:
 
 before_install:
     - chmod +x ./android/CRIMP/gradlew
-
-script: ./android/CRIMP/gradlew test
