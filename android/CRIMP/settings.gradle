@@ -1,1 +1,1 @@
-include ':app', ':greendaogen'
+include ':app'

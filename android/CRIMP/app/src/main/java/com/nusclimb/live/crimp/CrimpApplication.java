@@ -19,7 +19,7 @@ import timber.log.Timber;
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class CrimpApplication2 extends Application {
+public class CrimpApplication extends Application {
     private static final String DB_NAME = "crimp-db";
 
     private static Context mContext;

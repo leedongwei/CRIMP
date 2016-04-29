@@ -18,7 +18,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.nusclimb.live.crimp.CrimpApplication2;
+import com.nusclimb.live.crimp.CrimpApplication;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.Action;
 import com.nusclimb.live.crimp.common.dao.User;
@@ -146,7 +146,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart(){
         super.onStart();
-        CrimpApplication2.getBusInstance().register(this);
+        CrimpApplication.getBusInstance().register(this);
 
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         if(accessToken != null){
@@ -165,7 +165,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onStop(){
-        CrimpApplication2.getBusInstance().unregister(this);
+        CrimpApplication.getBusInstance().unregister(this);
         super.onStop();
     }
 
@@ -219,7 +219,7 @@ public class LoginActivity extends AppCompatActivity {
         Timber.d("Received RequestSucceed %s", event.txId);
 
         //TODO REMOVE THIS INJECTION
-        final LoginJs result1 = CrimpApplication2.getLocalModel().fetch(txId.toString(), LoginJs.class);
+        final LoginJs result1 = CrimpApplication.getLocalModel().fetch(txId.toString(), LoginJs.class);
         final LoginJs result = new LoginJs();
         result.setFbAccessToken("stubAccessToken");
         result.setFbUserId("stubUserId");

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "22.0.1"
+    buildToolsVersion "23.0.3"
 
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
@@ -18,7 +18,7 @@ android {
     defaultConfig {
         applicationId "com.nusclimb.live.crimp"
         minSdkVersion 15
-        targetSdkVersion 23
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -38,14 +38,6 @@ android {
         // overrides any default values. The build file above uses the applicationId property to
         // assign a different package name to each flavor: since each flavor definition creates a
         // different app, they each need a distinct package name.
-        demo {
-            applicationId "com.nusclimb.live.crimp.demo"
-            versionName "1.0-demo"
-        }
-        production {
-            applicationId "com.nusclimb.live.crimp.production"
-            versionName "1.0-production"
-        }
     }
 }
 
@@ -79,5 +71,5 @@ dependencies {
     // Required -- JUnit 4 framework
     testCompile 'junit:junit:4.12'
     // Optional -- Mockito framework
-    testCompile 'org.mockito:mockito-core:1.10.19'
+    androidTestCompile 'org.mockito:mockito-core:1.10.19'
 }
