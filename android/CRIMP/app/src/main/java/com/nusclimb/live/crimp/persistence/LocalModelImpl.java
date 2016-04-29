@@ -16,33 +16,31 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
+import timber.log.Timber;
+
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class LocalModelImpl implements LocalModel {
-    private static final String TAG = "LocalModelImpl";
-    private static final boolean DEBUG = true;
+    public static final String DISK_CACHE_FILE_DIR = "DiskLruCache";
 
-    private static final String DISK_CACHE_SUBDIR = null;
-
-    private Context mContext;
     private static LocalModel instance = null;
 
     private DiskLruCache mDiskLruCache;
     private final Object mDiskCacheLock = new Object();
     private static final int DISK_CACHE_SIZE = 1024 * 1024 * 1; // 1MB
-    private File cacheFile;
+    private File mCacheFile;
 
-    private LocalModelImpl(Context context) {
-        this.mContext = context;
+    private LocalModelImpl(File path) {
+        this.mCacheFile = path;
 
-        // Initialize disk cache on background thread
-        cacheFile = getDiskCacheDir(context, DISK_CACHE_SUBDIR);
+        //TODO Initialize disk cache on background thread
+        initDiskCache();
     }
 
-    public static LocalModel getInstance(Context context){
+    public static LocalModel getInstance(File path){
         if(instance == null){
-            instance = new LocalModelImpl(context);
+            instance = new LocalModelImpl(path);
         }
 
         return instance;
@@ -56,24 +54,47 @@ public class LocalModelImpl implements LocalModel {
 
     @Override
     public boolean isDataExist(String key){
-        // TODO STUB
-        return false;
+        boolean result = getFromDiskCache(key)!=null;
+        return result;
     }
 
     public boolean putData(String key, Serializable value){
         //TODO STUB
+        putInDiskCache(key, value);
         return false;
     }
 
+    public static void deleteLocalModel(File path){
+        /*
+        boolean deleteSucceed = true;
+        if (path.isDirectory()) {
+            String[] children = path.list();
+            for (int i = 0; i < children.length; i++) {
+                File childFile = new File(path, children[i]);
+                deleteSucceed = deleteSucceed & childFile.delete();
+            }
+        }
+        deleteSucceed = deleteSucceed & path.delete();
+
+        path = null;
+        */
+    }
+
+    public void deleteModel() {
+        try {
+            mDiskLruCache.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private boolean initDiskCache(){
         synchronized (mDiskCacheLock) {
             try {
-                mDiskLruCache = DiskLruCache.open(cacheFile, 1, 1, DISK_CACHE_SIZE);
+                mDiskLruCache = DiskLruCache.open(mCacheFile, 1, 1, DISK_CACHE_SIZE);
                 return true;
             } catch (IOException e) {
-                if(DEBUG) Log.d(TAG, "IOException while opening DiskLruCache. Exception: "
-                        + e.getMessage());
+                Timber.e(e, "IOException while opening DiskLruCache. Exception");
             }
             mDiskCacheLock.notifyAll(); // Wake any waiting threads
         }
@@ -83,7 +104,7 @@ public class LocalModelImpl implements LocalModel {
 
     private Object getFromDiskCache(@NonNull String key){
         if(mDiskLruCache == null){
-            if(DEBUG) Log.d(TAG, "mDiskLruCache not instantiated.");
+            Timber.d("mDiskLruCache not instantiated.");
             return null;
         }
 
@@ -92,12 +113,12 @@ public class LocalModelImpl implements LocalModel {
             try {
                 ss = mDiskLruCache.get(key);
             } catch (IOException e) {
-                if(DEBUG) Log.d(TAG, "IOException trying to query disk cache for key: " + key);
+                Timber.d("IOException trying to query disk cache for key: %s", key);
                 return null;
             }
 
             if(ss == null){
-                if(DEBUG) Log.d(TAG, "No entry found in disk cache for key: " + key);
+                Timber.d("No entry found in disk cache for key: %s", key);
                 return null;
             }
 
@@ -109,9 +130,9 @@ public class LocalModelImpl implements LocalModel {
 
                 result = objInputStream.readObject();
             } catch (IOException e) {
-                if(DEBUG) Log.d(TAG, "IOException instantiating inputStream");
+                Timber.d("IOException instantiating inputStream");
             } catch (ClassNotFoundException e) {
-                if(DEBUG) Log.d(TAG, "ClassNotFoundException deserializing stream");
+                Timber.d("ClassNotFoundException deserializing stream");
             } finally {
                 ss.close();
             }
@@ -128,7 +149,7 @@ public class LocalModelImpl implements LocalModel {
      */
     private boolean removeFromDiskCache(@NonNull String key){
         if(mDiskLruCache == null){
-            if(DEBUG) Log.d(TAG, "mDiskLruCache not instantiated.");
+            Timber.d("mDiskLruCache not instantiated.");
             return false;
         }
 
@@ -137,10 +158,10 @@ public class LocalModelImpl implements LocalModel {
             try {
                 result = mDiskLruCache.remove(key);
             } catch (IOException e) {
-                if(DEBUG) Log.d(TAG, "IOException removing key: " + key);
+                Timber.d("IOException removing key: %s", key);
             }
 
-            if(DEBUG) Log.d(TAG, "Remove [key:"+key+"]? "+result);
+            Timber.d("Remove [key:%s]? %s", key, result);
 
             mDiskCacheLock.notifyAll();
             return result;
@@ -149,7 +170,7 @@ public class LocalModelImpl implements LocalModel {
 
     private boolean putInDiskCache(@NonNull String key, @NonNull Serializable obj){
         if(mDiskLruCache == null){
-            if(DEBUG) Log.d(TAG, "mDiskLruCache not instantiated.");
+            Timber.d("mDiskLruCache not instantiated.");
             return false;
         }
 
@@ -164,7 +185,7 @@ public class LocalModelImpl implements LocalModel {
             }
 
             if(editor == null){
-                if(DEBUG) Log.d(TAG, "Unable to edit [key:"+key+"] because another edit is in progress");
+                Timber.d("Unable to edit [key:%s] because another edit is in progress", key);
                 return false;
             }
 
@@ -180,7 +201,7 @@ public class LocalModelImpl implements LocalModel {
                 objectOut.writeObject(obj);
                 writeResult = true;
             } catch (IOException e){
-                if(DEBUG) Log.d(TAG, "IOException trying to write [key:"+key+"]. e:"+e.getMessage());
+                Timber.e(e, "IOException trying to write [key:%s]", key);
             } finally {
                 if(objectOut != null) try {
                     objectOut.close();
@@ -222,19 +243,6 @@ public class LocalModelImpl implements LocalModel {
             mDiskCacheLock.notifyAll();
             return writeResult;
         }
-    }
-
-    private static File getDiskCacheDir(Context context, String subDir){
-        File cacheFile;
-
-        if(DISK_CACHE_SUBDIR == null){
-            cacheFile = context.getCacheDir();
-        }
-        else{
-            cacheFile = new File(context.getCacheDir() + File.separator + subDir);
-        }
-
-        return cacheFile;
     }
 
 }

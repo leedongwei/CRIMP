@@ -1,7 +1,6 @@
 package com.nusclimb.live.crimp.hello.scan;
 
 import android.content.Context;
-import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.Fragment;
@@ -17,7 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
-import com.nusclimb.live.crimp.CrimpApplication2;
+import com.nusclimb.live.crimp.CrimpApplication;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.event.SwipeTo;
 import com.squareup.otto.Subscribe;
@@ -134,7 +133,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     @Override
     public void onStart(){
         super.onStart();
-        CrimpApplication2.getBusInstance().register(this);
+        CrimpApplication.getBusInstance().register(this);
 
         mDecodeThread = new DecodeThread(mMainHandler);
         if(mDecodeThread.getState() == Thread.State.NEW) {
@@ -160,7 +159,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
 
     @Override
     public void onStop(){
-        CrimpApplication2.getBusInstance().unregister(this);
+        CrimpApplication.getBusInstance().unregister(this);
         Message quitMessage = mDecodeThread.getHandler().obtainMessage();
         quitMessage.what = DecodeHandler.QUIT;
         quitMessage.sendToTarget();

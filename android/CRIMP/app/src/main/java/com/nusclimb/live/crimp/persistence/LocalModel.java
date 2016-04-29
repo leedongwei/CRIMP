@@ -10,4 +10,5 @@ public interface LocalModel {
     boolean isDataExist(String key);
     <T> T fetch(String txId, Class<T> valueType);
     boolean putData(String key, Serializable value);
+    void deleteModel();
 }

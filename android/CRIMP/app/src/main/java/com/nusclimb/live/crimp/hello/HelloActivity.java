@@ -10,7 +10,7 @@ import android.view.MenuInflater;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.nusclimb.live.crimp.CrimpApplication2;
+import com.nusclimb.live.crimp.CrimpApplication;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.dao.Climber;
 import com.nusclimb.live.crimp.common.dao.User;
@@ -136,12 +136,12 @@ public class HelloActivity extends AppCompatActivity implements
     @Override
     protected void onStart(){
         super.onStart();
-        CrimpApplication2.getBusInstance().register(this);
+        CrimpApplication.getBusInstance().register(this);
     }
 
     @Override
     protected void onStop(){
-        CrimpApplication2.getBusInstance().unregister(this);
+        CrimpApplication.getBusInstance().unregister(this);
         super.onStop();
     }
 

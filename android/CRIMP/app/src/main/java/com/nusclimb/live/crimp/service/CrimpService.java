@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.nusclimb.live.crimp.CrimpApplication2;
+import com.nusclimb.live.crimp.CrimpApplication;
 import com.nusclimb.live.crimp.common.event.RequestFailed;
 import com.nusclimb.live.crimp.common.event.RequestSucceed;
 import com.nusclimb.live.crimp.network.model.CategoriesJs;
@@ -107,15 +107,15 @@ public class CrimpService extends IntentService{
                     //TODO UPDATE TRANSACTION LOG
 
                     // write to local model
-                    CrimpApplication2.getLocalModel().putData(txId.toString(), categoriesJs);
+                    CrimpApplication.getLocalModel().putData(txId.toString(), categoriesJs);
                     Timber.d("Posting responseReceived: %s", txId);
-                    CrimpApplication2.getBusInstance().post(new RequestSucceed(txId));
+                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
                 }
                 else{
                     //TODO UPDATE TRANSACTION LOG
 
                     if(DEBUG) Log.d(TAG, "Posting requestFailed: "+txId);
-                    CrimpApplication2.getBusInstance().post(new RequestFailed(txId));
+                    CrimpApplication.getBusInstance().post(new RequestFailed(txId));
                 }
                 break;
             case ACTION_GET_SCORE:
@@ -125,15 +125,15 @@ public class CrimpService extends IntentService{
                     //TODO UPDATE TRANSACTION LOG
 
                     // write to local model
-                    CrimpApplication2.getLocalModel().putData(txId.toString(), getScoreJs);
+                    CrimpApplication.getLocalModel().putData(txId.toString(), getScoreJs);
                     if(DEBUG) Log.d(TAG, "Posting responseReceived: "+txId);
-                    CrimpApplication2.getBusInstance().post(new RequestSucceed(txId));
+                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
                 }
                 else{
                     //TODO UPDATE TRANSACTION LOG
 
                     if(DEBUG) Log.d(TAG, "Posting requestFailed: "+txId);
-                    CrimpApplication2.getBusInstance().post(new RequestFailed(txId));
+                    CrimpApplication.getBusInstance().post(new RequestFailed(txId));
                 }
                 break;
             case ACTION_SET_ACTIVE:
@@ -148,19 +148,19 @@ public class CrimpService extends IntentService{
                     //TODO UPDATE TRANSACTION LOG
 
                     // write to local model
-                    CrimpApplication2.getLocalModel().putData(txId.toString(), loginJs);
+                    CrimpApplication.getLocalModel().putData(txId.toString(), loginJs);
                     if(DEBUG) Log.d(TAG, "Posting responseReceived: "+txId);
-                    CrimpApplication2.getBusInstance().post(new RequestSucceed(txId));
+                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
                 }
                 else{
                     //TODO UPDATE TRANSACTION LOG
 
                     if(DEBUG) Log.d(TAG, "Posting requestFailed: "+txId);
-                    CrimpApplication2.getBusInstance().post(new RequestFailed(txId));
+                    CrimpApplication.getBusInstance().post(new RequestFailed(txId));
                 }
                 break;
             case ACTION_REPORT_IN:
-                CrimpApplication2.getBusInstance().post(new RequestSucceed(txId));
+                CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
                 break;
             case ACTION_REQUEST_HELP:
                 break;
@@ -177,7 +177,7 @@ public class CrimpService extends IntentService{
     private CategoriesJs getCategories(){
         CategoriesJs categoriesJs = null;
         try {
-            categoriesJs = CrimpApplication2.getCrimpWS().getCategories();
+            categoriesJs = CrimpApplication.getCrimpWS().getCategories();
         } catch (IOException e){
             Timber.e(e, "IOE while doing getCategories");
         }
@@ -193,7 +193,7 @@ public class CrimpService extends IntentService{
             }
 
             try {
-                categoriesJs = CrimpApplication2.getCrimpWS().getCategories();
+                categoriesJs = CrimpApplication.getCrimpWS().getCategories();
             } catch (IOException e){
                 Timber.d(e, "IOE while doing getCategories");
             }
@@ -208,7 +208,7 @@ public class CrimpService extends IntentService{
     private GetScoreJs getScore(RequestBean requestBean){
         GetScoreJs getScoreJs = null;
         try {
-            getScoreJs = CrimpApplication2.getCrimpWS().getScore(requestBean);
+            getScoreJs = CrimpApplication.getCrimpWS().getScore(requestBean);
         } catch (IOException e){
             if(DEBUG) Log.d(TAG, "IOE while doing getScore. e:"+e.getMessage());
         }
@@ -224,7 +224,7 @@ public class CrimpService extends IntentService{
             }
 
             try {
-                getScoreJs = CrimpApplication2.getCrimpWS().getScore(requestBean);
+                getScoreJs = CrimpApplication.getCrimpWS().getScore(requestBean);
             } catch (IOException e){
                 if(DEBUG) Log.d(TAG, "IOE while doing getScore. e:"+e.getMessage());
             }
@@ -239,7 +239,7 @@ public class CrimpService extends IntentService{
     private LoginJs login(RequestBean requestBean){
         LoginJs loginJs = null;
         try {
-            loginJs = CrimpApplication2.getCrimpWS().login(requestBean);
+            loginJs = CrimpApplication.getCrimpWS().login(requestBean);
         } catch (IOException e){
             if(DEBUG) Log.d(TAG, "IOE while doing login. e:"+e.getMessage());
         }
@@ -255,7 +255,7 @@ public class CrimpService extends IntentService{
             }
 
             try {
-                loginJs = CrimpApplication2.getCrimpWS().login(requestBean);
+                loginJs = CrimpApplication.getCrimpWS().login(requestBean);
             } catch (IOException e){
                 if(DEBUG) Log.d(TAG, "IOE while doing login. e:"+e.getMessage());
             }

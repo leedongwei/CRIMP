@@ -13,7 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.nusclimb.live.crimp.CrimpApplication2;
+import com.nusclimb.live.crimp.CrimpApplication;
 import com.nusclimb.live.crimp.R;
 import com.nusclimb.live.crimp.common.Action;
 import com.nusclimb.live.crimp.common.dao.User;
@@ -157,7 +157,7 @@ public class RouteFragment extends Fragment {
     @Override
     public void onStart(){
         super.onStart();
-        CrimpApplication2.getBusInstance().register(this);
+        CrimpApplication.getBusInstance().register(this);
 
         if(mParent.getCategoriesJs()==null || mParent.getCategoriesJs().getCategories().size()<=0){
             // If we do not have categories info, we cannot show anything and therefore must show
@@ -202,7 +202,7 @@ public class RouteFragment extends Fragment {
 
     @Override
     public void onStop(){
-        CrimpApplication2.getBusInstance().unregister(this);
+        CrimpApplication.getBusInstance().unregister(this);
         super.onStop();
     }
 
@@ -264,7 +264,7 @@ public class RouteFragment extends Fragment {
 
         if(event.txId.equals(mCategoriesTxId)){
             // TODO: React to the event somehow! REMEMBER TO CLEAR THE TXID
-            mParent.setCategoriesJs(CrimpApplication2.getLocalModel()
+            mParent.setCategoriesJs(CrimpApplication.getLocalModel()
                     .fetch(mCategoriesTxId.toString(), CategoriesJs.class));
 
             //TODO REMOVE INJECTION
@@ -282,7 +282,7 @@ public class RouteFragment extends Fragment {
         }
         else if(event.txId.equals(mReportTxId)){
             // TODO: React to the event somehow! REMEMBER TO CLEAR THE TXID
-            ReportJs reportJs = CrimpApplication2.getLocalModel()
+            ReportJs reportJs = CrimpApplication.getLocalModel()
                     .fetch(mReportTxId.toString(), ReportJs.class);
 
             //TODO REMOVE INJECTION

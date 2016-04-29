@@ -32,4 +32,9 @@ public class StubLocalModel implements LocalModel {
         Timber.d("putData for key: %s", key);
         return false;
     }
+
+    @Override
+    public void deleteModel() {
+
+    }
 }
