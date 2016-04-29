@@ -29,6 +29,6 @@ android:
     - sys-img-x86-android-17
 
 env:
-	- TEST_DIR=android/CRIMP
+    - TEST_DIR=android/CRIMP
 	
 script: cd $TEST_DIR
