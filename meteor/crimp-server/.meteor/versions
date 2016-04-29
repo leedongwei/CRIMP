@@ -1,3 +1,4 @@
+aldeed:simple-schema@1.5.3
 allow-deny@1.0.4
 autopublish@1.0.7
 autoupdate@1.2.9
@@ -35,6 +36,7 @@ jquery@1.11.8
 launch-screen@1.0.11
 livedata@1.0.18
 logging@1.0.12
+mdg:validation-error@0.2.0
 meteor@1.1.14
 meteor-base@1.0.4
 minifier-css@1.1.11
