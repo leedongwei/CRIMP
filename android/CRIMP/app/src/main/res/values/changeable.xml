@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="event_name_long">"Boulderactive 2015"</string>
+    <string name="event_name_short">"BA2015"</string>
+    <string name="crimp_base_url">"http://live.nusclimb.com"</string>
+
+    <!-- QR Code prefix -->
+    <string name="qr_prefix">&lt;BA2015&gt;</string>
+</resources>
