@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="rocks.crimp.crimp.hello.HelloActivity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="8dp">
+
+        <SurfaceView android:id="@+id/scan_frame"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_alignParentTop="true"
+            tools:layout_height="380dp"/>
+
+        <RelativeLayout android:id="@+id/scan_form"
+            android:layout_below="@id/scan_frame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/scan_category_id_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp"
+                android:textStyle="bold"
+                android:background="@color/transparent"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                tools:text="NMQ"
+                tools:ignore="RtlHardcoded,TextFields" />
+
+            <ImageButton
+                android:id="@+id/scan_flash_button"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginBottom="4dp"
+                android:src="@drawable/ic_flare_black_24dp"
+                android:contentDescription="@string/scan_fragment_description_flash"
+                tools:ignore="RtlHardcoded" />
+
+            <Button
+                android:id="@+id/scan_rescan_button"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@id/scan_flash_button"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginBottom="4dp"
+                android:text="@string/scan_fragment_rescan"
+                tools:ignore="RtlHardcoded" />
+
+            <EditText
+                android:id="@+id/scan_climber_id_edit"
+                android:layout_toRightOf="@id/scan_category_id_edit"
+                android:layout_toLeftOf="@id/scan_rescan_button"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginBottom="4dp"
+                android:hint="@string/scan_fragment_climber_id"
+                android:background="@color/transparent"
+                android:inputType="number"
+                tools:ignore="RtlHardcoded" />
+
+            <EditText
+                android:id="@+id/scan_climber_name_edit"
+                android:layout_below="@id/scan_category_id_edit"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@color/transparent"
+                android:layout_marginTop="4dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="8dp"
+                android:hint="@string/scan_fragment_climber_name"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:inputType="textMultiLine|text" />
+
+            <Button
+                android:id="@+id/scan_next_button"
+                android:layout_below="@id/scan_climber_name_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginLeft="16dp"
+                android:text="@string/scan_fragment_next"
+                android:enabled="false"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</android.support.v4.widget.NestedScrollView>
