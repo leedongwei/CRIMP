@@ -323,6 +323,7 @@ Body: {
   "sequential_token": 1
 }
 ```
+* `sequential_token` cannot be negative.
 <br><br><br>
 
 
