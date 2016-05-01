@@ -26,4 +26,6 @@ before_install:
     - chmod +x ./android/gradlew
 
 script:
-- ./android/gradlew clean check
+- ./android/gradlew --stacktrace clean check
+
+after_failure: "ls ./android/app/build"
