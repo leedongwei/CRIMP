@@ -1,4 +1,4 @@
-package rocks.crimp.crimp.hello.route;
+package rocks.crimp.crimp.hello;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,24 +11,22 @@ import timber.log.Timber;
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class ReplaceDialog {
-    public static AlertDialog create(Context context, final Action replace, final Action cancel,
-                                     String currentJudge, String categoryName, String routeName){
+public class LogoutDialog {
+    public static AlertDialog create(Context context, final Action logout, final Action cancel){
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-        String question = String.format(context.getString(R.string.route_fragment_replace_question),
-                currentJudge, categoryName, routeName, currentJudge);
-
-        builder.setTitle(R.string.route_fragment_replace_title)
-                .setMessage(question)
-                .setPositiveButton(R.string.route_fragment_replace_positive, new DialogInterface.OnClickListener() {
+        builder.setTitle(R.string.hello_activity_logout_dialog_title)
+                .setMessage(R.string.hello_activity_logout_dialog)
+                .setPositiveButton(R.string.hello_activity_logout_dialog_positive,
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Timber.d("Pressed on Positive button");
-                        replace.act();
+                        logout.act();
                     }
                 })
-                .setNegativeButton(R.string.route_fragment_replace_negative, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.hello_activity_logout_dialog_negative,
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Timber.d("Pressed on Negative button");
@@ -38,7 +36,7 @@ public class ReplaceDialog {
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        Timber.d("Replace dialog cancelled");
+                        Timber.d("Logout dialog cancelled");
                         cancel.act();
                     }
                 });

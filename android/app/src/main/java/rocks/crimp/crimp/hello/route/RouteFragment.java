@@ -313,10 +313,11 @@ public class RouteFragment extends Fragment {
         mLoadWheel.setVisibility(View.GONE);
         mHelloText.setVisibility(View.VISIBLE);
         mCategorySpinner.setEnabled(false);
-        CrimpApplication.getAppState().edit().putInt(HelloActivity.SAVE_CATEGORY_INDEX, 0)
-                .putInt(HelloActivity.SAVE_COMMITTED_CATEGORY, 0)
-                .putInt(HelloActivity.SAVE_ROUTE_INDEX, 0)
-                .putInt(HelloActivity.SAVE_COMMITTED_ROUTE, 0)
+        CrimpApplication.getAppState().edit()
+                .remove(HelloActivity.SAVE_CATEGORY_INDEX)
+                .remove(HelloActivity.SAVE_COMMITTED_CATEGORY)
+                .remove(HelloActivity.SAVE_ROUTE_INDEX)
+                .remove(HelloActivity.SAVE_COMMITTED_ROUTE)
                 .commit();
         mCategorySpinner.setSelection(0);
         mCategorySpinner.setVisibility(View.VISIBLE);
@@ -427,10 +428,11 @@ public class RouteFragment extends Fragment {
             }
         });
         mCategorySpinner.setEnabled(false);
-        CrimpApplication.getAppState().edit().putInt(HelloActivity.SAVE_CATEGORY_INDEX, 0)
-                .putInt(HelloActivity.SAVE_COMMITTED_CATEGORY, 0)
-                .putInt(HelloActivity.SAVE_ROUTE_INDEX, 0)
-                .putInt(HelloActivity.SAVE_COMMITTED_ROUTE, 0)
+        CrimpApplication.getAppState().edit()
+                .remove(HelloActivity.SAVE_CATEGORY_INDEX)
+                .remove(HelloActivity.SAVE_COMMITTED_CATEGORY)
+                .remove(HelloActivity.SAVE_ROUTE_INDEX)
+                .remove(HelloActivity.SAVE_COMMITTED_ROUTE)
                 .commit();
         mCategorySpinner.setSelection(0);
         mRouteSpinner.setEnabled(false);

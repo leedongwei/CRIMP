@@ -322,6 +322,9 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
      */
     private void onStateChangeCheckScanning(){
         boolean shouldScan = CrimpApplication.getAppState().getBoolean(HelloActivity.SAVE_SHOULD_SCAN, true);
+        Timber.d("mIsOnResume: %b, mIsShowing: %b, shouldScan: %b, mIsScanning: %b",
+                mIsOnResume, mIsShowing, shouldScan, mIsScanning);
+
         if(mIsOnResume && mIsShowing && shouldScan && !mIsScanning){
             mCameraManager.acquireCamera(mTargetWidth, mAspectRatio, mDisplayRotation);
 

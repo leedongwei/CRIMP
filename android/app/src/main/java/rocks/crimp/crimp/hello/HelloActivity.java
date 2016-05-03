@@ -1,5 +1,6 @@
 package rocks.crimp.crimp.hello;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
@@ -14,17 +15,20 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.facebook.login.LoginManager;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
+import rocks.crimp.crimp.common.Action;
 import rocks.crimp.crimp.common.Climber;
 import rocks.crimp.crimp.common.User;
 import rocks.crimp.crimp.common.event.SwipeTo;
 import rocks.crimp.crimp.hello.route.RouteFragment;
 import rocks.crimp.crimp.hello.scan.ScanFragment;
 import rocks.crimp.crimp.hello.score.ScoreFragment;
+import rocks.crimp.crimp.login.LoginActivity;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.persistence.LocalModelImpl;
 
@@ -246,37 +250,27 @@ public class HelloActivity extends AppCompatActivity implements
             // Respond to the action bar's Up/Home button
             case R.id.action_helpme:
                 Toast toast = Toast.makeText(this,
-                        "A ticket has been sent to the admins. Please wait for assistance.",
+                        "STUB! A ticket has been sent to the admins. Please wait for assistance.",
                         Toast.LENGTH_SHORT);
                 toast.show();
                 // TODO HELPME
                 return true;
             case R.id.action_logout:
-                Toast toast2 = Toast.makeText(this,
-                        "U clicked logout",
-                        Toast.LENGTH_SHORT);
-                toast2.show();
-
-                // TODO LOGOUT
-                /*
-                new AlertDialog.Builder(this)
-                        .setMessage("Logout?")
-                        .setPositiveButton("Logout", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Do stuff
-                                LoginManager.getInstance().logOut();
-                                Intent mIntent = new Intent(getApplicationContext(), LoginActivity.class);
-                                finish();
-                                startActivity(mIntent);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // do nothing
-                            }
-                        })
-                        .show();
-                        */
+                LogoutDialog.create(this, new Action() {
+                    @Override
+                    public void act() {
+                        LoginManager.getInstance().logOut();
+                        CrimpApplication.getAppState().edit().clear().commit();
+                        Intent intent = new Intent(HelloActivity.this, LoginActivity.class);
+                        finish();
+                        startActivity(intent);
+                    }
+                }, new Action() {
+                    @Override
+                    public void act() {
+                        // Do nothing
+                    }
+                }).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
