@@ -96,9 +96,9 @@ Body: {
   ]
 }
 ```
-* `category_id` uniquely identify a Category globally.
+* `category_id` uniquely identify a Category globally. Cannot be negative.
 * `acronym` consist of three alphabet in uppercase and is unique.
-* `route_id` uniquely identify a Route globally (not just within a Category).
+* `route_id` uniquely identify a Route globally (not just within a Category). Cannot be negative.
 * `score_type` inform the client which scoring system this route is supposed to use.
 <br><br><br>
 
@@ -319,9 +319,11 @@ Body: {
   "fb_user_id": 23,
   "fb_access_token": "CAAE1913yZC2ABAAO6...",
   "user_name": "John Doe",
-  "remind_logout": true
+  "remind_logout": true,
+  "sequential_token": 1
 }
 ```
+* `sequential_token` cannot be negative.
 <br><br><br>
 
 
