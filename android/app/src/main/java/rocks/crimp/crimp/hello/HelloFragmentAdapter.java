@@ -17,19 +17,20 @@ public class HelloFragmentAdapter extends FragmentStatePagerAdapter {
     private static final int COUNT = 3;
 
     private Fragment[] fragmentArray = new Fragment[COUNT];
-    private boolean[] canDisplay;
+    private int mCanDisplay;
     private Context mContext;
 
     public HelloFragmentAdapter(FragmentManager fm) {
         super(fm);
-        canDisplay = new boolean[COUNT];
-        for(int i=0; i<COUNT; i++){
-            canDisplay[i] = true;
-        }
+        mCanDisplay = 0b111;
     }
 
-    public boolean[] getCanDisplay(){
-        return canDisplay;
+    public int getCanDisplay(){
+        return mCanDisplay;
+    }
+
+    public void setCanDisplay(int canDisplay){
+        mCanDisplay = canDisplay;
     }
 
     @Override

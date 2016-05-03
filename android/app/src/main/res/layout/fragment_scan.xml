@@ -69,7 +69,7 @@
                 tools:ignore="RtlHardcoded" />
 
             <EditText
-                android:id="@+id/scan_climber_id_edit"
+                android:id="@+id/scan_marker_id_edit"
                 android:layout_toRightOf="@id/scan_category_id_edit"
                 android:layout_toLeftOf="@id/scan_rescan_button"
                 android:layout_width="match_parent"

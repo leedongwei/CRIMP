@@ -15,6 +15,7 @@ import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
 import rocks.crimp.crimp.network.model.GetScoreJs;
 import rocks.crimp.crimp.network.model.LoginJs;
+import rocks.crimp.crimp.network.model.ReportJs;
 import rocks.crimp.crimp.network.model.RequestBean;
 import rocks.crimp.crimp.network.model.RouteJs;
 import timber.log.Timber;
@@ -59,6 +60,7 @@ public class CrimpService extends IntentService{
     protected void onHandleIntent(Intent intent) {
         UUID txId = (UUID)intent.getSerializableExtra(SERIALIZABLE_UUID);
         RequestBean bean = (RequestBean)intent.getSerializableExtra(SERIALIZABLE_REQUEST);
+        boolean hasData = CrimpApplication.getLocalModel().isDataExist(txId.toString());
         backOff = MIN_BACKOFF;
 
         Timber.d("Received intent action:%s txId:%s", intent.getAction(), txId);
@@ -66,51 +68,18 @@ public class CrimpService extends IntentService{
         // Received an intent. Check what is the work to be done.
         switch(intent.getAction()){
             case ACTION_GET_CATEGORIES:
-                CategoriesJs categoriesJs = getCategories();
-                //TODO INJECTION
-                RouteJs route1a = new RouteJs();
-                route1a.setRouteName("route 1a");
-                RouteJs route1b = new RouteJs();
-                route1b.setRouteName("route 1b");
-                RouteJs route2a = new RouteJs();
-                route2a.setRouteName("route 2a");
-                RouteJs route2b = new RouteJs();
-                route2b.setRouteName("route 2b");
-
-                CategoryJs category1 = new CategoryJs();
-                category1.setCategoryName("category 1");
-                ArrayList<RouteJs> cat1Route = new ArrayList<>();
-                cat1Route.add(route1a);
-                cat1Route.add(route1b);
-                category1.setRoutes(cat1Route);
-
-                CategoryJs category2 = new CategoryJs();
-                category2.setCategoryName("category 2");
-                ArrayList<RouteJs> cat2Route = new ArrayList<>();
-                cat2Route.add(route2a);
-                cat2Route.add(route2b);
-                category2.setRoutes(cat2Route);
-
-                ArrayList<CategoryJs> categoryList = new ArrayList<>();
-                categoryList.add(category1);
-                categoryList.add(category2);
-
-                categoriesJs = new CategoriesJs();  //TODO INJECTION
-                categoriesJs.setCategories(categoryList);
-
-                if(categoriesJs != null){
-                    //TODO UPDATE TRANSACTION LOG
-
-                    // write to local model
-                    CrimpApplication.getLocalModel().putData(txId.toString(), categoriesJs);
-                    Timber.d("Posting responseReceived: %s", txId);
+                if(hasData){
                     CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
                 }
                 else{
-                    //TODO UPDATE TRANSACTION LOG
-
-                    Timber.d("Posting requestFailed: %s", txId);
-                    CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+                    CategoriesJs categoriesJs = getCategories();
+                    if(categoriesJs != null){
+                        CrimpApplication.getLocalModel().putData(txId.toString(), categoriesJs);
+                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                    }
+                    else{
+                        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+                    }
                 }
                 break;
             case ACTION_GET_SCORE:
@@ -136,25 +105,35 @@ public class CrimpService extends IntentService{
             case ACTION_CLEAR_ACTIVE:
                 break;
             case ACTION_LOGIN:
-                LoginJs loginJs = login(bean);
-                loginJs = new LoginJs();    //TODO INJECTION
-
-                if(loginJs != null){
-                    //TODO UPDATE TRANSACTION LOG
-
-                    // write to local model
-                    CrimpApplication.getLocalModel().putData(txId.toString(), loginJs);
-                    Timber.d("Posting responseReceived: %s", txId);
+                if(hasData){
                     CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
                 }
                 else{
-                    //TODO UPDATE TRANSACTION LOG
-
-                    Timber.d("Posting requestFailed: %s", txId);
-                    CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+                    LoginJs loginJs = login(bean);
+                    if(loginJs != null){
+                        CrimpApplication.getLocalModel().putData(txId.toString(), loginJs);
+                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                    }
+                    else{
+                        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+                    }
                 }
                 break;
             case ACTION_REPORT_IN:
+                if(hasData){
+                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                }
+                else{
+                    ReportJs reportJs = report(bean);
+                    if(reportJs != null){
+                        CrimpApplication.getLocalModel().putData(txId.toString(), reportJs);
+                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                    }
+                    else{
+                        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+                    }
+                }
+
                 CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
                 break;
             case ACTION_REQUEST_HELP:
@@ -259,5 +238,37 @@ public class CrimpService extends IntentService{
         }
 
         return loginJs;
+    }
+
+    @Nullable
+    private ReportJs report(RequestBean requestBean){
+        ReportJs reportJs = null;
+
+        try {
+            reportJs = CrimpApplication.getCrimpWS().reportIn(requestBean);
+        } catch (IOException e){
+            Timber.e(e, "IOE while doing report");
+        }
+
+        for(int i=1; reportJs==null && i<=RETRY; i++){
+            Timber.d("report returns null. Retry(%d) in %dms...", i, backOff);
+
+            try {
+                Thread.sleep(backOff);
+            } catch (InterruptedException e) {
+                // Restore interrupt status.
+                Thread.currentThread().interrupt();
+            }
+
+            try {
+                reportJs = CrimpApplication.getCrimpWS().reportIn(requestBean);
+            } catch (IOException e){
+                Timber.e(e, "IOE while doing report");
+            }
+
+            backOff = backOff * 2;
+        }
+
+        return reportJs;
     }
 }

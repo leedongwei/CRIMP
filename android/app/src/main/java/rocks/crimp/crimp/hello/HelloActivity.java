@@ -1,14 +1,18 @@
 package rocks.crimp.crimp.hello;
 
+import android.graphics.Bitmap;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
@@ -20,35 +24,37 @@ import rocks.crimp.crimp.common.User;
 import rocks.crimp.crimp.common.event.SwipeTo;
 import rocks.crimp.crimp.hello.route.RouteFragment;
 import rocks.crimp.crimp.hello.scan.ScanFragment;
+import rocks.crimp.crimp.hello.score.ScoreFragment;
 import rocks.crimp.crimp.network.model.CategoriesJs;
+import rocks.crimp.crimp.persistence.LocalModelImpl;
 
 public class HelloActivity extends AppCompatActivity implements
         RouteFragment.RouteFragmentInterface,
-        ScanFragment.ScanFragmentInterface{
-    public static final String SAVE_USER = "save_user";
-    public static final String SAVE_CATEGORIES = "save_categories";
-    public static final String SAVE_CATEGORY_INDEX = "save_category_index";
-    public static final String SAVE_ROUTE_INDEX = "save_route_index";
-    public static final String SAVE_STAGE = "save_stage";
+        ScanFragment.ScanFragmentInterface,
+        ScoreFragment.ScoreFragmentInterface{
+    public static final String SAVE_FB_USER_ID = "fb_user_id";
+    public static final String SAVE_FB_ACCESS_TOKEN = "fb_access_token";
+    public static final String SAVE_FB_USER_NAME = "fb_user_name";
+    public static final String SAVE_SEQUENTIAL_TOKEN = "sequential_token";
+    public static final String SAVE_CLIMBER_ID = "climber_id";
+    public static final String SAVE_CLIMBER_NAME = "climber_name";
+    public static final String SAVE_CURRENT_SCORE = "current_score";
     public static final String SAVE_COMMITTED_CATEGORY = "save_committed_category";
     public static final String SAVE_COMMITTED_ROUTE = "save_committed_route";
+    public static final String SAVE_CATEGORY_INDEX = "save_category_index";
+    public static final String SAVE_ROUTE_INDEX = "save_route_index";
     public static final String SAVE_CAN_DISPLAY = "save_can_display";
-    public static final String SAVE_IS_SCANNING = "save_is_scanning";
+    public static final String SAVE_SHOULD_SCAN = "save_should_scan";
+    public static final String SAVE_CURRENT_TAB = "current_tab";
 
-    // All the info
-    private User mUser;
+    public static final String SAVE_STAGE = "save_stage";
+    public static final String SAVE_IMAGE = "save_image";
+
+    // persisted info
     private CategoriesJs mCategories;
-    private Climber mClimber;
-    private boolean[] mCanDisplay;
-
-    // Route fragment info
-    private int mCategoryPosition;
-    private int mRoutePosition;
-    private int mCommittedCategoryPosition;
-    private int mCommittedRoutePosition;
 
     // Scan fragment info
-    private boolean mIsScanning;
+    private Bitmap mImage;
 
     // Views
     private AppBarLayout mAppBar;
@@ -97,30 +103,15 @@ public class HelloActivity extends AppCompatActivity implements
         setSupportActionBar(mToolbar);
 
         // Load/instantiate data we already have.
-        if(savedInstanceState == null){
-            mUser = (User)getIntent().getSerializableExtra(SAVE_USER);
-            mCanDisplay = new boolean[]{true, false, false};
-            mIsScanning = true;
+        if(savedInstanceState != null){
+            mImage = savedInstanceState.getParcelable(SAVE_IMAGE);
         }
-        else{
-            mUser = (User)savedInstanceState.getSerializable(SAVE_USER);
-            mCategories = (CategoriesJs) savedInstanceState.getSerializable(SAVE_CATEGORIES);
-            mCategoryPosition = savedInstanceState.getInt(SAVE_CATEGORY_INDEX, 0);
-            mRoutePosition = savedInstanceState.getInt(SAVE_ROUTE_INDEX, 0);
-            mCommittedCategoryPosition = savedInstanceState.getInt(SAVE_COMMITTED_CATEGORY, 0);
-            mCommittedRoutePosition = savedInstanceState.getInt(SAVE_COMMITTED_ROUTE, 0);
-            mCanDisplay = savedInstanceState.getBooleanArray(SAVE_CAN_DISPLAY);
-            if(mCanDisplay == null){
-                mCanDisplay = new boolean[]{true, false, false};
-            }
-            mIsScanning = savedInstanceState.getBoolean(SAVE_IS_SCANNING, true);
-        }
+        mCategories = CrimpApplication.getLocalModel()
+                .loadCategoriesAndCloseStream(LocalModelImpl.getInputStream(this));
 
         // prepare view pager
         mFragmentAdapter = new HelloFragmentAdapter(getSupportFragmentManager());
-        for(int i=0; i<mCanDisplay.length; i++){
-            mFragmentAdapter.getCanDisplay()[i] = mCanDisplay[i];
-        }
+        mFragmentAdapter.setCanDisplay(CrimpApplication.getAppState().getInt(SAVE_CAN_DISPLAY, 0b001));
 
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(0)));
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(1)));
@@ -151,14 +142,7 @@ public class HelloActivity extends AppCompatActivity implements
     @Override
     protected void onSaveInstanceState (Bundle outState){
         super.onSaveInstanceState(outState);
-        outState.putSerializable(SAVE_USER, mUser);
-        outState.putSerializable(SAVE_CATEGORIES, mCategories);
-        outState.putInt(SAVE_CATEGORY_INDEX, mCategoryPosition);
-        outState.putInt(SAVE_ROUTE_INDEX, mRoutePosition);
-        outState.putInt(SAVE_COMMITTED_CATEGORY, mCommittedCategoryPosition);
-        outState.putInt(SAVE_COMMITTED_ROUTE, mCommittedRoutePosition);
-        outState.putBooleanArray(SAVE_CAN_DISPLAY, mCanDisplay);
-        outState.putBoolean(SAVE_IS_SCANNING, mIsScanning);
+        outState.putParcelable(SAVE_IMAGE, mImage);
     }
 
     /*
@@ -208,13 +192,10 @@ public class HelloActivity extends AppCompatActivity implements
     }
 
     @Override
-    public User getUser(){
-        return mUser;
-    }
-
-    @Override
     public void setCategoriesJs(CategoriesJs categories) {
         mCategories = categories;
+        CrimpApplication.getLocalModel()
+                .saveCategoriesAndCloseStream(LocalModelImpl.getOutputStream(this), mCategories);
     }
 
     @Override
@@ -223,75 +204,41 @@ public class HelloActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void setCategoryPosition(int categoryPosition) {
-        mCategoryPosition = categoryPosition;
-    }
-
-    @Override
-    public int getCategoryPosition() {
-        return mCategoryPosition;
-    }
-
-    @Override
-    public void setRoutePosition(int routePosition) {
-        mRoutePosition = routePosition;
-    }
-
-    @Override
-    public int getRoutePosition() {
-        return mRoutePosition;
-    }
-
-    @Override
-    public void setCommittedCategoryPosition(int categoryPosition) {
-        mCommittedCategoryPosition = categoryPosition;
-    }
-
-    @Override
-    public int getCommittedCategoryPosition() {
-        return mCommittedCategoryPosition;
-    }
-
-    @Override
-    public void setCommittedRoutePosition(int routePosition) {
-        mCommittedRoutePosition = routePosition;
-    }
-
-    @Override
-    public int getCommittedRoutePosition() {
-        return mCommittedRoutePosition;
-    }
-
-    @Override
     public void goToScanTab() {
-        mCommittedCategoryPosition = mCategoryPosition;
-        mCommittedRoutePosition = mRoutePosition;
-
-        mCanDisplay[1] = true;
-        mFragmentAdapter.getCanDisplay()[1] = true;
+        int canDisplay = CrimpApplication.getAppState().getInt(SAVE_CAN_DISPLAY, 0b001);
+        canDisplay = canDisplay | 0b010;
+        CrimpApplication.getAppState().edit().putInt(SAVE_CAN_DISPLAY, canDisplay).commit();
+        mFragmentAdapter.setCanDisplay(canDisplay);
 
         mPager.setCurrentItem(1);
     }
 
     @Override
-    public void setCanDisplay(boolean[] canDisplay){
-        this.mCanDisplay = canDisplay;
-        for(int i=0; i<mCanDisplay.length; i++){
-            mFragmentAdapter.getCanDisplay()[i] = mCanDisplay[i];
-        }
+    public void setCanDisplay(int canDisplay){
+        CrimpApplication.getAppState().edit().putInt(SAVE_CAN_DISPLAY, canDisplay).commit();
+        mFragmentAdapter.setCanDisplay(canDisplay);
     }
 
     @Override
-    public void setIsScanning(boolean isScanning){
-        mIsScanning = isScanning;
+    public void setDecodedImage(Bitmap image) {
+        mImage = image;
     }
 
     @Override
-    public boolean getIsScanning(){
-        return mIsScanning;
+    public Bitmap getDecodedImage(){
+        return mImage;
     }
 
-    /*
+    @Override
+    public void goToScoreTab() {
+        int canDisplay = CrimpApplication.getAppState().getInt(SAVE_CAN_DISPLAY, 0b001);
+        canDisplay = canDisplay | 0b100;
+        CrimpApplication.getAppState().edit().putInt(SAVE_CAN_DISPLAY, canDisplay).commit();
+        mFragmentAdapter.setCanDisplay(canDisplay);
+
+        mPager.setCurrentItem(2);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
@@ -302,13 +249,16 @@ public class HelloActivity extends AppCompatActivity implements
                         "A ticket has been sent to the admins. Please wait for assistance.",
                         Toast.LENGTH_SHORT);
                 toast.show();
-                String url = getString(R.string.crimp_base_url)+getString(R.string.helpme_api);
-                HelpMeRequest mHelpMeRequest = new HelpMeRequest(getmUser().getUserId(),
-                        getmUser().getAuthToken(), getmUser().getCategoryId(),
-                        getmUser().getRouteId(), url);
-                spiceManager.execute(mHelpMeRequest, new HelpMeRequestListener());
+                // TODO HELPME
                 return true;
             case R.id.action_logout:
+                Toast toast2 = Toast.makeText(this,
+                        "U clicked logout",
+                        Toast.LENGTH_SHORT);
+                toast2.show();
+
+                // TODO LOGOUT
+                /*
                 new AlertDialog.Builder(this)
                         .setMessage("Logout?")
                         .setPositiveButton("Logout", new DialogInterface.OnClickListener() {
@@ -326,21 +276,11 @@ public class HelloActivity extends AppCompatActivity implements
                             }
                         })
                         .show();
+                        */
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-    */
-
-    /*
-    @Override
-    public void collapseToolBar(){
-        AppBarLayout mAppBarLayout = (AppBarLayout) findViewById(R.id.app_bar_layout);
-        if(mAppBarLayout != null)
-            mAppBarLayout.setExpanded(false);
-    }
-    */
-
 
 }

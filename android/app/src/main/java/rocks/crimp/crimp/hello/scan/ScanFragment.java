@@ -1,9 +1,11 @@
 package rocks.crimp.crimp.hello.scan;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Message;
+import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -21,13 +23,19 @@ import com.squareup.otto.Subscribe;
 
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
+import rocks.crimp.crimp.common.Action;
+import rocks.crimp.crimp.common.event.DecodeFail;
+import rocks.crimp.crimp.common.event.DecodeSucceed;
 import rocks.crimp.crimp.common.event.SwipeTo;
+import rocks.crimp.crimp.hello.HelloActivity;
+import rocks.crimp.crimp.network.model.CategoriesJs;
 import timber.log.Timber;
 
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
+public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
+        View.OnClickListener{
     public static final String TAG = "ScanFragment";
     public static final boolean DEBUG = true;
 
@@ -41,11 +49,10 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     private EditText mCategoryIdText;
     private ImageButton mFlashButton;
     private Button mRescanButton;
-    private EditText mClimberIdText;
+    private EditText mMarkerIdText;
     private EditText mClimberNameText;
     private Button mScanNextButton;
 
-    private ScanFragmentHandler mMainHandler;
     private DecodeThread mDecodeThread;
     private CrimpCameraManager mCameraManager;
     private int mDisplayRotation;
@@ -56,6 +63,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
 
     private boolean mIsShowing;
     private boolean mIsOnResume;
+    private boolean mIsScanning;
 
     public static ScanFragment newInstance(int position, String title){
         ScanFragment f = new ScanFragment();
@@ -71,13 +79,11 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        mMainHandler = new ScanFragmentHandler(this);
         mCameraManager = new CrimpCameraManager();
 
         mPosition = getArguments().getInt(ARGS_POSITION);
     }
 
-    @SuppressLint("BinaryOperationInTimber")
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -123,11 +129,23 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
         mCategoryIdText = (EditText)rootView.findViewById(R.id.scan_category_id_edit);
         mFlashButton = (ImageButton)rootView.findViewById(R.id.scan_flash_button);
         mRescanButton = (Button)rootView.findViewById(R.id.scan_rescan_button);
-        mClimberIdText = (EditText)rootView.findViewById(R.id.scan_climber_id_edit);
+        mMarkerIdText = (EditText)rootView.findViewById(R.id.scan_marker_id_edit);
         mClimberNameText = (EditText)rootView.findViewById(R.id.scan_climber_name_edit);
         mScanNextButton = (Button)rootView.findViewById(R.id.scan_next_button);
 
         mPreviewFrame.getHolder().addCallback(this);
+        mScanNextButton.setOnClickListener(this);
+        mMarkerIdText.addTextChangedListener(new MarkerIdTextWatcher(new Action() {
+            @Override
+            public void act() {
+                mScanNextButton.setEnabled(true);
+            }
+        }, new Action() {
+            @Override
+            public void act() {
+                mScanNextButton.setEnabled(false);
+            }
+        }));
 
         return rootView;
     }
@@ -136,8 +154,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     public void onStart(){
         super.onStart();
         CrimpApplication.getBusInstance().register(this);
-
-        mDecodeThread = new DecodeThread(mMainHandler);
+        mDecodeThread = new DecodeThread();
         if(mDecodeThread.getState() == Thread.State.NEW) {
             mDecodeThread.start();
         }
@@ -148,14 +165,14 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
         super.onResume();
         mIsOnResume = true;
 
-        onStateChangeCheckSurface();
+        onStateChangeCheckScanning();
     }
 
     @Override
     public void onPause(){
         mIsOnResume = false;
 
-        onStateChangeCheckSurface();
+        onStateChangeCheckScanning();
         super.onPause();
     }
 
@@ -168,11 +185,100 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
         super.onStop();
     }
 
+    @Override
+    public void onClick(View view){
+        switch(view.getId()){
+            case R.id.scan_next_button:
+                int categoryPosition = CrimpApplication.getAppState()
+                        .getInt(HelloActivity.SAVE_COMMITTED_CATEGORY, 0);
+                CategoriesJs categoriesJs = mParent.getCategoriesJs();
+                String categoryAcronym;
+                if(categoriesJs != null && categoryPosition != 0) {
+                    // minus one from categoryPosition because of hint in spinner adapter.
+                    categoryAcronym = categoriesJs.getCategories().get(categoryPosition-1).getAcronym();
+                }
+                else {
+                    throw new RuntimeException("Unable to find out category Scan tab");
+                }
+
+                String markerId = mMarkerIdText.getText().toString();
+                String climberName = mClimberNameText.getText().toString();
+                CrimpApplication.getAppState().edit()
+                        .putString(HelloActivity.SAVE_CLIMBER_ID, categoryAcronym + markerId)
+                        .putString(HelloActivity.SAVE_CLIMBER_NAME, climberName)
+                        .commit();
+                mParent.goToScoreTab();
+                break;
+        }
+    }
+
     @Subscribe
     public void onReceivedSwipeTo(SwipeTo event){
         Timber.d("onReceivedSwipeTo: %d", event.position);
         mIsShowing = (event.position == mPosition);
-        onStateChangeCheckSurface();
+        if(mIsShowing){
+            int categoryPosition = CrimpApplication.getAppState()
+                    .getInt(HelloActivity.SAVE_COMMITTED_CATEGORY, 0);
+            CategoriesJs categoriesJs = mParent.getCategoriesJs();
+            String categoryAcronym;
+            if(categoriesJs != null && categoryPosition != 0) {
+                // minus one from categoryPosition because of hint in spinner adapter.
+                categoryAcronym = categoriesJs.getCategories().get(categoryPosition-1).getAcronym();
+            }
+            else {
+                throw new RuntimeException("Unable to find out category Scan tab");
+            }
+            mCategoryIdText.setText(categoryAcronym);
+        }
+        onStateChangeCheckScanning();
+    }
+
+    @Subscribe
+    public void onReceivedDecodeSucceed(DecodeSucceed event){
+        Timber.d("Received decode succeed. mIsScanning: %b", mIsScanning);
+        if(mIsScanning){
+            mIsScanning = false;
+
+            // Check result against category.
+            int categoryPosition = CrimpApplication.getAppState()
+                    .getInt(HelloActivity.SAVE_COMMITTED_CATEGORY, 0);
+            CategoriesJs categoriesJs = mParent.getCategoriesJs();
+            String categoryAcronym;
+            if(categoriesJs != null && categoryPosition != 0) {
+                // minus one from categoryPosition because of hint in spinner adapter.
+                categoryAcronym = categoriesJs.getCategories().get(categoryPosition-1).getAcronym();
+            }
+            else {
+                throw new RuntimeException("Unable to find out category Scan tab");
+            }
+            String regex = categoryAcronym+".++";
+            boolean isValid = event.result.matches(regex);
+
+            // We only vibrate and stop scan if the result is valid. Otherwise this is as good as
+            // onReceivedDecodeFail().
+            if(isValid){
+                CrimpApplication.getAppState().edit().putBoolean(HelloActivity.SAVE_SHOULD_SCAN,false).commit();
+
+                // vibrate 100ms
+                Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+                v.vibrate(100);
+
+                String[] subStrings = event.result.split(categoryAcronym+"|;");
+                mMarkerIdText.setText(subStrings[1]);
+                mClimberNameText.setText(subStrings[2]);
+                mParent.setDecodedImage(event.image);
+            }
+
+            onStateChangeCheckScanning();
+        }
+    }
+
+    @Subscribe
+    public void onReceivedDecodeFail(DecodeFail event){
+        if(mIsScanning){
+            mIsScanning = false;
+            onStateChangeCheckScanning();
+        }
     }
 
     @Override
@@ -187,6 +293,18 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         Timber.d("Surface changed");
+        boolean shouldScan = CrimpApplication.getAppState().getBoolean(HelloActivity.SAVE_SHOULD_SCAN, true);
+        if(!shouldScan){
+            Bitmap image = mParent.getDecodedImage();
+            Timber.d("image: %s", image);
+            if(image != null) {
+                Canvas canvas = holder.lockCanvas();
+                if (canvas != null) {
+                    canvas.drawBitmap(image, 0, 0, null);
+                    mPreviewFrame.getHolder().unlockCanvasAndPost(canvas); //finalize
+                }
+            }
+        }
     }
 
     @Override
@@ -202,8 +320,9 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
      * This method is called when something happen that might affect whether we will be scanning.
      * Do a check start scan if necessary.
      */
-    private void onStateChangeCheckSurface(){
-        if(mIsOnResume && mIsShowing && mParent.getIsScanning()){
+    private void onStateChangeCheckScanning(){
+        boolean shouldScan = CrimpApplication.getAppState().getBoolean(HelloActivity.SAVE_SHOULD_SCAN, true);
+        if(mIsOnResume && mIsShowing && shouldScan && !mIsScanning){
             mCameraManager.acquireCamera(mTargetWidth, mAspectRatio, mDisplayRotation);
 
             if(!mIsSurfaceReady){
@@ -213,26 +332,25 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback{
                 mPreviewFrame.setLayoutParams(params);
             }
 
-            //TODO MIGHT WANT TO REMOVE THIS
-            Message message = mDecodeThread.getHandler().obtainMessage();
-            message.what = DecodeHandler.INITIALIZE;
-            message.obj = "<BA2015>";
-            message.arg1 = mTargetWidth;
-            message.arg2 = mCameraManager.getPxScreenHeight();
-            message.sendToTarget();
-
             mCameraManager.startPreview(mPreviewFrame.getHolder());
 
+            mIsScanning = true;
             mCameraManager.startScan(mDecodeThread);
         }
-        else{
+
+        if(!mIsOnResume || !mIsShowing || !shouldScan){
             mCameraManager.stopPreview();
             mCameraManager.releaseCamera();
+            mIsScanning = false;
         }
     }
 
     public interface ScanFragmentInterface{
-        void setIsScanning(boolean isScanning);
-        boolean getIsScanning();
+        //void setShouldScan(boolean shouldScan);
+        //boolean getShouldScan();
+        void setDecodedImage(Bitmap image);
+        Bitmap getDecodedImage();
+        CategoriesJs getCategoriesJs();
+        void goToScoreTab();
     }
 }

@@ -7,6 +7,10 @@ import android.support.annotation.Nullable;
 
 import java.util.UUID;
 
+import rocks.crimp.crimp.network.model.HeaderBean;
+import rocks.crimp.crimp.network.model.RequestBean;
+import rocks.crimp.crimp.network.model.RequestBodyJs;
+
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
@@ -90,13 +94,20 @@ public class ServiceHelper {
     public static UUID login(@NonNull Context context, @Nullable UUID txId,
                              @NonNull String fbUserId, @NonNull String fbAccessToken,
                              boolean forceLogin){
-        //TODO STUB
         if(txId == null){
             txId = UUID.randomUUID();
         }
+        RequestBean requestBean = new RequestBean();
+        RequestBodyJs body = new RequestBodyJs();
+        body.setFbUserId(fbUserId);
+        body.setFbAccessToken(fbAccessToken);
+        body.setForceLogin(forceLogin);
+        requestBean.setRequestBodyJs(body);
+
         Intent intent = new Intent(context, CrimpService.class);
         intent.setAction(CrimpService.ACTION_LOGIN);
         intent.putExtra(CrimpService.SERIALIZABLE_UUID, txId);
+        intent.putExtra(CrimpService.SERIALIZABLE_REQUEST, requestBean);
         context.startService(intent);
 
         return txId;
@@ -106,13 +117,25 @@ public class ServiceHelper {
     public static UUID reportIn(@NonNull Context context, @Nullable UUID txId, String fbUserId,
                                 @NonNull String fbAccessToken, long sequentialToken,
                                 long categoryId, long routeId, boolean force){
-        //TODO STUB
         if(txId == null){
             txId = UUID.randomUUID();
         }
+        RequestBean requestBean = new RequestBean();
+        HeaderBean header = new HeaderBean();
+        header.setFbUserId(fbUserId);
+        header.setFbAccessToken(fbAccessToken);
+        header.setSequentialToken(sequentialToken);
+        RequestBodyJs body = new RequestBodyJs();
+        body.setCategoryId(categoryId);
+        body.setRouteId(routeId);
+        body.setForceReport(force);
+        requestBean.setHeaderBean(header);
+        requestBean.setRequestBodyJs(body);
+
         Intent intent = new Intent(context, CrimpService.class);
         intent.setAction(CrimpService.ACTION_REPORT_IN);
         intent.putExtra(CrimpService.SERIALIZABLE_UUID, txId);
+        intent.putExtra(CrimpService.SERIALIZABLE_REQUEST, requestBean);
         context.startService(intent);
 
         return txId;

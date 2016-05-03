@@ -15,22 +15,13 @@ import timber.log.Timber;
  *
  */
 class DecodeThread extends Thread{
-    // Bundle keys
-    public static final String BARCODE_BITMAP = "barcode_bitmap";
-    public static final String BARCODE_SCALED_FACTOR = "barcode_scaled_factor";
-
     private DecodeHandler mDecodeHandler;
-    private Handler mainThreadHandler;
-
-    public DecodeThread(Handler mainThreadHandler){
-        this.mainThreadHandler = mainThreadHandler;
-    }
 
     @Override
     public void run(){
         Timber.d("DecodeThread begin running");
         Looper.prepare();
-        mDecodeHandler = new DecodeHandler(mainThreadHandler);
+        mDecodeHandler = new DecodeHandler();
         Looper.loop();
         Timber.d("DecodeThread terminating");
     }

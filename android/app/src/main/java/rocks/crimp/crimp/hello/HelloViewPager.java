@@ -32,10 +32,10 @@ public class HelloViewPager extends ViewPager {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Timber.d("onTouchEventStart: action:%d", event.getAction());
+        //Timber.d("onTouchEventStart: action:%d", event.getAction());
         boolean flag;
         int currentItem = getCurrentItem();
-        boolean[] canDisplay;
+        int canDisplay;
         HelloFragmentAdapter adapter = (HelloFragmentAdapter) getAdapter();
         if(adapter != null) {
             canDisplay = adapter.getCanDisplay();
@@ -58,7 +58,8 @@ public class HelloViewPager extends ViewPager {
 
                 if(overallDiffX > 0){
                     // swipe right overall
-                    if(currentItem != 0 && !canDisplay[currentItem-1]){
+                    int mask = 1<<(currentItem-1);
+                    if((canDisplay & mask) == 0){
                         flag = false;
                     }
                     else {
@@ -67,7 +68,8 @@ public class HelloViewPager extends ViewPager {
                 }
                 else if(overallDiffX < 0){
                     // swipe left overall
-                    if(currentItem < (canDisplay.length-1) && !canDisplay[currentItem+1]){
+                    int mask = 1<<(currentItem+1);
+                    if( (canDisplay & mask) == 0 ){
                         flag = false;
                     }
                     else {
@@ -82,16 +84,16 @@ public class HelloViewPager extends ViewPager {
                 flag = super.onTouchEvent(event);
         }
 
-        Timber.d("onTouchEvent: init: %f, xPosition:%f, event:%d, %b", initialXValue, event.getX(), event.getAction(), flag);
+        //Timber.d("onTouchEvent: init: %f, xPosition:%f, event:%d, %b", initialXValue, event.getX(), event.getAction(), flag);
         return flag;
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        Timber.d("onInterceptTouchEvent: action:%d", event.getAction());
+        //Timber.d("onInterceptTouchEvent: action:%d", event.getAction());
         boolean flag;
         int currentItem = getCurrentItem();
-        boolean[] canDisplay;
+        int canDisplay;
         HelloFragmentAdapter adapter = (HelloFragmentAdapter) getAdapter();
         if(adapter != null) {
             canDisplay = adapter.getCanDisplay();
@@ -114,7 +116,8 @@ public class HelloViewPager extends ViewPager {
 
                 if(overallDiffX > 0){
                     // swipe right overall
-                    if(currentItem != 0 && !canDisplay[currentItem-1]){
+                    int mask = 1<<(currentItem-1);
+                    if((canDisplay & mask) == 0){
                         flag = false;
                     }
                     else {
@@ -123,7 +126,8 @@ public class HelloViewPager extends ViewPager {
                 }
                 else if(overallDiffX < 0){
                     // swipe left overall
-                    if(currentItem < (canDisplay.length-1) && !canDisplay[currentItem+1]){
+                    int mask = 1<<(currentItem+1);
+                    if((canDisplay & mask) == 0){
                         flag = false;
                     }
                     else {
@@ -142,7 +146,7 @@ public class HelloViewPager extends ViewPager {
             initialXValue = event.getX();
         }
 
-        Timber.d("onInterceptEvent: xPosition:%f, event:%d, %b", event.getX(), event.getAction(), flag);
+        //Timber.d("onInterceptEvent: xPosition:%f, event:%d, %b", event.getX(), event.getAction(), flag);
         return flag;
     }
 }

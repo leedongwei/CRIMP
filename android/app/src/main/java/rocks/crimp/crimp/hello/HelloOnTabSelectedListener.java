@@ -20,8 +20,10 @@ public class HelloOnTabSelectedListener implements TabLayout.OnTabSelectedListen
         PagerAdapter adapter = mViewPager.getAdapter();
 
         if(adapter instanceof HelloFragmentAdapter){
-            boolean canDisplay = ((HelloFragmentAdapter) adapter).getCanDisplay()[tab.getPosition()];
-            if(canDisplay){
+            int tabPosition = tab.getPosition();
+            int mask = 1 << tabPosition;
+            int canDisplay = ((HelloFragmentAdapter) adapter).getCanDisplay() & mask;
+            if(canDisplay != 0){
                 mViewPager.setCurrentItem(tab.getPosition());
             }
             else{

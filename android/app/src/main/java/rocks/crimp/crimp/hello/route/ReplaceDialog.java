@@ -21,7 +21,7 @@ public class ReplaceDialog {
 
         builder.setTitle("Replace current route judge?")
                 .setMessage(question)
-                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Replace", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Timber.d("Pressed on Positive button");

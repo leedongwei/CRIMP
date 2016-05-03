@@ -1,11 +1,15 @@
 package rocks.crimp.crimp.hello.scan;
 
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.view.Display;
 import android.view.SurfaceHolder;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -44,11 +48,6 @@ class CrimpCameraManager implements Camera.PreviewCallback{
      * True: We are capturing and drawing preview frames to the screen.
      */
     private boolean mIsPreviewing;
-
-    /**
-     * True: Send preview image for decoding. False: Do not send preview image for decoding.
-     */
-    private boolean mIsScanning;
 
     /**
      * The preview size chosen from list of preview size available for our camera instance that
@@ -109,7 +108,6 @@ class CrimpCameraManager implements Camera.PreviewCallback{
             mCameraId = -1;
             mDecodeThread = null;
             mIsPreviewing = false;
-            mIsScanning = false;
             mIsTorchOn = false;
             mStartPreviewPending = false;
             mStartScanPending = false;
@@ -170,27 +168,24 @@ class CrimpCameraManager implements Camera.PreviewCallback{
     /**
      * Method to start scanning.
      */
-    public void startScan(DecodeThread decodeThread){
-        if(mIsScanning){
-            return;
+    public void startScan(@NonNull DecodeThread decodeThread){
+        if(decodeThread == null){
+            throw new NullPointerException("decodeThread is null");
         }
+        mDecodeThread = decodeThread;
 
-        if(decodeThread.getState()==Thread.State.NEW ||
-                decodeThread.getState()==Thread.State.TERMINATED){
+        if(mDecodeThread.getState()==Thread.State.NEW ||
+                mDecodeThread.getState()==Thread.State.TERMINATED){
             throw new IllegalThreadStateException("DecodeThread must be running when starting scan");
         }
 
-        if(decodeThread.getHandler() == null){
+        if(mDecodeThread.getHandler() == null){
             throw new NullPointerException("DecodeThread must have a non null handler");
         }
 
-        mDecodeThread = decodeThread;
-
         if(mIsPreviewing){
-            Timber.d("Scan started");
             mStartScanPending = false;
             mCamera.setOneShotPreviewCallback(this);
-            mIsScanning = true;
         }
         else{
             mStartScanPending = true;
@@ -308,6 +303,7 @@ class CrimpCameraManager implements Camera.PreviewCallback{
                 default:
                     Timber.d("Camera image angle to rotate is not a multiple of 90 degree");
             }
+
             param.setPreviewSize(mBestPreviewSize.width, mBestPreviewSize.height);
             Timber.d("Chosen size: H%d x W%d", mBestPreviewSize.height, mBestPreviewSize.width);
 
@@ -316,6 +312,9 @@ class CrimpCameraManager implements Camera.PreviewCallback{
             if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
                 param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
             }
+
+            // Set preview format
+            param.setPreviewFormat(ImageFormat.NV21);
 
             mCamera.setParameters(param);
         }
@@ -364,7 +363,13 @@ class CrimpCameraManager implements Camera.PreviewCallback{
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
-        mIsScanning = false;
+        if(mCamera == null || !mIsPreviewing){
+            return;
+        }
+
+        /* The byte array data passed in here is not affected by setDisplayOrientation(). The size
+         * of the byte array data depends on the size in Camera.Parameters.setPreviewSize().
+         */
         if(mDecodeThread != null && mDecodeThread.getHandler() != null){
             Message message = mDecodeThread.getHandler().obtainMessage(DecodeHandler.DECODE,
                     mBestPreviewSize.width, mBestPreviewSize.height, data);
