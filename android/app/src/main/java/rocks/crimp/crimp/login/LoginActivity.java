@@ -144,10 +144,14 @@ public class LoginActivity extends AppCompatActivity {
             mSequentialToken = savedInstanceState.getLong(SAVE_SEQUENTIAL_TOKEN, -1);
         }
         else{
-            mFbUserId = CrimpApplication.getAppState().getString(CrimpApplication.FB_USER_ID, null);
-            mFbAccessToken = CrimpApplication.getAppState().getString(CrimpApplication.FB_ACCESS_TOKEN, null);
-            mFbUserName = CrimpApplication.getAppState().getString(CrimpApplication.FB_USER_NAME, null);
-            mSequentialToken = CrimpApplication.getAppState().getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
+            mFbUserId = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.FB_USER_ID, null);
+            mFbAccessToken = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.FB_ACCESS_TOKEN, null);
+            mFbUserName = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.FB_USER_NAME, null);
+            mSequentialToken = CrimpApplication.getAppState()
+                    .getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
         }
 
         // Check if we already log in

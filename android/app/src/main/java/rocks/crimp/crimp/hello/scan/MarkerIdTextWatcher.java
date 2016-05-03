@@ -34,7 +34,7 @@ class MarkerIdTextWatcher implements TextWatcher {
     public void afterTextChanged(Editable s) {
         Timber.d("afterTextChanged: %s", s.toString());
         String committedId = CrimpApplication.getAppState()
-                .getString(HelloActivity.SAVE_CLIMBER_ID, "");
+                .getString(CrimpApplication.MARKER_ID, "");
         if(s.toString().matches(REGEXP) && !s.toString().equals(committedId)){
             validAction.act();
         }

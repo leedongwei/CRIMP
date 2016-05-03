@@ -190,7 +190,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         switch(view.getId()){
             case R.id.scan_next_button:
                 int categoryPosition = CrimpApplication.getAppState()
-                        .getInt(HelloActivity.SAVE_COMMITTED_CATEGORY, 0);
+                        .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
                 CategoriesJs categoriesJs = mParent.getCategoriesJs();
                 String categoryAcronym;
                 if(categoriesJs != null && categoryPosition != 0) {
@@ -204,8 +204,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 String markerId = mMarkerIdText.getText().toString();
                 String climberName = mClimberNameText.getText().toString();
                 CrimpApplication.getAppState().edit()
-                        .putString(HelloActivity.SAVE_CLIMBER_ID, categoryAcronym + markerId)
-                        .putString(HelloActivity.SAVE_CLIMBER_NAME, climberName)
+                        .putString(CrimpApplication.MARKER_ID, categoryAcronym + markerId)
+                        .putString(CrimpApplication.CLIMBER_NAME, climberName)
                         .commit();
                 mParent.goToScoreTab();
                 break;
@@ -218,7 +218,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         mIsShowing = (event.position == mPosition);
         if(mIsShowing){
             int categoryPosition = CrimpApplication.getAppState()
-                    .getInt(HelloActivity.SAVE_COMMITTED_CATEGORY, 0);
+                    .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
             CategoriesJs categoriesJs = mParent.getCategoriesJs();
             String categoryAcronym;
             if(categoriesJs != null && categoryPosition != 0) {
@@ -241,7 +241,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
 
             // Check result against category.
             int categoryPosition = CrimpApplication.getAppState()
-                    .getInt(HelloActivity.SAVE_COMMITTED_CATEGORY, 0);
+                    .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
             CategoriesJs categoriesJs = mParent.getCategoriesJs();
             String categoryAcronym;
             if(categoriesJs != null && categoryPosition != 0) {
@@ -257,7 +257,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             // We only vibrate and stop scan if the result is valid. Otherwise this is as good as
             // onReceivedDecodeFail().
             if(isValid){
-                CrimpApplication.getAppState().edit().putBoolean(HelloActivity.SAVE_SHOULD_SCAN,false).commit();
+                CrimpApplication.getAppState().edit()
+                        .putBoolean(CrimpApplication.SHOULD_SCAN, false).commit();
 
                 // vibrate 100ms
                 Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
@@ -293,7 +294,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         Timber.d("Surface changed");
-        boolean shouldScan = CrimpApplication.getAppState().getBoolean(HelloActivity.SAVE_SHOULD_SCAN, true);
+        boolean shouldScan = CrimpApplication.getAppState()
+                .getBoolean(CrimpApplication.SHOULD_SCAN, true);
         if(!shouldScan){
             Bitmap image = mParent.getDecodedImage();
             Timber.d("image: %s", image);
@@ -321,7 +323,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
      * Do a check start scan if necessary.
      */
     private void onStateChangeCheckScanning(){
-        boolean shouldScan = CrimpApplication.getAppState().getBoolean(HelloActivity.SAVE_SHOULD_SCAN, true);
+        boolean shouldScan = CrimpApplication.getAppState()
+                .getBoolean(CrimpApplication.SHOULD_SCAN, true);
         Timber.d("mIsOnResume: %b, mIsShowing: %b, shouldScan: %b, mIsScanning: %b",
                 mIsOnResume, mIsShowing, shouldScan, mIsScanning);
 

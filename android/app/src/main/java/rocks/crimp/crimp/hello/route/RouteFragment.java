@@ -147,7 +147,7 @@ public class RouteFragment extends Fragment {
 
         // Get stuff from activity
         String userName = CrimpApplication.getAppState()
-                .getString(HelloActivity.SAVE_FB_USER_NAME, "User_name");
+                .getString(CrimpApplication.FB_USER_NAME, "User_name");
         String greeting = String.format(getString(R.string.route_fragment_greeting), userName);
         mHelloText.setText(greeting);
     }
@@ -183,9 +183,9 @@ public class RouteFragment extends Fragment {
 
             showDefaultHasCategories();
             int categoryPosition = CrimpApplication.getAppState()
-                    .getInt(HelloActivity.SAVE_CATEGORY_INDEX, 0);
+                    .getInt(CrimpApplication.CATEGORY_POSITION, 0);
             int routePosition = CrimpApplication.getAppState()
-                    .getInt(HelloActivity.SAVE_ROUTE_INDEX, 0);
+                    .getInt(CrimpApplication.ROUTE_POSITION, 0);
             mCategorySpinner.setSelection(categoryPosition);
             if(categoryPosition != 0){
                 Timber.d("set enable true on routespinner");
@@ -194,9 +194,9 @@ public class RouteFragment extends Fragment {
             }
 
             int committedCategoryPosition = CrimpApplication.getAppState()
-                    .getInt(HelloActivity.SAVE_COMMITTED_CATEGORY, 0);
+                    .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
             int committedRoutePosition = CrimpApplication.getAppState()
-                    .getInt(HelloActivity.SAVE_COMMITTED_ROUTE, 0);
+                    .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
             if(routePosition!=0 &&
                     (categoryPosition != committedCategoryPosition ||
                             routePosition != committedRoutePosition)){
@@ -241,7 +241,7 @@ public class RouteFragment extends Fragment {
             mReportTxId = null;
 
             String userId = CrimpApplication.getAppState()
-                    .getString(HelloActivity.SAVE_FB_USER_ID, "user_id");
+                    .getString(CrimpApplication.FB_USER_ID, "user_id");
             if(reportJs.getFbUserId().equals(userId)){
                 // Succeed
                 Timber.d("Report in is successful");
@@ -252,10 +252,13 @@ public class RouteFragment extends Fragment {
                 mRouteNextButton.setEnabled(false);
                 mLoadWheel.setVisibility(View.GONE);
 
-                int categoryIndex = CrimpApplication.getAppState().getInt(HelloActivity.SAVE_CATEGORY_INDEX, 0);
-                int routeIndex = CrimpApplication.getAppState().getInt(HelloActivity.SAVE_ROUTE_INDEX, 0);
-                CrimpApplication.getAppState().edit().putInt(HelloActivity.SAVE_COMMITTED_CATEGORY, categoryIndex)
-                        .putInt(HelloActivity.SAVE_COMMITTED_ROUTE, routeIndex)
+                int categoryIndex = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                int routeIndex = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                CrimpApplication.getAppState().edit()
+                        .putInt(CrimpApplication.COMMITTED_CATEGORY, categoryIndex)
+                        .putInt(CrimpApplication.COMMITTED_ROUTE, routeIndex)
                         .commit();
                 mParent.goToScanTab();
             }
@@ -271,11 +274,11 @@ public class RouteFragment extends Fragment {
                     public void act() {
                         // Send request
                         String userId = CrimpApplication.getAppState()
-                                .getString(HelloActivity.SAVE_FB_USER_ID, "user_id");
+                                .getString(CrimpApplication.FB_USER_ID, "user_id");
                         String accessToken = CrimpApplication.getAppState()
-                                .getString(HelloActivity.SAVE_FB_ACCESS_TOKEN, "token");
+                                .getString(CrimpApplication.FB_ACCESS_TOKEN, "token");
                         long sequentialToken = CrimpApplication.getAppState()
-                                .getLong(HelloActivity.SAVE_SEQUENTIAL_TOKEN, -1);
+                                .getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
                         mReportTxId = ServiceHelper.reportIn(getActivity(), mReportTxId,
                                 userId, accessToken, sequentialToken, category.getCategoryId(),
                                 route.getRouteId(), true);
@@ -314,10 +317,10 @@ public class RouteFragment extends Fragment {
         mHelloText.setVisibility(View.VISIBLE);
         mCategorySpinner.setEnabled(false);
         CrimpApplication.getAppState().edit()
-                .remove(HelloActivity.SAVE_CATEGORY_INDEX)
-                .remove(HelloActivity.SAVE_COMMITTED_CATEGORY)
-                .remove(HelloActivity.SAVE_ROUTE_INDEX)
-                .remove(HelloActivity.SAVE_COMMITTED_ROUTE)
+                .remove(CrimpApplication.CATEGORY_POSITION)
+                .remove(CrimpApplication.COMMITTED_CATEGORY)
+                .remove(CrimpApplication.ROUTE_POSITION)
+                .remove(CrimpApplication.COMMITTED_ROUTE)
                 .commit();
         mCategorySpinner.setSelection(0);
         mCategorySpinner.setVisibility(View.VISIBLE);
@@ -358,8 +361,10 @@ public class RouteFragment extends Fragment {
         mRouteAdapter.addAll(routeNameList);
         mRouteSpinner.setEnabled(true);
 
-        int committedCategoryPosition = CrimpApplication.getAppState().getInt(HelloActivity.SAVE_COMMITTED_CATEGORY, 0);
-        int commitedRoutePosition = CrimpApplication.getAppState().getInt(HelloActivity.SAVE_COMMITTED_ROUTE, 0);
+        int committedCategoryPosition = CrimpApplication.getAppState()
+                .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
+        int commitedRoutePosition = CrimpApplication.getAppState()
+                .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
         int routePosition;
         if(position == committedCategoryPosition){
             routePosition = commitedRoutePosition;
@@ -370,8 +375,9 @@ public class RouteFragment extends Fragment {
         mRouteSpinner.setSelection(routePosition);
         mRouteNextButton.setEnabled(false);
 
-        CrimpApplication.getAppState().edit().putInt(HelloActivity.SAVE_CATEGORY_INDEX, position)
-                .putInt(HelloActivity.SAVE_ROUTE_INDEX, routePosition)
+        CrimpApplication.getAppState().edit()
+                .putInt(CrimpApplication.CATEGORY_POSITION, position)
+                .putInt(CrimpApplication.ROUTE_POSITION, routePosition)
                 .commit();
     }
 
@@ -379,11 +385,11 @@ public class RouteFragment extends Fragment {
         Timber.d("onRouteChosen(%d)", position);
 
         int committedCategoryPosition = CrimpApplication.getAppState()
-                .getInt(HelloActivity.SAVE_COMMITTED_CATEGORY, 0);
+                .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
         int categoryPosition = CrimpApplication.getAppState()
-                .getInt(HelloActivity.SAVE_CATEGORY_INDEX, 0);
+                .getInt(CrimpApplication.CATEGORY_POSITION, 0);
         int committedRoutePosition = CrimpApplication.getAppState()
-                .getInt(HelloActivity.SAVE_COMMITTED_ROUTE, 0);
+                .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
         if(committedCategoryPosition == categoryPosition &&
                 committedRoutePosition == position){
             mRouteNextButton.setEnabled(false);
@@ -392,7 +398,8 @@ public class RouteFragment extends Fragment {
             mRouteNextButton.setEnabled(true);
         }
 
-        CrimpApplication.getAppState().edit().putInt(HelloActivity.SAVE_ROUTE_INDEX, position).commit();
+        CrimpApplication.getAppState().edit()
+                .putInt(CrimpApplication.ROUTE_POSITION, position).commit();
     }
 
     private void onClickNext(){
@@ -406,12 +413,15 @@ public class RouteFragment extends Fragment {
 
         // Send request
         int categoryPosition = CrimpApplication.getAppState()
-                .getInt(HelloActivity.SAVE_CATEGORY_INDEX, 0);
+                .getInt(CrimpApplication.CATEGORY_POSITION, 0);
         int routePosition = CrimpApplication.getAppState()
-                .getInt(HelloActivity.SAVE_ROUTE_INDEX, 0);
-        String userId = CrimpApplication.getAppState().getString(HelloActivity.SAVE_FB_USER_ID, "user_id");
-        String accessToken = CrimpApplication.getAppState().getString(HelloActivity.SAVE_FB_ACCESS_TOKEN, "token");
-        long sequentialToken = CrimpApplication.getAppState().getLong(HelloActivity.SAVE_SEQUENTIAL_TOKEN, -1);
+                .getInt(CrimpApplication.ROUTE_POSITION, 0);
+        String userId = CrimpApplication.getAppState()
+                .getString(CrimpApplication.FB_USER_ID, "user_id");
+        String accessToken = CrimpApplication.getAppState()
+                .getString(CrimpApplication.FB_ACCESS_TOKEN, "token");
+        long sequentialToken = CrimpApplication.getAppState()
+                .getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
         CategoryJs chosenCategory =
                 mParent.getCategoriesJs().getCategories().get(categoryPosition-1);
         mReportTxId = ServiceHelper.reportIn(getActivity(), mReportTxId, userId, accessToken,
@@ -429,10 +439,10 @@ public class RouteFragment extends Fragment {
         });
         mCategorySpinner.setEnabled(false);
         CrimpApplication.getAppState().edit()
-                .remove(HelloActivity.SAVE_CATEGORY_INDEX)
-                .remove(HelloActivity.SAVE_COMMITTED_CATEGORY)
-                .remove(HelloActivity.SAVE_ROUTE_INDEX)
-                .remove(HelloActivity.SAVE_COMMITTED_ROUTE)
+                .remove(CrimpApplication.CATEGORY_POSITION)
+                .remove(CrimpApplication.COMMITTED_CATEGORY)
+                .remove(CrimpApplication.ROUTE_POSITION)
+                .remove(CrimpApplication.COMMITTED_ROUTE)
                 .commit();
         mCategorySpinner.setSelection(0);
         mRouteSpinner.setEnabled(false);

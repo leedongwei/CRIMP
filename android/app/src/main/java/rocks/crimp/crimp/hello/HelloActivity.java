@@ -40,18 +40,7 @@ public class HelloActivity extends AppCompatActivity implements
     public static final String SAVE_FB_ACCESS_TOKEN = "fb_access_token";
     public static final String SAVE_FB_USER_NAME = "fb_user_name";
     public static final String SAVE_SEQUENTIAL_TOKEN = "sequential_token";
-    public static final String SAVE_CLIMBER_ID = "climber_id";
-    public static final String SAVE_CLIMBER_NAME = "climber_name";
-    public static final String SAVE_CURRENT_SCORE = "current_score";
-    public static final String SAVE_COMMITTED_CATEGORY = "save_committed_category";
-    public static final String SAVE_COMMITTED_ROUTE = "save_committed_route";
-    public static final String SAVE_CATEGORY_INDEX = "save_category_index";
-    public static final String SAVE_ROUTE_INDEX = "save_route_index";
-    public static final String SAVE_CAN_DISPLAY = "save_can_display";
-    public static final String SAVE_SHOULD_SCAN = "save_should_scan";
-    public static final String SAVE_CURRENT_TAB = "current_tab";
 
-    public static final String SAVE_STAGE = "save_stage";
     public static final String SAVE_IMAGE = "save_image";
 
     // persisted info
@@ -115,7 +104,8 @@ public class HelloActivity extends AppCompatActivity implements
 
         // prepare view pager
         mFragmentAdapter = new HelloFragmentAdapter(getSupportFragmentManager());
-        mFragmentAdapter.setCanDisplay(CrimpApplication.getAppState().getInt(SAVE_CAN_DISPLAY, 0b001));
+        mFragmentAdapter.setCanDisplay(CrimpApplication.getAppState()
+                .getInt(CrimpApplication.CAN_DISPLAY, 0b001));
 
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(0)));
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(1)));
@@ -209,9 +199,11 @@ public class HelloActivity extends AppCompatActivity implements
 
     @Override
     public void goToScanTab() {
-        int canDisplay = CrimpApplication.getAppState().getInt(SAVE_CAN_DISPLAY, 0b001);
+        int canDisplay = CrimpApplication.getAppState()
+                .getInt(CrimpApplication.CAN_DISPLAY, 0b001);
         canDisplay = canDisplay | 0b010;
-        CrimpApplication.getAppState().edit().putInt(SAVE_CAN_DISPLAY, canDisplay).commit();
+        CrimpApplication.getAppState().edit()
+                .putInt(CrimpApplication.CAN_DISPLAY, canDisplay).commit();
         mFragmentAdapter.setCanDisplay(canDisplay);
 
         mPager.setCurrentItem(1);
@@ -219,7 +211,8 @@ public class HelloActivity extends AppCompatActivity implements
 
     @Override
     public void setCanDisplay(int canDisplay){
-        CrimpApplication.getAppState().edit().putInt(SAVE_CAN_DISPLAY, canDisplay).commit();
+        CrimpApplication.getAppState().edit()
+                .putInt(CrimpApplication.CAN_DISPLAY, canDisplay).commit();
         mFragmentAdapter.setCanDisplay(canDisplay);
     }
 
@@ -235,9 +228,10 @@ public class HelloActivity extends AppCompatActivity implements
 
     @Override
     public void goToScoreTab() {
-        int canDisplay = CrimpApplication.getAppState().getInt(SAVE_CAN_DISPLAY, 0b001);
+        int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
         canDisplay = canDisplay | 0b100;
-        CrimpApplication.getAppState().edit().putInt(SAVE_CAN_DISPLAY, canDisplay).commit();
+        CrimpApplication.getAppState().edit()
+                .putInt(CrimpApplication.CAN_DISPLAY, canDisplay).commit();
         mFragmentAdapter.setCanDisplay(canDisplay);
 
         mPager.setCurrentItem(2);

@@ -101,11 +101,13 @@ public class ScoreFragment extends Fragment {
         Timber.d("onReceivedSwipeTo: %d", event.position);
         if (event.position == mPosition){
             int categoryPosition = CrimpApplication.getAppState()
-                    .getInt(HelloActivity.SAVE_COMMITTED_CATEGORY, 0);
+                    .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
             int routePosition = CrimpApplication.getAppState()
-                    .getInt(HelloActivity.SAVE_COMMITTED_ROUTE, 0);
-            String markerId = CrimpApplication.getAppState().getString(HelloActivity.SAVE_CLIMBER_ID, "");
-            String climberName = CrimpApplication.getAppState().getString(HelloActivity.SAVE_CLIMBER_NAME, "");
+                    .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
+            String markerId = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.MARKER_ID, "");
+            String climberName = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.CLIMBER_NAME, "");
             CategoriesJs categoriesJs = mParent.getCategoriesJs();
             String categoryName;
             String routeName;

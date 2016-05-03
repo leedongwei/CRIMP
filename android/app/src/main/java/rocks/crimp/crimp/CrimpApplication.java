@@ -23,9 +23,15 @@ public class CrimpApplication extends Application {
     public static final String FB_ACCESS_TOKEN = "fb_access_token";
     public static final String FB_USER_NAME = "fb_user_name";
     public static final String SEQUENTIAL_TOKEN = "sequential_token";
-    public static final String CATEGORY_ID = "route_id";
-    public static final String ROUTE_ID = "route_id";
-    public static final String CLIMBER_ID = "climber_id";
+    public static final String CAN_DISPLAY = "can_display";
+    public static final String COMMITTED_CATEGORY = "committed_category";
+    public static final String COMMITTED_ROUTE = "committed_route";
+    public static final String CATEGORY_POSITION = "category_position";
+    public static final String ROUTE_POSITION = "route_position";
+    public static final String MARKER_ID = "marker_id";
+    public static final String CLIMBER_NAME = "climber_name";
+    public static final String SHOULD_SCAN = "should_scan";
+
 
     private static Context mContext;
     private static Bus bus;
