@@ -1,0 +1,41 @@
+<resources>
+    <!-- app details -->
+    <string name="app_name">CRIMP</string>
+    <string name="facebook_app_id">1448790512098965</string>
+
+    <!-- Hello Activity menu -->
+    <string name="action_helpme">Help me</string>
+    <string name="action_logout">Logout</string>
+
+    <!-- Hello Activity UI -->
+    <string name="hello_activity_logout_dialog_title">Logout?</string>
+    <string name="hello_activity_logout_dialog">Ongoing score transmission will not be interrupted.</string>
+    <string name="hello_activity_logout_dialog_positive">Logout</string>
+    <string name="hello_activity_logout_dialog_negative">Cancel</string>
+
+    <!-- Login Activity UI -->
+    <string name="login_activity_login_wait">Awaiting confirmation from admins…</string>
+    <string name="login_activity_description_logo">crimp logo</string>
+
+    <!-- Route Fragment UI -->
+    <string name="route_fragment_greeting">"Hello %1$s, you are route judge for"</string>
+    <string name="route_fragment_replace_title">Replace current route judge?</string>
+    <string name="route_fragment_replace_question">"%1$s is already route judge for %2$s, %3$s.\n\nReplace %4$s ?"</string>
+    <string name="route_fragment_replace_positive">Replace</string>
+    <string name="route_fragment_replace_negative">Cancel</string>
+    <string name="route_fragment_next">Next</string>
+
+    <!-- Scan Fragment UI -->
+    <string name="scan_fragment_climber_id">"Climber ID"</string>
+    <string name="scan_fragment_climber_name">"Climber name (optional)"</string>
+    <string name="scan_fragment_rescan">Rescan</string>
+    <string name="scan_fragment_next">Next</string>
+    <string name="scan_fragment_description_flash">flash button</string>
+
+    <!-- Score Fragment UI -->
+    <string name="score_fragment_climber_id">Climber ID</string>
+    <string name="score_fragment_climber_name">Climber Name</string>
+    <string name="score_fragment_accumulated_score">Accumulated Score</string>
+    <string name="score_fragment_current_score">Current Score</string>
+    <string name="score_fragment_submit">Submit</string>
+</resources>
