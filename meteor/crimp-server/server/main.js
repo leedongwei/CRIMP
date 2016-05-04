@@ -1,4 +1,4 @@
-import { Meteore } from 'meteor/meteor';
+import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 
 import { Messages } from '../imports/data/messages.js';
@@ -35,7 +35,7 @@ Api.addRoute('test', {
       'body': this.bodyParams,
     };
 
-    Messages.insertMessage.call({
+    const insertStatus = Messages.methods.insert.call({
       "payload": msg
     });
 

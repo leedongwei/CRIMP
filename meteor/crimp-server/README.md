@@ -18,12 +18,14 @@ This is a draft document that I will brain-dump into as I work on the meteor app
     meteorhacks/meteord:base`
 
 
-## Build local Docker image
+## Build local Docker image locally
+* Start `Docker Terminal`
+* Make sure you have a MongoDB container running
+* `cd meteor\crimp-server`
 * `docker build -t leedongwei/crimp-dev .`
 * `docker run -d \
     -e ROOT_URL=http://localhost \
-    -e MONGO_URL=mongodb://url \
-    -e MONGO_OPLOG_URL=mongodb://oplog_url \
+    -e MONGO_URL=mongodb://192.168.99.100:32769 \
     -p 8080:80 \
     leedongwei/crimp-dev`
 * Go to Kitematic to check if it is running correct

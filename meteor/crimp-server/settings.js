@@ -15,14 +15,14 @@ ENVIRONMENT = {
    *  Full name for desktop views
    *  Recommended length: less than 60 characters
    */
-  'EVENT_NAME_FULL': 'CRIMP App',
+  'EVENT_NAME_FULL': 'CRIMP Development',
 
   /**
    *  Shortened name for mobile screens
    *  You can reduce font-size for navbar to get more length
    *  Recommended length: less than 20 characters
    *                  |--this is 20 chars--|             */
-  'EVENT_NAME_SHORT': 'CRIMP',
+  'EVENT_NAME_SHORT': 'CRIMP-dev',
 };
 
 
