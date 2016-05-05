@@ -124,7 +124,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                     displayMetrics.widthPixels, displayMetrics.heightPixels, dpWidth, dpHeight,
                     displayMetrics.density, mAspectRatio, mDisplayRotation);
         }
-
     }
 
     @Override
@@ -172,14 +171,12 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     public void onResume(){
         super.onResume();
         mIsOnResume = true;
-
         onStateChangeCheckScanning();
     }
 
     @Override
     public void onPause(){
         mIsOnResume = false;
-
         onStateChangeCheckScanning();
         super.onPause();
     }
