@@ -36,11 +36,11 @@ import timber.log.Timber;
  */
 public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         View.OnClickListener{
-    public static final String TAG = "ScanFragment";
-    public static final boolean DEBUG = true;
-
     public static final String ARGS_POSITION = "INT_POSITION";
     public static final String ARGS_TITLE = "STRING_TITLE";
+    private static final String SCREEN_WIDTH_PX = "screen_width_px";
+    private static final String ASPECT_RATIO = "aspect_ratio";
+    private static final String DISPLAY_ROTATION = "display rotation";
 
     private ScanFragmentInterface mParent;
 
@@ -77,14 +77,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
-        mCameraManager = new CrimpCameraManager();
-
-        mPosition = getArguments().getInt(ARGS_POSITION);
-    }
-
-    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
@@ -93,30 +85,46 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             throw new ClassCastException(context.toString()
                     + " must implement ScanFragmentInterface");
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        mPosition = getArguments().getInt(ARGS_POSITION);
+
+        mCameraManager = new CrimpCameraManager();
 
         // We need 3 things: 1) screen width(px), 2)ideal aspect ratio of SurfaceVIew,
         // 3)display rotation
-        // Context.getResources().getDisplayMetrics() gives the resolution of the screen without
-        // screen decorations (i.e. Navigation bar) in pixels.
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        mTargetWidth = displayMetrics.widthPixels;
-        float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
-        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
-        final int dpTabLayoutHeight = 48;
-        // Remaining height is the height of the space available after subtract away TabLayout.
-        final int dpRemainingHeight = (int) (dpHeight - dpTabLayoutHeight);
-        mAspectRatio = dpRemainingHeight / dpWidth;
+        if(savedInstanceState != null){
+            mTargetWidth = savedInstanceState.getInt(SCREEN_WIDTH_PX);
+            mAspectRatio = savedInstanceState.getFloat(ASPECT_RATIO);
+            mDisplayRotation = savedInstanceState.getInt(DISPLAY_ROTATION);
+        }
+        else{
+            // Context.getResources().getDisplayMetrics() gives the resolution of the screen without
+            // screen decorations (i.e. Navigation bar) in pixels.
+            DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+            mTargetWidth = displayMetrics.widthPixels;
+            float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
+            float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+            final int dpTabLayoutHeight = 48;
+            // Remaining height is the height of the space available after subtract away TabLayout.
+            final int dpRemainingHeight = (int) (dpHeight - dpTabLayoutHeight);
+            mAspectRatio = dpRemainingHeight / dpWidth;
 
-        WindowManager windowManager = (WindowManager)context
-                .getSystemService(Context.WINDOW_SERVICE);
-        mDisplayRotation = windowManager.getDefaultDisplay().getRotation();
-        Timber.d("----------Display information:----------\n" +
-                "Without decoration(px): W%dpx, H%dpx\n" +
-                "Without decoration(dp): W%fdp, H%fdp\n" +
-                "Logical density: %f, aspect ratio (after removing TabLayout): %f\n" +
-                "displayRotation: %d degree",
-                displayMetrics.widthPixels, displayMetrics.heightPixels, dpWidth, dpHeight,
-                displayMetrics.density, mAspectRatio, mDisplayRotation);
+            WindowManager windowManager = (WindowManager)getActivity()
+                    .getSystemService(Context.WINDOW_SERVICE);
+            mDisplayRotation = windowManager.getDefaultDisplay().getRotation();
+            Timber.d("----------Display information:----------\n" +
+                            "Without decoration(px): W%dpx, H%dpx\n" +
+                            "Without decoration(dp): W%fdp, H%fdp\n" +
+                            "Logical density: %f, aspect ratio (after removing TabLayout): %f\n" +
+                            "displayRotation: %d degree",
+                    displayMetrics.widthPixels, displayMetrics.heightPixels, dpWidth, dpHeight,
+                    displayMetrics.density, mAspectRatio, mDisplayRotation);
+        }
+
     }
 
     @Override
@@ -189,10 +197,52 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     public void onClick(View view){
         switch(view.getId()){
             case R.id.scan_rescan_button:
-                mRescanButton.setEnabled(false);
-                CrimpApplication.getAppState().edit()
-                        .putBoolean(CrimpApplication.SHOULD_SCAN, true);
-                onStateChangeCheckScanning();
+                int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
+                int mask = 0b100;
+
+                // We need to check if we already have access to score tab. If we have access to
+                // score tab, we need to warn user about wiping score tab info with a alert dialog.
+                if((canDisplay & mask) == 1 ){
+                    RescanDialog.create(getActivity(), new Action() {
+                        @Override
+                        public void act() {
+                            mRescanButton.setEnabled(false);
+
+                            // We want to disable access to scan tab.
+                            int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
+                            canDisplay = canDisplay & 0b011;
+
+                            // Set textbox on scan tab to null
+                            mMarkerIdText.setText(null);
+                            mClimberNameText.setText(null);
+
+                            CrimpApplication.getAppState().edit()
+                                    .putBoolean(CrimpApplication.SHOULD_SCAN, true)
+                                    .putInt(CrimpApplication.CAN_DISPLAY, canDisplay)
+                                    .remove(CrimpApplication.MARKER_ID)
+                                    .remove(CrimpApplication.CLIMBER_NAME)
+                                    .commit();
+                            // TODO REMOVE MORE STUFF
+
+                            // We set SHOULD_SCAN to true. Check if we should start scanning.
+                            onStateChangeCheckScanning();
+                        }
+                    }, new Action() {
+                        @Override
+                        public void act() {
+
+                        }
+                    });
+                }
+                else{
+                    // Set textbox on scan tab to null
+                    mMarkerIdText.setText(null);
+                    mClimberNameText.setText(null);
+
+                    CrimpApplication.getAppState().edit()
+                            .putBoolean(CrimpApplication.SHOULD_SCAN, true)
+                            .commit();
+                }
                 break;
 
             case R.id.scan_next_button:
