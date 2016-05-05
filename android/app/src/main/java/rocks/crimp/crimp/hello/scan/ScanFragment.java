@@ -188,6 +188,13 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     @Override
     public void onClick(View view){
         switch(view.getId()){
+            case R.id.scan_rescan_button:
+                mRescanButton.setEnabled(false);
+                CrimpApplication.getAppState().edit()
+                        .putBoolean(CrimpApplication.SHOULD_SCAN, true);
+                onStateChangeCheckScanning();
+                break;
+
             case R.id.scan_next_button:
                 int categoryPosition = CrimpApplication.getAppState()
                         .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
@@ -229,6 +236,11 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 throw new RuntimeException("Unable to find out category Scan tab");
             }
             mCategoryIdText.setText(categoryAcronym);
+
+            String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, "");
+            String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, "");
+            mMarkerIdText.setText(markerId);
+            mClimberNameText.setText(climberName);
         }
         onStateChangeCheckScanning();
     }
@@ -259,6 +271,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             if(isValid){
                 CrimpApplication.getAppState().edit()
                         .putBoolean(CrimpApplication.SHOULD_SCAN, false).commit();
+                mRescanButton.setEnabled(true);
 
                 // vibrate 100ms
                 Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
@@ -297,6 +310,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         boolean shouldScan = CrimpApplication.getAppState()
                 .getBoolean(CrimpApplication.SHOULD_SCAN, true);
         if(!shouldScan){
+            mRescanButton.setEnabled(true);
             Bitmap image = mParent.getDecodedImage();
             Timber.d("image: %s", image);
             if(image != null) {
@@ -325,6 +339,9 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     private void onStateChangeCheckScanning(){
         boolean shouldScan = CrimpApplication.getAppState()
                 .getBoolean(CrimpApplication.SHOULD_SCAN, true);
+        if(!shouldScan){
+            mRescanButton.setEnabled(true);
+        }
         Timber.d("mIsOnResume: %b, mIsShowing: %b, shouldScan: %b, mIsScanning: %b",
                 mIsOnResume, mIsShowing, shouldScan, mIsScanning);
 
