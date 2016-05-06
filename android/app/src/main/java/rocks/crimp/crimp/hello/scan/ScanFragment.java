@@ -17,7 +17,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
 
@@ -52,6 +54,9 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     private EditText mMarkerIdText;
     private EditText mClimberNameText;
     private Button mScanNextButton;
+    private LinearLayout mMarkerLayout;
+    private TextView mMarkerValid;
+    private Button mClearButton;
 
     private DecodeThread mDecodeThread;
     private CrimpCameraManager mCameraManager;
@@ -139,6 +144,9 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         mMarkerIdText = (EditText)rootView.findViewById(R.id.scan_marker_id_edit);
         mClimberNameText = (EditText)rootView.findViewById(R.id.scan_climber_name_edit);
         mScanNextButton = (Button)rootView.findViewById(R.id.scan_next_button);
+        mMarkerLayout = (LinearLayout) rootView.findViewById(R.id.scan_valid_marker_layout2);
+        mMarkerValid = (TextView) rootView.findViewById(R.id.scan_valid_marker_text);
+        mClearButton = (Button) rootView.findViewById(R.id.scan_clear_button);
 
         mPreviewFrame.getHolder().addCallback(this);
         mScanNextButton.setOnClickListener(this);
@@ -146,6 +154,10 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             @Override
             public void act() {
                 mScanNextButton.setEnabled(true);
+                mCategoryIdText.setVisibility(View.GONE);
+                mMarkerIdText.setVisibility(View.GONE);
+                mMarkerLayout.setVisibility(View.VISIBLE);
+                mMarkerValid.setText(mMarkerIdText.getText());
             }
         }, new Action() {
             @Override
