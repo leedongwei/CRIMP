@@ -1,4 +1,3 @@
-'use strict';
 import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
@@ -21,17 +20,15 @@ export const Messages = new MessagesCollection('Messages');
 Messages.schema = new SimpleSchema({
   payload: {
     type: Object,
-    blackbox: true
+    blackbox: true,
   },
   // TODO: Dongwei
   // Expand and validate payload when scoring is decided
   updated_at: {
     type: Date,
     optional: true,   // optional to pass ValidatedMethod
-    autoValue: () => {
-      return new Date();
-    }
-  }
+    autoValue: () => new Date(),
+  },
 });
 Messages.attachSchema(Messages.schema);
 
@@ -50,5 +47,5 @@ Messages.methods.insert = new ValidatedMethod({
   validate: Messages.schema.validator(),
   run(msg) {
     return Messages.insert(msg);
-  }
+  },
 });

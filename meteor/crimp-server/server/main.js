@@ -1,9 +1,7 @@
-'use strict';
 import { Meteor } from 'meteor/meteor';
 import { Restivus } from 'meteor/nimble:restivus';
 
 import { Messages } from '../imports/data/messages.js';
-
 
 
 Meteor.startup(() => {
@@ -12,17 +10,17 @@ Meteor.startup(() => {
 
 const Api = new Restivus({
   useDefaultAuth: true,
-  prettyJson: true
+  prettyJson: true,
 });
 
 Api.addRoute('test', {
-  get: function () {
-    let msg = {
-      'method': 'GET'
+  get: () => {
+    const msg = {
+      method: 'GET',
     };
 
     const insertStatus = Messages.methods.insert.call({
-      "payload": msg
+      payload: msg,
     });
 
     // simulate latency
@@ -30,16 +28,16 @@ Api.addRoute('test', {
 
     return insertStatus;
   },
-  post: function () {
-    let msg = {
-      'method': 'GET',
-      'body': this.bodyParams,
+  post: () => {
+    const msg = {
+      method: 'GET',
+      body: this.bodyParams,
     };
 
     const insertStatus = Messages.methods.insert.call({
-      "payload": msg
+      payload: msg,
     });
 
     return insertStatus;
-  }
+  },
 });
