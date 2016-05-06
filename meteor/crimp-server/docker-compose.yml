@@ -11,4 +11,4 @@ crimp:
   links:
     - mongo:mongo
   ports:
-    - 8080:3000
+    - 80:3000

@@ -1,4 +1,6 @@
+'use strict';
 import { Mongo } from 'meteor/mongo';
+import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 // For testing': import { Factory } from 'meteor/factory';
@@ -8,10 +10,10 @@ class MessagesCollection extends Mongo.Collection {
     return super.insert(message, callback);
   }
   update() {
-    return 1;
+    return false;
   }
   remove() {
-    return 1;
+    return false;
   }
 }
 

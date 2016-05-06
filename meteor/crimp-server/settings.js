@@ -1,7 +1,12 @@
+/**
+ * Do not 'use strict' on this file
+ * It prevents ENVIRONMENT from being a global variable
+ */
+
 ENVIRONMENT = {
   /**
    *  Expected values: ['production', 'development']
-   *  Remember to change when pushing to production
+   *  TODO: Remember to change when pushing to production
    */
   'NODE_ENV': 'development',
 
@@ -10,18 +15,16 @@ ENVIRONMENT = {
    */
   'DEMO_MODE': 'true',
 
-
   /**
    *  Full name for desktop views
-   *  Recommended length: less than 60 characters
-   */
+   *  Recommended length: less than sixty characters
+   *                 |-----------------this is 50 chars-----------------| */
   'EVENT_NAME_FULL': 'CRIMP Development',
 
   /**
-   *  Shortened name for mobile screens
-   *  You can reduce font-size for navbar to get more length
+   *  Shortened name to be displayed on mobile screens
    *  Recommended length: less than 20 characters
-   *                  |--this is 20 chars--|             */
+   *                  |--this is 20 chars--|    */
   'EVENT_NAME_SHORT': 'CRIMP-dev',
 };
 

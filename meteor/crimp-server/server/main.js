@@ -1,5 +1,6 @@
+'use strict';
 import { Meteor } from 'meteor/meteor';
-import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { Restivus } from 'meteor/nimble:restivus';
 
 import { Messages } from '../imports/data/messages.js';
 
@@ -9,13 +10,13 @@ Meteor.startup(() => {
   // code to run on server at startup
 });
 
-var Api = new Restivus({
+const Api = new Restivus({
   useDefaultAuth: true,
   prettyJson: true
 });
 
 Api.addRoute('test', {
-  get: function() {
+  get: function () {
     let msg = {
       'method': 'GET'
     };

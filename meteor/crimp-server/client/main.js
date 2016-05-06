@@ -1,3 +1,4 @@
+'use strict';
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { Messages } from '../imports/data/messages.js';
