@@ -24,6 +24,12 @@
     <string name="route_fragment_replace_positive">Replace</string>
     <string name="route_fragment_replace_negative">Cancel</string>
     <string name="route_fragment_next">Next</string>
+    <string name="route_fragment_refresh_dialog_title">"Refresh category and route list?"</string>
+    <string name="route_fragment_refresh_dialog">"Refreshing category and route list will discard your input on Score tab for %1$s, %2$s on %3$s."</string>
+    <string name="route_fragment_refresh_dialog_positive">Refresh</string>
+    <string name="route_fragment_refresh_dialog_negative">Cancel</string>
+    <string name="route_fragment_category_hint">Pick a category</string>
+    <string name="route_fragment_route_hint">Pick a route</string>
 
     <!-- Scan Fragment UI -->
     <string name="scan_fragment_climber_id">"Climber ID"</string>

@@ -24,13 +24,15 @@ public class CrimpApplication extends Application {
     public static final String FB_USER_NAME = "fb_user_name";
     public static final String SEQUENTIAL_TOKEN = "sequential_token";
     public static final String CAN_DISPLAY = "can_display";                 //update when refresh + rescan
+    public static final String MARKER_ID = "marker_id";                     //erase when refresh + rescan
+    public static final String CLIMBER_NAME = "climber_name";               //erase when refresh + rescan
+    public static final String SHOULD_SCAN = "should_scan";                 //erase when refresh + rescan
     public static final String COMMITTED_CATEGORY = "committed_category";   //erase when refresh categories
     public static final String COMMITTED_ROUTE = "committed_route";         //erase when refresh categories
     public static final String CATEGORY_POSITION = "category_position";     //erase when refresh categories
     public static final String ROUTE_POSITION = "route_position";           //erase when refresh categories
-    public static final String MARKER_ID = "marker_id";
-    public static final String CLIMBER_NAME = "climber_name";
-    public static final String SHOULD_SCAN = "should_scan";
+    public static final String CURRENT_SCORE = "current_score";             //erase when refresh categories
+    public static final String ACCUMULATED_SCORE = "accumulated_score";     //erase when refresh categories
 
 
     private static Context mContext;
