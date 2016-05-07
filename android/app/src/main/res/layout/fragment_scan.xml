@@ -80,9 +80,7 @@
                 android:textSize="18sp"
                 tools:ignore="RtlHardcoded" />
 
-
-
-            <LinearLayout android:id="@+id/scan_valid_marker_layout2"
+            <LinearLayout android:id="@+id/scan_valid_marker_layout"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true"
                 android:layout_marginTop="20dp"

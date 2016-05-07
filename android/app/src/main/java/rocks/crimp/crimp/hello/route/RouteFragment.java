@@ -182,6 +182,7 @@ public class RouteFragment extends Fragment {
             }
             mCategoryAdapter.clear();
             mCategoryAdapter.addAll(categoryNames);
+            mCategorySpinner.setEnabled(true);
 
             int categoryPosition = CrimpApplication.getAppState()
                     .getInt(CrimpApplication.CATEGORY_POSITION, 0);
@@ -237,6 +238,7 @@ public class RouteFragment extends Fragment {
                 // Succeed
                 Timber.d("Report in is successful");
                 showHasCategories();
+                mSwipeLayout.setEnabled(true);
 
                 int categoryIndex = CrimpApplication.getAppState()
                         .getInt(CrimpApplication.CATEGORY_POSITION, 0);
@@ -274,6 +276,7 @@ public class RouteFragment extends Fragment {
                     public void act() {
                         showHasCategories();
                         mRouteNextButton.setEnabled(true);
+                        mSwipeLayout.setEnabled(true);
                     }
                 }, reportJs.getUserName(), category.getCategoryName(), route.getRouteName());
                 dialog.show();
@@ -402,7 +405,7 @@ public class RouteFragment extends Fragment {
         Timber.d("onClickNext");
         String currentScore = CrimpApplication.getAppState()
                 .getString(CrimpApplication.CURRENT_SCORE, null);
-        if(currentScore == null || currentScore.length() == 0){
+        if(currentScore != null && currentScore.length() > 0){
             // Prepare stuff to use in NextDialog creation.
             String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
             String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, null);

@@ -1,4 +1,4 @@
-package rocks.crimp.crimp.hello.route;
+package rocks.crimp.crimp.hello.scan;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,24 +11,24 @@ import timber.log.Timber;
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class NextDialog {
-    public static AlertDialog create(Context context, final Action proceed, final Action cancel,
+public class RemoveDialog {
+    public static AlertDialog create(Context context, final Action remove, final Action cancel,
                                      String markerId, String climberName, String routeName){
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-        String question = String.format(context.getString(R.string.route_fragment_next_dialog),
+        String question = String.format(context.getString(R.string.scan_fragment_remove_dialog),
                 markerId, climberName, routeName);
 
-        builder.setTitle(R.string.route_fragment_next_dialog_title)
+        builder.setTitle(R.string.scan_fragment_remove_dialog_title)
                 .setMessage(question)
-                .setPositiveButton(R.string.route_fragment_next_dialog_positive, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.scan_fragment_remove_dialog_positive, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Timber.d("Pressed on Positive button");
-                        proceed.act();
+                        remove.act();
                     }
                 })
-                .setNegativeButton(R.string.route_fragment_next_dialog_negative, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.scan_fragment_remove_dialog_negative, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Timber.d("Pressed on Negative button");
@@ -38,7 +38,7 @@ public class NextDialog {
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        Timber.d("Next dialog cancelled");
+                        Timber.d("Remove dialog cancelled");
                         cancel.act();
                     }
                 });

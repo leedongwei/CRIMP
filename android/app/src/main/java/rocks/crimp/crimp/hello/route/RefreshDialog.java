@@ -38,7 +38,7 @@ public class RefreshDialog {
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        Timber.d("Replace dialog cancelled");
+                        Timber.d("Refresh dialog cancelled");
                         cancel.act();
                     }
                 });

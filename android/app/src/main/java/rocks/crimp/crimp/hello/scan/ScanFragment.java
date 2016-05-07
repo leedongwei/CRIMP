@@ -14,6 +14,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -29,8 +30,8 @@ import rocks.crimp.crimp.common.Action;
 import rocks.crimp.crimp.common.event.DecodeFail;
 import rocks.crimp.crimp.common.event.DecodeSucceed;
 import rocks.crimp.crimp.common.event.SwipeTo;
-import rocks.crimp.crimp.hello.HelloActivity;
 import rocks.crimp.crimp.network.model.CategoriesJs;
+import rocks.crimp.crimp.network.model.CategoryJs;
 import timber.log.Timber;
 
 /**
@@ -40,6 +41,10 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         View.OnClickListener{
     public static final String ARGS_POSITION = "INT_POSITION";
     public static final String ARGS_TITLE = "STRING_TITLE";
+    public static final String MARKER_ID_PATTERN = ".{3}[0-9]{3}";
+    public static final int MARKER_ID_DIGIT_START = 3;
+    public static final int MARKER_ID_DIGIT_END = 6;
+
     private static final String SCREEN_WIDTH_PX = "screen_width_px";
     private static final String ASPECT_RATIO = "aspect_ratio";
     private static final String DISPLAY_ROTATION = "display rotation";
@@ -72,7 +77,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
 
     public static ScanFragment newInstance(int position, String title){
         ScanFragment f = new ScanFragment();
-        // TODO set arguments
         Bundle args = new Bundle();
         args.putInt(ARGS_POSITION, position);
         args.putString(ARGS_TITLE, title);
@@ -136,6 +140,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                              Bundle savedInstanceState){
         View rootView = inflater.inflate(R.layout.fragment_scan, container, false);
 
+        // Find references to Views
         mPreviewFrame = (SurfaceView) rootView.findViewById(R.id.scan_frame);
         mInputLayout = (RelativeLayout) rootView.findViewById(R.id.scan_form);
         mCategoryIdText = (EditText)rootView.findViewById(R.id.scan_category_id_edit);
@@ -144,20 +149,44 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         mMarkerIdText = (EditText)rootView.findViewById(R.id.scan_marker_id_edit);
         mClimberNameText = (EditText)rootView.findViewById(R.id.scan_climber_name_edit);
         mScanNextButton = (Button)rootView.findViewById(R.id.scan_next_button);
-        mMarkerLayout = (LinearLayout) rootView.findViewById(R.id.scan_valid_marker_layout2);
+        mMarkerLayout = (LinearLayout) rootView.findViewById(R.id.scan_valid_marker_layout);
         mMarkerValid = (TextView) rootView.findViewById(R.id.scan_valid_marker_text);
         mClearButton = (Button) rootView.findViewById(R.id.scan_clear_button);
 
         mPreviewFrame.getHolder().addCallback(this);
         mScanNextButton.setOnClickListener(this);
+        mRescanButton.setOnClickListener(this);
+        mClearButton.setOnClickListener(this);
         mMarkerIdText.addTextChangedListener(new MarkerIdTextWatcher(new Action() {
             @Override
             public void act() {
-                mScanNextButton.setEnabled(true);
+                // prepare button info
+                int categoryPosition = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
+                CategoriesJs categoriesJs = mParent.getCategoriesJs();
+                String categoryAcronym;
+                if(categoriesJs != null && categoryPosition != 0) {
+                    // minus one from categoryPosition because of hint in spinner adapter.
+                    categoryAcronym = categoriesJs.getCategories().get(categoryPosition-1).getAcronym();
+                }
+                else {
+                    throw new RuntimeException("Unable to find out category Scan tab");
+                }
+                String digits = mMarkerIdText.getText().toString();
+                mMarkerValid.setText(categoryAcronym+digits);
+
+                // hide mCategoryIdText, mMarkerIdText and soft keyboard. Show button
+                InputMethodManager imm = (InputMethodManager)getActivity()
+                        .getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(mMarkerIdText.getWindowToken(), 0);
                 mCategoryIdText.setVisibility(View.GONE);
                 mMarkerIdText.setVisibility(View.GONE);
                 mMarkerLayout.setVisibility(View.VISIBLE);
-                mMarkerValid.setText(mMarkerIdText.getText());
+            }
+        }, new Action() {
+            @Override
+            public void act() {
+                mScanNextButton.setEnabled(true);
             }
         }, new Action() {
             @Override
@@ -205,65 +234,52 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     @Override
     public void onClick(View view){
         switch(view.getId()){
-            case R.id.scan_rescan_button:
-                int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
-                int mask = 0b100;
+            case R.id.scan_rescan_button: {
+                // We only need to show dialog if user has enter stuff on Score tab.
+                String currentScore = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.CURRENT_SCORE, null);
+                if (currentScore == null || currentScore.length() == 0) {
+                    rescan();
+                    // We set SHOULD_SCAN to true. Check if we should start scanning.
+                    onStateChangeCheckScanning();
+                } else {
+                    // Prepare stuff to use in NextDialog creation.
+                    String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
+                    String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, null);
+                    int categoryPosition = CrimpApplication.getAppState()
+                            .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                    int routePosition = CrimpApplication.getAppState()
+                            .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                    CategoryJs chosenCategory =
+                            mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
+                    String routeName = chosenCategory.getRoutes().get(routePosition - 1).getRouteName();
 
-                // We need to check if we already have access to score tab. If we have access to
-                // score tab, we need to warn user about wiping score tab info with a alert dialog.
-                if((canDisplay & mask) == 1 ){
                     RescanDialog.create(getActivity(), new Action() {
                         @Override
                         public void act() {
-                            mRescanButton.setEnabled(false);
-
-                            // We want to disable access to scan tab.
-                            int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
-                            canDisplay = canDisplay & 0b011;
-
-                            // Set textbox on scan tab to null
-                            mMarkerIdText.setText(null);
-                            mClimberNameText.setText(null);
-
-                            CrimpApplication.getAppState().edit()
-                                    .putBoolean(CrimpApplication.SHOULD_SCAN, true)
-                                    .putInt(CrimpApplication.CAN_DISPLAY, canDisplay)
-                                    .remove(CrimpApplication.MARKER_ID)
-                                    .remove(CrimpApplication.CLIMBER_NAME)
-                                    .commit();
-                            // TODO REMOVE MORE STUFF
-
+                            rescan();
                             // We set SHOULD_SCAN to true. Check if we should start scanning.
                             onStateChangeCheckScanning();
                         }
                     }, new Action() {
                         @Override
                         public void act() {
-
+                            // Do nothing
                         }
-                    });
-                }
-                else{
-                    // Set textbox on scan tab to null
-                    mMarkerIdText.setText(null);
-                    mClimberNameText.setText(null);
-
-                    CrimpApplication.getAppState().edit()
-                            .putBoolean(CrimpApplication.SHOULD_SCAN, true)
-                            .commit();
+                    }, markerId, climberName, routeName);
                 }
                 break;
+            }
 
-            case R.id.scan_next_button:
+            case R.id.scan_next_button: {
                 int categoryPosition = CrimpApplication.getAppState()
                         .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
                 CategoriesJs categoriesJs = mParent.getCategoriesJs();
                 String categoryAcronym;
-                if(categoriesJs != null && categoryPosition != 0) {
+                if (categoriesJs != null && categoryPosition != 0) {
                     // minus one from categoryPosition because of hint in spinner adapter.
-                    categoryAcronym = categoriesJs.getCategories().get(categoryPosition-1).getAcronym();
-                }
-                else {
+                    categoryAcronym = categoriesJs.getCategories().get(categoryPosition - 1).getAcronym();
+                } else {
                     throw new RuntimeException("Unable to find out category Scan tab");
                 }
 
@@ -275,6 +291,102 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                         .commit();
                 mParent.goToScoreTab();
                 break;
+            }
+
+            case R.id.scan_clear_button: {
+                // We only need to show dialog if user has enter stuff on Score tab.
+                String currentScore = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.CURRENT_SCORE, null);
+                if (currentScore == null || currentScore.length() == 0) {
+                    rescan();
+                    // We set SHOULD_SCAN to true. Check if we should start scanning.
+                    onStateChangeCheckScanning();
+                } else {
+                    // Prepare stuff to use in NextDialog creation.
+                    String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, "");
+                    String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, "");
+                    int categoryPosition = CrimpApplication.getAppState()
+                            .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                    int routePosition = CrimpApplication.getAppState()
+                            .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                    CategoryJs chosenCategory =
+                            mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
+                    String routeName = chosenCategory.getRoutes().get(routePosition - 1).getRouteName();
+
+                    RemoveDialog.create(getActivity(), new Action() {
+                        @Override
+                        public void act() {
+                            rescan();
+                            // We set SHOULD_SCAN to true. Check if we should start scanning.
+                            onStateChangeCheckScanning();
+                        }
+                    }, new Action() {
+                        @Override
+                        public void act() {
+                            // Do nothing
+                        }
+                    }, markerId, climberName, routeName);
+                }
+                break;
+            }
+        }
+    }
+
+    private void rescan(){
+        // We want to disable access to scan tab.
+        int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
+        canDisplay = canDisplay & 0b011;
+
+        mMarkerLayout.setVisibility(View.GONE);
+        mMarkerIdText.setVisibility(View.VISIBLE);
+        mCategoryIdText.setVisibility(View.VISIBLE);
+
+        // Set textbox on scan tab to null
+        mMarkerIdText.setText(null);
+        mClimberNameText.setText(null);
+
+        CrimpApplication.getAppState().edit()
+                .putBoolean(CrimpApplication.SHOULD_SCAN, true)
+                .putInt(CrimpApplication.CAN_DISPLAY, canDisplay)
+                .remove(CrimpApplication.MARKER_ID)
+                .remove(CrimpApplication.CLIMBER_NAME)
+                .commit();
+    }
+
+    private void showInfoPanel(){
+        int categoryPosition = CrimpApplication.getAppState()
+                .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
+        CategoriesJs categoriesJs = mParent.getCategoriesJs();
+        String categoryAcronym;
+        if(categoriesJs != null && categoryPosition != 0) {
+            // minus one from categoryPosition because of hint in spinner adapter.
+            categoryAcronym = categoriesJs.getCategories().get(categoryPosition-1).getAcronym();
+        }
+        else {
+            throw new RuntimeException("Unable to find out category Scan tab");
+        }
+        String oldAcronym = mCategoryIdText.getText().toString();
+        mCategoryIdText.setText(categoryAcronym);
+
+        Timber.d("showInfoPanel(). oldAcronym: %s, currentAcronym: %s, mMarkerVaid: %s, mMarkerIdText: %s",
+                oldAcronym, categoryAcronym, mMarkerValid.getText(), mMarkerIdText.getText());
+        if(!oldAcronym.equals(categoryAcronym)){
+            mMarkerLayout.setVisibility(View.GONE);
+            mCategoryIdText.setVisibility(View.VISIBLE);
+            mMarkerIdText.setVisibility(View.VISIBLE);
+            mMarkerIdText.setText(null);
+        }
+
+        // Get the text to be displayed. We write only marker id's digit to marker id text box.
+        String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
+        if(markerId != null){
+            if(!markerId.matches(MARKER_ID_PATTERN)){
+                throw new RuntimeException("Malformed markerId: "+markerId);
+            }
+            String markerIdDigits = markerId.substring(MARKER_ID_DIGIT_START, MARKER_ID_DIGIT_END);
+            mMarkerIdText.setText(markerIdDigits);
+            String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, "");
+            mClimberNameText.setText(climberName);
         }
     }
 
@@ -283,23 +395,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         Timber.d("onReceivedSwipeTo: %d", event.position);
         mIsShowing = (event.position == mPosition);
         if(mIsShowing){
-            int categoryPosition = CrimpApplication.getAppState()
-                    .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
-            CategoriesJs categoriesJs = mParent.getCategoriesJs();
-            String categoryAcronym;
-            if(categoriesJs != null && categoryPosition != 0) {
-                // minus one from categoryPosition because of hint in spinner adapter.
-                categoryAcronym = categoriesJs.getCategories().get(categoryPosition-1).getAcronym();
-            }
-            else {
-                throw new RuntimeException("Unable to find out category Scan tab");
-            }
-            mCategoryIdText.setText(categoryAcronym);
-
-            String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, "");
-            String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, "");
-            mMarkerIdText.setText(markerId);
-            mClimberNameText.setText(climberName);
+            showInfoPanel();
         }
         onStateChangeCheckScanning();
     }
@@ -398,9 +494,9 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     private void onStateChangeCheckScanning(){
         boolean shouldScan = CrimpApplication.getAppState()
                 .getBoolean(CrimpApplication.SHOULD_SCAN, true);
-        if(!shouldScan){
-            mRescanButton.setEnabled(true);
-        }
+
+        mRescanButton.setEnabled(!shouldScan);
+
         Timber.d("mIsOnResume: %b, mIsShowing: %b, shouldScan: %b, mIsScanning: %b",
                 mIsOnResume, mIsShowing, shouldScan, mIsScanning);
 
@@ -428,8 +524,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     }
 
     public interface ScanFragmentInterface{
-        //void setShouldScan(boolean shouldScan);
-        //boolean getShouldScan();
         void setDecodedImage(Bitmap image);
         Bitmap getDecodedImage();
         CategoriesJs getCategoriesJs();

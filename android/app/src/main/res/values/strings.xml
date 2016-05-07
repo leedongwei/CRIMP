@@ -41,6 +41,14 @@
     <string name="scan_fragment_rescan">Rescan</string>
     <string name="scan_fragment_next">Next</string>
     <string name="scan_fragment_description_flash">flash button</string>
+    <string name="scan_fragment_rescan_dialog_title">"Rescan QR code?"</string>
+    <string name="scan_fragment_rescan_dialog">"Scanning climber QR code will discard your input on Score tab for %1$s, %2$s on %3$s."</string>
+    <string name="scan_fragment_rescan_dialog_positive">Rescan</string>
+    <string name="scan_fragment_rescan_dialog_negative">Cancel</string>
+    <string name="scan_fragment_remove_dialog_title">"Remove climber?"</string>
+    <string name="scan_fragment_remove_dialog">"Removing the current climber will discard your input on Score tab for %1$s, %2$s on %3$s."</string>
+    <string name="scan_fragment_remove_dialog_positive">Remove</string>
+    <string name="scan_fragment_remove_dialog_negative">Cancel</string>
 
     <!-- Score Fragment UI -->
     <string name="score_fragment_climber_id">Climber ID</string>

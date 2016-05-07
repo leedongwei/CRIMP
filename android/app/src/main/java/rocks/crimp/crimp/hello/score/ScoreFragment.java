@@ -65,40 +65,19 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
-        return inflater.inflate(R.layout.fragment_score, container, false);
-    }
+        View rootView = inflater.inflate(R.layout.fragment_score, container, false);
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState){
-        mCategoryText = (TextView)view.findViewById(R.id.score_category_text);
-        mRouteText = (TextView)view.findViewById(R.id.score_route_text);
-        mClimberIdText = (EditText)view.findViewById(R.id.score_climberId_edit);
-        mClimberNameText = (EditText)view.findViewById(R.id.score_climberName_edit);
-        mAccumulatedText = (EditText)view.findViewById(R.id.score_accumulated_edit);
-        mCurrentText = (EditText)view.findViewById(R.id.score_current_edit);
-        mScoreModuleLayout = (ViewStub)view.findViewById(R.id.score_score_fragment);
-        mSubmitButton = (Button)view.findViewById(R.id.score_submit_button);
+        mCategoryText = (TextView)rootView.findViewById(R.id.score_category_text);
+        mRouteText = (TextView)rootView.findViewById(R.id.score_route_text);
+        mClimberIdText = (EditText)rootView.findViewById(R.id.score_climberId_edit);
+        mClimberNameText = (EditText)rootView.findViewById(R.id.score_climberName_edit);
+        mAccumulatedText = (EditText)rootView.findViewById(R.id.score_accumulated_edit);
+        mCurrentText = (EditText)rootView.findViewById(R.id.score_current_edit);
+        mScoreModuleLayout = (ViewStub)rootView.findViewById(R.id.score_score_fragment);
+        mSubmitButton = (Button)rootView.findViewById(R.id.score_submit_button);
 
         mSubmitButton.setOnClickListener(this);
-    }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            mParent = (ScoreFragmentInterface) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement ScoreFragmentInterface");
-        }
-    }
-
-    @Override
-    public void onStart(){
-        super.onStart();
-        CrimpApplication.getBusInstance().register(this);
-
-        // Category info can be obtained as early as onStart
         int categoryPosition = CrimpApplication.getAppState()
                 .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
         int routePosition = CrimpApplication.getAppState()
@@ -116,7 +95,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
             scoreType = categoryJs.getRoutes().get(routePosition-1).getScoreType();
         }
         else {
-            throw new RuntimeException("Unable to find out category Scan tab");
+            throw new RuntimeException("Unable to find out category Score tab");
         }
 
         // update UI with category name, route name and score module
@@ -124,18 +103,43 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
         mRouteText.setText(routeName);
         switch(scoreType){
             case "top_bonus":
-                mScoreModuleLayout.setLayoutResource(R.layout.fragment_top_bonus_scoring);
-                mInflatedScoreModule = mScoreModuleLayout.inflate();
+                if(mScoreModuleLayout != null){
+                    mScoreModuleLayout.setLayoutResource(R.layout.fragment_top_bonus_scoring);
+                    mInflatedScoreModule = mScoreModuleLayout.inflate();
+                    mScoreModuleLayout = null;
+                }
                 mScoreModule = new TopBonusModule(mInflatedScoreModule, getActivity(), this);
                 break;
             case "bonus_2":
-                mScoreModuleLayout.setLayoutResource(R.layout.fragment_top_bonus2_scoring);
-                mInflatedScoreModule = mScoreModuleLayout.inflate();
+                if(mScoreModuleLayout != null){
+                    mScoreModuleLayout.setLayoutResource(R.layout.fragment_top_bonus2_scoring);
+                    mInflatedScoreModule = mScoreModuleLayout.inflate();
+                    mScoreModuleLayout = null;
+                }
                 mScoreModule = new BonusTwoModule(mInflatedScoreModule, getActivity(), this);
                 break;
             default:
                 throw new RuntimeException("unknown score type: "+scoreType);
         }
+
+        return rootView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mParent = (ScoreFragmentInterface) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement ScoreFragmentInterface");
+        }
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        CrimpApplication.getBusInstance().register(this);
 
         mScoreModule.notifyScore(mAccumulatedText.getText().toString()
                 + mCurrentText.getText().toString());
