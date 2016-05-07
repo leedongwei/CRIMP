@@ -37,6 +37,10 @@ class MarkerIdTextWatcher implements TextWatcher {
     public void afterTextChanged(Editable s) {
         Timber.d("afterTextChanged: %s", s.toString());
 
+        CrimpApplication.getAppState().edit()
+                .putString(CrimpApplication.MARKER_ID_TEMP, s.toString())
+                .commit();
+
         String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
         String markerIdDigits;
         if(markerId == null){

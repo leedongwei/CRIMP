@@ -1,5 +1,7 @@
 package rocks.crimp.crimp.network.model;
 
+import android.support.annotation.Nullable;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -26,5 +28,25 @@ public class GetScoreJs implements Serializable{
 
     public void setClimberScores(ArrayList<ClimberScoreJs> climberScores) {
         this.climberScores = climberScores;
+    }
+
+    @JsonIgnore
+    @Nullable
+    public ClimberScoreJs getClimberScoreByMarkerId(String markerId){
+        for(ClimberScoreJs climberScore:climberScores){
+            ScoreJs score = climberScore.getScoreByMarkerId(markerId);
+            if(score != null){
+                ClimberScoreJs result = new ClimberScoreJs();
+                result.setClimberId(climberScore.getClimberId());
+                result.setClimberName(climberScore.getClimberName());
+                ArrayList<ScoreJs> scoreList = new ArrayList<>();
+                scoreList.add(score);
+                result.setScores(scoreList);
+
+                return result;
+            }
+        }
+
+        return null;
     }
 }

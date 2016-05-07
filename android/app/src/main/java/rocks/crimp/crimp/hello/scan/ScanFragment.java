@@ -32,6 +32,7 @@ import rocks.crimp.crimp.common.event.DecodeSucceed;
 import rocks.crimp.crimp.common.event.SwipeTo;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
+import rocks.crimp.crimp.service.ServiceHelper;
 import timber.log.Timber;
 
 /**
@@ -275,20 +276,38 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 int categoryPosition = CrimpApplication.getAppState()
                         .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
                 CategoriesJs categoriesJs = mParent.getCategoriesJs();
-                String categoryAcronym;
+                CategoryJs category;
                 if (categoriesJs != null && categoryPosition != 0) {
                     // minus one from categoryPosition because of hint in spinner adapter.
-                    categoryAcronym = categoriesJs.getCategories().get(categoryPosition - 1).getAcronym();
+                    category = categoriesJs.getCategories().get(categoryPosition - 1);
                 } else {
                     throw new RuntimeException("Unable to find out category Scan tab");
                 }
 
-                String markerId = mMarkerIdText.getText().toString();
+                String markerId = mMarkerValid.getText().toString();
                 String climberName = mClimberNameText.getText().toString();
                 CrimpApplication.getAppState().edit()
-                        .putString(CrimpApplication.MARKER_ID, categoryAcronym + markerId)
+                        .putString(CrimpApplication.MARKER_ID, markerId)
                         .putString(CrimpApplication.CLIMBER_NAME, climberName)
+                        .remove(CrimpApplication.ACCUMULATED_SCORE)
+                        .remove(CrimpApplication.CURRENT_SCORE)
                         .commit();
+
+                int routePosition = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                String userId = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.FB_USER_ID, "user_id");
+                String accessToken = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.FB_ACCESS_TOKEN, "token");
+                long sequentialToken = CrimpApplication.getAppState()
+                        .getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
+                long routeId = category.getRoutes().get(routePosition - 1).getRouteId();
+
+                // We don't care about response so we are not keeping track of txId.
+                ServiceHelper.clearActive(getActivity(), null, userId, accessToken, sequentialToken,
+                        routeId);
+                ServiceHelper.setActive(getActivity(), null, userId, accessToken, sequentialToken,
+                        routeId, markerId);
                 mParent.goToScoreTab();
                 break;
             }
@@ -303,7 +322,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                     onStateChangeCheckScanning();
                 } else {
                     // Prepare stuff to use in NextDialog creation.
-                    String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, "");
+                    String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
                     String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, "");
                     int categoryPosition = CrimpApplication.getAppState()
                             .getInt(CrimpApplication.CATEGORY_POSITION, 0);
@@ -325,7 +344,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                         public void act() {
                             // Do nothing
                         }
-                    }, markerId, climberName, routeName);
+                    }, markerId, climberName, routeName).show();
                 }
                 break;
             }
@@ -336,6 +355,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         // We want to disable access to scan tab.
         int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
         canDisplay = canDisplay & 0b011;
+        mParent.setCanDisplay(canDisplay);
 
         mMarkerLayout.setVisibility(View.GONE);
         mMarkerIdText.setVisibility(View.VISIBLE);
@@ -347,13 +367,19 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
 
         CrimpApplication.getAppState().edit()
                 .putBoolean(CrimpApplication.SHOULD_SCAN, true)
-                .putInt(CrimpApplication.CAN_DISPLAY, canDisplay)
                 .remove(CrimpApplication.MARKER_ID)
                 .remove(CrimpApplication.CLIMBER_NAME)
+                .remove(CrimpApplication.MARKER_ID_TEMP)
                 .commit();
+
+
     }
 
     private void showInfoPanel(){
+        mMarkerLayout.setVisibility(View.GONE);
+        mCategoryIdText.setVisibility(View.VISIBLE);
+        mMarkerIdText.setVisibility(View.VISIBLE);
+
         int categoryPosition = CrimpApplication.getAppState()
                 .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
         CategoriesJs categoriesJs = mParent.getCategoriesJs();
@@ -365,26 +391,15 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         else {
             throw new RuntimeException("Unable to find out category Scan tab");
         }
-        String oldAcronym = mCategoryIdText.getText().toString();
         mCategoryIdText.setText(categoryAcronym);
 
-        Timber.d("showInfoPanel(). oldAcronym: %s, currentAcronym: %s, mMarkerVaid: %s, mMarkerIdText: %s",
-                oldAcronym, categoryAcronym, mMarkerValid.getText(), mMarkerIdText.getText());
-        if(!oldAcronym.equals(categoryAcronym)){
-            mMarkerLayout.setVisibility(View.GONE);
-            mCategoryIdText.setVisibility(View.VISIBLE);
-            mMarkerIdText.setVisibility(View.VISIBLE);
-            mMarkerIdText.setText(null);
-        }
+        String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID_TEMP, null);
+        mMarkerIdText.setText(markerId);
 
-        // Get the text to be displayed. We write only marker id's digit to marker id text box.
-        String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
-        if(markerId != null){
-            if(!markerId.matches(MARKER_ID_PATTERN)){
-                throw new RuntimeException("Malformed markerId: "+markerId);
-            }
-            String markerIdDigits = markerId.substring(MARKER_ID_DIGIT_START, MARKER_ID_DIGIT_END);
-            mMarkerIdText.setText(markerIdDigits);
+        if(markerId == null || markerId.length()==0){
+            mClimberNameText.setText(null);
+        }
+        else{
             String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, "");
             mClimberNameText.setText(climberName);
         }
@@ -393,6 +408,11 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     @Subscribe
     public void onReceivedSwipeTo(SwipeTo event){
         Timber.d("onReceivedSwipeTo: %d", event.position);
+        if(mMarkerIdText != null) {
+            InputMethodManager imm = (InputMethodManager) getActivity()
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(mMarkerIdText.getWindowToken(), 0);
+        }
         mIsShowing = (event.position == mPosition);
         if(mIsShowing){
             showInfoPanel();
@@ -528,5 +548,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         Bitmap getDecodedImage();
         CategoriesJs getCategoriesJs();
         void goToScoreTab();
+        void setCanDisplay(int canDisplay);
     }
 }

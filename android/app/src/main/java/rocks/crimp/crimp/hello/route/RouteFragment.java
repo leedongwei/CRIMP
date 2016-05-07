@@ -247,6 +247,9 @@ public class RouteFragment extends Fragment {
                 CrimpApplication.getAppState().edit()
                         .putInt(CrimpApplication.COMMITTED_CATEGORY, categoryIndex)
                         .putInt(CrimpApplication.COMMITTED_ROUTE, routeIndex)
+                        .remove(CrimpApplication.MARKER_ID)
+                        .remove(CrimpApplication.MARKER_ID_TEMP)
+                        .remove(CrimpApplication.CLIMBER_NAME)
                         .commit();
                 mParent.goToScanTab();
             }
@@ -421,6 +424,17 @@ public class RouteFragment extends Fragment {
             NextDialog.create(getActivity(), new Action() {
                 @Override
                 public void act() {
+                    CrimpApplication.getAppState().edit()
+                            .remove(CrimpApplication.MARKER_ID)
+                            .remove(CrimpApplication.CLIMBER_NAME)
+                            .remove(CrimpApplication.SHOULD_SCAN)
+                            .remove(CrimpApplication.CURRENT_SCORE)
+                            .remove(CrimpApplication.ACCUMULATED_SCORE)
+                            .remove(CrimpApplication.COMMITTED_CATEGORY)
+                            .remove(CrimpApplication.COMMITTED_ROUTE)
+                            .remove(CrimpApplication.MARKER_ID_TEMP)
+                            .commit();
+                    mParent.setCanDisplay(0b001);
                     doNextButton();
                 }
             }, new Action() {
@@ -493,7 +507,7 @@ public class RouteFragment extends Fragment {
             }, new Action() {
                 @Override
                 public void act() {
-                    // Do nothing for cancel
+                    mSwipeLayout.setRefreshing(false);
                 }
             }, markerId, climberName, routeName).show();
         }
@@ -524,6 +538,7 @@ public class RouteFragment extends Fragment {
                 .remove(CrimpApplication.COMMITTED_CATEGORY)
                 .remove(CrimpApplication.ROUTE_POSITION)
                 .remove(CrimpApplication.COMMITTED_ROUTE)
+                .remove(CrimpApplication.MARKER_ID_TEMP)
                 .commit();
 
         showNoCategories();

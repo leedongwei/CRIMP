@@ -14,8 +14,12 @@ import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
+import java.util.UUID;
+
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
+import rocks.crimp.crimp.common.event.RequestFailed;
+import rocks.crimp.crimp.common.event.RequestSucceed;
 import rocks.crimp.crimp.common.event.SwipeTo;
 import rocks.crimp.crimp.hello.HelloActivity;
 import rocks.crimp.crimp.hello.score.scoremodule.BonusTwoModule;
@@ -23,12 +27,16 @@ import rocks.crimp.crimp.hello.score.scoremodule.ScoreModule;
 import rocks.crimp.crimp.hello.score.scoremodule.TopBonusModule;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
+import rocks.crimp.crimp.network.model.ClimberScoreJs;
+import rocks.crimp.crimp.network.model.GetScoreJs;
+import rocks.crimp.crimp.service.ServiceHelper;
 import timber.log.Timber;
 
 public class ScoreFragment extends Fragment implements View.OnClickListener,
         ScoreModule.ScoreModuleInterface{
     public static final String ARGS_POSITION = "INT_POSITION";
     public static final String ARGS_TITLE = "STRING_TITLE";
+    private static final String GET_SCORE_TXID = "get_score_txid";
 
     private TextView mCategoryText;
     private TextView mRouteText;
@@ -40,6 +48,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     private View mInflatedScoreModule;
     private Button mSubmitButton;
 
+    private UUID mGetScoreTxId;
     private ScoreFragmentInterface mParent;
     private int mPosition;
     private ScoreModule mScoreModule;
@@ -60,6 +69,10 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
         super.onCreate(savedInstanceState);
 
         mPosition = getArguments().getInt(ARGS_POSITION);
+
+        if(savedInstanceState != null){
+            mGetScoreTxId = (UUID) savedInstanceState.getSerializable(GET_SCORE_TXID);
+        }
     }
 
     @Override
@@ -151,17 +164,80 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
         super.onStop();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+
+        outState.putSerializable(GET_SCORE_TXID, mGetScoreTxId);
+    }
+
+    @Subscribe
+    public void requestSucceedReceived(RequestSucceed event) {
+        Timber.d("Received RequestSucceed %s", event.txId);
+
+        if(event.txId.equals(mGetScoreTxId)){
+            mGetScoreTxId = null;
+            GetScoreJs response = CrimpApplication.getLocalModel()
+                    .fetch(event.txId.toString(), GetScoreJs.class);
+
+            String markerId = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.MARKER_ID, "");
+            ClimberScoreJs climberScoreJs = response.getClimberScoreByMarkerId(markerId);
+            if(climberScoreJs == null){
+                throw new NullPointerException("Can't find climber score for "+markerId);
+            }
+            String climberName = climberScoreJs.getClimberName();
+            String accumulatedScore = climberScoreJs.getScores().get(0).getScore();
+            mClimberNameText.setText(climberName);
+            mAccumulatedText.setText(accumulatedScore);
+            mScoreModule.notifyScore(accumulatedScore + mCurrentText.getText());
+
+            CrimpApplication.getAppState().edit()
+                    .putString(CrimpApplication.CLIMBER_NAME, climberName)
+                    .putString(CrimpApplication.ACCUMULATED_SCORE, accumulatedScore)
+                    .commit();
+        }
+    }
+
+    @Subscribe
+    public void requestFailedReceived(RequestFailed event){
+        Timber.d("Received RequestFailed %s", event.txId);
+
+        if(event.txId.equals(mGetScoreTxId)){
+            mGetScoreTxId = null;
+        }
+    }
+
     @Subscribe
     public void onReceivedSwipeTo(SwipeTo event){
         Timber.d("onReceivedSwipeTo: %d", event.position);
         if (event.position == mPosition){
             String markerId = CrimpApplication.getAppState()
-                    .getString(CrimpApplication.MARKER_ID, "");
+                    .getString(CrimpApplication.MARKER_ID, null);
             String climberName = CrimpApplication.getAppState()
                     .getString(CrimpApplication.CLIMBER_NAME, "");
 
             mClimberIdText.setText(markerId);
             mClimberNameText.setText(climberName);
+
+            String accumulatedScore = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.ACCUMULATED_SCORE, null);
+            String userId = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.FB_USER_ID, "user_id");
+            String accessToken = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.FB_ACCESS_TOKEN, "token");
+            long sequentialToken = CrimpApplication.getAppState()
+                    .getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
+
+            mAccumulatedText.setText(accumulatedScore);
+            if(accumulatedScore == null){
+                mGetScoreTxId = ServiceHelper.getScore(getActivity(), mGetScoreTxId, null, null,
+                        null, markerId, userId, accessToken, sequentialToken);
+            }
+
+            String currentScore = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.CURRENT_SCORE, null);
+            mCurrentText.setText(currentScore);
         }
     }
 
@@ -178,6 +254,10 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     @Override
     public void append(String s) {
         mCurrentText.append(s);
+        String currentScore = mCurrentText.getText().toString();
+        CrimpApplication.getAppState().edit()
+                .putString(CrimpApplication.CURRENT_SCORE, currentScore)
+                .commit();
 
         mScoreModule.notifyScore(mAccumulatedText.getText().toString()
                 + mCurrentText.getText().toString());
@@ -190,6 +270,9 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
             currentScore = currentScore.substring(0, currentScore.length()-1);
             mCurrentText.setText(currentScore);
         }
+        CrimpApplication.getAppState().edit()
+                .putString(CrimpApplication.CURRENT_SCORE, currentScore)
+                .commit();
 
         mScoreModule.notifyScore(mAccumulatedText.getText().toString()
                 + mCurrentText.getText().toString());

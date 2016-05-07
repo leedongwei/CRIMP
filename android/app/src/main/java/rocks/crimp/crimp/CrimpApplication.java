@@ -33,6 +33,7 @@ public class CrimpApplication extends Application {
     public static final String ROUTE_POSITION = "route_position";           //erase when refresh categories
     public static final String CURRENT_SCORE = "current_score";             //erase when refresh categories
     public static final String ACCUMULATED_SCORE = "accumulated_score";     //erase when refresh categories
+    public static final String MARKER_ID_TEMP = "marker_id_temp";
 
 
     private static Context mContext;

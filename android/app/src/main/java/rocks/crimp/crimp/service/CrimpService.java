@@ -13,11 +13,13 @@ import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
+import rocks.crimp.crimp.network.model.ClearActiveJs;
 import rocks.crimp.crimp.network.model.GetScoreJs;
 import rocks.crimp.crimp.network.model.LoginJs;
 import rocks.crimp.crimp.network.model.ReportJs;
 import rocks.crimp.crimp.network.model.RequestBean;
 import rocks.crimp.crimp.network.model.RouteJs;
+import rocks.crimp.crimp.network.model.SetActiveJs;
 import timber.log.Timber;
 
 /**
@@ -83,26 +85,49 @@ public class CrimpService extends IntentService{
                 }
                 break;
             case ACTION_GET_SCORE:
-                GetScoreJs getScoreJs = getScore(bean);
-
-                if(getScoreJs != null){
-                    //TODO UPDATE TRANSACTION LOG
-
-                    // write to local model
-                    CrimpApplication.getLocalModel().putData(txId.toString(), getScoreJs);
-                    Timber.d("Posting responseReceived: %s", txId);
+                if(hasData){
                     CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
                 }
                 else{
-                    //TODO UPDATE TRANSACTION LOG
-
-                    Timber.d("Posting requestFailed: %s", txId);
-                    CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+                    GetScoreJs getScoreJs = getScore(bean);
+                    if(getScoreJs != null){
+                        CrimpApplication.getLocalModel().putData(txId.toString(), getScoreJs);
+                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                    }
+                    else{
+                        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+                    }
                 }
                 break;
             case ACTION_SET_ACTIVE:
+                if(hasData){
+                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                }
+                else{
+                    SetActiveJs setActiveJs = setActive(bean);
+                    if(setActiveJs != null){
+                        CrimpApplication.getLocalModel().putData(txId.toString(), setActiveJs);
+                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                    }
+                    else{
+                        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+                    }
+                }
                 break;
             case ACTION_CLEAR_ACTIVE:
+                if(hasData){
+                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                }
+                else{
+                    ClearActiveJs clearActiveJs = clearActive(bean);
+                    if(clearActiveJs != null){
+                        CrimpApplication.getLocalModel().putData(txId.toString(), clearActiveJs);
+                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                    }
+                    else{
+                        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+                    }
+                }
                 break;
             case ACTION_LOGIN:
                 if(hasData){
@@ -270,5 +295,69 @@ public class CrimpService extends IntentService{
         }
 
         return reportJs;
+    }
+
+    @Nullable
+    private ClearActiveJs clearActive(RequestBean requestBean){
+        ClearActiveJs clearActiveJs = null;
+
+        try {
+            clearActiveJs = CrimpApplication.getCrimpWS().clearActive(requestBean);
+        } catch (IOException e){
+            Timber.e(e, "IOE while doing clearActive");
+        }
+
+        for(int i=1; clearActiveJs==null && i<=RETRY; i++){
+            Timber.d("clearActive returns null. Retry(%d) in %dms...", i, backOff);
+
+            try {
+                Thread.sleep(backOff);
+            } catch (InterruptedException e) {
+                // Restore interrupt status.
+                Thread.currentThread().interrupt();
+            }
+
+            try {
+                clearActiveJs = CrimpApplication.getCrimpWS().clearActive(requestBean);
+            } catch (IOException e){
+                Timber.e(e, "IOE while doing clearActive");
+            }
+
+            backOff = backOff * 2;
+        }
+
+        return clearActiveJs;
+    }
+
+    @Nullable
+    private SetActiveJs setActive(RequestBean requestBean){
+        SetActiveJs setActiveJs = null;
+
+        try {
+            setActiveJs = CrimpApplication.getCrimpWS().setActive(requestBean);
+        } catch (IOException e){
+            Timber.e(e, "IOE while doing setActive");
+        }
+
+        for(int i=1; setActiveJs==null && i<=RETRY; i++){
+            Timber.d("setActive returns null. Retry(%d) in %dms...", i, backOff);
+
+            try {
+                Thread.sleep(backOff);
+            } catch (InterruptedException e) {
+                // Restore interrupt status.
+                Thread.currentThread().interrupt();
+            }
+
+            try {
+                setActiveJs = CrimpApplication.getCrimpWS().setActive(requestBean);
+            } catch (IOException e){
+                Timber.e(e, "IOE while doing setActive");
+            }
+
+            backOff = backOff * 2;
+        }
+
+        return setActiveJs;
     }
 }
