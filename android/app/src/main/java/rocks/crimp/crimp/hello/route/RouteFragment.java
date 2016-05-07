@@ -22,10 +22,8 @@ import java.util.UUID;
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.Action;
-import rocks.crimp.crimp.common.User;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
-import rocks.crimp.crimp.hello.HelloActivity;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
 import rocks.crimp.crimp.network.model.ReportJs;
@@ -402,6 +400,39 @@ public class RouteFragment extends Fragment {
 
     private void onClickNext(){
         Timber.d("onClickNext");
+        String currentScore = CrimpApplication.getAppState()
+                .getString(CrimpApplication.CURRENT_SCORE, null);
+        if(currentScore == null || currentScore.length() == 0){
+            // Prepare stuff to use in NextDialog creation.
+            String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
+            String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, null);
+            int categoryPosition = CrimpApplication.getAppState()
+                    .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+            int routePosition = CrimpApplication.getAppState()
+                    .getInt(CrimpApplication.ROUTE_POSITION, 0);
+            CategoryJs chosenCategory =
+                    mParent.getCategoriesJs().getCategories().get(categoryPosition-1);
+            String routeName = chosenCategory.getRoutes().get(routePosition-1).getRouteName();
+
+            // Create and show NextDialog
+            NextDialog.create(getActivity(), new Action() {
+                @Override
+                public void act() {
+                    doNextButton();
+                }
+            }, new Action() {
+                @Override
+                public void act() {
+                    // Do nothing
+                }
+            }, markerId, climberName, routeName).show();
+        }
+        else{
+            doNextButton();
+        }
+    }
+
+    private void doNextButton(){
         mRouteNextButton.setEnabled(false);
         mSwipeLayout.setEnabled(false);
 
@@ -461,7 +492,7 @@ public class RouteFragment extends Fragment {
                 public void act() {
                     // Do nothing for cancel
                 }
-            }, markerId, climberName, routeName);
+            }, markerId, climberName, routeName).show();
         }
     }
 
