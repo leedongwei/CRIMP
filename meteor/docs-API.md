@@ -260,7 +260,7 @@ header: {
 }
 body: {
   "route_id": 14,
-  "climber_id": 79            
+  "marker_id": "NMF001"            
 }
 ```
 
