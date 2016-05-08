@@ -8,24 +8,24 @@ ENVIRONMENT = {
    *  Expected values: ['production', 'development']
    *  TODO: Remember to change when pushing to production
    */
-  'NODE_ENV': 'development',
+  NODE_ENV: 'development',
 
   /**
    *  Demo mode will automatically set all new users as admins
    */
-  'DEMO_MODE': 'true',
+  DEMO_MODE: 'true',
 
   /**
    *  Full name for desktop views
    *  Recommended length: less than sixty characters
    *                 |-----------------this is 50 chars-----------------| */
-  'EVENT_NAME_FULL': 'CRIMP Development',
+  EVENT_NAME_FULL: 'CRIMP Development',
 
   /**
    *  Shortened name to be displayed on mobile screens
    *  Recommended length: less than 20 characters
    *                  |--this is 20 chars--|    */
-  'EVENT_NAME_SHORT': 'CRIMP-dev',
+  EVENT_NAME_SHORT: 'CRIMP-dev',
 };
 
 
@@ -36,4 +36,5 @@ ENVIRONMENT = {
  */
 if (Meteor.isServer && process.env.NODE_ENV) {
   ENVIRONMENT.NODE_ENV = process.env.NODE_ENV;
+  console.log(`settings.json: ${ENVIRONMENT.NODE_ENV}`);
 }

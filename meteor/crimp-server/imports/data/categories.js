@@ -56,6 +56,16 @@ Categories.schema = new SimpleSchema({
     type: Date,
     label: 'Starting time of category',
   },
+  event: {
+    type: Object,
+    label: 'Denormalized data of parent event',
+  },
+  'event._id': {
+    type: String,
+  },
+  'event.event_name': {
+    type: String,
+  },
   updated_at: {
     type: Date,
     optional: true,   // optional to pass ValidatedMethod
