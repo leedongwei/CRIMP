@@ -10,6 +10,7 @@
     <!-- Hello Activity UI -->
     <string name="hello_activity_logout_dialog_title">Logout?</string>
     <string name="hello_activity_logout_dialog">Ongoing score transmission will not be interrupted.</string>
+    <string name="route_fragment_logout_dialog_score">"Ongoing score transmission will not be interrupted.\n\nLogging out will discard your input on Score tab for %1$s, %2$s on %3$s."</string>
     <string name="hello_activity_logout_dialog_positive">Logout</string>
     <string name="hello_activity_logout_dialog_negative">Cancel</string>
 

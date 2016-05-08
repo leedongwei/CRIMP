@@ -21,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -158,6 +159,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         mScanNextButton.setOnClickListener(this);
         mRescanButton.setOnClickListener(this);
         mClearButton.setOnClickListener(this);
+        mFlashButton.setOnClickListener(this);
         mMarkerIdText.addTextChangedListener(new MarkerIdTextWatcher(new Action() {
             @Override
             public void act() {
@@ -346,6 +348,12 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                         }
                     }, markerId, climberName, routeName).show();
                 }
+                break;
+            }
+
+            case R.id.scan_flash_button:{
+                Toast toast = Toast.makeText(getActivity(), "STUB!", Toast.LENGTH_SHORT);
+                toast.show();
                 break;
             }
         }

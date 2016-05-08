@@ -114,26 +114,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
         // update UI with category name, route name and score module
         mCategoryText.setText(categoryName);
         mRouteText.setText(routeName);
-        switch(scoreType){
-            case "top_bonus":
-                if(mScoreModuleLayout != null){
-                    mScoreModuleLayout.setLayoutResource(R.layout.fragment_top_bonus_scoring);
-                    mInflatedScoreModule = mScoreModuleLayout.inflate();
-                    mScoreModuleLayout = null;
-                }
-                mScoreModule = new TopBonusModule(mInflatedScoreModule, getActivity(), this);
-                break;
-            case "bonus_2":
-                if(mScoreModuleLayout != null){
-                    mScoreModuleLayout.setLayoutResource(R.layout.fragment_top_bonus2_scoring);
-                    mInflatedScoreModule = mScoreModuleLayout.inflate();
-                    mScoreModuleLayout = null;
-                }
-                mScoreModule = new BonusTwoModule(mInflatedScoreModule, getActivity(), this);
-                break;
-            default:
-                throw new RuntimeException("unknown score type: "+scoreType);
-        }
+        inflateScoreModule(scoreType);
 
         return rootView;
     }
@@ -171,6 +152,29 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
         outState.putSerializable(GET_SCORE_TXID, mGetScoreTxId);
     }
 
+    private void inflateScoreModule(String scoreType){
+        switch(scoreType){
+            case "top_bonus":
+                if(mScoreModuleLayout != null){
+                    mScoreModuleLayout.setLayoutResource(R.layout.fragment_top_bonus_scoring);
+                    mInflatedScoreModule = mScoreModuleLayout.inflate();
+                    mScoreModuleLayout = null;
+                }
+                mScoreModule = new TopBonusModule(mInflatedScoreModule, getActivity(), this);
+                break;
+            case "bonus_2":
+                if(mScoreModuleLayout != null){
+                    mScoreModuleLayout.setLayoutResource(R.layout.fragment_top_bonus2_scoring);
+                    mInflatedScoreModule = mScoreModuleLayout.inflate();
+                    mScoreModuleLayout = null;
+                }
+                mScoreModule = new BonusTwoModule(mInflatedScoreModule, getActivity(), this);
+                break;
+            default:
+                throw new RuntimeException("unknown score type: "+scoreType);
+        }
+    }
+
     @Subscribe
     public void requestSucceedReceived(RequestSucceed event) {
         Timber.d("Received RequestSucceed %s", event.txId);
@@ -205,6 +209,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
 
         if(event.txId.equals(mGetScoreTxId)){
             mGetScoreTxId = null;
+            //TODO handle fail
         }
     }
 
@@ -212,16 +217,22 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     public void onReceivedSwipeTo(SwipeTo event){
         Timber.d("onReceivedSwipeTo: %d", event.position);
         if (event.position == mPosition){
+            // Get info
             String markerId = CrimpApplication.getAppState()
                     .getString(CrimpApplication.MARKER_ID, null);
             String climberName = CrimpApplication.getAppState()
                     .getString(CrimpApplication.CLIMBER_NAME, "");
-
-            mClimberIdText.setText(markerId);
-            mClimberNameText.setText(climberName);
-
             String accumulatedScore = CrimpApplication.getAppState()
                     .getString(CrimpApplication.ACCUMULATED_SCORE, null);
+            String currentScore = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.CURRENT_SCORE, null);
+
+            // Show on screen
+            mClimberIdText.setText(markerId);
+            mClimberNameText.setText(climberName);
+            mAccumulatedText.setText(accumulatedScore);
+            mCurrentText.setText(currentScore);
+
             String userId = CrimpApplication.getAppState()
                     .getString(CrimpApplication.FB_USER_ID, "user_id");
             String accessToken = CrimpApplication.getAppState()
@@ -229,15 +240,10 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
             long sequentialToken = CrimpApplication.getAppState()
                     .getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
 
-            mAccumulatedText.setText(accumulatedScore);
             if(accumulatedScore == null){
                 mGetScoreTxId = ServiceHelper.getScore(getActivity(), mGetScoreTxId, null, null,
                         null, markerId, userId, accessToken, sequentialToken);
             }
-
-            String currentScore = CrimpApplication.getAppState()
-                    .getString(CrimpApplication.CURRENT_SCORE, null);
-            mCurrentText.setText(currentScore);
         }
     }
 
@@ -247,6 +253,19 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
             case R.id.score_submit_button:
                 Toast toast = Toast.makeText(getActivity(), "STUB!", Toast.LENGTH_SHORT);
                 toast.show();
+
+                //TODO actually submit score
+
+                CrimpApplication.getAppState().edit()
+                        .remove(CrimpApplication.MARKER_ID)
+                        .remove(CrimpApplication.CLIMBER_NAME)
+                        .remove(CrimpApplication.SHOULD_SCAN)
+                        .remove(CrimpApplication.CURRENT_SCORE)
+                        .remove(CrimpApplication.ACCUMULATED_SCORE)
+                        .remove(CrimpApplication.MARKER_ID_TEMP)
+                        .commit();
+                mScoreModule.notifyScore("");
+                mParent.goBackToScanTab();
                 break;
         }
     }
@@ -280,5 +299,6 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
 
     public interface ScoreFragmentInterface{
         CategoriesJs getCategoriesJs();
+        void goBackToScanTab();
     }
 }
