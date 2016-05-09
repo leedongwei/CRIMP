@@ -21,10 +21,6 @@ Events.schema = new SimpleSchema({
   event_name: {
     type: String,
   },
-  categories: {
-    type: [String],
-    label: 'Reference to categories in event',
-  },
   time_start: {
     type: Date,
     label: 'Starting time of event',

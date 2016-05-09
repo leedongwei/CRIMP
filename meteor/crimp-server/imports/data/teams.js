@@ -13,7 +13,7 @@ Teams.schema = new SimpleSchema({
   },
   climbers: {
     type: [String],
-    label: 'Reference to climbers in team',
+    label: 'References to climbers in team',
   },
   updated_at: {
     type: Date,

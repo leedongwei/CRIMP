@@ -13,9 +13,6 @@ class CategoriesCollection extends Mongo.Collection {
  */
 const Categories = new CategoriesCollection('Categories');
 Categories.schema = new SimpleSchema({
-  category_id: {
-    type: String,
-  },
   category_name: {
     type: String,
   },
