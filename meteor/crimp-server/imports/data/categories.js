@@ -1,9 +1,10 @@
 import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import { scoreSystemsNames } from '../scoreSystem.js';
 
 
-class CategoriesCollection extends Mongo.collection {
+class CategoriesCollection extends Mongo.Collection {
   insert() {
     return false;
   }
@@ -29,6 +30,15 @@ Categories.schema = new SimpleSchema({
     min: 3,
     max: 3,
   },
+  score_system: {
+    type: String,
+    label: 'Name of score system used in category',
+    allowedValues: scoreSystemsNames,
+  },
+  score_finalized: {
+    type: Boolean,
+    label: 'Confirm scores for category',
+  },
   routes: {
     type: [Object],
     label: 'List of all the routes in category',
@@ -39,14 +49,11 @@ Categories.schema = new SimpleSchema({
   'routes.$.route_name': {
     type: String,
   },
-
   // TODO: DongWei
-  'routes.$.whatever': {
-    type: String,
-  },
-  score_finalized: {
-    type: Boolean,
-    label: 'Confirm scores for category',
+  'routes.$.score_rules': {
+    type: Object,
+    label: 'Score rules of a route',
+    blackbox: true,
   },
   time_start: {
     type: Date,
@@ -75,7 +82,8 @@ Categories.schema = new SimpleSchema({
 Categories.attachSchema(Categories.schema);
 
 if (ENVIRONMENT.NODE_ENV === 'production') {
-  console.log('INSIDE ENVIRONMENT');
+  // TODO: Remove console.log
+  console.log('Categories: inside env.nod_env');
   Categories.deny({
     insert() { return true; },
     update() { return true; },

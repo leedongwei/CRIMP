@@ -1,7 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import { Restivus } from 'meteor/nimble:restivus';
 
-import { Messages } from '../imports/data/messages.js';
+import { Messages } from '../imports/data/messages';
+import { Categories } from '../imports/data/categories';
+import { Events } from '../imports/data/events';
 
 
 Meteor.startup(() => {

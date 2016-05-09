@@ -36,5 +36,4 @@ ENVIRONMENT = {
  */
 if (Meteor.isServer && process.env.NODE_ENV) {
   ENVIRONMENT.NODE_ENV = process.env.NODE_ENV;
-  console.log(`settings.json: ${ENVIRONMENT.NODE_ENV}`);
 }

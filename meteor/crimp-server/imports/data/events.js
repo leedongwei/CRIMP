@@ -3,7 +3,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 
-class EventsCollection extends Mongo.collection {
+class EventsCollection extends Mongo.Collection {
   insert() {
     return false;
   }
@@ -22,8 +22,8 @@ Events.schema = new SimpleSchema({
     type: String,
   },
   categories: {
-    type: [String]
-    label: 'Reference to categories in event'
+    type: [String],
+    label: 'Reference to categories in event',
   },
   time_start: {
     type: Date,
