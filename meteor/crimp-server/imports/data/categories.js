@@ -25,11 +25,6 @@ Categories.schema = new SimpleSchema({
   is_team_category: {
     type: Boolean,
   },
-  score_system: {
-    type: String,
-    label: 'Name of score system used in category',
-    allowedValues: scoreSystemsNames,
-  },
   score_finalized: {
     type: Boolean,
     label: 'Confirm scores for category',
@@ -42,6 +37,11 @@ Categories.schema = new SimpleSchema({
     type: Date,
     label: 'Starting time of category',
   },
+  score_system: {
+    type: String,
+    label: 'Name of score system used in category',
+    allowedValues: scoreSystemsNames,
+  },
 
   /**
    * Embedded data for the routes in a category
@@ -50,7 +50,7 @@ Categories.schema = new SimpleSchema({
     type: [Object],
     label: 'List of all the routes in category',
   },
-  'routes.$.route_id': {
+  'routes.$._id': {
     type: String,
   },
   'routes.$.route_name': {

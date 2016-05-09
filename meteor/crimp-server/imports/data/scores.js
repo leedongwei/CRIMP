@@ -34,7 +34,7 @@ Scores.schema = new SimpleSchema({
   'scores.$.route_id': {
     type: String,
   },
-  'scores.$.score': {
+  'scores.$.score_string': {
     type: String,
   },
 });

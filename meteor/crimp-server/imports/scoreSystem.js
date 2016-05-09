@@ -5,7 +5,7 @@
 export const scoreSystemsNames = [
   'ifsc-top-bonus',
   'top-bonus-bonus',
-  'carnival-points',
+  'points',
 ];
 
 export class ScoreSystem {
