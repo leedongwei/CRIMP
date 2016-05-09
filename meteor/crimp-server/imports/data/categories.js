@@ -34,6 +34,18 @@ Categories.schema = new SimpleSchema({
     type: Boolean,
     label: 'Confirm scores for category',
   },
+  time_start: {
+    type: Date,
+    label: 'Starting time of category',
+  },
+  time_end: {
+    type: Date,
+    label: 'Starting time of category',
+  },
+
+  /**
+   * Embedded data for the routes in a category
+   */
   routes: {
     type: [Object],
     label: 'List of all the routes in category',
@@ -47,20 +59,16 @@ Categories.schema = new SimpleSchema({
   // TODO: DongWei
   'routes.$.score_rules': {
     type: Object,
-    label: 'Score rules of a route',
+    label: 'Score rules specific to a route',
+    optional: true,
     blackbox: true,
   },
-  time_start: {
-    type: Date,
-    label: 'Starting time of category',
-  },
-  time_end: {
-    type: Date,
-    label: 'Starting time of category',
-  },
+
+  /**
+   * Denormalized data of parent event
+   */
   event: {
     type: Object,
-    label: 'Denormalized data of parent event',
   },
   'event._id': {
     type: String,
@@ -68,6 +76,7 @@ Categories.schema = new SimpleSchema({
   'event.event_name': {
     type: String,
   },
+
   updated_at: {
     type: Date,
     optional: true,   // optional to pass ValidatedMethod
