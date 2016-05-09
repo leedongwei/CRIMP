@@ -29,7 +29,7 @@
 Body: {
   "categories": [
     {
-	    "category_id": "e4gMzdjR...",
+      "category_id": "e4gMzdjR...",
       "category_name": "Novice Men Qualifiers",
       "acronym": "NMQ",
       "is_team_category": false,
@@ -135,16 +135,16 @@ header: {
 Body: {
   "climber_scores": [
     {
-  	  "climber_id": "nJXAk...",
-  	  "climber_name": "Antonio Paul",
-  	  "scores": [
-  	    {
-    		  "marker_id": "NMQ004",
-    		  "category_id": "n5jkl...",
-    		  "route_id": "yGXAk...",
-    		  "score": "1800"
-    		},
-    		{
+      "climber_id": "nJXAk...",
+      "climber_name": "Antonio Paul",
+      "scores": [
+        {
+          "marker_id": "NMQ004",
+          "category_id": "n5jkl...",
+          "route_id": "yGXAk...",
+          "score": "1800"
+        },
+        {
           "marker_id": "NMQ004",
           "category_id": "n5jkl...",
           "route_id": "WryAk...",
@@ -152,25 +152,25 @@ Body: {
         },
         ...
       ]
-	  },
-	  {
-	  "climber_id":  "io9aAk...",
-	  "climber_name": "Romani",
-	  "scores": [
-	    {
-  		  "marker_id": "OMQ007",
-  		  "category_id": "Q0afR...",
-  		  "route_id": "FTHew..."
-  		  "score": ""
-  		},
-  		{
-  		  "marker_id": "OMQ007",
-  		  "category_id": "Q0afR...",
-  		  "route_id": "AX5Y4...",
-  		  "score": "11BB1"
-		  }
-	  ]
-	  }
+    },
+    {
+    "climber_id":  "io9aAk...",
+    "climber_name": "Romani",
+    "scores": [
+      {
+        "marker_id": "OMQ007",
+        "category_id": "Q0afR...",
+        "route_id": "FTHew..."
+        "score": ""
+      },
+      {
+        "marker_id": "OMQ007",
+        "category_id": "Q0afR...",
+        "route_id": "AX5Y4...",
+        "score": "11BB1"
+      }
+    ]
+    }
   ]
 }
 ```
@@ -180,36 +180,36 @@ Body: {
 Body: {
   "climber_scores": [
     {
-	  "climber_id": "nJXAk...",
-	  "climber_name": "Antonio Paul",
-	  "scores": [
-	    {
-  		  "marker_id": "NMQ004",
-  		  "category_id": "dBrvuk",
-  		  "route_id": "yGXAk...",
-  		  "score": "1800"
-  		},
-  		{
-  		  "marker_id": "NMQ004",
-  		  "category_id": "dBrvuk",
-  		  "route_id": "t0aTUD...",
-  		  "score": "800"
-  		},
+    "climber_id": "nJXAk...",
+    "climber_name": "Antonio Paul",
+    "scores": [
+      {
+        "marker_id": "NMQ004",
+        "category_id": "dBrvuk",
+        "route_id": "yGXAk...",
+        "score": "1800"
+      },
+      {
+        "marker_id": "NMQ004",
+        "category_id": "dBrvuk",
+        "route_id": "t0aTUD...",
+        "score": "800"
+      },
     ...
-	  ]
-	},
-	{
-	  "climber_id": "io9aAk...",
-	  "climber_name": "Romani",
-	  "scores": [
-	    {
-		  "marker_id": "NMQ008",
-		  "category_id": "dBrvuk",
-		  "route_id": "yGXAk...",
-		  "score": "0"
-		}
-	  ]
-	}
+    ]
+  },
+  {
+    "climber_id": "io9aAk...",
+    "climber_name": "Romani",
+    "scores": [
+      {
+      "marker_id": "NMQ008",
+      "category_id": "dBrvuk",
+      "route_id": "yGXAk...",
+      "score": "0"
+    }
+    ]
+  }
   ]
 }
 ```
@@ -219,17 +219,17 @@ Body: {
 Body: {
   "climber_scores": [
     {
-  	  "climber_id": "nJXAk...",
-  	  "climber_name": "Antonio Paul",
-  	  "scores": [
+      "climber_id": "nJXAk...",
+      "climber_name": "Antonio Paul",
+      "scores": [
         {
           "marker_id": "NMQ004",
           "category_id": "dBrvuk",
           "route_id": "t0aTUD...",
           "score": "800"
         },
-  	  ]
-  	}
+      ]
+    }
   ]
 }
 ```
