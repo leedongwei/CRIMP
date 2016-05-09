@@ -251,7 +251,7 @@ header: {
 }
 body: {
   "route_id": "yGXAk...",
-  "climber_id": "nJXAk...",
+  "marker_id": "NMF001"
 }
 ```
 
@@ -259,6 +259,7 @@ body: {
 ```json
 Body: {
   "route_route": "yGXAk...",
+  "marker_id": "NMF001"
   "climber_id": "nJXAk...",
   "climber_name": "Dongie",
 }
@@ -286,6 +287,7 @@ body: {
 ```json
 Body: {
   "route_id": "yGXAk...",
+  "marker_id": ""
   "climber_id": "",
   "climber_name": "",
 }
