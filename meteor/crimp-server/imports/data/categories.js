@@ -5,18 +5,13 @@ import { scoreSystemsNames } from '../scoreSystem.js';
 
 
 class CategoriesCollection extends Mongo.Collection {
-  insert() {
-    return false;
-  }
-  update() {
-    return false;
-  }
-  remove() {
-    return false;
-  }
+  // no special functions needed right now
 }
 
-export const Categories = new CategoriesCollection('Categories');
+/**
+ *  Note: Categories contains denormalized data from Events
+ */
+const Categories = new CategoriesCollection('Categories');
 Categories.schema = new SimpleSchema({
   category_id: {
     type: String,
@@ -29,6 +24,9 @@ Categories.schema = new SimpleSchema({
     label: '3 char acronym of category',
     min: 3,
     max: 3,
+  },
+  is_team_category: {
+    type: Boolean,
   },
   score_system: {
     type: String,
@@ -94,3 +92,5 @@ if (ENVIRONMENT.NODE_ENV === 'production') {
 
 Categories.methods = {};
 //Categories.methods.insert =
+
+export default Categories;

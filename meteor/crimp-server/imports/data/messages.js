@@ -4,19 +4,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 // For testing': import { Factory } from 'meteor/factory';
 
-class MessagesCollection extends Mongo.Collection {
-  insert(message, callback) {
-    return super.insert(message, callback);
-  }
-  update() {
-    return false;
-  }
-  remove() {
-    return false;
-  }
-}
-
-export const Messages = new MessagesCollection('Messages');
+const Messages = new Mongo.Collection('Messages');
 Messages.schema = new SimpleSchema({
   payload: {
     type: Object,
@@ -49,3 +37,5 @@ Messages.methods.insert = new ValidatedMethod({
     return Messages.insert(msg);
   },
 });
+
+export default Messages;

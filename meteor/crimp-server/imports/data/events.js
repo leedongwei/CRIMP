@@ -16,7 +16,7 @@ class EventsCollection extends Mongo.Collection {
   }
 }
 
-export const Events = new EventsCollection('Events');
+const Events = new EventsCollection('Events');
 Events.schema = new SimpleSchema({
   event_name: {
     type: String,
@@ -52,3 +52,5 @@ if (ENVIRONMENT.NODE_ENV === 'production') {
 
 Events.methods = {};
 //Events.methods.insert =
+
+export default Events;
