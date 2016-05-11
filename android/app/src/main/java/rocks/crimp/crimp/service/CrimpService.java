@@ -71,13 +71,14 @@ public class CrimpService extends IntentService{
         switch(intent.getAction()){
             case ACTION_GET_CATEGORIES:
                 if(hasData){
-                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                    Object data = CrimpApplication.getLocalModel().fetch(txId.toString(), Object.class);
+                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId, data));
                 }
                 else{
                     CategoriesJs categoriesJs = getCategories();
                     if(categoriesJs != null){
                         CrimpApplication.getLocalModel().putData(txId.toString(), categoriesJs);
-                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId, categoriesJs));
                     }
                     else{
                         CrimpApplication.getBusInstance().post(new RequestFailed(txId));
@@ -86,13 +87,14 @@ public class CrimpService extends IntentService{
                 break;
             case ACTION_GET_SCORE:
                 if(hasData){
-                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                    Object data = CrimpApplication.getLocalModel().fetch(txId.toString(), Object.class);
+                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId, data));
                 }
                 else{
                     GetScoreJs getScoreJs = getScore(bean);
                     if(getScoreJs != null){
                         CrimpApplication.getLocalModel().putData(txId.toString(), getScoreJs);
-                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId, getScoreJs));
                     }
                     else{
                         CrimpApplication.getBusInstance().post(new RequestFailed(txId));
@@ -101,13 +103,14 @@ public class CrimpService extends IntentService{
                 break;
             case ACTION_SET_ACTIVE:
                 if(hasData){
-                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                    Object data = CrimpApplication.getLocalModel().fetch(txId.toString(), Object.class);
+                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId, data));
                 }
                 else{
                     SetActiveJs setActiveJs = setActive(bean);
                     if(setActiveJs != null){
                         CrimpApplication.getLocalModel().putData(txId.toString(), setActiveJs);
-                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId, setActiveJs));
                     }
                     else{
                         CrimpApplication.getBusInstance().post(new RequestFailed(txId));
@@ -116,13 +119,14 @@ public class CrimpService extends IntentService{
                 break;
             case ACTION_CLEAR_ACTIVE:
                 if(hasData){
-                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                    Object data = CrimpApplication.getLocalModel().fetch(txId.toString(), Object.class);
+                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId, data));
                 }
                 else{
                     ClearActiveJs clearActiveJs = clearActive(bean);
                     if(clearActiveJs != null){
                         CrimpApplication.getLocalModel().putData(txId.toString(), clearActiveJs);
-                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId, clearActiveJs));
                     }
                     else{
                         CrimpApplication.getBusInstance().post(new RequestFailed(txId));
@@ -131,13 +135,14 @@ public class CrimpService extends IntentService{
                 break;
             case ACTION_LOGIN:
                 if(hasData){
-                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                    Object data = CrimpApplication.getLocalModel().fetch(txId.toString(), Object.class);
+                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId, data));
                 }
                 else{
                     LoginJs loginJs = login(bean);
                     if(loginJs != null){
                         CrimpApplication.getLocalModel().putData(txId.toString(), loginJs);
-                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId, loginJs));
                     }
                     else{
                         CrimpApplication.getBusInstance().post(new RequestFailed(txId));
@@ -146,20 +151,19 @@ public class CrimpService extends IntentService{
                 break;
             case ACTION_REPORT_IN:
                 if(hasData){
-                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                    Object data = CrimpApplication.getLocalModel().fetch(txId.toString(), Object.class);
+                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId, data));
                 }
                 else{
                     ReportJs reportJs = report(bean);
                     if(reportJs != null){
                         CrimpApplication.getLocalModel().putData(txId.toString(), reportJs);
-                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
+                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId, reportJs));
                     }
                     else{
                         CrimpApplication.getBusInstance().post(new RequestFailed(txId));
                     }
                 }
-
-                CrimpApplication.getBusInstance().post(new RequestSucceed(txId));
                 break;
             case ACTION_REQUEST_HELP:
                 break;
