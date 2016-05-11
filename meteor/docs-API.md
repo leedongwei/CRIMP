@@ -304,7 +304,8 @@ Body: {
 Body: {
   "fb_user_id": 23,
   "fb_access_token": "CAAE1913yZC2ABAAO6...",
-  "force_login": true
+  "force_login": true,
+  isProductionApp: true,
 }
 ```
 
