@@ -7,6 +7,7 @@ import java.util.Date;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
 import rocks.crimp.crimp.network.model.ClearActiveJs;
+import rocks.crimp.crimp.network.model.ClimberScoreJs;
 import rocks.crimp.crimp.network.model.GetScoreJs;
 import rocks.crimp.crimp.network.model.HelpMeJs;
 import rocks.crimp.crimp.network.model.LoginJs;
@@ -15,6 +16,7 @@ import rocks.crimp.crimp.network.model.PostScoreJs;
 import rocks.crimp.crimp.network.model.ReportJs;
 import rocks.crimp.crimp.network.model.RequestBean;
 import rocks.crimp.crimp.network.model.RouteJs;
+import rocks.crimp.crimp.network.model.ScoreJs;
 import rocks.crimp.crimp.network.model.SetActiveJs;
 import timber.log.Timber;
 
@@ -111,7 +113,43 @@ public class StubWS implements CrimpWS {
             Thread.currentThread().interrupt();
         }
         Timber.d("getScore request completed");
-        return null;
+
+        if(requestBean.getRequestBodyJs().getMarkerId().matches("NMQ.++")){
+            ScoreJs scoreJs = new ScoreJs();
+            scoreJs.setScore("11");
+            scoreJs.setMarkerId(requestBean.getRequestBodyJs().getMarkerId());
+            ArrayList<ScoreJs> scoreList = new ArrayList<>();
+            scoreList.add(scoreJs);
+            ClimberScoreJs climberScoreJs = new ClimberScoreJs();
+            climberScoreJs.setScores(scoreList);
+            climberScoreJs.setClimberName("Lee Dong Dong");
+            ArrayList<ClimberScoreJs> climberScoreList = new ArrayList<>();
+            climberScoreList.add(climberScoreJs);
+
+            GetScoreJs result = new GetScoreJs();
+            result.setClimberScores(climberScoreList);
+            return result;
+        }
+        else if(requestBean.getRequestBodyJs().getMarkerId().matches("IWF.++")){
+            ScoreJs scoreJs = new ScoreJs();
+            scoreJs.setMarkerId(requestBean.getRequestBodyJs().getMarkerId());
+            scoreJs.setScore("B1");
+            ArrayList<ScoreJs> scoreList = new ArrayList<>();
+            scoreList.add(scoreJs);
+            ClimberScoreJs climberScoreJs = new ClimberScoreJs();
+            climberScoreJs.setScores(scoreList);
+            climberScoreJs.setClimberName("Tan Silly");
+            ArrayList<ClimberScoreJs> climberScoreList = new ArrayList<>();
+            climberScoreList.add(climberScoreJs);
+
+            GetScoreJs result = new GetScoreJs();
+            result.setClimberScores(climberScoreList);
+            return result;
+        }
+        else{
+            // Make noise
+            throw new IllegalArgumentException("GetScore request with invalid marker id");
+        }
     }
 
     @Override
@@ -124,7 +162,7 @@ public class StubWS implements CrimpWS {
             Thread.currentThread().interrupt();
         }
         Timber.d("setActive request completed");
-        return null;
+        return new SetActiveJs();
     }
 
     @Override
@@ -137,7 +175,7 @@ public class StubWS implements CrimpWS {
             Thread.currentThread().interrupt();
         }
         Timber.d("clearActive request completed");
-        return null;
+        return new ClearActiveJs();
     }
 
     @Override

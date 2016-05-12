@@ -44,47 +44,82 @@ public class ServiceHelper {
     @NonNull
     public static UUID getScore(@NonNull Context context, @Nullable UUID txId,
                                 @Nullable Long climberId, @Nullable Long categoryId,
-                                @Nullable Long routeId, @Nullable String markerId, long fbUserId,
-                                @NonNull String fbAccessToken, long sequentialToken){
-        //TODO STUB
+                                @Nullable Long routeId, @Nullable String markerId,
+                                @NonNull String fbUserId, @NonNull String fbAccessToken,
+                                long sequentialToken){
         if(txId == null){
             txId = UUID.randomUUID();
         }
+        RequestBean requestBean = new RequestBean();
+        HeaderBean header = new HeaderBean();
+        header.setFbUserId(fbUserId);
+        header.setFbAccessToken(fbAccessToken);
+        header.setSequentialToken(sequentialToken);
+        requestBean.setHeaderBean(header);
+        RequestBodyJs body = new RequestBodyJs();
+        body.setClimberId(climberId);
+        body.setCategoryId(categoryId);
+        body.setRouteId(routeId);
+        body.setMarkerId(markerId);
+        requestBean.setRequestBodyJs(body);
+
         Intent intent = new Intent(context, CrimpService.class);
         intent.setAction(CrimpService.ACTION_GET_SCORE);
         intent.putExtra(CrimpService.SERIALIZABLE_UUID, txId);
+        intent.putExtra(CrimpService.SERIALIZABLE_REQUEST, requestBean);
         context.startService(intent);
 
         return txId;
     }
 
     @NonNull
-    public static UUID setActive(@NonNull Context context, @Nullable UUID txId, long fbUserId,
-                                 @NonNull String fbAccessToken, long sequentialToken, long routeId,
-                                 long climberId){
-        //TODO STUB
+    public static UUID setActive(@NonNull Context context, @Nullable UUID txId,
+                                 @NonNull String fbUserId, @NonNull String fbAccessToken,
+                                 long sequentialToken, long routeId, String markerId){
         if(txId == null){
             txId = UUID.randomUUID();
         }
+        RequestBean requestBean = new RequestBean();
+        HeaderBean header = new HeaderBean();
+        header.setFbUserId(fbUserId);
+        header.setFbAccessToken(fbAccessToken);
+        header.setSequentialToken(sequentialToken);
+        requestBean.setHeaderBean(header);
+        RequestBodyJs body = new RequestBodyJs();
+        body.setRouteId(routeId);
+        body.setMarkerId(markerId);
+        requestBean.setRequestBodyJs(body);
+
         Intent intent = new Intent(context, CrimpService.class);
         intent.setAction(CrimpService.ACTION_SET_ACTIVE);
         intent.putExtra(CrimpService.SERIALIZABLE_UUID, txId);
+        intent.putExtra(CrimpService.SERIALIZABLE_REQUEST, requestBean);
         context.startService(intent);
 
         return txId;
     }
 
     @NonNull
-    public static UUID clearActive(@NonNull Context context, @Nullable UUID txId, long fbUserId,
-                                   @NonNull String fbAccessToken, long sequentialToken,
-                                   long routeId){
-        //TODO STUB
+    public static UUID clearActive(@NonNull Context context, @Nullable UUID txId,
+                                   @NonNull String fbUserId, @NonNull String fbAccessToken,
+                                   long sequentialToken, long routeId){
         if(txId == null){
             txId = UUID.randomUUID();
         }
+        RequestBean requestBean = new RequestBean();
+        HeaderBean header = new HeaderBean();
+        header.setFbUserId(fbUserId);
+        header.setFbAccessToken(fbAccessToken);
+        header.setSequentialToken(sequentialToken);
+        requestBean.setHeaderBean(header);
+        RequestBodyJs body = new RequestBodyJs();
+        body.setRouteId(routeId);
+        requestBean.setRequestBodyJs(body);
+
         Intent intent = new Intent(context, CrimpService.class);
         intent.setAction(CrimpService.ACTION_CLEAR_ACTIVE);
         intent.putExtra(CrimpService.SERIALIZABLE_UUID, txId);
+        intent.putExtra(CrimpService.SERIALIZABLE_REQUEST, requestBean);
         context.startService(intent);
 
         return txId;

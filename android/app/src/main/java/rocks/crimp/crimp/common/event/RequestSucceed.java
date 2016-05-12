@@ -7,8 +7,10 @@ import java.util.UUID;
  */
 public class RequestSucceed {
     public final UUID txId;
+    public final Object value;
 
-    public RequestSucceed(UUID txId){
+    public RequestSucceed(UUID txId, Object value){
         this.txId = txId;
+        this.value = value;
     }
 }

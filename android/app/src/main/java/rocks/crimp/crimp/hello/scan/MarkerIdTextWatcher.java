@@ -16,12 +16,15 @@ import timber.log.Timber;
  */
 class MarkerIdTextWatcher implements TextWatcher {
     private static final String REGEXP = "[0-9]{3}";
-    private Action validAction;
-    private Action invalidAction;
+    private Action makeButton;
+    private Action enableNextButton;
+    private Action disableNextButton;
 
-    public MarkerIdTextWatcher(@NonNull Action validAction, @NonNull Action invalidAction) {
-        this.validAction = validAction;
-        this.invalidAction = invalidAction;
+    public MarkerIdTextWatcher(@NonNull Action makeButton, @NonNull Action enableNextButton,
+                               @NonNull Action disableNextButton) {
+        this.makeButton = makeButton;
+        this.enableNextButton = enableNextButton;
+        this.disableNextButton = disableNextButton;
     }
 
     @Override
@@ -33,13 +36,43 @@ class MarkerIdTextWatcher implements TextWatcher {
     @Override
     public void afterTextChanged(Editable s) {
         Timber.d("afterTextChanged: %s", s.toString());
-        String committedId = CrimpApplication.getAppState()
-                .getString(CrimpApplication.MARKER_ID, "");
-        if(s.toString().matches(REGEXP) && !s.toString().equals(committedId)){
-            validAction.act();
+
+        CrimpApplication.getAppState().edit()
+                .putString(CrimpApplication.MARKER_ID_TEMP, s.toString())
+                .commit();
+
+        String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
+        String markerIdDigits;
+        if(markerId == null){
+            markerIdDigits = "";
         }
         else{
-            invalidAction.act();
+            if(!markerId.matches(ScanFragment.MARKER_ID_PATTERN)){
+                throw new RuntimeException("Malformed markerId: "+markerId);
+            }
+            markerIdDigits = markerId.substring(ScanFragment.MARKER_ID_DIGIT_START,
+                    ScanFragment.MARKER_ID_DIGIT_END);
+        }
+
+        // Checking whether to turn into button
+        boolean isValidMarkerIdDigit = s.toString().matches(REGEXP);
+        if(isValidMarkerIdDigit){
+            // turn into button
+            makeButton.act();
+        }
+        else{
+            // do nothing
+        }
+
+        // Checking whether to enable next button
+        boolean isNewClimber = !s.toString().equals(markerIdDigits);
+        if(isValidMarkerIdDigit && isNewClimber){
+            // Enable next button
+            enableNextButton.act();
+        }
+        else{
+            // Disable next button
+            disableNextButton.act();
         }
     }
 }

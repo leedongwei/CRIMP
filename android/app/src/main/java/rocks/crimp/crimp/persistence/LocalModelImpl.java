@@ -58,7 +58,7 @@ public class LocalModelImpl implements LocalModel {
     @Override
     public <T> T fetch(String key, Class<T> valueType){
         Object obj = getFromDiskCache(key);
-        T result = null;
+        T result;
         try{
             result = valueType.cast(obj);
         } catch(ClassCastException e){
