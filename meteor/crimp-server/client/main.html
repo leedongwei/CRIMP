@@ -1,0 +1,20 @@
+<head>
+  <title>simple</title>
+
+  <link rel="shortcut icon" href="" type="image/png">
+</head>
+
+<body>
+  <h1>Welcome to Meteor!</h1>
+
+  {{> messages}}
+</body>
+
+<template name="messages">
+  <h2>messages</h2>
+
+  {{#each msgs}}
+    {{_id}}: {{payload.method}}
+    <br>
+  {{/each}}
+</template>

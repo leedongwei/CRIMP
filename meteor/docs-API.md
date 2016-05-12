@@ -29,66 +29,72 @@
 Body: {
   "categories": [
     {
-	  "category_id": 23,
+      "category_id": "e4gMzdjR...",
       "category_name": "Novice Men Qualifiers",
       "acronym": "NMQ",
+      "is_team_category": false,
+      "score_finalized": false,
+      "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
+      "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
+      "score_system": "points"
       "routes": [
         {
-          "route_id": 67,
+          "route_id": "rbjJ...",
           "route_name": "Route 1",
-          "score_type": "1200",
-		  "score_finalized": false,
-		  "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
-		  "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800"
+          "score_rules": {
+            "points": 1000
+          },
         },
         {
-          "route_id": 68,
+          "route_id": "TC3R...",
           "route_name": "Route 2",
-          "score_type": "1000",
-		  "score_finalized": false,
-		  "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
-		  "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800"
+          "score_rules": {
+            "points": 800
+          },
         },
         {
-          "route_id": 69,
+          "route_id": "EgN4g...",
           "route_name": "Route 3",
-          "score_type": "1800",
-		  "score_finalized": false,
-		  "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
-		  "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800"
+          "score_rules": {
+            "points": 1800
+          },
         }
-      ]
+      ],
+      "event": {
+        "_id": "DsJnHX...",
+        "event_name": "Boulderactive 2016"
+      }
     },
     {
-      "category_id": 24,
+      "category_id": "e4gMzdjR...",
       "category_name": "Novice Women Qualifiers",
       "acronym": "NWQ",
+      "is_team_category": true,
+      "score_finalized": true,
+      "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
+      "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
+      "score_system": "ifsc-top-bonus"
       "routes": [
         {
-          "route_id": 70,
+          "_id": "rbjJ...",
           "route_name": "Route 1",
-          "score_type": "TB",
-		  "score_finalized": false,
-		  "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
-		  "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800"
+          "score_rules": {},
         },
         {
-          "route_id": 71,
+          "_id": "TC3R...",
           "route_name": "Route 2",
-          "score_type": "TB",
-		  "score_finalized": false,
-		  "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
-		  "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800"
+          "score_rules": {},
         },
         {
-          "route_id": 72,
+          "_id": "EgN4g...",
           "route_name": "Route 3",
-          "score_type": "TB",
-		  "score_finalized": false,
-		  "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
-		  "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800"
+          "score_rules": {},
         }
-      ]
+      ],
+      "event": {
+        "_id": "DsJnHX...",
+        "event_name": "Boulderactive 2016"
+      }
     },
 
     ...
@@ -109,10 +115,11 @@ Body: {
 
 #### Request
 ##### Query parameters
-* `climber_id` get score with this climber_id.
-* `category_id` get score with this category_id.
-* `route_id` get score with this route_id.
-* `marker_id` get score with this marker_id.
+* `event_id` get scores from a specific event
+* `category_id` get scores from a specific category
+* `route_id` get scores from a specfic route
+* `climber_id` get all the scores of a climber
+* `marker_id` get scores of a climber from a specific category
 
 ```json
 header: {
@@ -128,97 +135,81 @@ header: {
 Body: {
   "climber_scores": [
     {
-	  "climber_id": 14,
-	  "climber_name": "Antonio Paul",
-	  "scores": [
-	    {
-		  "marker_id": "NMQ004",
-		  "category_id": 26,
-		  "route_id": 53,
-		  "score": "11B1T"
-		},
-		{
-		  "marker_id": "NMQ004",
-		  "category_id": 26,
-		  "route_id": 54,
-		  "score": "11"
-		},
-		{
-		  "marker_id": "NMQ004",
-		  "category_id": 26,
-		  "route_id": 55,
-		  "score": "11T"
-		},
-		{
-		  "marker_id": "IMQ024",
-		  "category_id": 59,
-		  "route_id": 234,
-		  "score": "2360"
-		}
-	  ]
-	},
-	{
-	  "climber_id": 15,
-	  "climber_name": "Romani",
-	  "scores": [
-	    {
-		  "marker_id": "OMQ007",
-		  "category_id": 2,
-		  "route_id": 47,
-		  "score": ""
-		},
-		{
-		  "marker_id": "OMQ007",
-		  "category_id": 2,
-		  "route_id": 48,
-		  "score": "11BB"
-		}
-	  ]
-	}
+      "climber_id": "nJXAk...",
+      "climber_name": "Antonio Paul",
+      "scores": [
+        {
+          "marker_id": "NMQ004",
+          "category_id": "n5jkl...",
+          "route_id": "yGXAk...",
+          "score": "1800"
+        },
+        {
+          "marker_id": "NMQ004",
+          "category_id": "n5jkl...",
+          "route_id": "WryAk...",
+          "score": "800"
+        },
+        ...
+      ]
+    },
+    {
+    "climber_id":  "io9aAk...",
+    "climber_name": "Romani",
+    "scores": [
+      {
+        "marker_id": "OMQ007",
+        "category_id": "Q0afR...",
+        "route_id": "FTHew..."
+        "score": ""
+      },
+      {
+        "marker_id": "OMQ007",
+        "category_id": "Q0afR...",
+        "route_id": "AX5Y4...",
+        "score": "11BB1"
+      }
+    ]
+    }
   ]
 }
 ```
 
-##### Query parameter: category_id=26
+##### Query parameter: category_id=dBrvuk
 ```json
 Body: {
   "climber_scores": [
     {
-	  "climber_id": 14,
-	  "climber_name": "Antonio Paul",
-	  "scores": [
-	    {
-		  "marker_id": "NMQ004",
-		  "category_id": 26,
-		  "route_id": 53,
-		  "score": "11B1T"
-		},
-		{
-		  "marker_id": "NMQ004",
-		  "category_id": 26,
-		  "route_id": 54,
-		  "score": "11"
-		},
-		{
-		  "marker_id": "NMQ004",
-		  "category_id": 26,
-		  "route_id": 55,
-		  "score": "11T"
-		}
-	  ]
-	},
-	{
-	  "climber_id": 15,
-	  "climber_name": "Romani",
-	  "scores": [
-	    {
-		  "marker_id": "NMQ008",
-		  "category_id": 26,
-		  "route_id": 47,
-		  "score": ""
-		}
-	  ]
-	}
+    "climber_id": "nJXAk...",
+    "climber_name": "Antonio Paul",
+    "scores": [
+      {
+        "marker_id": "NMQ004",
+        "category_id": "dBrvuk",
+        "route_id": "yGXAk...",
+        "score": "1800"
+      },
+      {
+        "marker_id": "NMQ004",
+        "category_id": "dBrvuk",
+        "route_id": "t0aTUD...",
+        "score": "800"
+      },
+    ...
+    ]
+  },
+  {
+    "climber_id": "io9aAk...",
+    "climber_name": "Romani",
+    "scores": [
+      {
+      "marker_id": "NMQ008",
+      "category_id": "dBrvuk",
+      "route_id": "yGXAk...",
+      "score": "0"
+    }
+    ]
+  }
   ]
 }
 ```
@@ -228,17 +219,17 @@ Body: {
 Body: {
   "climber_scores": [
     {
-	  "climber_id": 14,
-	  "climber_name": "Antonio Paul",
-	  "scores": [
-		{
-		  "marker_id": "NMQ004",
-		  "category_id": 26,
-		  "route_id": 54,
-		  "score": "11"
-		}
-	  ]
-	}
+      "climber_id": "nJXAk...",
+      "climber_name": "Antonio Paul",
+      "scores": [
+        {
+          "marker_id": "NMQ004",
+          "category_id": "dBrvuk",
+          "route_id": "t0aTUD...",
+          "score": "800"
+        },
+      ]
+    }
   ]
 }
 ```
@@ -259,17 +250,18 @@ header: {
   "sequential_token": 98
 }
 body: {
-  "route_id": 14,
-  "climber_id": 79            
+  "route_id": "yGXAk...",
+  "marker_id": "NMF001"
 }
 ```
 
 #### Response
 ```json
 Body: {
-  "climber_id": 79,
+  "route_route": "yGXAk...",
+  "marker_id": "NMF001"
+  "climber_id": "nJXAk...",
   "climber_name": "Dongie",
-  "active_route": 14
 }
 ```
 <br><br><br>
@@ -287,14 +279,17 @@ header: {
   "sequential_token": 98
 }
 body: {
-  "route_id": 14  
+  "route_id": "yGXAk...",
 }
 ```
 
 #### Response
 ```json
 Body: {
-  "route_id": 14
+  "route_id": "yGXAk...",
+  "marker_id": ""
+  "climber_id": "",
+  "climber_name": "",
 }
 ```
 <br><br><br>
@@ -341,8 +336,8 @@ header: {
 }
 
 body: {
-  "category_id": 14,
-  "route_id": 66,
+  "category_id": "e4gMzdjR...",
+  "route_id": "EgN4g...",
   "force": false
 }
 ```
@@ -352,8 +347,8 @@ body: {
 Body: {
   "fb_user_id": 23,
   "user_name": "Weizhi",
-  "category_id": "14",
-  "route_id": "66"
+  "category_id": "e4gMzdjR...",
+  "route_id": "EgN4g...",
 }
 ```
 * `fb_user_id` and `user_name` refers to the active judge as seen by server.
@@ -372,7 +367,7 @@ header: {
   "sequential_token": 98
 }
 body: {
-  "route_id": 33
+  "route_id": "EgN4g...",
 }
 ```
 
@@ -381,7 +376,7 @@ body: {
 body: {
   "fb_user_id": 28,
   "fb_access_token": "RCDBy6X3zS8...",
-  "route_id": 33
+  "route_id": "EgN4g...",
 }
 ```
 * Response is immediate to acknowledge that the server has received it. It does not mean that the admin has acknowledged it.
@@ -411,8 +406,8 @@ body: {
 body: {
   "climber_id": 14,
   "climber_name": "Antonio Paul",
-  "category_id": 26,
-  "route_id": 53,
+  "category_id": "e4gMzdjR...",
+  "route_id": "rbjJ...",
   "score": "11B11T"
 }
 ```
