@@ -525,8 +525,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
 
         mRescanButton.setEnabled(!shouldScan);
 
-        Timber.d("mIsOnResume: %b, mIsShowing: %b, shouldScan: %b, mIsScanning: %b",
-                mIsOnResume, mIsShowing, shouldScan, mIsScanning);
+        //Timber.d("mIsOnResume: %b, mIsShowing: %b, shouldScan: %b, mIsScanning: %b",
+        //        mIsOnResume, mIsShowing, shouldScan, mIsScanning);
 
         if(mIsOnResume && mIsShowing && shouldScan && !mIsScanning){
             mCameraManager.acquireCamera(mTargetWidth, mAspectRatio, mDisplayRotation);

@@ -18,8 +18,9 @@ import timber.log.Timber;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class RestHandler extends Handler implements RestRequestTask.Callback{
-    public static final int DO_WORK = 1;
-    public static final int FETCH_LOCAL = 2;
+    public static final int AWAIT = 1;
+    public static final int DO_WORK = 2;
+    public static final int FETCH_LOCAL = 3;
 
     private RestRequestTaskQueue mRestRequestTaskQueue;
     private boolean isExecutingTask;
@@ -35,26 +36,20 @@ public class RestHandler extends Handler implements RestRequestTask.Callback{
     public void handleMessage(Message msg){
         switch(msg.what){
             case DO_WORK:
+                Timber.d("DO_WORK message");
                 executeTask();
                 break;
 
             case FETCH_LOCAL:
                 Intent intent = (Intent) msg.obj;
                 UUID txId = (UUID) intent.getSerializableExtra(CrimpService.SERIALIZABLE_UUID);
+                Timber.d("FETCH_LOCAL message. txId: %s", txId);
+
                 Object value = CrimpApplication.getLocalModel().fetch(txId.toString(), Object.class);
                 if(value != null){
                     // We have data in our local model.
                     CrimpApplication.getBusInstance().post(new RequestSucceed(txId, value));
-                    try {
-                        CrimpApplication.getServiceQuitBarrier().await();
-                    } catch (InterruptedException e) {
-                        // Something woke us up. This is normal behavior when someone send a message to
-                        // this handler. We should be expected to continue.
-                        Timber.d(e, "We are interrupted. Continuing...");
-                    } catch (BrokenBarrierException e) {
-                        // The other thread broke off from await. This is normal behavior.
-                        Timber.d(e, "Someone broke out of barrier. Continuing...");
-                    }
+                    tryAndQuitService();
                 }
                 else{
                     // We do not have data in our local model.
@@ -62,6 +57,23 @@ public class RestHandler extends Handler implements RestRequestTask.Callback{
                     executeTask();
                 }
                 break;
+
+            default:
+                Timber.d("Unknown message");
+        }
+    }
+
+    public int getThreadTaskCount(){
+        return mRestRequestTaskQueue.size();
+    }
+
+    private void tryAndQuitService(){
+        int totalTaskCount = CrimpApplication.getScoreHandler().getThreadTaskCount() +
+                mRestRequestTaskQueue.size();
+        if(totalTaskCount == 0) {
+            Timber.d("Tried to stop service");
+            Intent stopServiceIntent = new Intent(mContext, CrimpService.class);
+            mContext.stopService(stopServiceIntent);
         }
     }
 
@@ -83,16 +95,7 @@ public class RestHandler extends Handler implements RestRequestTask.Callback{
             }
         }
         else{
-            try {
-                CrimpApplication.getServiceQuitBarrier().await();
-            } catch (InterruptedException e) {
-                // Something woke us up. This is normal behavior when someone send a message to
-                // this handler. We should be expected to continue.
-                Timber.d(e, "We are interrupted. Continuing...");
-            } catch (BrokenBarrierException e) {
-                // The other thread broke off from await. This is normal behavior.
-                Timber.d(e, "Someone broke out of barrier. Continuing...");
-            }
+            tryAndQuitService();
         }
     }
 

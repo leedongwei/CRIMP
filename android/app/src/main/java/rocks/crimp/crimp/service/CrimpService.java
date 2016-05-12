@@ -1,31 +1,17 @@
 package rocks.crimp.crimp.service;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.content.Intent;
-import android.support.annotation.Nullable;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.UUID;
+import android.os.IBinder;
+import android.os.Message;
 
 import rocks.crimp.crimp.CrimpApplication;
-import rocks.crimp.crimp.common.event.RequestFailed;
-import rocks.crimp.crimp.common.event.RequestSucceed;
-import rocks.crimp.crimp.network.model.CategoriesJs;
-import rocks.crimp.crimp.network.model.CategoryJs;
-import rocks.crimp.crimp.network.model.ClearActiveJs;
-import rocks.crimp.crimp.network.model.GetScoreJs;
-import rocks.crimp.crimp.network.model.LoginJs;
-import rocks.crimp.crimp.network.model.ReportJs;
-import rocks.crimp.crimp.network.model.RequestBean;
-import rocks.crimp.crimp.network.model.RouteJs;
-import rocks.crimp.crimp.network.model.SetActiveJs;
 import timber.log.Timber;
 
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class CrimpService extends IntentService{
+public class CrimpService extends Service {
     public static final String ACTION_GET_CATEGORIES = "action_get_categories";
     public static final String ACTION_GET_SCORE = "action_get_score";
     public static final String ACTION_SET_ACTIVE = "action_set_active";
@@ -35,333 +21,55 @@ public class CrimpService extends IntentService{
     public static final String ACTION_REQUEST_HELP = "action_request_help";
     public static final String ACTION_POST_SCORE = "action_post_score";
     public static final String ACTION_LOGOUT = "action_logout";
+    public static final String ACTION_BOOT_NO_INTENT = "action_boot_no_intent";
 
     public static final String SERIALIZABLE_UUID = "serializable_uuid";
     public static final String SERIALIZABLE_REQUEST = "serializable_request";
-    public static final String LONG_CLIMBER_ID = "long_climber_id";
-    public static final String LONG_CATEGORY_ID = "long_category_id";
-    public static final String LONG_ROUTE_ID = "long_route_id";
-    public static final String LONG_FB_USER_ID = "long_fb_user_id";
-    public static final String LONG_SEQUENTIAL_TOKEN = "long_sequential_token";
-    public static final String STRING_MARKER_ID = "string_marker_id";
-    public static final String STRING_FB_ACCESS_TOKEN = "string_fb_access_token";
-    public static final String STRING_SCORE = "string_score";
-    public static final String BOOL_FORCE_LOGIN = "bool_force_login";
-    public static final String BOOL_FORCE = "bool_force";
 
-    private static final int MIN_BACKOFF = 0;    //TODO SET BACK TO 2000
-    private static final int RETRY = 3;
-    private int backOff;
-
-
-    public CrimpService() {
-        super("CrimpService");
+    @Override
+    public void onCreate() {
+        Timber.d("onCreate");
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        UUID txId = (UUID)intent.getSerializableExtra(SERIALIZABLE_UUID);
-        RequestBean bean = (RequestBean)intent.getSerializableExtra(SERIALIZABLE_REQUEST);
-        boolean hasData = CrimpApplication.getLocalModel().isDataExist(txId.toString());
-        backOff = MIN_BACKOFF;
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // We are checking if the service is started because we want to make a network call.
+        // When this service is recreated by system, it gets a null intent.
+        if(intent != null && !intent.getAction().equals(ACTION_BOOT_NO_INTENT)){
+            String action = intent.getAction();
+            Timber.d("Received intent action: %s, txId: %s",
+                    action, intent.getSerializableExtra(SERIALIZABLE_UUID));
 
-        Timber.d("Received intent action:%s txId:%s", intent.getAction(), txId);
-
-        // Received an intent. Check what is the work to be done.
-        switch(intent.getAction()){
-            case ACTION_GET_CATEGORIES:
-                if(hasData){
-                    Object data = CrimpApplication.getLocalModel().fetch(txId.toString(), Object.class);
-                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId, data));
-                }
-                else{
-                    CategoriesJs categoriesJs = getCategories();
-                    if(categoriesJs != null){
-                        CrimpApplication.getLocalModel().putData(txId.toString(), categoriesJs);
-                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId, categoriesJs));
-                    }
-                    else{
-                        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
-                    }
-                }
-                break;
-            case ACTION_GET_SCORE:
-                if(hasData){
-                    Object data = CrimpApplication.getLocalModel().fetch(txId.toString(), Object.class);
-                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId, data));
-                }
-                else{
-                    GetScoreJs getScoreJs = getScore(bean);
-                    if(getScoreJs != null){
-                        CrimpApplication.getLocalModel().putData(txId.toString(), getScoreJs);
-                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId, getScoreJs));
-                    }
-                    else{
-                        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
-                    }
-                }
-                break;
-            case ACTION_SET_ACTIVE:
-                if(hasData){
-                    Object data = CrimpApplication.getLocalModel().fetch(txId.toString(), Object.class);
-                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId, data));
-                }
-                else{
-                    SetActiveJs setActiveJs = setActive(bean);
-                    if(setActiveJs != null){
-                        CrimpApplication.getLocalModel().putData(txId.toString(), setActiveJs);
-                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId, setActiveJs));
-                    }
-                    else{
-                        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
-                    }
-                }
-                break;
-            case ACTION_CLEAR_ACTIVE:
-                if(hasData){
-                    Object data = CrimpApplication.getLocalModel().fetch(txId.toString(), Object.class);
-                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId, data));
-                }
-                else{
-                    ClearActiveJs clearActiveJs = clearActive(bean);
-                    if(clearActiveJs != null){
-                        CrimpApplication.getLocalModel().putData(txId.toString(), clearActiveJs);
-                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId, clearActiveJs));
-                    }
-                    else{
-                        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
-                    }
-                }
-                break;
-            case ACTION_LOGIN:
-                if(hasData){
-                    Object data = CrimpApplication.getLocalModel().fetch(txId.toString(), Object.class);
-                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId, data));
-                }
-                else{
-                    LoginJs loginJs = login(bean);
-                    if(loginJs != null){
-                        CrimpApplication.getLocalModel().putData(txId.toString(), loginJs);
-                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId, loginJs));
-                    }
-                    else{
-                        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
-                    }
-                }
-                break;
-            case ACTION_REPORT_IN:
-                if(hasData){
-                    Object data = CrimpApplication.getLocalModel().fetch(txId.toString(), Object.class);
-                    CrimpApplication.getBusInstance().post(new RequestSucceed(txId, data));
-                }
-                else{
-                    ReportJs reportJs = report(bean);
-                    if(reportJs != null){
-                        CrimpApplication.getLocalModel().putData(txId.toString(), reportJs);
-                        CrimpApplication.getBusInstance().post(new RequestSucceed(txId, reportJs));
-                    }
-                    else{
-                        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
-                    }
-                }
-                break;
-            case ACTION_REQUEST_HELP:
-                break;
-            case ACTION_POST_SCORE:
-                break;
-            case ACTION_LOGOUT:
-                break;
-            default:
+            if(action.equals(ACTION_POST_SCORE)){
+                CrimpApplication.getScoreHandlerThread().interrupt();
+                Message msg = CrimpApplication.getScoreHandler()
+                        .obtainMessage(ScoreHandler.DO_WORK, intent);
+                CrimpApplication.getScoreHandler().sendMessage(msg);
+            }
+            else{
+                CrimpApplication.getRestHandlerThread().interrupt();
+                Message msg = CrimpApplication.getRestHandler()
+                        .obtainMessage(RestHandler.FETCH_LOCAL, intent);
+                CrimpApplication.getRestHandler().sendMessage(msg);
+            }
+        }
+        else{
+            Timber.d("service started without making new request.");
+            //TODO
         }
 
+        // If we get killed, after returning from here, restart
+        return START_STICKY;
     }
 
-    @Nullable
-    private CategoriesJs getCategories(){
-        CategoriesJs categoriesJs = null;
-        try {
-            categoriesJs = CrimpApplication.getCrimpWS().getCategories();
-        } catch (IOException e){
-            Timber.e(e, "IOE while doing getCategories");
-        }
-
-        for(int i=1; categoriesJs==null && i<=RETRY; i++){
-            Timber.d("getCategories returns null. Retry(%d) in %dms...",i ,backOff);
-
-            try {
-                Thread.sleep(backOff);
-            } catch (InterruptedException e) {
-                // Restore interrupt status.
-                Thread.currentThread().interrupt();
-            }
-
-            try {
-                categoriesJs = CrimpApplication.getCrimpWS().getCategories();
-            } catch (IOException e){
-                Timber.d(e, "IOE while doing getCategories");
-            }
-
-            backOff = backOff * 2;
-        }
-
-        return categoriesJs;
+    @Override
+    public IBinder onBind(Intent intent) {
+        // We don't provide binding, so return null
+        return null;
     }
 
-    @Nullable
-    private GetScoreJs getScore(RequestBean requestBean){
-        GetScoreJs getScoreJs = null;
-        try {
-            getScoreJs = CrimpApplication.getCrimpWS().getScore(requestBean);
-        } catch (IOException e){
-            Timber.e(e, "IOE while doing getScore.");
-        }
-
-        for(int i=1; getScoreJs==null && i<=RETRY; i++){
-            Timber.d("getScore returns null. Retry(%d) in %dms...", i, backOff);
-
-            try {
-                Thread.sleep(backOff);
-            } catch (InterruptedException e) {
-                // Restore interrupt status.
-                Thread.currentThread().interrupt();
-            }
-
-            try {
-                getScoreJs = CrimpApplication.getCrimpWS().getScore(requestBean);
-            } catch (IOException e){
-                Timber.e(e, "IOE while doing getScore");
-            }
-
-            backOff = backOff * 2;
-        }
-
-        return getScoreJs;
-    }
-
-    @Nullable
-    private LoginJs login(RequestBean requestBean){
-        LoginJs loginJs = null;
-        try {
-            loginJs = CrimpApplication.getCrimpWS().login(requestBean);
-        } catch (IOException e){
-            Timber.e(e, "IOE while doing login");
-        }
-
-        for(int i=1; loginJs==null && i<=RETRY; i++){
-            Timber.d("login returns null. Retry(%d) in %dms...", i, backOff);
-
-            try {
-                Thread.sleep(backOff);
-            } catch (InterruptedException e) {
-                // Restore interrupt status.
-                Thread.currentThread().interrupt();
-            }
-
-            try {
-                loginJs = CrimpApplication.getCrimpWS().login(requestBean);
-            } catch (IOException e){
-                Timber.e(e, "IOE while doing login");
-            }
-
-            backOff = backOff * 2;
-        }
-
-        return loginJs;
-    }
-
-    @Nullable
-    private ReportJs report(RequestBean requestBean){
-        ReportJs reportJs = null;
-
-        try {
-            reportJs = CrimpApplication.getCrimpWS().reportIn(requestBean);
-        } catch (IOException e){
-            Timber.e(e, "IOE while doing report");
-        }
-
-        for(int i=1; reportJs==null && i<=RETRY; i++){
-            Timber.d("report returns null. Retry(%d) in %dms...", i, backOff);
-
-            try {
-                Thread.sleep(backOff);
-            } catch (InterruptedException e) {
-                // Restore interrupt status.
-                Thread.currentThread().interrupt();
-            }
-
-            try {
-                reportJs = CrimpApplication.getCrimpWS().reportIn(requestBean);
-            } catch (IOException e){
-                Timber.e(e, "IOE while doing report");
-            }
-
-            backOff = backOff * 2;
-        }
-
-        return reportJs;
-    }
-
-    @Nullable
-    private ClearActiveJs clearActive(RequestBean requestBean){
-        ClearActiveJs clearActiveJs = null;
-
-        try {
-            clearActiveJs = CrimpApplication.getCrimpWS().clearActive(requestBean);
-        } catch (IOException e){
-            Timber.e(e, "IOE while doing clearActive");
-        }
-
-        for(int i=1; clearActiveJs==null && i<=RETRY; i++){
-            Timber.d("clearActive returns null. Retry(%d) in %dms...", i, backOff);
-
-            try {
-                Thread.sleep(backOff);
-            } catch (InterruptedException e) {
-                // Restore interrupt status.
-                Thread.currentThread().interrupt();
-            }
-
-            try {
-                clearActiveJs = CrimpApplication.getCrimpWS().clearActive(requestBean);
-            } catch (IOException e){
-                Timber.e(e, "IOE while doing clearActive");
-            }
-
-            backOff = backOff * 2;
-        }
-
-        return clearActiveJs;
-    }
-
-    @Nullable
-    private SetActiveJs setActive(RequestBean requestBean){
-        SetActiveJs setActiveJs = null;
-
-        try {
-            setActiveJs = CrimpApplication.getCrimpWS().setActive(requestBean);
-        } catch (IOException e){
-            Timber.e(e, "IOE while doing setActive");
-        }
-
-        for(int i=1; setActiveJs==null && i<=RETRY; i++){
-            Timber.d("setActive returns null. Retry(%d) in %dms...", i, backOff);
-
-            try {
-                Thread.sleep(backOff);
-            } catch (InterruptedException e) {
-                // Restore interrupt status.
-                Thread.currentThread().interrupt();
-            }
-
-            try {
-                setActiveJs = CrimpApplication.getCrimpWS().setActive(requestBean);
-            } catch (IOException e){
-                Timber.e(e, "IOE while doing setActive");
-            }
-
-            backOff = backOff * 2;
-        }
-
-        return setActiveJs;
+    @Override
+    public void onDestroy() {
+        Timber.d("onDestroy");
     }
 }

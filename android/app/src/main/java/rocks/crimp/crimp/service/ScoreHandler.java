@@ -18,7 +18,8 @@ import timber.log.Timber;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
-    public static final int DO_WORK = 1;
+    public static final int AWAIT = 1;
+    public static final int DO_WORK = 2;
 
     private ScoreUploadTaskQueue mScoreUploadTaskQueue;
     private boolean isExecutingTask;
@@ -34,6 +35,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
     public void handleMessage(Message msg){
         switch(msg.what){
             case DO_WORK:
+                Timber.d("DO_WORK message");
                 Intent intent = (Intent) msg.obj;
                 if(intent == null){
                     throw new NullPointerException("ScoreHandler message should include obj field");
@@ -41,6 +43,9 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
                 mScoreUploadTaskQueue.add(new ScoreUploadTask(intent));
                 executeTask();
                 break;
+
+            default:
+                Timber.d("unknown message");
         }
     }
 
@@ -62,18 +67,25 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
             }
         }
         else{
-            try {
-                CrimpApplication.getServiceQuitBarrier().await();
-            } catch (InterruptedException e) {
-                // Something woke us up. This is normal behavior when someone send a message to
-                // this handler. We should be expected to continue.
-                Timber.d(e, "We are interrupted. Continuing...");
-            } catch (BrokenBarrierException e) {
-                // The other thread broke off from await. This is normal behavior.
-                Timber.d(e, "Someone broke out of barrier. Continuing...");
-            }
+            tryAndQuitService();
         }
     }
+
+    public int getThreadTaskCount(){
+        return mScoreUploadTaskQueue.size();
+    }
+
+
+    private void tryAndQuitService(){
+        int totalTaskCount = CrimpApplication.getRestHandler().getThreadTaskCount() +
+                mScoreUploadTaskQueue.size();
+        if(totalTaskCount == 0) {
+            Timber.d("Tried to stop service");
+            Intent stopServiceIntent = new Intent(mContext, CrimpService.class);
+            mContext.stopService(stopServiceIntent);
+        }
+    }
+
 
     @Override
     public void onScoreUploadSuccess(UUID txId, Object response) {

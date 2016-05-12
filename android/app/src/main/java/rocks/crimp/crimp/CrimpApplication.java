@@ -54,8 +54,6 @@ public class CrimpApplication extends Application {
     private static ScoreHandler mScoreHandler;
     private static RestHandler mRestHandler;
 
-    private static CyclicBarrier mServiceQuitBarrier;
-
     @Override
     public void onCreate(){
         super.onCreate();
@@ -64,28 +62,17 @@ public class CrimpApplication extends Application {
             Timber.plant(new Timber.DebugTree());
         }
 
-        mServiceQuitBarrier = new CyclicBarrier(2, new Runnable() {
-            @Override
-            public void run() {
-                Timber.d("Tried to stop service");
-                Intent stopServiceIntent = new Intent(CrimpApplication.this, CrimpService.class);
-                stopService(stopServiceIntent);
-            }
-        });
-
+        Timber.d("mRestHandlerThread started");
         mRestHandlerThread = new HandlerThread("RestThread");
         mRestHandlerThread.start();
         Looper restThreadLooper = mRestHandlerThread.getLooper();
         mRestHandler = new RestHandler(restThreadLooper, this);
 
+        Timber.d("mScoreHandlerThread started");
         mScoreHandlerThread = new HandlerThread("ScoreThread");
         mScoreHandlerThread.start();
         Looper scoreThreadLooper = mScoreHandlerThread.getLooper();
         mScoreHandler = new ScoreHandler(scoreThreadLooper, this);
-    }
-
-    public static CyclicBarrier getServiceQuitBarrier(){
-        return mServiceQuitBarrier;
     }
 
     public static RestHandler getRestHandler(){
