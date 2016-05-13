@@ -41,13 +41,11 @@ public class CrimpService extends Service {
                     action, intent.getSerializableExtra(SERIALIZABLE_UUID));
 
             if(action.equals(ACTION_POST_SCORE)){
-                CrimpApplication.getScoreHandlerThread().interrupt();
                 Message msg = CrimpApplication.getScoreHandler()
                         .obtainMessage(ScoreHandler.DO_WORK, intent);
                 CrimpApplication.getScoreHandler().sendMessage(msg);
             }
             else{
-                CrimpApplication.getRestHandlerThread().interrupt();
                 Message msg = CrimpApplication.getRestHandler()
                         .obtainMessage(RestHandler.FETCH_LOCAL, intent);
                 CrimpApplication.getRestHandler().sendMessage(msg);

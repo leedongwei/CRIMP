@@ -115,9 +115,20 @@ public class DecodeHandler extends Handler {
                 CrimpApplication.getBusInstance().post(new DecodeFail());
             }
             else{
-                YuvImage yuv = new YuvImage(data, ImageFormat.NV21, width, height, null);
+                int yuvWidth;
+                int yuvHeight;
+                // Our app is in portrait mode so the yuvWidth should be smaller than yuvHeight.
+                if(height < width){
+                    yuvWidth = height;
+                    yuvHeight = width;
+                }
+                else{
+                    yuvWidth = width;
+                    yuvHeight = height;
+                }
+                YuvImage yuv = new YuvImage(data, ImageFormat.NV21, yuvWidth, yuvHeight, null);
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
-                yuv.compressToJpeg(new Rect(0, 0, width, height), 30, out);
+                yuv.compressToJpeg(new Rect(0, 0, yuvWidth, yuvHeight), 0, out);
                 byte[] bytes = out.toByteArray();
                 final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 

@@ -111,9 +111,6 @@
 
             </LinearLayout>
 
-
-
-
             <EditText
                 android:id="@+id/scan_climber_name_edit"
                 android:layout_below="@id/scan_rescan_button"

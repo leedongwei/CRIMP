@@ -160,6 +160,9 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         mRescanButton.setOnClickListener(this);
         mClearButton.setOnClickListener(this);
         mFlashButton.setOnClickListener(this);
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mPreviewFrame.getLayoutParams();
+        params.height = CrimpApplication.getAppState().getInt(CrimpApplication.IMAGE_HEIGHT, 0);
+        mPreviewFrame.setLayoutParams(params);
         mMarkerIdText.addTextChangedListener(new MarkerIdTextWatcher(new Action() {
             @Override
             public void act() {

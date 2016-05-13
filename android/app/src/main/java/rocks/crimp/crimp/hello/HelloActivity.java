@@ -224,6 +224,9 @@ public class HelloActivity extends AppCompatActivity implements
     @Override
     public void setDecodedImage(Bitmap image) {
         mImage = image;
+        CrimpApplication.getAppState().edit()
+                .putInt(CrimpApplication.IMAGE_HEIGHT, mImage.getHeight())
+                .commit();
     }
 
     @Override

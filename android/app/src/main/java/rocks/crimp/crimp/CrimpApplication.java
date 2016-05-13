@@ -43,6 +43,7 @@ public class CrimpApplication extends Application {
     public static final String CURRENT_SCORE = "current_score";             //erase when refresh categories
     public static final String ACCUMULATED_SCORE = "accumulated_score";     //erase when refresh categories
     public static final String MARKER_ID_TEMP = "marker_id_temp";
+    public static final String IMAGE_HEIGHT = "image_height";
 
     private static Context mContext;
     private static Bus bus;

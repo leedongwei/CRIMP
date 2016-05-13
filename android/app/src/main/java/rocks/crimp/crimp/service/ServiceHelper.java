@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import java.util.UUID;
 
 import rocks.crimp.crimp.network.model.HeaderBean;
+import rocks.crimp.crimp.network.model.PathBean;
 import rocks.crimp.crimp.network.model.RequestBean;
 import rocks.crimp.crimp.network.model.RequestBodyJs;
 
@@ -193,16 +194,31 @@ public class ServiceHelper {
     }
 
     @NonNull
-    public static UUID postScore(@NonNull Context context, @Nullable UUID txId, long routeId,
-                                 long climberId, String fbUserId, @NonNull String fbAccessToken,
+    public static UUID postScore(@NonNull Context context, @Nullable UUID txId,
+                                 @NonNull long routeId, @NonNull String markerId,
+                                 @NonNull String fbUserId, @NonNull String fbAccessToken,
                                  long sequentialToken, @NonNull String score){
-        //TODO STUB
         if(txId == null){
             txId = UUID.randomUUID();
         }
+        RequestBean requestBean = new RequestBean();
+        HeaderBean header = new HeaderBean();
+        header.setFbUserId(fbUserId);
+        header.setFbAccessToken(fbAccessToken);
+        header.setSequentialToken(sequentialToken);
+        RequestBodyJs body = new RequestBodyJs();
+        body.setScoreString(score);
+        PathBean path = new PathBean();
+        path.setRouteId(routeId);
+        path.setMarkerId(markerId);
+        requestBean.setHeaderBean(header);
+        requestBean.setRequestBodyJs(body);
+        requestBean.setPathBean(path);
+
         Intent intent = new Intent(context, CrimpService.class);
         intent.setAction(CrimpService.ACTION_POST_SCORE);
         intent.putExtra(CrimpService.SERIALIZABLE_UUID, txId);
+        intent.putExtra(CrimpService.SERIALIZABLE_REQUEST, requestBean);
         context.startService(intent);
 
         return txId;

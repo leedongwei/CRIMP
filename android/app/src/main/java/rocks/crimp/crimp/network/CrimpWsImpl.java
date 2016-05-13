@@ -115,7 +115,7 @@ public class CrimpWsImpl implements CrimpWS {
         HeaderBean header = requestBean.getHeaderBean();
         RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
 
-        Call<PostScoreJs> call = webService.postScore(path.getRouteId(), path.getClimberId(),
+        Call<PostScoreJs> call = webService.postScore(path.getRouteId(), path.getMarkerId(),
                 header.getFbUserId(), header.getFbAccessToken(), header.getSequentialToken(),
                 requestBodyJs);
         return call.execute().body();
@@ -280,9 +280,9 @@ public class CrimpWsImpl implements CrimpWS {
                                    @Header("sequential_token") long sequentialToken,
                                    @Body RequestBodyJs requestBody);
 
-        @POST("api/judge/score/{route_id}/{climber_id}")
+        @POST("api/judge/score/{route_id}/{marker_id}")
         Call<PostScoreJs> postScore(@Path("route_id") long routeId,
-                                    @Path("climber_id") long climberId,
+                                    @Path("marker_id") String marker_id,
                                     @Header("fb-user-id") String fbUserId,
                                     @Header("fb-access-token") String fbAccessToken,
                                     @Header("sequential_token") long sequentialToken,
