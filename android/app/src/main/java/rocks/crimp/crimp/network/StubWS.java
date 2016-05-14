@@ -116,7 +116,7 @@ public class StubWS implements CrimpWS {
 
         if(requestBean.getRequestBodyJs().getMarkerId().matches("NMQ.++")){
             ScoreJs scoreJs = new ScoreJs();
-            scoreJs.setScore("11");
+            scoreJs.setScore("11BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
             scoreJs.setMarkerId(requestBean.getRequestBodyJs().getMarkerId());
             ArrayList<ScoreJs> scoreList = new ArrayList<>();
             scoreList.add(scoreJs);

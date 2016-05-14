@@ -20,6 +20,7 @@ import timber.log.Timber;
 public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
     public static final int AWAIT = 1;
     public static final int DO_WORK = 2;
+    public static final int NEW_UPLOAD = 3;
 
     private ScoreUploadTaskQueue mScoreUploadTaskQueue;
     private boolean isExecutingTask;
@@ -36,12 +37,18 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         switch(msg.what){
             case DO_WORK:
                 Timber.d("DO_WORK message");
+                executeTask();
+                break;
+
+            case NEW_UPLOAD:
+                Timber.d("NEW_TASK message");
                 Intent intent = (Intent) msg.obj;
                 if(intent == null){
                     throw new NullPointerException("ScoreHandler message should include obj field");
                 }
                 mScoreUploadTaskQueue.add(new ScoreUploadTask(intent));
-                executeTask();
+                Message newMsg = this.obtainMessage(DO_WORK);
+                this.sendMessage(newMsg);
                 break;
 
             default:

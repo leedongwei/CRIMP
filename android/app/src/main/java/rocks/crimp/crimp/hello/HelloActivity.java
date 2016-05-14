@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -104,14 +105,15 @@ public class HelloActivity extends AppCompatActivity implements
                 .loadCategoriesAndCloseStream(LocalModelImpl.getInputStream(this));
 
         // prepare view pager
-        mFragmentAdapter = new HelloFragmentAdapter(getSupportFragmentManager());
-        mFragmentAdapter.setCanDisplay(CrimpApplication.getAppState()
-                .getInt(CrimpApplication.CAN_DISPLAY, 0b001));
-
+        mFragmentAdapter = new HelloFragmentAdapter(getSupportFragmentManager(), mTabLayout);
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(0)));
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(1)));
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(2)));
         mTabLayout.setOnTabSelectedListener(new HelloOnTabSelectedListener(mPager, mTabLayout));
+        int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
+        mFragmentAdapter.setCanDisplay(canDisplay);
+
+
 
         mPager.setAdapter(mFragmentAdapter);
         mPager.addOnPageChangeListener(new HelloPageChangeListener(mTabLayout));
@@ -140,36 +142,24 @@ public class HelloActivity extends AppCompatActivity implements
         outState.putParcelable(SAVE_IMAGE, mImage);
     }
 
-    /*
     @Override
     public void onBackPressed() {
-        final int currentTab = getmViewPager().getCurrentItem();
-        switch(currentTab){
-            case 0:
-                break;
-            case 1:
-                getmViewPager().setCurrentItem(currentTab - 1);
-                break;
-            case 2:
-                new AlertDialog.Builder(this)
-                        .setTitle("Navigate away from Score tab")
-                        .setMessage("Current session score will be lost.")
-                        .setPositiveButton("Navigate away", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Do stuff
-                                navigateAwayFromScore(1);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Do nothing
-                            }
-                        })
-                        .show();
-                break;
+        final int currentTab = mPager.getCurrentItem();
+        int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
+
+        if(currentTab == 0){
+            super.onBackPressed();
+        }
+        else{
+            for(int i=currentTab-1; i>=0; i--){
+                int bitMask = 1 << i;
+                if((canDisplay & bitMask) != 0){
+                    mPager.setCurrentItem(i);
+                    break;
+                }
+            }
         }
     }
-    */
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -178,16 +168,10 @@ public class HelloActivity extends AppCompatActivity implements
         return true;
     }
 
-    @Subscribe
-    public void onReceivedSwipeTo(SwipeTo event){
-        if(event.position == 1){
-            if(mAppBar != null)
-                mAppBar.setExpanded(false);
-        }
-        else{
-            if(mAppBar != null)
-                mAppBar.setExpanded(true);
-        }
+    @Override
+    public void setAppBarExpanded(boolean expanded){
+        if(mAppBar != null)
+            mAppBar.setExpanded(expanded);
     }
 
     @Override

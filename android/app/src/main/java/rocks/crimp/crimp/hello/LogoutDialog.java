@@ -48,7 +48,7 @@ public class LogoutDialog {
                                      String markerId, String climberName, String routeName){
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-        String question = String.format(context.getString(R.string.route_fragment_logout_dialog_score),
+        String question = String.format(context.getString(R.string.hello_activity_logout_dialog_score),
                 markerId, climberName, routeName);
 
         builder.setTitle(R.string.hello_activity_logout_dialog_title)

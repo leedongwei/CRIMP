@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.NestedScrollView;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
@@ -64,6 +65,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     private LinearLayout mMarkerLayout;
     private TextView mMarkerValid;
     private Button mClearButton;
+    private NestedScrollView mNestedScrollView;
 
     private DecodeThread mDecodeThread;
     private CrimpCameraManager mCameraManager;
@@ -154,6 +156,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         mMarkerLayout = (LinearLayout) rootView.findViewById(R.id.scan_valid_marker_layout);
         mMarkerValid = (TextView) rootView.findViewById(R.id.scan_valid_marker_text);
         mClearButton = (Button) rootView.findViewById(R.id.scan_clear_button);
+        mNestedScrollView = (NestedScrollView) rootView.findViewById(R.id.scan_nested_scroll_view);
 
         mPreviewFrame.getHolder().addCallback(this);
         mScanNextButton.setOnClickListener(this);
@@ -192,6 +195,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         }, new Action() {
             @Override
             public void act() {
+                mParent.setAppBarExpanded(false);
+                mNestedScrollView.smoothScrollTo(0, mNestedScrollView.getBottom());
                 mScanNextButton.setEnabled(true);
             }
         }, new Action() {
@@ -245,6 +250,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 String currentScore = CrimpApplication.getAppState()
                         .getString(CrimpApplication.CURRENT_SCORE, null);
                 if (currentScore == null || currentScore.length() == 0) {
+                    mParent.setAppBarExpanded(false);
+                    mNestedScrollView.smoothScrollTo(0, mNestedScrollView.getTop());
                     rescan();
                     // We set SHOULD_SCAN to true. Check if we should start scanning.
                     onStateChangeCheckScanning();
@@ -263,6 +270,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                     RescanDialog.create(getActivity(), new Action() {
                         @Override
                         public void act() {
+                            mParent.setAppBarExpanded(false);
+                            mNestedScrollView.smoothScrollTo(0, mNestedScrollView.getTop());
                             rescan();
                             // We set SHOULD_SCAN to true. Check if we should start scanning.
                             onStateChangeCheckScanning();
@@ -419,6 +428,13 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     @Subscribe
     public void onReceivedSwipeTo(SwipeTo event){
         Timber.d("onReceivedSwipeTo: %d", event.position);
+        boolean shouldScan = CrimpApplication.getAppState()
+                .getBoolean(CrimpApplication.SHOULD_SCAN, true);
+
+        if(event.position == 1 && shouldScan){
+            mParent.setAppBarExpanded(false);
+        }
+
         if(mMarkerIdText != null) {
             InputMethodManager imm = (InputMethodManager) getActivity()
                     .getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -560,5 +576,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         CategoriesJs getCategoriesJs();
         void goToScoreTab();
         void setCanDisplay(int canDisplay);
+        void setAppBarExpanded(boolean expanded);
     }
 }

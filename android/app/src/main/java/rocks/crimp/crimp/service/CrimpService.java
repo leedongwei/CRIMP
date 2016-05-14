@@ -42,7 +42,7 @@ public class CrimpService extends Service {
 
             if(action.equals(ACTION_POST_SCORE)){
                 Message msg = CrimpApplication.getScoreHandler()
-                        .obtainMessage(ScoreHandler.DO_WORK, intent);
+                        .obtainMessage(ScoreHandler.NEW_UPLOAD, intent);
                 CrimpApplication.getScoreHandler().sendMessage(msg);
             }
             else{

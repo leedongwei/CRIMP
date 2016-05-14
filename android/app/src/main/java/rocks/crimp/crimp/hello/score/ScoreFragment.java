@@ -3,25 +3,30 @@ package rocks.crimp.crimp.hello.score;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
+import rocks.crimp.crimp.common.Action;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
 import rocks.crimp.crimp.common.event.SwipeTo;
 import rocks.crimp.crimp.hello.HelloActivity;
+import rocks.crimp.crimp.hello.route.ReplaceDialog;
 import rocks.crimp.crimp.hello.score.scoremodule.BonusTwoModule;
 import rocks.crimp.crimp.hello.score.scoremodule.ScoreModule;
 import rocks.crimp.crimp.hello.score.scoremodule.TopBonusModule;
@@ -29,6 +34,8 @@ import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
 import rocks.crimp.crimp.network.model.ClimberScoreJs;
 import rocks.crimp.crimp.network.model.GetScoreJs;
+import rocks.crimp.crimp.network.model.ReportJs;
+import rocks.crimp.crimp.network.model.RouteJs;
 import rocks.crimp.crimp.service.ServiceHelper;
 import timber.log.Timber;
 
@@ -47,6 +54,8 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     private ViewStub mScoreModuleLayout;
     private View mInflatedScoreModule;
     private Button mSubmitButton;
+    private ProgressBar mScoreProgressBar;
+    private ProgressBar mInfoProgressBar;
 
     private UUID mGetScoreTxId;
     private ScoreFragmentInterface mParent;
@@ -88,6 +97,8 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
         mCurrentText = (EditText)rootView.findViewById(R.id.score_current_edit);
         mScoreModuleLayout = (ViewStub)rootView.findViewById(R.id.score_score_fragment);
         mSubmitButton = (Button)rootView.findViewById(R.id.score_submit_button);
+        mInfoProgressBar = (ProgressBar)rootView.findViewById(R.id.score_info_progressbar);
+        mScoreProgressBar = (ProgressBar)rootView.findViewById(R.id.score_score_progressbar);
 
         mSubmitButton.setOnClickListener(this);
 
@@ -179,8 +190,12 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     public void requestSucceedReceived(RequestSucceed event) {
         Timber.d("Received RequestSucceed %s", event.txId);
 
+        //TODO HANDLE POST SCORE
+
         if(event.txId.equals(mGetScoreTxId)){
             mGetScoreTxId = null;
+            mInfoProgressBar.setVisibility(View.GONE);
+            mScoreProgressBar.setVisibility(View.GONE);
             GetScoreJs response = CrimpApplication.getLocalModel()
                     .fetch(event.txId.toString(), GetScoreJs.class);
 
@@ -207,8 +222,12 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     public void requestFailedReceived(RequestFailed event){
         Timber.d("Received RequestFailed %s", event.txId);
 
+        //TODO HANDLE POST SCORE
+
         if(event.txId.equals(mGetScoreTxId)){
             mGetScoreTxId = null;
+            mInfoProgressBar.setVisibility(View.GONE);
+            mScoreProgressBar.setVisibility(View.GONE);
             //TODO handle fail
         }
     }
@@ -232,6 +251,12 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
             mClimberNameText.setText(climberName);
             mAccumulatedText.setText(accumulatedScore);
             mCurrentText.setText(currentScore);
+            if(mCurrentText.getText()!=null && mCurrentText.getText().length()>0){
+                mSubmitButton.setEnabled(true);
+            }
+            else{
+                mSubmitButton.setEnabled(false);
+            }
 
             String userId = CrimpApplication.getAppState()
                     .getString(CrimpApplication.FB_USER_ID, "user_id");
@@ -241,6 +266,8 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                     .getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
 
             if(accumulatedScore == null){
+                mInfoProgressBar.setVisibility(View.VISIBLE);
+                mScoreProgressBar.setVisibility(View.VISIBLE);
                 mGetScoreTxId = ServiceHelper.getScore(getActivity(), mGetScoreTxId, null, null,
                         null, markerId, userId, accessToken, sequentialToken);
             }
@@ -255,6 +282,25 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                 toast.show();
 
                 //TODO actually submit score
+                int categoryPosition = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                int routePosition = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                CategoryJs chosenCategory =
+                        mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
+                long routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
+                String markerId = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.MARKER_ID, null);
+                String userId = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.FB_USER_ID, null);
+                String accessToken = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.FB_ACCESS_TOKEN, null);
+                long sequentialToken = CrimpApplication.getAppState()
+                        .getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
+                String currentScore = mCurrentText.getText().toString();
+
+                ServiceHelper.postScore(getActivity(), null, routeId, markerId, userId, accessToken,
+                        sequentialToken, currentScore);
 
                 CrimpApplication.getAppState().edit()
                         .remove(CrimpApplication.MARKER_ID)
@@ -280,6 +326,8 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
 
         mScoreModule.notifyScore(mAccumulatedText.getText().toString()
                 + mCurrentText.getText().toString());
+
+        mSubmitButton.setEnabled(true);
     }
 
     @Override
@@ -295,6 +343,13 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
 
         mScoreModule.notifyScore(mAccumulatedText.getText().toString()
                 + mCurrentText.getText().toString());
+
+        if(mCurrentText.getText()!=null && mCurrentText.getText().length()>0){
+            mSubmitButton.setEnabled(true);
+        }
+        else{
+            mSubmitButton.setEnabled(false);
+        }
     }
 
     public interface ScoreFragmentInterface{
