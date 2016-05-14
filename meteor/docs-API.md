@@ -384,7 +384,7 @@ body: {
 
 
 
-## POST '/api/judge/score/:route_id/:climber_id'
+## POST '/api/judge/score/:route_id/:marker_id'
 * Used by judges to update the score of a climber on a specific route
 * If `scores_finalized` is `true` for a category, then the scores will not be updated any more.
   * You'll receive error response code.
@@ -408,6 +408,7 @@ body: {
   "climber_name": "Antonio Paul",
   "category_id": "e4gMzdjR...",
   "route_id": "rbjJ...",
+  "marker_id": "NMF002",
   "score": "11B11T"
 }
 ```
