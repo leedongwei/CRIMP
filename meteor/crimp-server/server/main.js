@@ -145,8 +145,10 @@ Api.addRoute('judge/login', {
       userRoles.push(ENVIRONMENT.DEMO_MODE ? 'admin' : 'pending');
       Roles.addUsersToRoles(user._id, userRoles);
     }
+
     // If this is the first user, give supreme privileges
-    if (Meteor.users.find().count() === 1) {
+    if (Meteor.users.find().count() === 1 &&
+        !_.contains(userRoles, 'hukkataival')) {
       userRoles.push('hukkataival');
       Roles.addUsersToRoles(user._id, userRoles);
     }
