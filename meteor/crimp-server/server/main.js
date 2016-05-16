@@ -110,6 +110,17 @@ Api.addRoute('judge/login', {
       hasExistingLogins = user.services.resume.loginTokens.length > 0;
     } catch (e) { /* do nothing */ }
 
+    // Do not issue new tokens if there are existing tokens and it is not
+    // a force_login
+    if (hasExistingLogins && !this.bodyParams.force_login) {
+      return {
+        statusCode: 409,
+        body: {
+          error: 'Has an existing session in another device',
+        },
+      };
+    }
+
     // Find out number of login counts of user
     let tokenCount = user.services.resume.loginTokensCount;
     tokenCount = typeof tokenCount === 'number'

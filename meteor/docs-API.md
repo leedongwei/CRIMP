@@ -297,7 +297,9 @@ Body: {
 
 
 ## POST '/api/judge/login'
-* Login and let the server know about user.
+* Login and authenticate user on the server.
+* Creates a user account, or updates existing account
+* Issues a authentication token for subsequent requests
 
 #### Request
 ```json
@@ -318,7 +320,9 @@ Body: {
   "sequential_token": 1
 }
 ```
-* `force_login` is always `true` atm
+* If `force_login` is `false` and there are existing sessions, login will be rejected
+* `isProductionApp` prevents the situation of a judge using an old dev app
+* `X-User-Id` and `X-Auth-Token` is used in endpoints requiring authorization
 * `remind_logout` is `true` if there are existing sessions on other devices
 * `roles` is the privilege level of the user
 * `sequential_token` cannot be negative.
