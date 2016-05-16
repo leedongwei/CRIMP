@@ -24,3 +24,8 @@ nimble:restivus
 aldeed:collection2
 mdg:validated-method
 msavin:mongol
+accounts-ui
+accounts-facebook
+accounts-base
+underscore
+alanning:roles

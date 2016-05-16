@@ -21,6 +21,7 @@ This is a draft document that I will brain-dump into as I work on the meteor app
 ## Build local Docker image locally
 * Start `Docker Terminal`
 * Make sure you have a MongoDB container running
+  * Check on Kitematic
 * `cd meteor\crimp-server`
 * `docker build -t leedongwei/crimp-dev .`
 * `docker run -d \

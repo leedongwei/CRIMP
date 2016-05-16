@@ -297,27 +297,34 @@ Body: {
 
 
 ## POST '/api/judge/login'
-* Login and let the server know about user.
+* Login and authenticate user on the server.
+* Creates a user account, or updates existing account
+* Issues a authentication token for subsequent requests
 
 #### Request
 ```json
 Body: {
-  "fb_user_id": 23,
   "fb_access_token": "CAAE1913yZC2ABAAO6...",
-  "force_login": true
+  "force_login": true,
+  isProductionApp: true,
 }
 ```
 
 #### Response
 ```json
 Body: {
-  "fb_user_id": 23,
-  "fb_access_token": "CAAE1913yZC2ABAAO6...",
-  "user_name": "John Doe",
+  "X-User-Id": "sJzRM...",
+  "X-Auth-Token": "axIzbR...",
   "remind_logout": true,
+  "roles": ['admin'],
   "sequential_token": 1
 }
 ```
+* If `force_login` is `false` and there are existing sessions, login will be rejected
+* `isProductionApp` prevents the situation of a judge using an old dev app
+* `X-User-Id` and `X-Auth-Token` is used in endpoints requiring authorization
+* `remind_logout` is `true` if there are existing sessions on other devices
+* `roles` is the privilege level of the user
 * `sequential_token` cannot be negative.
 <br><br><br>
 
