@@ -30,6 +30,7 @@ const Api = new Restivus({
   },
 });
 
+// TODO: Remove latency endpoint
 Api.addRoute('test/latency', {
   get: () => {
     // simulate latency
@@ -127,12 +128,18 @@ Api.addRoute('judge/login', {
     } });
 
 
-    // If it is a new user, set a default role
     const userRoles = Roles.getRolesForUser(user._id);
+    // If it is a new user, set a default role
     if (userRoles.length < 1) {
       userRoles.push(ENVIRONMENT.DEMO_MODE ? 'admin' : 'pending');
       Roles.addUsersToRoles(user._id, userRoles);
     }
+    // If this is the first user, give supreme privileges
+    if (Meteor.users.find().count() === 1) {
+      userRoles.push('hukkataival');
+      Roles.addUsersToRoles(user._id, userRoles);
+    }
+
 
     return {
       statusCode: 201,

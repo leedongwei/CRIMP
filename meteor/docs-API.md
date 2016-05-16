@@ -302,7 +302,6 @@ Body: {
 #### Request
 ```json
 Body: {
-  "fb_user_id": 23,
   "fb_access_token": "CAAE1913yZC2ABAAO6...",
   "force_login": true,
   isProductionApp: true,
@@ -312,13 +311,16 @@ Body: {
 #### Response
 ```json
 Body: {
-  "fb_user_id": 23,
-  "fb_access_token": "CAAE1913yZC2ABAAO6...",
-  "user_name": "John Doe",
+  "X-User-Id": "sJzRM...",
+  "X-Auth-Token": "axIzbR...",
   "remind_logout": true,
+  "roles": ['admin'],
   "sequential_token": 1
 }
 ```
+* `force_login` is always `true` atm
+* `remind_logout` is `true` if there are existing sessions on other devices
+* `roles` is the privilege level of the user
 * `sequential_token` cannot be negative.
 <br><br><br>
 
