@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 
@@ -9,6 +10,11 @@ import Teams from '../imports/data/teams.js';
 
 import './main.html';
 
+
+// TODO: Delete this crazy publication
+Meteor.subscribe('development');
+
+
 Template.messages.onCreated(() => {
 
 });
@@ -18,3 +24,4 @@ Template.messages.helpers({
     return Messages.find({});
   },
 });
+

@@ -2,6 +2,7 @@
  * Do not 'use strict' on this file
  * It prevents ENVIRONMENT from being a global variable
  */
+import { Meteor } from 'meteor/meteor';
 
 ENVIRONMENT = {
   /**
@@ -13,7 +14,7 @@ ENVIRONMENT = {
   /**
    *  Demo mode will automatically set all new users as admins
    */
-  DEMO_MODE: 'true',
+  DEMO_MODE: true,
 
   /**
    *  Full name for desktop views

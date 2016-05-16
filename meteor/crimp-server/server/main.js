@@ -1,21 +1,23 @@
 import { Meteor } from 'meteor/meteor';
 import { HTTP } from 'meteor/http';
 import { Accounts } from 'meteor/accounts-base';
+import { Roles } from 'meteor/alanning:roles';
 import { Restivus } from 'meteor/nimble:restivus';
 import { _ } from 'meteor/underscore';
 
-import { Messages } from '../imports/data/messages';
-import Events from '../imports/data/events.js';
-import Categories from '../imports/data/categories.js';
+import Messages from '../imports/data/messages';
+import Events from '../imports/data/events';
+import Categories from '../imports/data/categories';
 
 
 Meteor.startup(() => {
-  // code to run on server at startup
+  // TODO: Delete this crazy publication
+  Meteor.publish('development', () => Meteor.users.find({}));
 });
 
 const Api = new Restivus({
   defaultHeaders: { 'Content-Type': 'application/json' },
-  useDefaultAuth: false,
+  useDefaultAuth: true,
   prettyJson: true,
   auth: {
     token: 'services.resume.loginTokens.hashedToken',
@@ -28,25 +30,13 @@ const Api = new Restivus({
   },
 });
 
-Api.addRoute('test', {
+Api.addRoute('test/latency', {
   get: () => {
-    const msg = {
-      method: 'GET',
-    };
-
-    const insertStatus = Messages.methods.insert.call({
-      payload: msg,
-    });
-
     // simulate latency
-    Meteor._sleepForMs(5000);
+    Meteor._sleepForMs(10000);
 
-    return insertStatus;
-  },
-  post: () => {
     const msg = {
       method: 'GET',
-      body: this.bodyParams,
     };
 
     const insertStatus = Messages.methods.insert.call({
@@ -75,6 +65,7 @@ Api.addRoute('judge/login', {
       };
     }
 
+    // Call Facebook to authenticate the access token
     // HTTP.call is synchronous because callback is not provided
     const fbAccessToken = this.bodyParams.fb_access_token;
     let fbResponse;
@@ -90,14 +81,13 @@ Api.addRoute('judge/login', {
       };
     }
 
-    // Clean up FB data to create profile link
-    const options = _.pick(fbResponse.data, ['name', 'link']);
-
-    // Note: updateOrCreateUserFromExternalService is undocumented
-    // See comment by n1mmy: https://github.com/meteor/meteor/issues/2648
-    let userCreated;
+    // Clean up FB data to create user profile
+    const options = _.pick(fbResponse.data, ['name']);
+    let user;
     try {
-      userCreated = Accounts.updateOrCreateUserFromExternalService(
+      // Note: updateOrCreateUserFromExternalService is undocumented
+      // See comment by n1mmy: https://github.com/meteor/meteor/issues/2648
+      user = Accounts.updateOrCreateUserFromExternalService(
         'facebook',
         fbResponse.data,
         { profile: options });
@@ -110,27 +100,48 @@ Api.addRoute('judge/login', {
       };
     }
 
+    // Retrieve user document of this user
+    user = Meteor.users.findOne(user.userId);
+
+    // Check for existing login tokens
+    let hasExistingLogins = false;
+    try {
+      hasExistingLogins = user.services.resume.loginTokens.length > 0;
+    } catch (e) { /* do nothing */ }
+
+    // Find out number of login counts of user
+    let tokenCount = user.services.resume.loginTokensCount;
+    tokenCount = typeof tokenCount === 'number'
+      ? tokenCount + 1
+      : 0;
+
+    // Create login token and label the token
     const stampedToken = Accounts._generateStampedLoginToken();
-    const hashStampedToken = Accounts._hashStampedToken(stampedToken);
+    stampedToken.tokenNumber = tokenCount;
 
-    Accounts._insertLoginToken('123', stampedToken);
+    Accounts._insertLoginToken(user._id, stampedToken);
 
-    // console.log(Meteor.users.update(userCreated.userId,
-    //   { $push: {
-    //     services: [{
-    //       resume: {
-    //         loginTokens: hashStampedToken,
-    //       },
-    //     }],
-    //   } }
-    // ));
+    // Update user document for loginTokensCount
+    Meteor.users.update(user._id, { $set: {
+      'services.resume.loginTokensCount': tokenCount,
+    } });
+
+
+    // If it is a new user, set a default role
+    const userRoles = Roles.getRolesForUser(user._id);
+    if (userRoles.length < 1) {
+      userRoles.push(ENVIRONMENT.DEMO_MODE ? 'admin' : 'pending');
+      Roles.addUsersToRoles(user._id, userRoles);
+    }
 
     return {
       statusCode: 201,
       body: {
-        'X-User-Id': userCreated.userId,
+        'X-User-Id': user._id,
         'X-Auth-Token': stampedToken.token,
-        roles: '',
+        remind_logout: hasExistingLogins,
+        roles: userRoles,
+        sequential_token: tokenCount,
       },
     };
   },
