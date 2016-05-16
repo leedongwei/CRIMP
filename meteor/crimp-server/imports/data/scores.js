@@ -40,7 +40,7 @@ Scores.schema = new SimpleSchema({
 });
 Scores.attachSchema(Scores.schema);
 
-if (ENVIRONMENT.NODE_ENV === 'production') {
+if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
   Scores.deny({
     insert() { return true; },
     update() { return true; },

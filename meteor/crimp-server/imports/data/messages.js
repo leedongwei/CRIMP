@@ -20,7 +20,7 @@ Messages.schema = new SimpleSchema({
 });
 Messages.attachSchema(Messages.schema);
 
-if (ENVIRONMENT.NODE_ENV === 'production') {
+if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
   Messages.deny({
     insert() { return true; },
     update() { return true; },

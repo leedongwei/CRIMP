@@ -37,7 +37,7 @@ Events.schema = new SimpleSchema({
 });
 Events.attachSchema(Events.schema);
 
-if (ENVIRONMENT.NODE_ENV === 'production') {
+if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
   Events.deny({
     insert() { return true; },
     update() { return true; },

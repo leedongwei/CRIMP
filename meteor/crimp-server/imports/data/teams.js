@@ -23,7 +23,7 @@ Teams.schema = new SimpleSchema({
 });
 Teams.attachSchema(Teams.schema);
 
-if (ENVIRONMENT.NODE_ENV === 'production') {
+if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
   Teams.deny({
     insert() { return true; },
     update() { return true; },

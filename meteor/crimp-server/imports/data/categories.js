@@ -85,7 +85,7 @@ Categories.schema = new SimpleSchema({
 });
 Categories.attachSchema(Categories.schema);
 
-if (ENVIRONMENT.NODE_ENV === 'production') {
+if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
   // TODO: Remove console.log
   console.log('Categories: inside env.nod_env');
   Categories.deny({

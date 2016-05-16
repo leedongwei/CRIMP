@@ -60,7 +60,7 @@ Climbers.schema = new SimpleSchema({
 });
 Climbers.attachSchema(Climbers.schema);
 
-if (ENVIRONMENT.NODE_ENV === 'production') {
+if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
   Climbers.deny({
     insert() { return true; },
     update() { return true; },

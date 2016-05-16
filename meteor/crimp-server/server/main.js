@@ -31,7 +31,7 @@ const Api = new Restivus({
 });
 
 // TODO: Remove latency endpoint
-Api.addRoute('test/latency', {
+Api.addRoute('test/latency', { authRequired: false }, {
   get: () => {
     // simulate latency
     Meteor._sleepForMs(10000);
@@ -48,10 +48,10 @@ Api.addRoute('test/latency', {
   },
 });
 
-Api.addRoute('judge/login', {
+Api.addRoute('judge/login', { authRequired: false }, {
   post: function postfunc() {
     // Ensure that judge is logging in from production-version of the app
-    if (ENVIRONMENT.NODE_ENV === 'production' &&
+    if (CRIMP.ENVIRONMENT.NODE_ENV === 'production' &&
         this.bodyParams.isProductionApp !== 'true') {
       return {
         statusCode: 400,
@@ -142,7 +142,7 @@ Api.addRoute('judge/login', {
     const userRoles = Roles.getRolesForUser(user._id);
     // If it is a new user, set a default role
     if (userRoles.length < 1) {
-      userRoles.push(ENVIRONMENT.DEMO_MODE ? 'admin' : 'pending');
+      userRoles.push(CRIMP.ENVIRONMENT.DEMO_MODE ? 'admin' : 'pending');
       Roles.addUsersToRoles(user._id, userRoles);
     }
 
@@ -166,3 +166,4 @@ Api.addRoute('judge/login', {
     };
   },
 });
+
