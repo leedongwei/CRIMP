@@ -21,14 +21,18 @@ CRIMP = {
      *  Full name for desktop views
      *  Recommended length: less than sixty characters
      *                 |-----------------this is 50 chars-----------------| */
-    EVENT_NAME_FULL: 'CRIMP Development',
+    ORGANIZATION_NAME_FULL: 'CRIMP Development',
 
     /**
      *  Shortened name to be displayed on mobile screens
      *  Recommended length: less than 20 characters
      *                  |--this is 20 chars--|    */
-    EVENT_NAME_SHORT: 'CRIMP-dev',
+    ORGANIZATION_NAME_SHORT: 'CRIMP-dev',
   },
+
+  /**
+   *  Groups for user roles for ease of use
+   */
   ROLES: {
     admins: ['admin', 'hukkataival'],
     judges: ['judge', 'admin', 'hukkataival'],

@@ -16,7 +16,7 @@ Meteor.subscribe('development');
 
 
 Template.messages.onCreated(() => {
-
+  Events.remove({});
 });
 
 Template.messages.helpers({

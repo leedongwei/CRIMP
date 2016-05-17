@@ -33,8 +33,8 @@ Messages.methods = {};
 Messages.methods.insert = new ValidatedMethod({
   name: 'Messages.method.insert',
   validate: Messages.schema.validator(),
-  run(msg) {
-    return Messages.insert(msg);
+  run(messageDoc) {
+    return Messages.insert(messageDoc);
   },
 });
 

@@ -2,24 +2,43 @@ import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
+import Categories from './categories';
 
 class EventsCollection extends Mongo.Collection {
-  insert() {
-    return false;
+  remove(selector, callback, isRecursive = false) {
+    const targetDoc = Events.findOne(selector);
+    if (!targetDoc) return null;
+
+    // Deletes all child categories, teams and related scores
+    if (isRecursive) {
+      // return super.remove(selector, callback);
+    }
+
+    // Do not delete Event if there are child Categories
+    let output;
+    if (Categories.find(targetDoc._id).count() > 0) {
+      output = null;
+    } else {
+      output = super.remove(selector, callback);
+    }
+
+    return output;
   }
-  update() {
-    // TODO: Update denormalized data in Categories
-    return false;
-  }
-  remove() {
-    return false;
+
+  forceRemove(selector, callback) {
+    this.remove(selector, callback, true);
   }
 }
 
 const Events = new EventsCollection('Events');
 Events.schema = new SimpleSchema({
-  event_name: {
+  event_name_full: {
     type: String,
+    max: 60,
+  },
+  event_name_short: {
+    type: String,
+    max: 20,
   },
   time_start: {
     type: Date,
@@ -47,6 +66,33 @@ if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
 
 
 Events.methods = {};
-//Events.methods.insert =
+Events.methods.insert = new ValidatedMethod({
+  name: 'Events.method.insert',
+  validate: Events.schema.validator(),
+  run(eventDoc) {
+    return Events.insert(eventDoc);
+  },
+});
+Events.methods.update = new ValidatedMethod({
+  name: 'Events.method.update',
+  validate: Events.schema.validator(),
+  run(selector, eventDoc) {
+    return Events.update(eventDoc);
+  },
+});
+Events.methods.remove = new ValidatedMethod({
+  name: 'Events.method.remove',
+  validate: () => {},
+  run(selector) {
+    return Events.remove(selector);
+  },
+});
+Events.methods.forceRemove = new ValidatedMethod({
+  name: 'Events.method.forceRemove',
+  validate: () => {},
+  run(selector) {
+    return Events.forceRemove(selector);
+  },
+});
 
 export default Events;
