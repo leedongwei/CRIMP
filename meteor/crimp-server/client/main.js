@@ -13,6 +13,7 @@ import './main.html';
 
 // TODO: Delete this crazy publication
 Meteor.subscribe('development');
+Meteor.subscribe('categories');
 
 
 Template.messages.onCreated(() => {

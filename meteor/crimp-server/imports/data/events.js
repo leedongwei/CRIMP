@@ -1,28 +1,29 @@
 import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import { _ } from 'meteor/underscore';
 
 import Categories from './categories';
 
 class EventsCollection extends Mongo.Collection {
   remove(selector, callback, isRecursive = false) {
-    const targetDoc = Events.findOne(selector);
-    if (!targetDoc) return null;
+    const targetDocs = Events.find(selector);
+    if (targetDocs.count() === 0) return 0;
 
-    // Deletes all child categories, teams and related scores
-    if (isRecursive) {
-      // return super.remove(selector, callback);
-    }
+    // Retrieve all affected child Categories
+    let childCategory = 0;
+    targetDocs.forEach((eventDoc) => {
+      if (isRecursive) {
+        Categories.forceRemove({ 'event._id': eventDoc._id });
+      } else {
+        childCategory += Categories
+                          .find({ 'event._id': eventDoc._id })
+                          .count();
+      }
+    });
 
     // Do not delete Event if there are child Categories
-    let output;
-    if (Categories.find(targetDoc._id).count() > 0) {
-      output = null;
-    } else {
-      output = super.remove(selector, callback);
-    }
-
-    return output;
+    return (childCategory > 0) ? 0 : super.remove(selector, callback);
   }
 
   forceRemove(selector, callback) {
