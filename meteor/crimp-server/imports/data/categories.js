@@ -3,9 +3,42 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { scoreSystemsNames } from '../scoreSystem.js';
 
+import Teams from './teams';
+import Climbers from './climbers';
 
 class CategoriesCollection extends Mongo.Collection {
-  // no special functions needed right now
+  remove(selector, callback, isRecursive = false) {
+    const targetDocs = Categories.find(selector);
+    if (targetDocs.count() === 0) return 0;
+
+    // Retrieve all affected child Teams and Climbers
+    let childTeams = 0;
+    let childClimbers = 0;
+    targetDocs.forEach((categoryDoc) => {
+      if (isRecursive) {
+        Teams.forceRemove({ category_id: categoryDoc._id });
+        Climbers.methods.removeFromCategory({
+          category_id: categoryDoc._id,
+        });
+      } else {
+        childTeams += Teams
+                        .find({ category_id: categoryDoc._id })
+                          .count();
+        childClimbers += Climbers
+                            .find({ 'categories.$._id': categoryDoc._id })
+                            .count();
+      }
+    });
+
+    // Do not delete Event if there are child Categories
+    return (childTeams + childClimbers > 0)
+      ? 0
+      : super.remove(selector, callback);
+  }
+
+  forceRemove(selector, callback) {
+    this.remove(selector, callback, true);
+  }
 }
 
 /**
@@ -73,7 +106,7 @@ Categories.schema = new SimpleSchema({
   'event._id': {
     type: String,
   },
-  'event.event_name': {
+  'event.event_name_short': {
     type: String,
   },
 
@@ -86,8 +119,6 @@ Categories.schema = new SimpleSchema({
 Categories.attachSchema(Categories.schema);
 
 if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
-  // TODO: Remove console.log
-  console.log('Categories: inside env.nod_env');
   Categories.deny({
     insert() { return true; },
     update() { return true; },
@@ -97,6 +128,33 @@ if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
 
 
 Categories.methods = {};
-//Categories.methods.insert =
+Categories.methods.insert = new ValidatedMethod({
+  name: 'Categories.method.insert',
+  validate: Categories.schema.validator(),
+  run(categoryDoc) {
+    return Categories.insert(categoryDoc);
+  },
+});
+Categories.methods.update = new ValidatedMethod({
+  name: 'Categories.method.update',
+  validate: Categories.schema.validator(),
+  run(selector, categoryDoc) {
+    return Categories.update(categoryDoc);
+  },
+});
+Categories.methods.remove = new ValidatedMethod({
+  name: 'Categories.method.remove',
+  validate: () => {},
+  run(selector) {
+    return Categories.remove(selector);
+  },
+});
+Categories.methods.forceRemove = new ValidatedMethod({
+  name: 'Categories.method.forceRemove',
+  validate: () => {},
+  run(selector) {
+    return Categories.forceRemove(selector);
+  },
+});
 
 export default Categories;

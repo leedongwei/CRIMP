@@ -16,10 +16,8 @@ import { Seeds } from '../imports/databaseSeeding';
 Meteor.startup(() => {
   // TODO: Delete this crazy publication
   Meteor.publish('development', () => Meteor.users.find({}));
+  Meteor.publish('categories', () => Categories.find({}));
   // Seeds.newEvents();
-  let asd = Events.findOne({});
-  // Events.remove(asd._id);
-  // Events.methods.forceRemove.call('asd._id');
 });
 
 const Api = new Restivus({
