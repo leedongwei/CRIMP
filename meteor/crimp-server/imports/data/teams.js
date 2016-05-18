@@ -2,6 +2,8 @@ import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
+import CRIMP from '../settings';
+
 const Teams = new Mongo.Collection('Teams');
 Teams.schema = new SimpleSchema({
   team_name: {

@@ -4,7 +4,7 @@
  */
 import { Meteor } from 'meteor/meteor';
 
-CRIMP = {
+const CRIMP = {
   ENVIRONMENT: {
     /**
      *  Expected values: ['production', 'development']
@@ -50,3 +50,5 @@ CRIMP = {
 if (Meteor.isServer && process.env.NODE_ENV) {
   CRIMP.ENVIRONMENT.NODE_ENV = process.env.NODE_ENV;
 }
+
+export default CRIMP;

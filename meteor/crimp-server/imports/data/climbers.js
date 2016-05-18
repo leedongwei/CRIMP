@@ -2,6 +2,7 @@ import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
+import CRIMP from '../settings';
 
 class ClimbersCollection extends Mongo.Collection {
   // insert() {

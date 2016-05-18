@@ -3,6 +3,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { scoreSystemsNames } from '../scoreSystem.js';
 
+import CRIMP from '../settings';
 import Teams from './teams';
 import Climbers from './climbers';
 
@@ -102,11 +103,12 @@ Categories.schema = new SimpleSchema({
    */
   event: {
     type: Object,
+    blackbox: true,
   },
   'event._id': {
     type: String,
   },
-  'event.event_name_short': {
+  'event.event_name_full': {
     type: String,
   },
 
@@ -131,8 +133,14 @@ Categories.methods = {};
 Categories.methods.insert = new ValidatedMethod({
   name: 'Categories.method.insert',
   validate: Categories.schema.validator(),
-  run(categoryDoc) {
-    return Categories.insert(categoryDoc);
+  run(parentEventDoc, categoryDoc) {
+    const newDoc = categoryDoc;
+    newDoc.event = {
+      _id: parentEventDoc._id,
+      event_name_full: parentEventDoc.event_name_full,
+    };
+
+    return Categories.insert(newDoc);
   },
 });
 Categories.methods.update = new ValidatedMethod({

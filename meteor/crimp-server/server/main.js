@@ -5,19 +5,23 @@ import { Roles } from 'meteor/alanning:roles';
 import { Restivus } from 'meteor/nimble:restivus';
 import { _ } from 'meteor/underscore';
 
+import CRIMP from '../imports/settings';
 import Messages from '../imports/data/messages';
 import Events from '../imports/data/events';
 import Categories from '../imports/data/categories';
-
-
-import { Seeds } from '../imports/databaseSeeding';
-
+import Teams from '../imports/data/teams';
+import Climbers from '../imports/data/climbers';
+import Scores from '../imports/data/scores';
 
 Meteor.startup(() => {
   // TODO: Delete this crazy publication
   Meteor.publish('development', () => Meteor.users.find({}));
+  Meteor.publish('messages', () => Messages.find({}));
+  Meteor.publish('events', () => Events.find({}));
   Meteor.publish('categories', () => Categories.find({}));
-  // Seeds.newEvents();
+  Meteor.publish('teams', () => Teams.find({}));
+  Meteor.publish('climbers', () => Climbers.find({}));
+  Meteor.publish('scores', () => Scores.find({}));
 });
 
 const Api = new Restivus({

@@ -2,7 +2,7 @@ import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-// For testing': import { Factory } from 'meteor/factory';
+import CRIMP from '../settings';
 
 const Messages = new Mongo.Collection('Messages');
 Messages.schema = new SimpleSchema({
