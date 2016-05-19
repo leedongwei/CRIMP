@@ -5,10 +5,9 @@
 */
 
 import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
 import { Factory } from 'meteor/dburles:factory';
 import { faker } from 'meteor/practicalmeteor:faker';
-import { chai, assert, expect } from 'meteor/practicalmeteor:chai';
+import { assert } from 'meteor/practicalmeteor:chai';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 
 import '../imports/factories';
@@ -19,26 +18,28 @@ if (!Meteor.isServer) {
   throw new Meteor.Error('not server');
 }
 
+function assertAllFields(event) {
+  assert.typeOf(event, 'object');
+  assert.typeOf(event.event_name_full, 'string');
+  assert.typeOf(event.event_name_short, 'string');
+  assert.typeOf(event.time_start, 'date');
+  assert.typeOf(event.time_end, 'date');
+  assert.typeOf(event.updated_at, 'date');
+}
+
 describe('Events', function () {
-  /**
-   *  TODO: Find a way to stub CategoriesCollection so we don't have to
-   *  run the custom Categories.remove that involves Teams and Climbers
-   */
+  // TODO: Find a way to stub CategoriesCollection so we don't have to
+  // run the custom Categories.remove that involves Teams and Climbers
   beforeEach(function () {
     resetDatabase();
+    Factory.create('event');
   });
 
 
   describe('Mutator', function () {
-    it('builds from factory', function () {
-      const newEvent = Factory.create('event');
-
-      assert.typeOf(newEvent, 'object');
-      assert.typeOf(newEvent.event_name_full, 'string');
-      assert.typeOf(newEvent.event_name_short, 'string');
-      assert.typeOf(newEvent.time_start, 'date');
-      assert.typeOf(newEvent.time_end, 'date');
-      assert.typeOf(newEvent.updated_at, 'date');
+    it('builds correctly from factory', function () {
+      const newEvent = Events.findOne({});
+      assertAllFields(newEvent);
     });
   });
 
@@ -46,68 +47,53 @@ describe('Events', function () {
   describe('Meteor.methods', function () {
     describe('insert', function () {
       it('insert with valid document', function () {
-        const newEventId = Events.methods.insert.call({
-          event_name_full: faker.company.companyName(),
-          event_name_short: 'event_name_short',
-          time_start: new Date(),
-          time_end: new Date(),
-        });
+        const newEventDoc = Factory.tree('event');
+        const newEventId = Events.methods.insert.call(newEventDoc);
 
         const newEvent = Events.findOne(newEventId);
-        assert.typeOf(newEvent, 'object');
-        assert.typeOf(newEvent.event_name_full, 'string');
-        assert.typeOf(newEvent.event_name_short, 'string');
-        assert.typeOf(newEvent.time_start, 'date');
-        assert.typeOf(newEvent.time_end, 'date');
-        assert.typeOf(newEvent.updated_at, 'date');
+        assertAllFields(newEvent);
       });
 
       it('reject extra fields', function () {
+        const eventDoc = Factory.tree('event');
+        eventDoc.extra_field = true;
+
         assert.throws(() => {
-          Events.methods.insert.call({
-            event_name_full: faker.company.companyName(),
-            event_name_short: 'event_name_short',
-            time_start: new Date(),
-            time_end: new Date(),
-            extra_field: true,
-          });
+          Events.methods.insert.call(eventDoc);
         }, Meteor.Error);
       });
 
       it('reject missing fields', function () {
+        const eventDoc = Factory.tree('event');
+        delete eventDoc.time_end;
+
         assert.throws(() => {
-          Events.methods.insert.call({
-            event_name_full: faker.company.companyName(),
-            event_name_short: 'event_name_short',
-            time_start: new Date(),
-          });
+          Events.methods.insert.call(eventDoc);
         }, Meteor.Error);
       });
 
       it('reject wrong types', function () {
+        let eventDoc;
+
+        // string on time_start
+        eventDoc = Factory.tree('event');
+        eventDoc.time_start = '20 May 2016';
         assert.throws(() => {
-          Events.methods.insert.call({
-            event_name_full: faker.company.companyName(),
-            event_name_short: 'event_name_short',
-            time_start: '19 May 2016',
-            time_end: new Date(),
-          });
+          Events.methods.insert.call(eventDoc);
         }, Meteor.Error);
 
+        // number on time_start
+        eventDoc = Factory.tree('event');
+        eventDoc.time_start = 123456;
         assert.throws(() => {
-          Events.methods.insert.call({
-            event_name_full: faker.company.companyName(),
-            event_name_short: 123456,
-            time_start: new Date(),
-            time_end: new Date(),
-          });
+          Events.methods.insert.call(eventDoc);
         }, Meteor.Error);
       });
     });
 
     describe('update', function () {
       it('update with valid document', function () {
-        const targetEvent = Factory.create('event');
+        const targetEvent = Events.findOne({});
         const newEventName = 'Updated Event Name';
 
         Events.methods.update.call({
@@ -123,7 +109,7 @@ describe('Events', function () {
       });
 
       it('reject wrong types', function () {
-        const targetEvent = Factory.create('event');
+        const targetEvent = Events.findOne({});
         const number = 123456;
         const boolean = true;
         const object = {};
@@ -135,7 +121,7 @@ describe('Events', function () {
             modifier: '$set',
             eventDoc: { event_name_full: number },
           });
-        }, Error);
+        }, Meteor.Error);
 
         // Try boolean in string
         assert.throws(() => {
@@ -144,7 +130,7 @@ describe('Events', function () {
             modifier: '$set',
             eventDoc: { event_name_full: boolean },
           });
-        }, Error);
+        }, Meteor.Error);
 
         // Try object in string
         assert.throws(() => {
@@ -153,7 +139,7 @@ describe('Events', function () {
             modifier: '$set',
             eventDoc: { event_name_full: object },
           });
-        }, Error);
+        }, Meteor.Error);
 
         // Try number in date
         assert.throws(() => {
@@ -162,73 +148,77 @@ describe('Events', function () {
             modifier: '$set',
             eventDoc: { time_start: number },
           });
-        }, Error);
+        }, Meteor.Error);
       });
     });
 
     describe('remove', function () {
       it('delete with _id, no children', function () {
-        const newEvent = Factory.create('event');
+        const targetEvent = Events.findOne({});
         const removedEvents = Events.methods.remove.call({
-          selector: newEvent._id,
+          selector: targetEvent._id,
         });
 
         assert.equal(removedEvents, 1);
-        assert.isUndefined(Events.findOne(newEvent._id));
+        assert.isUndefined(Events.findOne(targetEvent._id));
       });
 
       it('reject event with child because isRecursive is false', function () {
-        const newEvent = Factory.create('event');
+        const targetEvent = Events.findOne({});
         const newCategoryDoc = Factory.build('category');
-        newCategoryDoc.event = newEvent;
+        newCategoryDoc.event = targetEvent;
         Categories.insert(newCategoryDoc);
 
         const removedEvents = Events.methods.remove.call({
-          selector: newEvent._id,
+          selector: targetEvent._id,
         });
 
         assert.equal(removedEvents, 0);
-        assert.isDefined(Events.findOne(newEvent._id));
+        assert.isDefined(Events.findOne(targetEvent._id));
       });
 
       /**
        *  Need CategoriesCollection stub to isolate Events
        */
       it('delete event with child because isRecursive is true', function () {
-        const newEvent = Factory.create('event');
+        const targetEvent = Events.findOne({});
 
-        // Set 3 child Categories under Event
+        // Set 3 child Categories under Event, and 1 orphan Category
         let newCategoryDoc;
         newCategoryDoc = Factory.build('category');
-        newCategoryDoc.event = newEvent;
+        newCategoryDoc.event = targetEvent;
         Categories.insert(newCategoryDoc);
         newCategoryDoc = Factory.build('category');
-        newCategoryDoc.event = newEvent;
+        newCategoryDoc.event = targetEvent;
         Categories.insert(newCategoryDoc);
         newCategoryDoc = Factory.build('category');
-        newCategoryDoc.event = newEvent;
+        newCategoryDoc.event = targetEvent;
         Categories.insert(newCategoryDoc);
+        Factory.create('category');
+
+        // Ensure Categories are inserted correctly
+        assert.equal(Categories.find({}).count(), 4);
 
         const removedEvents = Events.methods.remove.call({
-          selector: newEvent._id,
+          selector: targetEvent._id,
           isRecursive: true,
         });
 
         assert.equal(removedEvents, 1);
-        assert.equal(Categories.find({}).count(), 0);
-        assert.isUndefined(Events.findOne(newEvent._id));
+        assert.equal(Categories.find({}).count(), 1);
+        assert.isUndefined(Events.findOne(targetEvent._id));
       });
 
       it('reject non _.id selectors', function () {
-        const newEvent = Factory.create('event');
+        const targetEvent = Events.findOne({});
 
         assert.throws(() => {
           Events.methods.remove.call({
             selector: {
-              event_name_full: newEvent.event_name_full,
+              event_name_full: targetEvent.event_name_full,
             },
           });
-        }, Error);
+        }, Meteor.Error);
       });
     });
   });
