@@ -22,10 +22,8 @@ import java.util.UUID;
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.Action;
-import rocks.crimp.crimp.common.User;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
-import rocks.crimp.crimp.hello.HelloActivity;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
 import rocks.crimp.crimp.network.model.ReportJs;
@@ -39,6 +37,8 @@ import timber.log.Timber;
 public class RouteFragment extends Fragment {
     public static final String ARGS_POSITION = "INT_POSITION";
     public static final String ARGS_TITLE = "STRING_TITLE";
+    private static final String CATEGORIES_TXID = "categories_txid";
+    private static final String REPORT_TXID = "report_txid";
 
     private RouteFragmentInterface mParent;
 
@@ -74,13 +74,16 @@ public class RouteFragment extends Fragment {
             throw new ClassCastException(context.toString()
                     + " must implement RouteFragmentInterface");
         }
+    }
 
-        mCategoryAdapter = new HintableArrayAdapter(context, android.R.layout.simple_spinner_item,
-                "this is a category hint");
-        mCategoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mRouteAdapter = new HintableArrayAdapter(context, android.R.layout.simple_spinner_item,
-                "this is a route hint");
-        mRouteAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+
+        if(savedInstanceState != null){
+            mCategoriesTxId = (UUID) savedInstanceState.getSerializable(CATEGORIES_TXID);
+            mReportTxId = (UUID) savedInstanceState.getSerializable(REPORT_TXID);
+        }
     }
 
     @Override
@@ -91,6 +94,7 @@ public class RouteFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
+        // Find references to views
         mSwipeLayout = (SwipeRefreshLayout)view.findViewById(R.id.swipe_layout);
         mLoadWheel = (ProgressBar)view.findViewById(R.id.route_wheel_progressbar);
         mHelloText = (TextView)view.findViewById(R.id.route_hello_text);
@@ -98,13 +102,15 @@ public class RouteFragment extends Fragment {
         mRouteSpinner = (Spinner)view.findViewById(R.id.route_route_spinner);
         mRouteNextButton = (Button)view.findViewById(R.id.route_next_button);
 
+        // Set properties for views
+        mCategorySpinner.setEnabled(false);
+        mRouteSpinner.setEnabled(false);
         mRouteNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onClickNext();
             }
         });
-
         RefreshListener refreshListener = new RefreshListener(new Action() {
             @Override
             public void act() {
@@ -114,8 +120,23 @@ public class RouteFragment extends Fragment {
         });
         mSwipeLayout.setOnRefreshListener(refreshListener);
 
+        // Set hello text
+        String userName = CrimpApplication.getAppState()
+                .getString(CrimpApplication.FB_USER_NAME, null);
+        String greeting = String.format(getString(R.string.route_fragment_greeting), userName);
+        mHelloText.setText(greeting);
+
+        // Create and attached adapters for spinners
+        mCategoryAdapter = new HintableArrayAdapter(getActivity(), android.R.layout.simple_spinner_item,
+                getString(R.string.route_fragment_category_hint));
+        mCategoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mRouteAdapter = new HintableArrayAdapter(getActivity(), android.R.layout.simple_spinner_item,
+                getString(R.string.route_fragment_route_hint));
+        mRouteAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mCategorySpinner.setAdapter(mCategoryAdapter);
         mRouteSpinner.setAdapter(mRouteAdapter);
+
+        // Adding listeners to spinners
         SpinnerListener categoryListener = new SpinnerListener(new Action() {
             @Override
             public void act() {
@@ -138,18 +159,6 @@ public class RouteFragment extends Fragment {
         }, null);
         mCategorySpinner.setOnItemSelectedListener(categoryListener);
         mRouteSpinner.setOnItemSelectedListener(routeListener);
-
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState){
-        super.onActivityCreated(savedInstanceState);
-
-        // Get stuff from activity
-        String userName = CrimpApplication.getAppState()
-                .getString(CrimpApplication.FB_USER_NAME, "User_name");
-        String greeting = String.format(getString(R.string.route_fragment_greeting), userName);
-        mHelloText.setText(greeting);
     }
 
     @Override
@@ -161,14 +170,7 @@ public class RouteFragment extends Fragment {
             // If we do not have categories info, we cannot show anything and therefore must show
             // refresh
             Timber.d("onStart. We don't have categories.");
-            showDefaultNoCategories();
-
-            // Whether we actually request categories info depends on if there is already one
-            // in-flight
-            if(mCategoriesTxId == null){
-                Timber.d("onStart. We don't have mCategoriesTxId");
-                mCategoriesTxId = ServiceHelper.getCategories(getActivity(), mCategoriesTxId);
-            }
+            refresh();
         }
         else{
             // We have categories but the screen could be showing spinner or replacement dialog. We
@@ -180,28 +182,14 @@ public class RouteFragment extends Fragment {
             }
             mCategoryAdapter.clear();
             mCategoryAdapter.addAll(categoryNames);
+            mCategorySpinner.setEnabled(true);
 
-            showDefaultHasCategories();
             int categoryPosition = CrimpApplication.getAppState()
                     .getInt(CrimpApplication.CATEGORY_POSITION, 0);
             int routePosition = CrimpApplication.getAppState()
                     .getInt(CrimpApplication.ROUTE_POSITION, 0);
             mCategorySpinner.setSelection(categoryPosition);
-            if(categoryPosition != 0){
-                Timber.d("set enable true on routespinner");
-                mRouteSpinner.setEnabled(true);
-                mRouteSpinner.setSelection(routePosition);
-            }
-
-            int committedCategoryPosition = CrimpApplication.getAppState()
-                    .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
-            int committedRoutePosition = CrimpApplication.getAppState()
-                    .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
-            if(routePosition!=0 &&
-                    (categoryPosition != committedCategoryPosition ||
-                            routePosition != committedRoutePosition)){
-                mRouteNextButton.setEnabled(true);
-            }
+            mRouteSpinner.setSelection(routePosition);
         }
 
     }
@@ -212,16 +200,22 @@ public class RouteFragment extends Fragment {
         super.onStop();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(CATEGORIES_TXID, mCategoriesTxId);
+        outState.putSerializable(REPORT_TXID, mReportTxId);
+    }
+
     @Subscribe
     public void requestSucceedReceived(RequestSucceed event) {
         Timber.d("Received RequestSucceed %s", event.txId);
 
         if(event.txId.equals(mCategoriesTxId)){
-            // TODO: React to the event somehow! REMEMBER TO CLEAR THE TXID
-            mParent.setCategoriesJs(CrimpApplication.getLocalModel()
-                    .fetch(mCategoriesTxId.toString(), CategoriesJs.class));
-
             mCategoriesTxId = null;
+            CategoriesJs response = CrimpApplication.getLocalModel()
+                    .fetch(event.txId.toString(), CategoriesJs.class);
+            mParent.setCategoriesJs(response);
 
             ArrayList<String> categoryNames = new ArrayList<>();
             for(CategoryJs c:mParent.getCategoriesJs().getCategories()){
@@ -234,23 +228,17 @@ public class RouteFragment extends Fragment {
             mSwipeLayout.setRefreshing(false);
         }
         else if(event.txId.equals(mReportTxId)){
-            // TODO: React to the event somehow! REMEMBER TO CLEAR THE TXID
-            ReportJs reportJs = CrimpApplication.getLocalModel()
-                    .fetch(mReportTxId.toString(), ReportJs.class);
-
             mReportTxId = null;
+            ReportJs reportJs = CrimpApplication.getLocalModel()
+                    .fetch(event.txId.toString(), ReportJs.class);
 
             String userId = CrimpApplication.getAppState()
-                    .getString(CrimpApplication.FB_USER_ID, "user_id");
+                    .getString(CrimpApplication.FB_USER_ID, null);
             if(reportJs.getFbUserId().equals(userId)){
                 // Succeed
                 Timber.d("Report in is successful");
-                mHelloText.setVisibility(View.VISIBLE);
-                mCategorySpinner.setVisibility(View.VISIBLE);
-                mRouteSpinner.setVisibility(View.VISIBLE);
-                mRouteNextButton.setVisibility(View.VISIBLE);
-                mRouteNextButton.setEnabled(false);
-                mLoadWheel.setVisibility(View.GONE);
+                showHasCategories();
+                mSwipeLayout.setEnabled(true);
 
                 int categoryIndex = CrimpApplication.getAppState()
                         .getInt(CrimpApplication.CATEGORY_POSITION, 0);
@@ -259,6 +247,9 @@ public class RouteFragment extends Fragment {
                 CrimpApplication.getAppState().edit()
                         .putInt(CrimpApplication.COMMITTED_CATEGORY, categoryIndex)
                         .putInt(CrimpApplication.COMMITTED_ROUTE, routeIndex)
+                        .remove(CrimpApplication.MARKER_ID)
+                        .remove(CrimpApplication.MARKER_ID_TEMP)
+                        .remove(CrimpApplication.CLIMBER_NAME)
                         .commit();
                 mParent.goToScanTab();
             }
@@ -286,12 +277,9 @@ public class RouteFragment extends Fragment {
                 }, new Action() {
                     @Override
                     public void act() {
-                        mHelloText.setVisibility(View.VISIBLE);
-                        mCategorySpinner.setVisibility(View.VISIBLE);
-                        mRouteSpinner.setVisibility(View.VISIBLE);
-                        mRouteNextButton.setVisibility(View.VISIBLE);
+                        showHasCategories();
                         mRouteNextButton.setEnabled(true);
-                        mLoadWheel.setVisibility(View.GONE);
+                        mSwipeLayout.setEnabled(true);
                     }
                 }, reportJs.getUserName(), category.getCategoryName(), route.getRouteName());
                 dialog.show();
@@ -302,46 +290,60 @@ public class RouteFragment extends Fragment {
     @Subscribe
     public void requestFailedReceived(RequestFailed event){
         Timber.d("Received RequestFailed %s", event.txId);
-        mSwipeLayout.setRefreshing(false);
+
+        if(event.txId.equals(mCategoriesTxId)){
+            mCategoriesTxId = null;
+            mSwipeLayout.setRefreshing(false);
+
+            // TODO handle fail
+        }
+        else if(event.txId.equals(mReportTxId)){
+            mReportTxId = null;
+            mSwipeLayout.setEnabled(true);
+            showHasCategories();
+
+            // TODO handle fail
+        }
     }
 
-    private void showDefaultNoCategories(){
-        Timber.d("showDefaultNoCategories");
-        mSwipeLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeLayout.setRefreshing(true);
-            }
-        });
+    private void showNoCategories(){
         mLoadWheel.setVisibility(View.GONE);
         mHelloText.setVisibility(View.VISIBLE);
-        mCategorySpinner.setEnabled(false);
-        CrimpApplication.getAppState().edit()
-                .remove(CrimpApplication.CATEGORY_POSITION)
-                .remove(CrimpApplication.COMMITTED_CATEGORY)
-                .remove(CrimpApplication.ROUTE_POSITION)
-                .remove(CrimpApplication.COMMITTED_ROUTE)
-                .commit();
-        mCategorySpinner.setSelection(0);
         mCategorySpinner.setVisibility(View.VISIBLE);
+        mCategorySpinner.setEnabled(false);
+        mCategorySpinner.setSelection(0);
+        mRouteSpinner.setVisibility(View.VISIBLE);
         mRouteSpinner.setEnabled(false);
         mRouteSpinner.setSelection(0);
-        mRouteSpinner.setVisibility(View.VISIBLE);
-        mRouteNextButton.setEnabled(false);
         mRouteNextButton.setVisibility(View.VISIBLE);
+        mRouteNextButton.setEnabled(false);
     }
 
-    private void showDefaultHasCategories(){
+    private void showHasCategories(){
         Timber.d("showDefaultHasCategories");
         mSwipeLayout.setRefreshing(false);
+
         mLoadWheel.setVisibility(View.GONE);
         mHelloText.setVisibility(View.VISIBLE);
         mCategorySpinner.setEnabled(true);
+        int categoryPosition = CrimpApplication.getAppState()
+                .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+        mCategorySpinner.setSelection(categoryPosition);
         mCategorySpinner.setVisibility(View.VISIBLE);
-        mRouteSpinner.setEnabled(false);
+        int routePosition = CrimpApplication.getAppState()
+                .getInt(CrimpApplication.ROUTE_POSITION, 0);
+        mRouteSpinner.setSelection(routePosition);
         mRouteSpinner.setVisibility(View.VISIBLE);
         mRouteNextButton.setEnabled(false);
         mRouteNextButton.setVisibility(View.VISIBLE);
+    }
+
+    private void showReplaceLoading(){
+        mHelloText.setVisibility(View.GONE);
+        mCategorySpinner.setVisibility(View.GONE);
+        mRouteSpinner.setVisibility(View.GONE);
+        mRouteNextButton.setVisibility(View.GONE);
+        mLoadWheel.setVisibility(View.VISIBLE);
     }
 
     private void onCategoryChosen(int position){
@@ -404,12 +406,54 @@ public class RouteFragment extends Fragment {
 
     private void onClickNext(){
         Timber.d("onClickNext");
-        mHelloText.setVisibility(View.GONE);
-        mCategorySpinner.setVisibility(View.GONE);
-        mRouteSpinner.setVisibility(View.GONE);
+        String currentScore = CrimpApplication.getAppState()
+                .getString(CrimpApplication.CURRENT_SCORE, null);
+        if(currentScore != null && currentScore.length() > 0){
+            // Prepare stuff to use in NextDialog creation.
+            String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
+            String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, null);
+            int categoryPosition = CrimpApplication.getAppState()
+                    .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+            int routePosition = CrimpApplication.getAppState()
+                    .getInt(CrimpApplication.ROUTE_POSITION, 0);
+            CategoryJs chosenCategory =
+                    mParent.getCategoriesJs().getCategories().get(categoryPosition-1);
+            String routeName = chosenCategory.getRoutes().get(routePosition-1).getRouteName();
+
+            // Create and show NextDialog
+            NextDialog.create(getActivity(), new Action() {
+                @Override
+                public void act() {
+                    CrimpApplication.getAppState().edit()
+                            .remove(CrimpApplication.MARKER_ID)
+                            .remove(CrimpApplication.CLIMBER_NAME)
+                            .remove(CrimpApplication.SHOULD_SCAN)
+                            .remove(CrimpApplication.CURRENT_SCORE)
+                            .remove(CrimpApplication.ACCUMULATED_SCORE)
+                            .remove(CrimpApplication.COMMITTED_CATEGORY)
+                            .remove(CrimpApplication.COMMITTED_ROUTE)
+                            .remove(CrimpApplication.MARKER_ID_TEMP)
+                            .commit();
+                    mParent.setCanDisplay(0b001);
+                    doNextButton();
+                }
+            }, new Action() {
+                @Override
+                public void act() {
+                    // Do nothing
+                }
+            }, markerId, climberName, routeName).show();
+        }
+        else{
+            doNextButton();
+        }
+    }
+
+    private void doNextButton(){
         mRouteNextButton.setEnabled(false);
-        mRouteNextButton.setVisibility(View.GONE);
-        mLoadWheel.setVisibility(View.VISIBLE);
+        mSwipeLayout.setEnabled(false);
+
+        showReplaceLoading();
 
         // Send request
         int categoryPosition = CrimpApplication.getAppState()
@@ -429,25 +473,76 @@ public class RouteFragment extends Fragment {
                 chosenCategory.getRoutes().get(routePosition-1).getRouteId(), false);
     }
 
+    /**
+     * Called when user initiate a swipe refresh gesture. Determine whether an alert dialog is
+     * needed before calling refresh().
+     */
     private void onSwipe(){
         Timber.d("onSwipe");
+
+        // We only need to show dialog if user has enter stuff on Score tab.
+        String currentScore = CrimpApplication.getAppState()
+                .getString(CrimpApplication.CURRENT_SCORE, null);
+        if(currentScore == null || currentScore.length() == 0){
+            refresh();
+        }
+        else{
+            // Prepare stuff to use in RefreshDialog creation.
+            String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
+            String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, null);
+            int categoryPosition = CrimpApplication.getAppState()
+                    .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+            int routePosition = CrimpApplication.getAppState()
+                    .getInt(CrimpApplication.ROUTE_POSITION, 0);
+            CategoryJs chosenCategory =
+                    mParent.getCategoriesJs().getCategories().get(categoryPosition-1);
+            String routeName = chosenCategory.getRoutes().get(routePosition-1).getRouteName();
+
+            // Create refresh dialog
+            RefreshDialog.create(getActivity(), new Action() {
+                @Override
+                public void act() {
+                    refresh();
+                }
+            }, new Action() {
+                @Override
+                public void act() {
+                    mSwipeLayout.setRefreshing(false);
+                }
+            }, markerId, climberName, routeName).show();
+        }
+    }
+
+    /**
+     * Method to handle when SwipeRefreshLayout is refreshing. Does the following things:
+     * 1) Show a refresh loading wheel
+     * 2) Reset some AppState
+     * 3) Show no-categories UI
+     * 4) Reset stuff in parent activity
+     * 5) Initiate request for categories
+     */
+    private void refresh(){
         mSwipeLayout.post(new Runnable() {
             @Override
             public void run() {
                 mSwipeLayout.setRefreshing(true);
             }
         });
-        mCategorySpinner.setEnabled(false);
         CrimpApplication.getAppState().edit()
+                .remove(CrimpApplication.MARKER_ID)
+                .remove(CrimpApplication.CLIMBER_NAME)
+                .remove(CrimpApplication.SHOULD_SCAN)
+                .remove(CrimpApplication.CURRENT_SCORE)
+                .remove(CrimpApplication.ACCUMULATED_SCORE)
                 .remove(CrimpApplication.CATEGORY_POSITION)
                 .remove(CrimpApplication.COMMITTED_CATEGORY)
                 .remove(CrimpApplication.ROUTE_POSITION)
                 .remove(CrimpApplication.COMMITTED_ROUTE)
+                .remove(CrimpApplication.MARKER_ID_TEMP)
                 .commit();
-        mCategorySpinner.setSelection(0);
-        mRouteSpinner.setEnabled(false);
-        mRouteSpinner.setSelection(0);
-        mRouteNextButton.setEnabled(false);
+
+        showNoCategories();
+
         mParent.setCategoriesJs(null);
         mParent.setCanDisplay(0b001);
 

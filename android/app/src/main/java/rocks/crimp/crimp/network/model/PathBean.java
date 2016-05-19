@@ -10,6 +10,7 @@ public class PathBean implements Serializable {
 
     private Long routeId;
     private Long climberId;
+    private String markerId;
 
     public Long getRouteId() {
         return routeId;
@@ -25,5 +26,13 @@ public class PathBean implements Serializable {
 
     public void setClimberId(Long climberId) {
         this.climberId = climberId;
+    }
+
+    public String getMarkerId() {
+        return markerId;
+    }
+
+    public void setMarkerId(String markerId) {
+        this.markerId = markerId;
     }
 }

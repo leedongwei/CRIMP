@@ -49,9 +49,11 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <activity android:name=".hello.HelloActivity"
+        <activity
+            android:name=".hello.HelloActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".tasklist.TaskListActivity"></activity>
     </application>
 
 </manifest>

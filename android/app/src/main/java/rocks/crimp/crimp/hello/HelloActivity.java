@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -30,6 +31,7 @@ import rocks.crimp.crimp.hello.scan.ScanFragment;
 import rocks.crimp.crimp.hello.score.ScoreFragment;
 import rocks.crimp.crimp.login.LoginActivity;
 import rocks.crimp.crimp.network.model.CategoriesJs;
+import rocks.crimp.crimp.network.model.CategoryJs;
 import rocks.crimp.crimp.persistence.LocalModelImpl;
 
 public class HelloActivity extends AppCompatActivity implements
@@ -103,14 +105,15 @@ public class HelloActivity extends AppCompatActivity implements
                 .loadCategoriesAndCloseStream(LocalModelImpl.getInputStream(this));
 
         // prepare view pager
-        mFragmentAdapter = new HelloFragmentAdapter(getSupportFragmentManager());
-        mFragmentAdapter.setCanDisplay(CrimpApplication.getAppState()
-                .getInt(CrimpApplication.CAN_DISPLAY, 0b001));
-
+        mFragmentAdapter = new HelloFragmentAdapter(getSupportFragmentManager(), mTabLayout);
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(0)));
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(1)));
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(2)));
         mTabLayout.setOnTabSelectedListener(new HelloOnTabSelectedListener(mPager, mTabLayout));
+        int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
+        mFragmentAdapter.setCanDisplay(canDisplay);
+
+
 
         mPager.setAdapter(mFragmentAdapter);
         mPager.addOnPageChangeListener(new HelloPageChangeListener(mTabLayout));
@@ -139,36 +142,24 @@ public class HelloActivity extends AppCompatActivity implements
         outState.putParcelable(SAVE_IMAGE, mImage);
     }
 
-    /*
     @Override
     public void onBackPressed() {
-        final int currentTab = getmViewPager().getCurrentItem();
-        switch(currentTab){
-            case 0:
-                break;
-            case 1:
-                getmViewPager().setCurrentItem(currentTab - 1);
-                break;
-            case 2:
-                new AlertDialog.Builder(this)
-                        .setTitle("Navigate away from Score tab")
-                        .setMessage("Current session score will be lost.")
-                        .setPositiveButton("Navigate away", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Do stuff
-                                navigateAwayFromScore(1);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Do nothing
-                            }
-                        })
-                        .show();
-                break;
+        final int currentTab = mPager.getCurrentItem();
+        int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
+
+        if(currentTab == 0){
+            super.onBackPressed();
+        }
+        else{
+            for(int i=currentTab-1; i>=0; i--){
+                int bitMask = 1 << i;
+                if((canDisplay & bitMask) != 0){
+                    mPager.setCurrentItem(i);
+                    break;
+                }
+            }
         }
     }
-    */
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -177,12 +168,10 @@ public class HelloActivity extends AppCompatActivity implements
         return true;
     }
 
-    @Subscribe
-    public void onReceivedSwipeTo(SwipeTo event){
-        if(event.position == 1){
-            if(mAppBar != null)
-                mAppBar.setExpanded(false);
-        }
+    @Override
+    public void setAppBarExpanded(boolean expanded){
+        if(mAppBar != null)
+            mAppBar.setExpanded(expanded);
     }
 
     @Override
@@ -219,6 +208,9 @@ public class HelloActivity extends AppCompatActivity implements
     @Override
     public void setDecodedImage(Bitmap image) {
         mImage = image;
+        CrimpApplication.getAppState().edit()
+                .putInt(CrimpApplication.IMAGE_HEIGHT, mImage.getHeight())
+                .commit();
     }
 
     @Override
@@ -238,6 +230,17 @@ public class HelloActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void goBackToScanTab() {
+        int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
+        canDisplay = canDisplay & 0b011;
+        CrimpApplication.getAppState().edit()
+                .putInt(CrimpApplication.CAN_DISPLAY, canDisplay).commit();
+        mFragmentAdapter.setCanDisplay(canDisplay);
+
+        mPager.setCurrentItem(1);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
@@ -250,21 +253,54 @@ public class HelloActivity extends AppCompatActivity implements
                 // TODO HELPME
                 return true;
             case R.id.action_logout:
-                LogoutDialog.create(this, new Action() {
-                    @Override
-                    public void act() {
-                        LoginManager.getInstance().logOut();
-                        CrimpApplication.getAppState().edit().clear().commit();
-                        Intent intent = new Intent(HelloActivity.this, LoginActivity.class);
-                        finish();
-                        startActivity(intent);
-                    }
-                }, new Action() {
-                    @Override
-                    public void act() {
-                        // Do nothing
-                    }
-                }).show();
+                // We only need to show dialog if user has enter stuff on Score tab.
+                String currentScore = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.CURRENT_SCORE, null);
+                if (currentScore == null || currentScore.length() == 0) {
+                    LogoutDialog.create(this, new Action() {
+                        @Override
+                        public void act() {
+                            LoginManager.getInstance().logOut();
+                            CrimpApplication.getAppState().edit().clear().commit();
+                            Intent intent = new Intent(HelloActivity.this, LoginActivity.class);
+                            finish();
+                            startActivity(intent);
+                        }
+                    }, new Action() {
+                        @Override
+                        public void act() {
+                            // Do nothing
+                        }
+                    }).show();
+                } else {
+                    // Prepare stuff to use in LogoutDialog creation.
+                    String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
+                    String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, "");
+                    int categoryPosition = CrimpApplication.getAppState()
+                            .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                    int routePosition = CrimpApplication.getAppState()
+                            .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                    CategoryJs chosenCategory =
+                            mCategories.getCategories().get(categoryPosition - 1);
+                    String routeName = chosenCategory.getRoutes().get(routePosition - 1).getRouteName();
+
+                    LogoutDialog.create(this, new Action() {
+                        @Override
+                        public void act() {
+                            LoginManager.getInstance().logOut();
+                            CrimpApplication.getAppState().edit().clear().commit();
+                            Intent intent = new Intent(HelloActivity.this, LoginActivity.class);
+                            finish();
+                            startActivity(intent);
+                        }
+                    }, new Action() {
+                        @Override
+                        public void act() {
+                            // Do nothing
+                        }
+                    }, markerId, climberName, routeName).show();
+                }
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

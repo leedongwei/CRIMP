@@ -14,7 +14,7 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RequestBodyJs implements Serializable{
     @JsonIgnore
-    private static final long serialVersionUID = 1L;
+    private static final Long serialVersionUID = 1L;
 
     @JsonProperty("fb_user_id")
     private String fbUserId;
@@ -31,11 +31,13 @@ public class RequestBodyJs implements Serializable{
     @JsonProperty("score_string")
     private String scoreString;
     @JsonProperty("category_id")
-    private long categoryId;
+    private Long categoryId;
     @JsonProperty("route_id")
-    private long routeId;
+    private Long routeId;
     @JsonProperty("climber_id")
-    private long climberId;
+    private Long climberId;
+    @JsonProperty("marker_id")
+    private String markerId;
 
     public String getFbUserId() {
         return fbUserId;
@@ -85,27 +87,35 @@ public class RequestBodyJs implements Serializable{
         this.scoreString = scoreString;
     }
 
-    public long getCategoryId() {
+    public Long getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(long categoryId) {
+    public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
     }
 
-    public long getRouteId() {
+    public Long getRouteId() {
         return routeId;
     }
 
-    public void setRouteId(long routeId) {
+    public void setRouteId(Long routeId) {
         this.routeId = routeId;
     }
 
-    public long getClimberId() {
+    public Long getClimberId() {
         return climberId;
     }
 
-    public void setClimberId(long climberId) {
+    public void setClimberId(Long climberId) {
         this.climberId = climberId;
+    }
+
+    public String getMarkerId() {
+        return markerId;
+    }
+
+    public void setMarkerId(String markerId) {
+        this.markerId = markerId;
     }
 }

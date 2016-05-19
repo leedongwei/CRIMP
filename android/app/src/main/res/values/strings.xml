@@ -9,13 +9,18 @@
 
     <!-- Hello Activity UI -->
     <string name="hello_activity_logout_dialog_title">Logout?</string>
-    <string name="hello_activity_logout_dialog">Ongoing score transmission will not be interrupted.</string>
+    <string name="hello_activity_logout_dialog">"Logout won't affect score upload."</string>
+    <string name="hello_activity_logout_dialog_score">"Logout won't affect score upload..\n\nLogging out will discard your input on Score tab for %1$s, %2$s on %3$s."</string>
     <string name="hello_activity_logout_dialog_positive">Logout</string>
     <string name="hello_activity_logout_dialog_negative">Cancel</string>
 
     <!-- Login Activity UI -->
     <string name="login_activity_login_wait">Awaiting confirmation from admins…</string>
     <string name="login_activity_description_logo">crimp logo</string>
+    <string name="login_activity_login_dialog">"Please logout from other devices before continuing."</string>
+    <string name="login_activity_login_dialog_title">"Continue with login?"</string>
+    <string name="login_activity_login_dialog_positive">Login</string>
+    <string name="login_activity_login_dialog_negative">Cancel</string>
 
     <!-- Route Fragment UI -->
     <string name="route_fragment_greeting">"Hello %1$s, you are route judge for"</string>
@@ -24,6 +29,16 @@
     <string name="route_fragment_replace_positive">Replace</string>
     <string name="route_fragment_replace_negative">Cancel</string>
     <string name="route_fragment_next">Next</string>
+    <string name="route_fragment_refresh_dialog_title">"Refresh category and route list?"</string>
+    <string name="route_fragment_refresh_dialog">"Refreshing route list will discard your input on Score tab for %1$s, %2$s on %3$s."</string>
+    <string name="route_fragment_refresh_dialog_positive">Refresh</string>
+    <string name="route_fragment_refresh_dialog_negative">Cancel</string>
+    <string name="route_fragment_category_hint">Pick a category</string>
+    <string name="route_fragment_route_hint">Pick a route</string>
+    <string name="route_fragment_next_dialog_title">"Select a different route?"</string>
+    <string name="route_fragment_next_dialog">"Selecting a different route will discard your input on Score tab for %1$s, %2$s on %3$s."</string>
+    <string name="route_fragment_next_dialog_positive">Discard</string>
+    <string name="route_fragment_next_dialog_negative">Cancel</string>
 
     <!-- Scan Fragment UI -->
     <string name="scan_fragment_climber_id">"Climber ID"</string>
@@ -31,6 +46,14 @@
     <string name="scan_fragment_rescan">Rescan</string>
     <string name="scan_fragment_next">Next</string>
     <string name="scan_fragment_description_flash">flash button</string>
+    <string name="scan_fragment_rescan_dialog_title">"Rescan QR code?"</string>
+    <string name="scan_fragment_rescan_dialog">"Rescan will discard your input on Score tab for %1$s, %2$s on %3$s."</string>
+    <string name="scan_fragment_rescan_dialog_positive">Rescan</string>
+    <string name="scan_fragment_rescan_dialog_negative">Cancel</string>
+    <string name="scan_fragment_remove_dialog_title">"Remove climber?"</string>
+    <string name="scan_fragment_remove_dialog">"Removing current climber will discard your input on Score tab for %1$s, %2$s on %3$s."</string>
+    <string name="scan_fragment_remove_dialog_positive">Remove</string>
+    <string name="scan_fragment_remove_dialog_negative">Cancel</string>
 
     <!-- Score Fragment UI -->
     <string name="score_fragment_climber_id">Climber ID</string>

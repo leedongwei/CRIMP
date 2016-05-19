@@ -43,4 +43,40 @@ public class LogoutDialog {
 
         return builder.create();
     }
+
+    public static AlertDialog create(Context context, final Action logout, final Action cancel,
+                                     String markerId, String climberName, String routeName){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        String question = String.format(context.getString(R.string.hello_activity_logout_dialog_score),
+                markerId, climberName, routeName);
+
+        builder.setTitle(R.string.hello_activity_logout_dialog_title)
+                .setMessage(question)
+                .setPositiveButton(R.string.hello_activity_logout_dialog_positive,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Timber.d("Pressed on Positive button");
+                                logout.act();
+                            }
+                        })
+                .setNegativeButton(R.string.hello_activity_logout_dialog_negative,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Timber.d("Pressed on Negative button");
+                                cancel.act();
+                            }
+                        })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        Timber.d("Logout dialog cancelled");
+                        cancel.act();
+                    }
+                });
+
+        return builder.create();
+    }
 }
