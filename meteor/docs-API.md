@@ -303,7 +303,7 @@ Body: {
 Body: {
   "fb_access_token": "CAAE1913yZC2ABAAO6...",
   "force_login": true,
-  isProductionApp: true,
+  "isProductionApp": true,
 }
 ```
 
@@ -313,7 +313,7 @@ Body: {
   "X-User-Id": "jfJnk4B...",
   "X-Auth-Token": "LNZoISu...",
   "remind_logout": true,
-  "roles": ['admin'],
+  "roles": ["admin"],
 }
 ```
 * If `force_login` is `false` and there are existing sessions, login will be rejected
@@ -325,7 +325,7 @@ Body: {
   * roles in increasing order of access: `denied`, `pending`, `partner`, `judge`, `admin`, `hukkataival`
     * `denied` is a stranger and is denied access
     * `pending` is a new user, and should be sorted by an admin
-    * `partner` has read-only access
+    * `partner` has read-only access through REST API
     * `judge` has read-write access through REST API
     * `admin` has read-write access through web dashboard
     * `hukkataival` is given all privileges
