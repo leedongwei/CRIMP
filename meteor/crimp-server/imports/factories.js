@@ -23,7 +23,7 @@ Factory.define('category', Categories, {
   category_name: faker.commerce.productName(),
   acronym: String(faker.random.uuid).substr(0, 3),
   is_team_category: false,
-  score_finalized: false,
+  is_score_finalized: false,
   time_start: new Date(),
   time_end: new Date(),
   score_system: 'ifsc-top-bonus',
@@ -46,9 +46,7 @@ Factory.define('category', Categories, {
     _id: Random.id(),
     route_name: 'R6',
   }],
-  event: {
-    _id: Factory.get('event'),
-  },
+  event: {},
 });
 
 
@@ -57,7 +55,7 @@ const OMQ_BA2016 = Categories.insert({
   category_name: 'Open Men Qualifiers',
   acronym: 'OMQ',
   is_team_category: false,
-  score_finalized: false,
+  is_score_finalized: false,
   time_start: new Date(),
   time_end: new Date(),
   score_system: 'points',

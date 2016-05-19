@@ -33,7 +33,7 @@ Body: {
       "category_name": "Novice Men Qualifiers",
       "acronym": "NMQ",
       "is_team_category": false,
-      "score_finalized": false,
+      "is_score_finalized": false,
       "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
       "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
       "score_system": "points"
@@ -70,7 +70,7 @@ Body: {
       "category_name": "Novice Women Qualifiers",
       "acronym": "NWQ",
       "is_team_category": true,
-      "score_finalized": true,
+      "is_score_finalized": true,
       "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
       "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
       "score_system": "ifsc-top-bonus"

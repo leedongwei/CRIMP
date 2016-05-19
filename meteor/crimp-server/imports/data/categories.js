@@ -4,8 +4,10 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { scoreSystemsNames } from '../scoreSystem.js';
 
 import CRIMP from '../settings';
+import Events from './events';
 import Teams from './teams';
 import Climbers from './climbers';
+import Scores from './scores';
 
 class CategoriesCollection extends Mongo.Collection {
   remove(selector, callback, isRecursive = false) {
@@ -59,7 +61,7 @@ Categories.schema = new SimpleSchema({
   is_team_category: {
     type: Boolean,
   },
-  score_finalized: {
+  is_score_finalized: {
     type: Boolean,
     label: 'Confirm scores for category',
   },
@@ -132,8 +134,14 @@ if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
 Categories.methods = {};
 Categories.methods.insert = new ValidatedMethod({
   name: 'Categories.method.insert',
-  validate: Categories.schema.validator(),
-  run(parentEventDoc, categoryDoc) {
+  validate: new SimpleSchema({
+    parentEventDoc: { type: Object, blackbox: true },
+    'parentEventDoc._id': { type: String },
+    'parentEventDoc.event_name_full': { type: String },
+    categoryDoc: { type: Categories.schema },
+  }).validator(),
+  run({ parentEventDoc, categoryDoc }) {
+
     const newDoc = categoryDoc;
     newDoc.event = {
       _id: parentEventDoc._id,
@@ -145,23 +153,46 @@ Categories.methods.insert = new ValidatedMethod({
 });
 Categories.methods.update = new ValidatedMethod({
   name: 'Categories.method.update',
-  validate: Categories.schema.validator(),
-  run(selector, categoryDoc) {
-    return Categories.update(categoryDoc);
+  validate: new SimpleSchema({
+    selector: { type: String },
+    modifier: { type: String },
+    categoryDoc: { type: Object },
+    'categoryDoc.category_name': { type: String, optional: true },
+    'categoryDoc.acronym': { type: String, optional: true },
+    'categoryDoc.is_team_category': { type: Boolean, optional: true },
+    'categoryDoc.is_score_finalized': { type: Boolean, optional: true },
+    'categoryDoc.time_Start': { type: Date, optional: true },
+    'categoryDoc.time_end': { type: Date, optional: true },
+    'categoryDoc.score_system': { type: String, optional: true },
+    'categoryDoc.routes': { type: Object, optional: true },
+    'categoryDoc.routes.$._id': { type: String, optional: true },
+    'categoryDoc.routes.$.route_name': { type: String, optional: true },
+  }).validator(),
+  run({ selector, modifier, categoryDoc }) {
+    /**
+     *  Updating of parent Event is not allowed
+     */
+    return Categories.update(selector, { [`${modifier}`]: categoryDoc });
   },
 });
 Categories.methods.remove = new ValidatedMethod({
   name: 'Categories.method.remove',
-  validate: () => {},
-  run(selector) {
-    return Categories.remove(selector);
+  validate: new SimpleSchema({
+    selector: { type: String },
+    callback: { type: 'function', optional: true },
+    isRecursive: { type: Boolean, optional: true },
+  }).validator(),
+  run({ selector, callback, isRecursive }) {
+    return Categories.remove({ _id: selector }, callback, isRecursive);
   },
 });
 Categories.methods.forceRemove = new ValidatedMethod({
   name: 'Categories.method.forceRemove',
-  validate: () => {},
+  validate: new SimpleSchema({
+    selector: { type: String },
+  }).validator(),
   run(selector) {
-    return Categories.forceRemove(selector);
+    return Categories.forceRemove({ _id: selector });
   },
 });
 
