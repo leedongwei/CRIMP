@@ -17,14 +17,14 @@ class CategoriesCollection extends Mongo.Collection {
     let childClimbers = 0;
     targetDocs.forEach((categoryDoc) => {
       if (isRecursive) {
-        Teams.forceRemove({ category_id: categoryDoc._id });
-        Climbers.methods.removeFromCategory({
-          category_id: categoryDoc._id,
-        });
+        // Teams.forceRemove({ category_id: categoryDoc._id });
+        // Climbers.methods.removeFromCategory({
+        //   category_id: categoryDoc._id,
+        // });
       } else {
         childTeams += Teams
                         .find({ category_id: categoryDoc._id })
-                          .count();
+                        .count();
         childClimbers += Climbers
                             .find({ 'categories.$._id': categoryDoc._id })
                             .count();

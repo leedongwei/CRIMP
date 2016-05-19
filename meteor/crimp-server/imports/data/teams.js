@@ -4,7 +4,16 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import CRIMP from '../settings';
 
-const Teams = new Mongo.Collection('Teams');
+class TeamsCollection extends Mongo.Collection {
+  remove(selector, callback, isRecursive = false) {
+    // do nothing yet
+  }
+
+  forceRemove(selector, callback) {
+    this.remove(selector, callback, true);
+  }
+}
+const Teams = new TeamsCollection('Teams');
 Teams.schema = new SimpleSchema({
   team_name: {
     type: String,

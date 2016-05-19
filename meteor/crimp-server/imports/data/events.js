@@ -6,19 +6,19 @@ import CRIMP from '../settings';
 import Categories from './categories';
 
 class EventsCollection extends Mongo.Collection {
-  remove(selector, callback, isRecursive = false) {
+  remove(selector, callback = null, isRecursive = false) {
     const targetDocs = Events.find(selector);
     if (targetDocs.count() === 0) return 0;
 
     // Retrieve all affected child Categories
     let childCategory = 0;
     targetDocs.forEach((eventDoc) => {
-      if (isRecursive) {
-        Categories.forceRemove({ 'event._id': eventDoc._id });
-      } else {
-        childCategory += Categories
+      childCategory += Categories
                           .find({ 'event._id': eventDoc._id })
                           .count();
+
+      if (isRecursive) {
+        childCategory -= Categories.forceRemove({ 'event._id': eventDoc._id });
       }
     });
 
@@ -76,23 +76,37 @@ Events.methods.insert = new ValidatedMethod({
 });
 Events.methods.update = new ValidatedMethod({
   name: 'Events.method.update',
-  validate: Events.schema.validator(),
-  run(selector, eventDoc) {
-    return Events.update(eventDoc);
+  validate: new SimpleSchema({
+    selector: { type: String },
+    modifier: { type: String },
+    eventDoc: { type: Object },
+    'eventDoc.event_name_full': { type: String, optional: true },
+    'eventDoc.event_name_short': { type: String, optional: true },
+    'eventDoc.time_start': { type: Date, optional: true },
+    'eventDoc.time_end': { type: Date, optional: true },
+  }).validator(),
+  run({ selector, modifier, eventDoc }) {
+    return Events.update(selector, { [`${modifier}`]: eventDoc });
   },
 });
 Events.methods.remove = new ValidatedMethod({
   name: 'Events.method.remove',
-  validate: () => {},
-  run(selector) {
-    return Events.remove(selector);
+  validate: new SimpleSchema({
+    selector: { type: String },
+    callback: { type: 'function', optional: true },
+    isRecursive: { type: Boolean, optional: true },
+  }).validator(),
+  run({ selector, callback, isRecursive }) {
+    return Events.remove({ _id: selector }, callback, isRecursive);
   },
 });
 Events.methods.forceRemove = new ValidatedMethod({
   name: 'Events.method.forceRemove',
-  validate: () => {},
+  validate: new SimpleSchema({
+    selector: { type: String },
+  }).validator(),
   run(selector) {
-    return Events.forceRemove(selector);
+    return Events.forceRemove({ _id: selector });
   },
 });
 

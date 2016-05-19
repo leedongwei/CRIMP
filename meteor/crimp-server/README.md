@@ -49,3 +49,6 @@ This is a draft document that I will brain-dump into as I work on the meteor app
 * Find the port of your Docker container
 * Go to the CNAME records of your domain
 * Add a URL-redirect
+
+## Run tests
+* `meteor test --driver-package=practicalmeteor:mocha --port=5000`

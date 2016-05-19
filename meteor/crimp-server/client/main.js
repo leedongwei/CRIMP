@@ -7,6 +7,8 @@ import Messages from '../imports/data/messages';
 import Events from '../imports/data/events';
 import Categories from '../imports/data/categories';
 import Teams from '../imports/data/teams';
+import Climbers from '../imports/data/climbers.js';
+import Scores from '../imports/data/scores.js';
 
 import './main.html';
 
@@ -19,6 +21,15 @@ Meteor.subscribe('categories');
 Meteor.subscribe('teams');
 Meteor.subscribe('climbers');
 Meteor.subscribe('scores');
+
+Meteor.startup(() => {
+  msg = Messages;
+  eve = Events;
+  cat = Categories;
+  tms = Teams;
+  cmb = Climbers;
+  scs = Scores;
+})
 
 Template.messages.onCreated(() => {
   Events.remove({});

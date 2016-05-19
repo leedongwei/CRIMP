@@ -17,7 +17,6 @@ standard-minifier-js    # JS minifier run for production mode
 es5-shim                # ECMAScript 5 compatibility for older browsers.
 ecmascript              # Enable ECMAScript2015+ syntax in app code
 
-autopublish             # Publish all data to the clients (for prototyping)
 insecure                # Allow all DB writes from clients (for prototyping)
 aldeed:simple-schema
 nimble:restivus
@@ -30,3 +29,8 @@ accounts-base
 underscore
 alanning:roles
 random
+practicalmeteor:mocha
+practicalmeteor:faker
+dburles:factory
+xolvio:cleaner
+practicalmeteor:chai
