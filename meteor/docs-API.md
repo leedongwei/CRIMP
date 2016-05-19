@@ -123,9 +123,8 @@ Body: {
 
 ```json
 header: {
-  "fb_user_id": 29,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
 }
 ```
 
@@ -245,9 +244,8 @@ Body: {
 #### Request
 ```json
 header: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
 }
 body: {
   "route_id": "yGXAk...",
@@ -274,9 +272,8 @@ Body: {
 #### Request
 ```json
 header: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
 }
 body: {
   "route_id": "yGXAk...",
@@ -313,11 +310,10 @@ Body: {
 #### Response
 ```json
 Body: {
-  "X-User-Id": "sJzRM...",
-  "X-Auth-Token": "axIzbR...",
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
   "remind_logout": true,
   "roles": ['admin'],
-  "sequential_token": 1
 }
 ```
 * If `force_login` is `false` and there are existing sessions, login will be rejected
@@ -325,7 +321,14 @@ Body: {
 * `X-User-Id` and `X-Auth-Token` is used in endpoints requiring authorization
 * `remind_logout` is `true` if there are existing sessions on other devices
 * `roles` is the privilege level of the user
-* `sequential_token` cannot be negative.
+  * The mobile app should deny access to user if role is not higher than `judge`
+  * roles in increasing order of access: `denied`, `pending`, `partner`, `judge`, `admin`, `hukkataival`
+    * `denied` is a stranger and is denied access
+    * `pending` is a new user, and should be sorted by an admin
+    * `partner` has read-only access
+    * `judge` has read-write access through REST API
+    * `admin` has read-write access through web dashboard
+    * `hukkataival` is given all privileges
 <br><br><br>
 
 
@@ -337,9 +340,8 @@ Body: {
 #### Request
 ```json
 header: {
-  "fb_user_id": 23,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
 }
 
 body: {
@@ -352,7 +354,7 @@ body: {
 #### Response
 ```json
 Body: {
-  "fb_user_id": 23,
+  "X-User-Id": "jfJnk4B...",
   "user_name": "Weizhi",
   "category_id": "e4gMzdjR...",
   "route_id": "EgN4g...",
@@ -369,9 +371,8 @@ Body: {
 #### Request
 ```json
 header: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
 }
 body: {
   "route_id": "EgN4g...",
@@ -381,8 +382,8 @@ body: {
 #### Response
 ```json
 body: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8...",
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
   "route_id": "EgN4g...",
 }
 ```
@@ -399,9 +400,8 @@ body: {
 #### Request
 ```json
 header: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
 }
 body: {
   "score_string": "11T"
@@ -432,9 +432,8 @@ body: {
 #### Request
 ```json
 body: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
 }
 ```
 
