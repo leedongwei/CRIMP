@@ -19,7 +19,9 @@ class CategoriesCollection extends Mongo.Collection {
     let childClimbers = 0;
     targetDocs.forEach((categoryDoc) => {
       if (isRecursive) {
-        // Teams.forceRemove({ category_id: categoryDoc._id });
+        if (targetDocs.is_team_category) {
+          Teams.remove({ category_id: categoryDoc._id });
+        }
         // Climbers.methods.removeFromCategory({
         //   category_id: categoryDoc._id,
         // });
