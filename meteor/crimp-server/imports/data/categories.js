@@ -16,33 +16,22 @@ class CategoriesCollection extends Mongo.Collection {
 
     // Retrieve all affected child Teams and Climbers
     let childTeams = 0;
-    let childClimbers = 0;
     targetDocs.forEach((categoryDoc) => {
-      if (isRecursive) {
-        if (targetDocs.is_team_category) {
-          Teams.remove({ category_id: categoryDoc._id });
-        }
-        // Climbers.methods.removeFromCategory({
-        //   category_id: categoryDoc._id,
-        // });
-      } else {
-        childTeams += Teams
+      childTeams += Teams
                         .find({ category_id: categoryDoc._id })
                         .count();
-        childClimbers += Climbers
-                            .find({ 'categories.$._id': categoryDoc._id })
-                            .count();
+
+      if (isRecursive) {
+        if (categoryDoc.is_team_category) {
+          childTeams -= Teams.remove({ category_id: categoryDoc._id });
+        }
       }
     });
 
-    // Do not delete Event if there are child Categories
-    return (childTeams + childClimbers > 0)
+    // Do not delete Categories if there are child Teams
+    return (childTeams > 0)
       ? 0
       : super.remove(selector, callback);
-  }
-
-  forceRemove(selector, callback) {
-    this.remove(selector, callback, true);
   }
 }
 
@@ -194,7 +183,7 @@ Categories.methods.forceRemove = new ValidatedMethod({
     selector: { type: String },
   }).validator(),
   run(selector) {
-    return Categories.forceRemove({ _id: selector });
+    return Categories.remove({ _id: selector }, null, true);
   },
 });
 

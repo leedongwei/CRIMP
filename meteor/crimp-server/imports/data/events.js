@@ -25,10 +25,6 @@ class EventsCollection extends Mongo.Collection {
     // Do not delete Event if there are child Categories
     return (childCategory > 0) ? 0 : super.remove(selector, callback);
   }
-
-  forceRemove(selector, callback) {
-    this.remove(selector, callback, true);
-  }
 }
 
 const Events = new EventsCollection('Events');
@@ -106,7 +102,7 @@ Events.methods.forceRemove = new ValidatedMethod({
     selector: { type: String },
   }).validator(),
   run(selector) {
-    return Events.forceRemove({ _id: selector });
+    return Events.remove({ _id: selector }, null, true);
   },
 });
 
