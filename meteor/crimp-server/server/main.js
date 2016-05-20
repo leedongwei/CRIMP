@@ -39,26 +39,9 @@ const Api = new Restivus({
   },
 });
 
-// TODO: Remove latency endpoint
-Api.addRoute('test/latency', { authRequired: false }, {
-  get: () => {
-    // simulate latency
-    Meteor._sleepForMs(10000);
-
-    const msg = {
-      method: 'GET',
-    };
-
-    const insertStatus = Messages.methods.insert.call({
-      payload: msg,
-    });
-
-    return insertStatus;
-  },
-});
 
 Api.addRoute('judge/login', { authRequired: false }, {
-  post: function postfunc() {
+  post: function postLogin() {
     // Ensure that judge is logging in from production-version of the app
     if (CRIMP.ENVIRONMENT.NODE_ENV === 'production' &&
         this.bodyParams.isProductionApp !== 'true') {
@@ -173,6 +156,105 @@ Api.addRoute('judge/login', { authRequired: false }, {
         sequential_token: tokenCount,
       },
     };
+  },
+});
+
+
+Api.addRoute('judge/logout', { authRequired: false }, {
+  post: function postLogout() {
+    return {
+      statusCode: 501,
+      body: { error: 'Not implemented (yet)' },
+    };
+  },
+});
+
+
+Api.addRoute('judge/categories', { authRequired: false }, {
+  get: function getCategories() {
+    return {
+      statusCode: 501,
+      body: { error: 'Not implemented (yet)' },
+    };
+  },
+});
+
+
+Api.addRoute('judge/score', { authRequired: false }, {
+  get: function getScore() {
+    return {
+      statusCode: 501,
+      body: { error: 'Not implemented (yet)' },
+    };
+  },
+});
+
+
+Api.addRoute('judge//score/:route_id/:climber_id', { authRequired: false }, {
+  post: function postScore() {
+    return {
+      statusCode: 501,
+      body: { error: 'Not implemented (yet)' },
+    };
+  },
+});
+
+
+Api.addRoute('judge/report', { authRequired: false }, {
+  post: function postReport() {
+    return {
+      statusCode: 501,
+      body: { error: 'Not implemented (yet)' },
+    };
+  },
+});
+
+
+Api.addRoute('judge/helpme', { authRequired: false }, {
+  post: function postHelpMe() {
+    return {
+      statusCode: 501,
+      body: { error: 'Not implemented (yet)' },
+    };
+  },
+});
+
+
+Api.addRoute('judge/setactive', { authRequired: false }, {
+  put: function putSetActive() {
+    return {
+      statusCode: 501,
+      body: { error: 'Not implemented (yet)' },
+    };
+  },
+});
+
+
+Api.addRoute('judge/clearactive', { authRequired: false }, {
+  put: function putClearActive() {
+    return {
+      statusCode: 501,
+      body: { error: 'Not implemented (yet)' },
+    };
+  },
+});
+
+
+// TODO: Remove latency endpoint
+Api.addRoute('test/latency', { authRequired: false }, {
+  get: () => {
+    // simulate latency
+    Meteor._sleepForMs(10000);
+
+    const msg = {
+      method: 'GET',
+    };
+
+    const insertStatus = Messages.methods.insert.call({
+      payload: msg,
+    });
+
+    return insertStatus;
   },
 });
 
