@@ -18,9 +18,7 @@ class ClimbersCollection extends Mongo.Collection {
                         .count();
 
       if (isRecursive) {
-        if (climberDoc.is_team_category) {
-          childScores -= Scores.remove({ climber_id: climberDoc._id });
-        }
+        childScores -= Scores.remove({ climber_id: climberDoc._id });
       }
     });
 

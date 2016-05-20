@@ -21,10 +21,8 @@ class CategoriesCollection extends Mongo.Collection {
                         .find({ category_id: categoryDoc._id })
                         .count();
 
-      if (isRecursive) {
-        if (categoryDoc.is_team_category) {
-          childTeams -= Teams.remove({ category_id: categoryDoc._id });
-        }
+      if (isRecursive && categoryDoc.is_team_category) {
+        childTeams -= Teams.remove({ category_id: categoryDoc._id });
       }
     });
 
@@ -32,6 +30,10 @@ class CategoriesCollection extends Mongo.Collection {
     return (childTeams > 0)
       ? 0
       : super.remove(selector, callback);
+  }
+
+  forceRemove(selector) {
+    return this.remove(selector, null, true);
   }
 }
 
