@@ -47,7 +47,7 @@ Api.addRoute('judge/login', { authRequired: false }, {
         this.bodyParams.isProductionApp !== 'true') {
       return {
         statusCode: 400,
-        body: { error: 'Missing/wrong "isProductionApp" value in body' },
+        body: { error: 'Missing/wrong isProductionApp in body' },
       };
     }
 
@@ -203,9 +203,62 @@ Api.addRoute('judge/categories', { authRequired: false }, {
 
 Api.addRoute('judge/score', { authRequired: false }, {
   get: function getScore() {
+    const options = this.queryParams;
+
+    // const scoreSelector = {
+    //   category_id: options.category_id,
+    //   climber_id: options.climber_id,
+    //   marker_id: options.marker_id,
+    // };
+    var cat = Categories.findOne({});
+
+    const climberDocs = Climbers.find({}).fetch();
+    const newClimberDocs = [];
+    climberDocs.forEach((doc, index) => {
+      const newDoc = _.pick(doc, ['id', 'climber_name']);
+      newDoc.scores = [
+        {
+          'marker_id': 'NMQ00'+index,
+          'category_id': cat._id,
+          'route_id': 'WmiYdjftrrBhiuzd9',
+          'score': 'T'
+        },
+        {
+          'marker_id': 'NMQ00'+index,
+          'category_id': cat._id,
+          'route_id': 'sFpauqFGuxDeCwDz7',
+          'score': '11B'
+        },
+        {
+          'marker_id': 'NMQ00'+index,
+          'category_id': cat._id,
+          'route_id': '6GW2eLgpNE2Ad2RrA',
+          'score': '11B11T'
+        },
+        {
+          'marker_id': 'NMQ00'+index,
+          'category_id': cat._id,
+          'route_id': 'v3fNAhZ79Med5cfLW',
+          'score': 'B11T'
+        },
+        {
+          'marker_id': 'NMQ00'+index,
+          'category_id': cat._id,
+          'route_id': 'v3fNAhZ79Med5cfLW',
+          'score': 'T11T'
+        },
+      ]
+
+      newClimberDocs.push(newDoc);
+
+    });
+
+
+
+    // const scoreDocs = Scores.find(scoreSelector).fetch();
     return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
+      statusCode: 200,
+      body: { climber_scores: climberDocs },
     };
   },
 });
