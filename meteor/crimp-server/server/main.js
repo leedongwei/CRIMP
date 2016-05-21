@@ -160,11 +160,16 @@ Api.addRoute('judge/login', { authRequired: false }, {
 });
 
 
-Api.addRoute('judge/logout', { authRequired: false }, {
+Api.addRoute('judge/logout', { authRequired: true }, {
   post: function postLogout() {
+    const loginToken = this.request.headers['x-auth-token'];
+    const hashed = Accounts._hashLoginToken(loginToken);
+
+    Accounts.destroyToken(this.userId, hashed.hashedToken);
+
     return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
+      statusCode: 200,
+      body: {},
     };
   },
 });
