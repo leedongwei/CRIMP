@@ -104,7 +104,7 @@ Api.addRoute('judge/login', { authRequired: false }, {
 
     // Do not issue new tokens if there are existing tokens and it is not
     // a force_login
-    if (hasExistingLogins && !this.bodyParams.force_login) {
+    if (hasExistingLogins && this.bodyParams.force_login === 'false') {
       return {
         statusCode: 409,
         body: {
@@ -177,6 +177,9 @@ Api.addRoute('judge/logout', { authRequired: true }, {
 
 Api.addRoute('judge/categories', { authRequired: false }, {
   get: function getCategories() {
+
+    console.log(Categories.find({}).fetch());
+
     return {
       statusCode: 501,
       body: { error: 'Not implemented (yet)' },
