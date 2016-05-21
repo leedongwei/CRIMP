@@ -293,48 +293,86 @@ Api.addRoute('judge/score/:route_id/:climber_id', { authRequired: true }, {
 });
 
 
-Api.addRoute('judge/report', { authRequired: false }, {
-  post: function postReport() {
-    return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
-    };
-  },
-});
-
-
-Api.addRoute('judge/helpme', { authRequired: false }, {
+Api.addRoute('judge/helpme', { authRequired: true }, {
   post: function postHelpMe() {
     return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
-    };
+      "X-User-Id": this.userId,
+      "X-Auth-Token": this.user.services.facebook.name,
+      "route_id": this.bodyParams.route_id,
+    }
+
+    // return {
+    //   statusCode: 501,
+    //   body: { error: 'Not implemented (yet)' },
+    // };
   },
 });
 
 
-Api.addRoute('judge/setactive', { authRequired: false }, {
+Api.addRoute('judge/report', { authRequired: true }, {
+  post: function postReport() {
+
+    const options = this.bodyParams;
+    if (options.blocked === 'true' && options.force === 'false') {
+      return {
+        "X-User-Id": '123123',
+        "user_name": 'CATERPIE',
+        "category_id": options.category_id,
+        "route_id": options.route_id,
+      }
+    } else {
+      return {
+        "X-User-Id": this.userId,
+        "user_name": this.user.services.facebook.name,
+        "category_id": options.category_id,
+        "route_id": options.route_id,
+      }
+    }
+
+
+    // return {
+    //   statusCode: 501,
+    //   body: { error: 'Not implemented (yet)' },
+    // };
+  },
+});
+
+
+Api.addRoute('judge/setactive', { authRequired: true }, {
   put: function putSetActive() {
     return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
-    };
+      "route_id": this.bodyParams.route_id,
+      "marker_id": this.bodyParams.marker_id,
+      "climber_id": "123123",
+      "climber_name": "caterpie",
+    }
+
+    // return {
+    //   statusCode: 501,
+    //   body: { error: 'Not implemented (yet)' },
+    // };
   },
 });
 
 
-Api.addRoute('judge/clearactive', { authRequired: false }, {
+Api.addRoute('judge/clearactive', { authRequired: true }, {
   put: function putClearActive() {
     return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
-    };
+      "route_id": this.bodyParams.route_id,
+      "marker_id": "",
+      "climber_id": "",
+      "climber_name": "",
+    }
+    // return {
+    //   statusCode: 501,
+    //   body: { error: 'Not implemented (yet)' },
+    // };
   },
 });
 
 
 // TODO: Remove latency endpoint
-Api.addRoute('test/latency', { authRequired: false }, {
+Api.addRoute('test/latency', { authRequired: true }, {
   get: () => {
     // simulate latency
     Meteor._sleepForMs(10000);
