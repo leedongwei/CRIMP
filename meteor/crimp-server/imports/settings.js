@@ -47,8 +47,10 @@ const CRIMP = {
  *  isServer because client-side would die from process.env
  *  being undefined
  */
-if (Meteor.isServer && process.env.NODE_ENV) {
-  CRIMP.ENVIRONMENT.NODE_ENV = process.env.NODE_ENV;
-}
+// TODO: REMOVED FOR QUICK WORK ON STAGING SERVER
+// DONGWEI REMOVE BEFORE PRODUCTION!!!!!
+// if (Meteor.isServer && process.env.NODE_ENV) {
+//   CRIMP.ENVIRONMENT.NODE_ENV = process.env.NODE_ENV;
+// }
 
 export default CRIMP;
