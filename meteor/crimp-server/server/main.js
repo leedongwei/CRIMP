@@ -201,7 +201,7 @@ Api.addRoute('judge/categories', { authRequired: false }, {
 });
 
 
-Api.addRoute('judge/score', { authRequired: false }, {
+Api.addRoute('judge/score', { authRequired: true }, {
   get: function getScore() {
     const options = this.queryParams;
 
@@ -210,24 +210,25 @@ Api.addRoute('judge/score', { authRequired: false }, {
     //   climber_id: options.climber_id,
     //   marker_id: options.marker_id,
     // };
-    var cat = Categories.findOne({});
+    const cat = Categories.findOne({_id: options.category_id}) || Categories.findOne({});
 
     const climberDocs = Climbers.find({}).fetch();
     const newClimberDocs = [];
     climberDocs.forEach((doc, index) => {
-      const newDoc = _.pick(doc, ['id', 'climber_name']);
+      const newDoc = _.pick(doc, ['climber_name']);
+      newDoc.climber_id = doc._id;
       newDoc.scores = [
         {
           'marker_id': 'NMQ00'+index,
           'category_id': cat._id,
-          'route_id': 'WmiYdjftrrBhiuzd9',
-          'score': 'T'
+          'route_id': cat.routes[0]._id || 'WmiYdjftrrBhiuzd9',
+          'score': 'hello_we1zh1',
         },
         {
           'marker_id': 'NMQ00'+index,
           'category_id': cat._id,
-          'route_id': 'sFpauqFGuxDeCwDz7',
-          'score': '11B'
+          'route_id':  cat.routes[1].route_id || 'sFpauqFGuxDeCwDz7',
+          'score': '11B',
         },
         {
           'marker_id': 'NMQ00'+index,
@@ -247,28 +248,46 @@ Api.addRoute('judge/score', { authRequired: false }, {
           'route_id': 'v3fNAhZ79Med5cfLW',
           'score': 'T11T'
         },
+        {
+          'marker_id': 'NMQ00'+index,
+          'category_id': cat._id,
+          'route_id': 'v3fNAhZ79Med5cfLW',
+          'score': 'T11T'
+        },
       ]
 
       newClimberDocs.push(newDoc);
-
     });
-
 
 
     // const scoreDocs = Scores.find(scoreSelector).fetch();
     return {
       statusCode: 200,
-      body: { climber_scores: climberDocs },
+      body: { climber_scores: newClimberDocs },
     };
   },
 });
 
 
-Api.addRoute('judge//score/:route_id/:climber_id', { authRequired: false }, {
+Api.addRoute('judge/score/:route_id/:climber_id', { authRequired: true }, {
   post: function postScore() {
+    const options = this.urlParams;
+
+    const cmb = Climbers.findOne(options.climber_id);
+    const cat = Categories.findOne({ 'routes._id': options.route_id });
+
+    console.log(cat);
+
     return {
       statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
+      body: {
+        "climber_id": cmb._id,
+        "climber_name": cmb.climber_name,
+        "category_id": cat._id,
+        "route_id": options.route_id,
+        "marker_id": "abc007",
+        "score": "11B11T"
+      },
     };
   },
 });
