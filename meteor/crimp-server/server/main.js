@@ -177,12 +177,25 @@ Api.addRoute('judge/logout', { authRequired: true }, {
 
 Api.addRoute('judge/categories', { authRequired: false }, {
   get: function getCategories() {
+    const categoryDocs = Categories.find({}).fetch();
+    const map = {
+      _id: 'category_id',
+      score_finalized: 'is_score_finalized',
+    };
 
-    console.log(Categories.find({}).fetch());
+    categoryDocs.forEach((doc, index, array) => {
+      const newDoc = {};
+      _.each(doc, (value, key) => {
+        const newkey = map[key] || key;
+        newDoc[newkey] = value;
+      });
+
+      array[index] = newDoc;
+    });
 
     return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
+      statusCode: 200,
+      body: { categories: categoryDocs },
     };
   },
 });
