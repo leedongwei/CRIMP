@@ -6,6 +6,7 @@
     <!-- Hello Activity menu -->
     <string name="action_helpme">Help me</string>
     <string name="action_logout">Logout</string>
+    <string name="action_task_list">Task list</string>
 
     <!-- Hello Activity UI -->
     <string name="hello_activity_logout_dialog_title">Logout?</string>

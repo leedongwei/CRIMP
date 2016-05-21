@@ -29,6 +29,7 @@ import com.squareup.otto.Subscribe;
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.Action;
+import rocks.crimp.crimp.common.event.CameraAcquired;
 import rocks.crimp.crimp.common.event.DecodeFail;
 import rocks.crimp.crimp.common.event.DecodeSucceed;
 import rocks.crimp.crimp.common.event.SwipeTo;
@@ -72,12 +73,12 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     private int mDisplayRotation;
     private int mTargetWidth;
     private float mAspectRatio;
-    private int mPosition;
-    private boolean mIsSurfaceReady;
+    private int mPosition;  // Position of this fragment in view pager
+    //private boolean mIsSurfaceReady;
 
     private boolean mIsShowing;
     private boolean mIsOnResume;
-    private boolean mIsScanning;
+    //private boolean mIsScanning;
 
     public static ScanFragment newInstance(int position, String title){
         ScanFragment f = new ScanFragment();
@@ -105,7 +106,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         super.onCreate(savedInstanceState);
         mPosition = getArguments().getInt(ARGS_POSITION);
 
-        mCameraManager = new CrimpCameraManager();
+        mCameraManager = CrimpCameraManager.getInstance();
 
         // We need 3 things: 1) screen width(px), 2)ideal aspect ratio of SurfaceVIew,
         // 3)display rotation
@@ -129,7 +130,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             WindowManager windowManager = (WindowManager)getActivity()
                     .getSystemService(Context.WINDOW_SERVICE);
             mDisplayRotation = windowManager.getDefaultDisplay().getRotation();
-            Timber.d("----------Display information:----------\n" +
+            Timber.d("---------- Display information ----------\n" +
                             "Without decoration(px): W%dpx, H%dpx\n" +
                             "Without decoration(dp): W%fdp, H%fdp\n" +
                             "Logical density: %f, aspect ratio (after removing TabLayout): %f\n" +
@@ -236,9 +237,12 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     @Override
     public void onStop(){
         CrimpApplication.getBusInstance().unregister(this);
-        Message quitMessage = mDecodeThread.getHandler().obtainMessage();
-        quitMessage.what = DecodeHandler.QUIT;
-        quitMessage.sendToTarget();
+        mDecodeThread.getHandler().obtainMessage(DecodeHandler.QUIT).sendToTarget();
+        try {
+            mCameraManager.onPauseQuit();
+        } catch (InterruptedException e) {
+            Timber.e(e, "Interrupted");
+        }
         super.onStop();
     }
 
@@ -391,8 +395,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 .remove(CrimpApplication.CLIMBER_NAME)
                 .remove(CrimpApplication.MARKER_ID_TEMP)
                 .commit();
-
-
     }
 
     private void showInfoPanel(){
@@ -449,61 +451,58 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
 
     @Subscribe
     public void onReceivedDecodeSucceed(DecodeSucceed event){
-        Timber.d("Received decode succeed. mIsScanning: %b", mIsScanning);
-        if(mIsScanning){
-            mIsScanning = false;
+        Timber.d("Received decode succeed.");
 
-            // Check result against category.
-            int categoryPosition = CrimpApplication.getAppState()
-                    .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
-            CategoriesJs categoriesJs = mParent.getCategoriesJs();
-            String categoryAcronym;
-            if(categoriesJs != null && categoryPosition != 0) {
-                // minus one from categoryPosition because of hint in spinner adapter.
-                categoryAcronym = categoriesJs.getCategories().get(categoryPosition-1).getAcronym();
-            }
-            else {
-                throw new RuntimeException("Unable to find out category Scan tab");
-            }
-            String regex = categoryAcronym+".++";
-            boolean isValid = event.result.matches(regex);
-
-            // We only vibrate and stop scan if the result is valid. Otherwise this is as good as
-            // onReceivedDecodeFail().
-            if(isValid){
-                CrimpApplication.getAppState().edit()
-                        .putBoolean(CrimpApplication.SHOULD_SCAN, false).commit();
-                mRescanButton.setEnabled(true);
-
-                // vibrate 100ms
-                Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-                v.vibrate(100);
-
-                String[] subStrings = event.result.split(categoryAcronym+"|;");
-                mMarkerIdText.setText(subStrings[1]);
-                mClimberNameText.setText(subStrings[2]);
-                mParent.setDecodedImage(event.image);
-            }
-
-            onStateChangeCheckScanning();
+        // Check result against category.
+        int categoryPosition = CrimpApplication.getAppState()
+                .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
+        CategoriesJs categoriesJs = mParent.getCategoriesJs();
+        String categoryAcronym;
+        if(categoriesJs != null && categoryPosition != 0) {
+            // minus one from categoryPosition because of hint in spinner adapter.
+            categoryAcronym = categoriesJs.getCategories().get(categoryPosition-1).getAcronym();
         }
+        else {
+            throw new RuntimeException("Unable to find out category Scan tab");
+        }
+        String regex = categoryAcronym+".++";
+        boolean isValid = event.result.matches(regex);
+
+        // We only vibrate and stop scan if the result is valid. Otherwise this is as good as
+        // onReceivedDecodeFail().
+        if(isValid){
+            CrimpApplication.getAppState().edit()
+                    .putBoolean(CrimpApplication.SHOULD_SCAN, false).commit();
+            mRescanButton.setEnabled(true);
+
+            // vibrate 100ms
+            Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+            v.vibrate(100);
+
+            String[] subStrings = event.result.split(categoryAcronym+"|;");
+            mMarkerIdText.setText(subStrings[1]);
+            mClimberNameText.setText(subStrings[2]);
+            mParent.setDecodedImage(event.image);
+        }
+
+        onStateChangeCheckScanning();
     }
 
     @Subscribe
     public void onReceivedDecodeFail(DecodeFail event){
-        if(mIsScanning){
-            mIsScanning = false;
-            onStateChangeCheckScanning();
-        }
+        onStateChangeCheckScanning();
+    }
+
+    @Subscribe
+    public void onReceievedCameraAcquired(CameraAcquired event){
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mPreviewFrame.getLayoutParams();
+        params.height = event.heightPx;
+        mPreviewFrame.setLayoutParams(params);
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         Timber.d("Surface created");
-        mIsSurfaceReady = true;
-        if(mCameraManager != null){
-            mCameraManager.setIsSurfaceReady(true, holder);
-        }
     }
 
     @Override
@@ -528,10 +527,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         Timber.d("Surface destroyed");
-        mIsSurfaceReady = false;
-        if(mCameraManager != null){
-            mCameraManager.setIsSurfaceReady(false, holder);
-        }
     }
 
     /**
@@ -547,26 +542,17 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         //Timber.d("mIsOnResume: %b, mIsShowing: %b, shouldScan: %b, mIsScanning: %b",
         //        mIsOnResume, mIsShowing, shouldScan, mIsScanning);
 
-        if(mIsOnResume && mIsShowing && shouldScan && !mIsScanning){
+        if(mIsOnResume && mIsShowing && shouldScan){
             mCameraManager.acquireCamera(mTargetWidth, mAspectRatio, mDisplayRotation);
 
-            if(!mIsSurfaceReady){
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mPreviewFrame.getLayoutParams();
-                params.height = mCameraManager.getPxScreenHeight();
-                params.width = mTargetWidth;
-                mPreviewFrame.setLayoutParams(params);
-            }
 
-            mCameraManager.startPreview(mPreviewFrame.getHolder());
+            mCameraManager.startPreview(mPreviewFrame);
 
-            mIsScanning = true;
             mCameraManager.startScan(mDecodeThread);
         }
-
-        if(!mIsOnResume || !mIsShowing || !shouldScan){
+        else{
             mCameraManager.stopPreview();
             mCameraManager.releaseCamera();
-            mIsScanning = false;
         }
     }
 

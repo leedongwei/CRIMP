@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void launchHelloActivity(){
         Timber.d("Launching HelloActivity");
-        Intent intent = new Intent(getApplicationContext(), HelloActivity.class);
+        Intent intent = new Intent(this, HelloActivity.class);
         intent.putExtra(HelloActivity.SAVE_FB_USER_NAME, mFbUserName);
         intent.putExtra(HelloActivity.SAVE_FB_ACCESS_TOKEN, mFbAccessToken);
         intent.putExtra(HelloActivity.SAVE_FB_USER_ID, mFbUserId);

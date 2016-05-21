@@ -22,7 +22,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
     public static final int DO_WORK = 2;
     public static final int NEW_UPLOAD = 3;
 
-    private ScoreUploadTaskQueue mScoreUploadTaskQueue;
+    private volatile ScoreUploadTaskQueue mScoreUploadTaskQueue;
     private boolean isExecutingTask;
     private Context mContext;
 
@@ -30,6 +30,10 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         super(looper);
         mContext = context;
         mScoreUploadTaskQueue = ScoreUploadTaskQueue.create(context);
+    }
+
+    public int getTaskCount(){
+        return mScoreUploadTaskQueue.size();
     }
 
     @Override

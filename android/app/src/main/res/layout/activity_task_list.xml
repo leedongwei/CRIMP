@@ -3,10 +3,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="rocks.crimp.crimp.tasklist.TaskListActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+    <TextView android:id="@+id/tasklist_counter"
+        android:layout_below="@id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        tools:text="Score upload task(s) remaining: 5"/>
+
+    <RelativeLayout android:id="@+id/tasklist_task_layout"
+        android:layout_below="@id/tasklist_counter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView android:id="@+id/tasklist_route_id"
+            android:layout_alignParentTop="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Route Id: 16"/>
+
+        <TextView android:id="@+id/tasklist_marker_id"
+            android:layout_below="@id/tasklist_route_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Marker Id: NMQ001"/>
+
+        <TextView android:id="@+id/tasklist_score"
+            android:layout_below="@id/tasklist_marker_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="score: 11B"/>
+
+        <Button android:id="@+id/tasklist_resume"
+            android:layout_below="@id/tasklist_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Resume"/>
+
+    </RelativeLayout>
 
 </RelativeLayout>

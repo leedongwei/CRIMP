@@ -33,6 +33,7 @@ import rocks.crimp.crimp.login.LoginActivity;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
 import rocks.crimp.crimp.persistence.LocalModelImpl;
+import rocks.crimp.crimp.tasklist.TaskListActivity;
 
 public class HelloActivity extends AppCompatActivity implements
         RouteFragment.RouteFragmentInterface,
@@ -252,6 +253,12 @@ public class HelloActivity extends AppCompatActivity implements
                 toast.show();
                 // TODO HELPME
                 return true;
+
+            case R.id.action_task_list:
+                Intent intent = new Intent(this, TaskListActivity.class);
+                startActivity(intent);
+                return true;
+
             case R.id.action_logout:
                 // We only need to show dialog if user has enter stuff on Score tab.
                 String currentScore = CrimpApplication.getAppState()
