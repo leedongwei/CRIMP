@@ -30,8 +30,6 @@
 ```json
 Body: {
   "fb_access_token": "CAAE1913yZC2ABAAO6...",
-  "force_login": true,
-  "isProductionApp": true,
 }
 ```
 
@@ -44,12 +42,12 @@ Body: {
   "roles": ["admin"],
 }
 ```
-* If `force_login` is `false` and there are existing sessions, login will be rejected
 * `isProductionApp` prevents the situation of a judge using an old dev app
 * `X-User-Id` and `X-Auth-Token` is used in endpoints requiring authorization
-* `remind_logout` is `true` if there are existing sessions on other devices
+* `remind_logout` is `true` if there are existing sessions on other devices. The mobile app should display a reminder for user to log out on other devices.
 * `roles` is the privilege level of the user
   * The mobile app should deny access to user if role is not higher than `judge`
+  * Tokens will not be issued for users with insufficient role permissions
   * roles in increasing order of access: `denied`, `pending`, `partner`, `judge`, `admin`, `hukkataival`
     * `denied` is a stranger and is denied access
     * `pending` is a new user, and should be sorted by an admin
@@ -90,38 +88,26 @@ Body: {
       "category_id": "e4gMzdjR...",
       "category_name": "Novice Men Qualifiers",
       "acronym": "NMQ",
-      "is_team_category": false,
       "is_score_finalized": false,
       "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
       "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
-      "score_system": "points"
       "routes": [
         {
           "_id": "rbjJ...",
           "route_name": "Route 1",
-          "score_rules": {
-            "points": 1000
-          },
+          "score_rules": "points__1000"
         },
         {
           "_id": "TC3R...",
           "route_name": "Route 2",
-          "score_rules": {
-            "points": 800
-          },
+          "score_rules": "points__800"
         },
         {
           "_id": "EgN4g...",
           "route_name": "Route 3",
-          "score_rules": {
-            "points": 1800
-          },
+          "score_rules": "points__1800"
         }
       ],
-      "event": {
-        "_id": "DsJnHX...",
-        "event_name": "Boulderactive 2016"
-      }
     },
     {
       "category_id": "e4gMzdjR...",
@@ -131,28 +117,23 @@ Body: {
       "is_score_finalized": true,
       "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
       "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
-      "score_system": "ifsc-top-bonus"
       "routes": [
         {
           "_id": "rbjJ...",
           "route_name": "Route 1",
-          "score_rules": {},
+          "score_rules": "ifsc-top-bonus",
         },
         {
           "_id": "TC3R...",
           "route_name": "Route 2",
-          "score_rules": {},
+          "score_rules": "ifsc-top-bonus",
         },
         {
           "_id": "EgN4g...",
           "route_name": "Route 3",
-          "score_rules": {},
+          "score_rules": "ifsc-top-bonus",
         }
       ],
-      "event": {
-        "_id": "DsJnHX...",
-        "event_name": "Boulderactive 2016"
-      }
     },
 
     ...
@@ -217,7 +198,7 @@ Body: {
       {
         "marker_id": "OMQ007",
         "category_id": "Q0afR...",
-        "route_id": "FTHew..."
+        "route_id": "FTHew...",
         "score": ""
       },
       {
@@ -401,7 +382,7 @@ header: {
 }
 body: {
   "route_id": "yGXAk...",
-  "marker_id": "NMF001"
+  "marker_id": "NMF001",
 }
 ```
 
@@ -409,7 +390,7 @@ body: {
 ```json
 Body: {
   "route_route": "yGXAk...",
-  "marker_id": "NMF001"
+  "marker_id": "NMF001",
   "climber_id": "nJXAk...",
   "climber_name": "Dongie",
 }
@@ -436,7 +417,7 @@ body: {
 ```json
 Body: {
   "route_id": "yGXAk...",
-  "marker_id": ""
+  "marker_id": "",
   "climber_id": "",
   "climber_name": "",
 }
