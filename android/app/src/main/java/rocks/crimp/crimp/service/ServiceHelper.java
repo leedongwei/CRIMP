@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import java.util.UUID;
 
 import rocks.crimp.crimp.network.model.HeaderBean;
+import rocks.crimp.crimp.network.model.MetaBean;
 import rocks.crimp.crimp.network.model.PathBean;
 import rocks.crimp.crimp.network.model.RequestBean;
 import rocks.crimp.crimp.network.model.RequestBodyJs;
@@ -197,7 +198,8 @@ public class ServiceHelper {
     public static UUID postScore(@NonNull Context context, @Nullable UUID txId,
                                  @NonNull long routeId, @NonNull String markerId,
                                  @NonNull String fbUserId, @NonNull String fbAccessToken,
-                                 long sequentialToken, @NonNull String score){
+                                 long sequentialToken, @NonNull String score,
+                                 @NonNull String categoryName, @NonNull String routeName){
         if(txId == null){
             txId = UUID.randomUUID();
         }
@@ -211,9 +213,13 @@ public class ServiceHelper {
         PathBean path = new PathBean();
         path.setRouteId(routeId);
         path.setMarkerId(markerId);
+        MetaBean meta = new MetaBean();
+        meta.setCategoryName(categoryName);
+        meta.setRouteName(routeName);
         requestBean.setHeaderBean(header);
         requestBean.setRequestBodyJs(body);
         requestBean.setPathBean(path);
+        requestBean.setMetaBean(meta);
 
         Intent intent = new Intent(context, CrimpService.class);
         intent.setAction(CrimpService.ACTION_POST_SCORE);

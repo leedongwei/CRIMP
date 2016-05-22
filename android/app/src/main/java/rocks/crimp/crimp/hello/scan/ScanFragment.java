@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Bundle;
-import android.os.Message;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
@@ -99,6 +98,14 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             throw new ClassCastException(context.toString()
                     + " must implement ScanFragmentInterface");
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putInt(SCREEN_WIDTH_PX, mTargetWidth);
+        outState.putFloat(ASPECT_RATIO, mAspectRatio);
+        outState.putInt(DISPLAY_ROTATION, mDisplayRotation);
     }
 
     @Override
@@ -507,7 +514,13 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Timber.d("Surface changed");
+        CrimpApplication.getAppState().edit().putInt(CrimpApplication.IMAGE_HEIGHT, height).commit();
+        if(height <= 0){
+            Timber.e("Surface changed, width: %d, height: %d", width, height);
+        }
+        else{
+            Timber.d("Surface changed, width: %d, height: %d", width, height);
+        }
         boolean shouldScan = CrimpApplication.getAppState()
                 .getBoolean(CrimpApplication.SHOULD_SCAN, true);
         if(!shouldScan){
@@ -543,14 +556,27 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         //        mIsOnResume, mIsShowing, shouldScan, mIsScanning);
 
         if(mIsOnResume && mIsShowing && shouldScan){
+            if(mPreviewFrame.getLayoutParams().height <= 0){
+                Timber.e("Going to scan. mPreviewFrame width: %d, mPreviewFrame height: %d",
+                        mPreviewFrame.getLayoutParams().width, mPreviewFrame.getLayoutParams().height);
+            }
+            else{
+                Timber.d("Going to scan. mPreviewFrame width: %d, mPreviewFrame height: %d",
+                        mPreviewFrame.getLayoutParams().width, mPreviewFrame.getLayoutParams().height);
+            }
             mCameraManager.acquireCamera(mTargetWidth, mAspectRatio, mDisplayRotation);
-
-
             mCameraManager.startPreview(mPreviewFrame);
-
             mCameraManager.startScan(mDecodeThread);
         }
         else{
+            if(mPreviewFrame.getLayoutParams().height <= 0){
+                Timber.e("Going to release. mPreviewFrame width: %d, mPreviewFrame height: %d",
+                        mPreviewFrame.getLayoutParams().width, mPreviewFrame.getLayoutParams().height);
+            }
+            else{
+                Timber.d("Going to release. mPreviewFrame width: %d, mPreviewFrame height: %d",
+                        mPreviewFrame.getLayoutParams().width, mPreviewFrame.getLayoutParams().height);
+            }
             mCameraManager.stopPreview();
             mCameraManager.releaseCamera();
         }

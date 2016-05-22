@@ -7,7 +7,6 @@ import android.os.Looper;
 import android.os.Message;
 
 import java.util.UUID;
-import java.util.concurrent.BrokenBarrierException;
 
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.common.event.RequestFailed;

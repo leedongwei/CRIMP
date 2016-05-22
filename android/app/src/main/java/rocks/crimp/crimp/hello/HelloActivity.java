@@ -2,29 +2,24 @@ package rocks.crimp.crimp.hello;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
 import com.squareup.otto.Produce;
-import com.squareup.otto.Subscribe;
 
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.Action;
-import rocks.crimp.crimp.common.Climber;
-import rocks.crimp.crimp.common.User;
 import rocks.crimp.crimp.common.event.SwipeTo;
 import rocks.crimp.crimp.hello.route.RouteFragment;
 import rocks.crimp.crimp.hello.scan.ScanFragment;

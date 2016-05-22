@@ -1,20 +1,11 @@
 package rocks.crimp.crimp.hello.scan;
 
-import android.graphics.ImageFormat;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.view.Display;
-import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.List;
 
 import timber.log.Timber;
 
@@ -166,6 +157,8 @@ class CrimpCameraManager implements Camera.PreviewCallback{
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
+        Timber.d("onPreviewFrame");
+
         /* The byte array data passed in here is not affected by setDisplayOrientation(). The size
          * of the byte array data depends on the size in Camera.Parameters.setPreviewSize().
          */

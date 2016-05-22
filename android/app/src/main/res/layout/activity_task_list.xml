@@ -7,7 +7,7 @@
     tools:context="rocks.crimp.crimp.tasklist.TaskListActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/my_toolbar"
+        android:id="@+id/tasklist_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
@@ -16,41 +16,62 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <TextView android:id="@+id/tasklist_counter"
-        android:layout_below="@id/my_toolbar"
-        android:layout_width="match_parent"
+        android:layout_below="@id/tasklist_toolbar"
+        android:layout_margin="16dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        tools:text="Score upload task(s) remaining: 5"/>
+        tools:text="Score upload task(s) left: 3"/>
 
-    <RelativeLayout android:id="@+id/tasklist_task_layout"
+    <android.support.v7.widget.CardView android:id="@+id/tasklist_card"
         android:layout_below="@id/tasklist_counter"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp">
 
-        <TextView android:id="@+id/tasklist_route_id"
-            android:layout_alignParentTop="true"
+        <RelativeLayout
+            android:layout_margin="16dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:text="Route Id: 16"/>
+            android:layout_height="wrap_content">
 
-        <TextView android:id="@+id/tasklist_marker_id"
-            android:layout_below="@id/tasklist_route_id"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:text="Marker Id: NMQ001"/>
+            <TextView android:id="@+id/tasklist_category_route_name"
+                android:layout_alignParentTop="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                tools:text="Novice man qualifier, Route 2"/>
 
-        <TextView android:id="@+id/tasklist_score"
-            android:layout_below="@id/tasklist_marker_id"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:text="score: 11B"/>
+            <TextView android:id="@+id/tasklist_marker_id"
+                android:layout_below="@id/tasklist_category_route_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Climber: NMQ001"/>
 
-        <Button android:id="@+id/tasklist_resume"
-            android:layout_below="@id/tasklist_score"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Resume"/>
+            <TextView android:id="@+id/tasklist_score"
+                android:layout_below="@id/tasklist_marker_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Score: 11B"/>
 
-    </RelativeLayout>
+            <TextView android:id="@+id/tasklist_status"
+                android:layout_below="@id/tasklist_score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Status: uploading" />
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/tasklist_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_file_upload_white_24dp" />
 
 </RelativeLayout>

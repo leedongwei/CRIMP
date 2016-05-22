@@ -6,12 +6,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import com.squareup.otto.Produce;
+
 import java.util.UUID;
-import java.util.concurrent.BrokenBarrierException;
 
 import rocks.crimp.crimp.CrimpApplication;
+import rocks.crimp.crimp.common.event.CurrentUploadTask;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
+import rocks.crimp.crimp.network.model.RequestBean;
 import timber.log.Timber;
 
 /**
@@ -30,10 +33,17 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         super(looper);
         mContext = context;
         mScoreUploadTaskQueue = ScoreUploadTaskQueue.create(context);
+        CrimpApplication.getBusInstance().register(this);
     }
 
-    public int getTaskCount(){
-        return mScoreUploadTaskQueue.size();
+    @Produce
+    public CurrentUploadTask produceCurrentUploadTask(){
+        int count = mScoreUploadTaskQueue.size();
+        RequestBean task = null;
+        if(count>0){
+            task = mScoreUploadTaskQueue.peek().getRequestBean();
+        }
+        return new CurrentUploadTask(mScoreUploadTaskQueue.size(), task, "nothing");
     }
 
     @Override
@@ -69,6 +79,10 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         Timber.d("executeTask(). queueSize: %d", queueSize);
         if(queueSize != 0){
             ScoreUploadTask task = mScoreUploadTaskQueue.peek();
+
+            CrimpApplication.getBusInstance()
+                    .post(new CurrentUploadTask(queueSize, task.getRequestBean(), "nothing"));
+
             if (task != null) {
                 isExecutingTask = true;
                 task.execute(this);
@@ -78,6 +92,8 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
             }
         }
         else{
+            CrimpApplication.getBusInstance()
+                    .post(new CurrentUploadTask(queueSize, null, "nothing"));
             tryAndQuitService();
         }
     }

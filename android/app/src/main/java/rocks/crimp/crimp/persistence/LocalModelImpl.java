@@ -19,7 +19,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
-import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import timber.log.Timber;
 

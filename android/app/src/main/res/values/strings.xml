@@ -62,4 +62,12 @@
     <string name="score_fragment_accumulated_score">Accumulated Score</string>
     <string name="score_fragment_current_score">Current Score</string>
     <string name="score_fragment_submit">Submit</string>
+
+    <!-- TaskList Activity UI -->
+    <string name="tasklist_activity_counter_zero">No pending upload. Good job!</string>
+    <string name="tasklist_activity_counter">Score upload task left: %1$d</string>
+    <string name="tasklist_activity_category_route">%1$s, %2$s</string>
+    <string name="tasklist_activity_climber">Climber: %1$s</string>
+    <string name="tasklist_activity_score">Score: %1$s</string>
+    <string name="tasklist_activity_status">Status: %1$s</string>
 </resources>

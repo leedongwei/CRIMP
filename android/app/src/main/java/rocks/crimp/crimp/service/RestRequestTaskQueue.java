@@ -1,7 +1,5 @@
 package rocks.crimp.crimp.service;
 
-import android.content.Context;
-
 import com.squareup.tape.InMemoryObjectQueue;
 import com.squareup.tape.ObjectQueue;
 import com.squareup.tape.TaskQueue;

@@ -259,7 +259,7 @@ public class StubWS implements CrimpWS {
     public PostScoreJs postScore(RequestBean requestBean) throws IOException {
         Timber.d("sending postScore request...");
         try {
-            Thread.sleep(TIME_TO_RESPOND);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             // Restore interrupt status.
             Thread.currentThread().interrupt();

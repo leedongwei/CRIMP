@@ -1,7 +1,6 @@
 package rocks.crimp.crimp.common.event;
 
 import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 /**

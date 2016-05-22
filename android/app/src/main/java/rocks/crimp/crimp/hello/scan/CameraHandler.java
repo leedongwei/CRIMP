@@ -1,6 +1,5 @@
 package rocks.crimp.crimp.hello.scan;
 
-import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Handler;
@@ -151,6 +150,7 @@ public class CameraHandler extends Handler {
                         }
                     }
                     mCamera.release();
+                    Timber.d("Camera released, mIsScanning: %b", mIsScanning);
                     mCamera = null;
                 }
                 break;
@@ -189,6 +189,7 @@ public class CameraHandler extends Handler {
         if(cId != -1){
             try {
                 c = Camera.open(cId); // attempt to get a Camera instance
+                Timber.d("Camera instance acquired");
             }
             catch (Exception e){
                 Timber.e(e, "GetCameraInstance failed. Camera is not available (in use or does not exist");
@@ -293,6 +294,7 @@ public class CameraHandler extends Handler {
         param.setPreviewFormat(ImageFormat.NV21);
 
         camera.setParameters(param);
+        Timber.d("Camera parameter set");
         CrimpApplication.getBusInstance()
                 .post(new CameraAcquired(targetWidth, mPxSurfaceExpectedHeight));
 
@@ -339,6 +341,7 @@ public class CameraHandler extends Handler {
      * Method to start scanning.
      */
     private void startScan(@NonNull Camera camera, @NonNull Camera.PreviewCallback callback){
+        mIsScanning = true;
         camera.setOneShotPreviewCallback(callback);
     }
 
