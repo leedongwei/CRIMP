@@ -1,10 +1,7 @@
 package rocks.crimp.crimp.hello;
 
-import android.content.Context;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.view.inputmethod.InputMethodManager;
 
 import java.lang.ref.WeakReference;
 

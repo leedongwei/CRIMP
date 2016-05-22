@@ -33,7 +33,7 @@ import rocks.crimp.crimp.network.model.SetActiveJs;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class CrimpWsImpl implements CrimpWS {
-    private static final String BASEURL = "http://localhost/";
+    private static final String BASEURL = "http://dev.crimp.rocks/";
     private final RetrofitWs webService;
 
     public CrimpWsImpl(){

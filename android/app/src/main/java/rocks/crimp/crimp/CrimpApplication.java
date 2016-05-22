@@ -2,23 +2,17 @@ package rocks.crimp.crimp;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.squareup.otto.Bus;
 
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.Phaser;
-
 import rocks.crimp.crimp.common.MainThreadBus;
 import rocks.crimp.crimp.network.CrimpWS;
 import rocks.crimp.crimp.network.StubWS;
 import rocks.crimp.crimp.persistence.LocalModel;
 import rocks.crimp.crimp.persistence.LocalModelImpl;
-import rocks.crimp.crimp.persistence.StubLocalModel;
-import rocks.crimp.crimp.service.CrimpService;
 import rocks.crimp.crimp.service.RestHandler;
 import rocks.crimp.crimp.service.ScoreHandler;
 import timber.log.Timber;

@@ -1,7 +1,6 @@
 package rocks.crimp.crimp.login;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -25,7 +24,6 @@ import java.util.UUID;
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.Action;
-import rocks.crimp.crimp.common.User;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
 import rocks.crimp.crimp.hello.HelloActivity;
@@ -85,7 +83,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void launchHelloActivity(){
         Timber.d("Launching HelloActivity");
-        Intent intent = new Intent(getApplicationContext(), HelloActivity.class);
+        Intent intent = new Intent(this, HelloActivity.class);
         intent.putExtra(HelloActivity.SAVE_FB_USER_NAME, mFbUserName);
         intent.putExtra(HelloActivity.SAVE_FB_ACCESS_TOKEN, mFbAccessToken);
         intent.putExtra(HelloActivity.SAVE_FB_USER_ID, mFbUserId);

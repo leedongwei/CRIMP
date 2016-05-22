@@ -1,6 +1,5 @@
 package rocks.crimp.crimp.hello.scan;
 
-import android.os.Handler;
 import android.os.Looper;
 
 import timber.log.Timber;

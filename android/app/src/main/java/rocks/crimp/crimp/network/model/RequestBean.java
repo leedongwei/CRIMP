@@ -12,6 +12,7 @@ public class RequestBean implements Serializable{
     private QueryBean queryBean;
     private HeaderBean headerBean;
     private RequestBodyJs requestBodyJs;
+    private MetaBean metaBean;
 
     public PathBean getPathBean() {
         return pathBean;
@@ -43,5 +44,13 @@ public class RequestBean implements Serializable{
 
     public void setRequestBodyJs(RequestBodyJs requestBodyJs) {
         this.requestBodyJs = requestBodyJs;
+    }
+
+    public MetaBean getMetaBean() {
+        return metaBean;
+    }
+
+    public void setMetaBean(MetaBean metaBean) {
+        this.metaBean = metaBean;
     }
 }

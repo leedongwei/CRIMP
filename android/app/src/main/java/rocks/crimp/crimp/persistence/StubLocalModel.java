@@ -1,10 +1,8 @@
 package rocks.crimp.crimp.persistence;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
 
 import rocks.crimp.crimp.network.model.CategoriesJs;

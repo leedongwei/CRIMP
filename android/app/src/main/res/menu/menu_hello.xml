@@ -5,9 +5,15 @@
 
     <item android:id="@+id/action_helpme"
         android:title="@string/action_helpme"
-        android:orderInCategory="99"
+        android:orderInCategory="98"
         android:icon="@drawable/ic_notifications_active_white_24dp"
         app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_task_list"
+        android:title="@string/action_task_list"
+        android:orderInCategory="99"
+        android:icon="@drawable/ic_assignment_white_24dp"
+        app:showAsAction="always" />
 
     <item android:id="@+id/action_logout"
         android:title="@string/action_logout"

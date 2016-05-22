@@ -34,8 +34,6 @@ public class ScoreUploadTask implements Task<ScoreUploadTask.Callback> {
 
     @Override
     public void execute(Callback callback) {
-        boolean isSucceed;
-
         Serializable responseObject = null;
         try {
             responseObject = CrimpApplication.getCrimpWS().postScore(requestBean);
@@ -52,6 +50,10 @@ public class ScoreUploadTask implements Task<ScoreUploadTask.Callback> {
             Timber.d("Failed to receive response from server");
             callback.onScoreUploadFailure(txId);
         }
+    }
+
+    public RequestBean getRequestBean(){
+        return requestBean;
     }
 
     public interface Callback {

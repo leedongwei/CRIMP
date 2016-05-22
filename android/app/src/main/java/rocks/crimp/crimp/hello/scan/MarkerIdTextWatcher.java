@@ -6,7 +6,6 @@ import android.text.TextWatcher;
 
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.common.Action;
-import rocks.crimp.crimp.hello.HelloActivity;
 import timber.log.Timber;
 
 /**

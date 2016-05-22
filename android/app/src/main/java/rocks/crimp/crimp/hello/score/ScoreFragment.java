@@ -3,7 +3,6 @@ package rocks.crimp.crimp.hello.score;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,17 +15,13 @@ import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
-import rocks.crimp.crimp.common.Action;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
 import rocks.crimp.crimp.common.event.SwipeTo;
-import rocks.crimp.crimp.hello.HelloActivity;
-import rocks.crimp.crimp.hello.route.ReplaceDialog;
 import rocks.crimp.crimp.hello.score.scoremodule.BonusTwoModule;
 import rocks.crimp.crimp.hello.score.scoremodule.ScoreModule;
 import rocks.crimp.crimp.hello.score.scoremodule.TopBonusModule;
@@ -34,8 +29,6 @@ import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
 import rocks.crimp.crimp.network.model.ClimberScoreJs;
 import rocks.crimp.crimp.network.model.GetScoreJs;
-import rocks.crimp.crimp.network.model.ReportJs;
-import rocks.crimp.crimp.network.model.RouteJs;
 import rocks.crimp.crimp.service.ServiceHelper;
 import timber.log.Timber;
 
@@ -288,7 +281,9 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                         .getInt(CrimpApplication.ROUTE_POSITION, 0);
                 CategoryJs chosenCategory =
                         mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
+                String chosenCategoryName = chosenCategory.getCategoryName();
                 long routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
+                String chosenRouteName = chosenCategory.getRoutes().get(routePosition - 1).getRouteName();
                 String markerId = CrimpApplication.getAppState()
                         .getString(CrimpApplication.MARKER_ID, null);
                 String userId = CrimpApplication.getAppState()
@@ -300,7 +295,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                 String currentScore = mCurrentText.getText().toString();
 
                 ServiceHelper.postScore(getActivity(), null, routeId, markerId, userId, accessToken,
-                        sequentialToken, currentScore);
+                        sequentialToken, currentScore, chosenCategoryName, chosenRouteName);
 
                 CrimpApplication.getAppState().edit()
                         .remove(CrimpApplication.MARKER_ID)
