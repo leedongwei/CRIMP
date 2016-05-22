@@ -97,21 +97,21 @@ Body: {
       "score_system": "points"
       "routes": [
         {
-          "route_id": "rbjJ...",
+          "_id": "rbjJ...",
           "route_name": "Route 1",
           "score_rules": {
             "points": 1000
           },
         },
         {
-          "route_id": "TC3R...",
+          "_id": "TC3R...",
           "route_name": "Route 2",
           "score_rules": {
             "points": 800
           },
         },
         {
-          "route_id": "EgN4g...",
+          "_id": "EgN4g...",
           "route_name": "Route 3",
           "score_rules": {
             "points": 1800
