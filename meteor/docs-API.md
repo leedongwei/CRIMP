@@ -389,7 +389,7 @@ body: {
 #### Response
 ```json
 Body: {
-  "route_route": "yGXAk...",
+  "route_id": "yGXAk...",
   "marker_id": "NMF001",
   "climber_id": "nJXAk...",
   "climber_name": "Dongie",
@@ -415,12 +415,7 @@ body: {
 
 #### Response
 ```json
-Body: {
-  "route_id": "yGXAk...",
-  "marker_id": "",
-  "climber_id": "",
-  "climber_name": "",
-}
+Body: {}
 ```
 <br><br><br>
 
