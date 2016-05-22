@@ -269,20 +269,20 @@ Api.addRoute('judge/score', { authRequired: true }, {
 });
 
 
-Api.addRoute('judge/score/:route_id/:climber_id', { authRequired: true }, {
+Api.addRoute('judge/score/:route_id/:marker_id', { authRequired: true }, {
   post: function postScore() {
     const options = this.urlParams;
 
-    const cmb = Climbers.findOne(options.climber_id);
     const cat = Categories.findOne({ 'routes._id': options.route_id });
-
-    console.log(cat);
+    // const scs = Scores.findOne({
+    //               marker_id: );
+    // console.log(cat);
 
     return {
       statusCode: 501,
       body: {
-        "climber_id": cmb._id,
-        "climber_name": cmb.climber_name,
+        "climber_id": '123123',
+        "climber_name": 'CATERPIE',
         "category_id": cat._id,
         "route_id": options.route_id,
         "marker_id": "abc007",
