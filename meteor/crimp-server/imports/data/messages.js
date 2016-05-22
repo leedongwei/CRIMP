@@ -2,7 +2,7 @@ import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-// For testing': import { Factory } from 'meteor/factory';
+import CRIMP from '../settings';
 
 const Messages = new Mongo.Collection('Messages');
 Messages.schema = new SimpleSchema({
@@ -20,7 +20,7 @@ Messages.schema = new SimpleSchema({
 });
 Messages.attachSchema(Messages.schema);
 
-if (ENVIRONMENT.NODE_ENV === 'production') {
+if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
   Messages.deny({
     insert() { return true; },
     update() { return true; },
@@ -33,8 +33,8 @@ Messages.methods = {};
 Messages.methods.insert = new ValidatedMethod({
   name: 'Messages.method.insert',
   validate: Messages.schema.validator(),
-  run(msg) {
-    return Messages.insert(msg);
+  run(messageDoc) {
+    return Messages.insert(messageDoc);
   },
 });
 

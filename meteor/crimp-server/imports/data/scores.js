@@ -2,6 +2,8 @@ import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
+import CRIMP from '../settings';
+
 class ScoresCollection extends Mongo.Collection {
   // insert() {
   //   return false;
@@ -40,7 +42,7 @@ Scores.schema = new SimpleSchema({
 });
 Scores.attachSchema(Scores.schema);
 
-if (ENVIRONMENT.NODE_ENV === 'production') {
+if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
   Scores.deny({
     insert() { return true; },
     update() { return true; },

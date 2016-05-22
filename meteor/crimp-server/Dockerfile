@@ -1,5 +1,5 @@
 # For development
-FROM meteorhacks/meteord:devbuild
+# FROM meteorhacks/meteord:devbuild
 
 # TODO: For production
-#FROM meteorhacks/meteord:onbuild
+FROM meteorhacks/meteord:onbuild

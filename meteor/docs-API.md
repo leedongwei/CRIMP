@@ -8,17 +8,75 @@
 
 
 ## API List
+* [POST '/api/judge/login'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgelogin)
+* [POST '/api/judge/logout'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgelogout)
 * [GET '/api/judge/categories'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#get-apijudgecategories)
-* [GET '/api/judge/climberscore/{?climber_id}{?category_id}{?route_id}{?marker_id}'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#get-apijudgeclimberscoreclimber_idcategory_idroute_idmarker_id)
+* [GET '/api/judge/score/{?climber_id}{?category_id}{?route_id}{?marker_id}'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#get-apijudgeclimber_idcategory_idroute_idmarker_id)
+* [POST '/api/judge/score/:route_id/:climber_id'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgescoreroute_idclimber_id)
+* [POST '/api/judge/helpme'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgehelpme)
+* [POST '/api/judge/report'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgereport)
 * [PUT '/api/judge/setactive'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#put-apijudgesetactive)
 * [PUT '/api/judge/clearactive'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#put-apijudgeclearactive)
-* [POST '/api/judge/login'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgelogin)
-* [POST '/api/judge/report'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgereport)
-* [POST '/api/judge/helpme'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgehelpme)
-* [POST '/api/judge/score/:route_id/:climber_id'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgescoreroute_idclimber_id)
-* [POST '/api/judge/logout'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgelogout)
 <br><br><br>
 
+
+
+## POST '/api/judge/login'
+* Login and authenticate user on the server.
+* Creates a user account, or updates existing account
+* Issues a authentication token for subsequent requests
+
+#### Request
+```json
+Body: {
+  "fb_access_token": "CAAE1913yZC2ABAAO6...",
+  "force_login": true,
+  "isProductionApp": true,
+}
+```
+
+#### Response
+```json
+Body: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+  "remind_logout": true,
+  "roles": ["admin"],
+}
+```
+* If `force_login` is `false` and there are existing sessions, login will be rejected
+* `isProductionApp` prevents the situation of a judge using an old dev app
+* `X-User-Id` and `X-Auth-Token` is used in endpoints requiring authorization
+* `remind_logout` is `true` if there are existing sessions on other devices
+* `roles` is the privilege level of the user
+  * The mobile app should deny access to user if role is not higher than `judge`
+  * roles in increasing order of access: `denied`, `pending`, `partner`, `judge`, `admin`, `hukkataival`
+    * `denied` is a stranger and is denied access
+    * `pending` is a new user, and should be sorted by an admin
+    * `partner` has read-only access through REST API
+    * `judge` has read-write access through REST API
+    * `admin` has read-write access through web dashboard
+    * `hukkataival` is given all privileges
+<br><br><br>
+
+
+
+## POST '/api/judge/logout'
+* Used to logout.
+
+#### Request
+```json
+body: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+}
+```
+
+#### Response
+```json
+body: {}
+```
+<br><br><br>
 
 
 ## GET '/api/judge/categories'
@@ -33,7 +91,7 @@ Body: {
       "category_name": "Novice Men Qualifiers",
       "acronym": "NMQ",
       "is_team_category": false,
-      "score_finalized": false,
+      "is_score_finalized": false,
       "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
       "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
       "score_system": "points"
@@ -70,7 +128,7 @@ Body: {
       "category_name": "Novice Women Qualifiers",
       "acronym": "NWQ",
       "is_team_category": true,
-      "score_finalized": true,
+      "is_score_finalized": true,
       "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
       "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
       "score_system": "ifsc-top-bonus"
@@ -110,7 +168,7 @@ Body: {
 
 
 
-## GET '/api/judge/climberscore/{?climber_id}{?category_id}{?route_id}{?marker_id}'
+## GET '/api/judge/score/{?climber_id}{?category_id}{?route_id}{?marker_id}'
 * Get score
 
 #### Request
@@ -123,9 +181,8 @@ Body: {
 
 ```json
 header: {
-  "fb_user_id": 29,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
 }
 ```
 
@@ -239,15 +296,108 @@ Body: {
 
 
 
+## POST '/api/judge/score/:route_id/:marker_id'
+* Used by judges to update the score of a climber on a specific route
+* If `scores_finalized` is `true` for a category, then the scores will not be updated any more.
+  * You'll receive error response code.
+
+#### Request
+```json
+header: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+}
+body: {
+  "score_string": "11T"
+}
+```
+
+#### Response
+```json
+body: {
+  "climber_id": 14,
+  "climber_name": "Antonio Paul",
+  "category_id": "e4gMzdjR...",
+  "route_id": "rbjJ...",
+  "marker_id": "NMF002",
+  "score": "11B11T"
+}
+```
+* Response is the current state as seen by server.
+* `score_string` should only cover climb on that attempt and are appended to whatever score_string accumulated by previous attempt.
+  * e.g. sending in `11B` followed by `1T` will make the overall score_string to be `11B1T`.
+* `score_string` is a raw value with no semantics. Interpretation of this field should be done by the client.
+<br><br><br>
+
+
+
+## POST '/api/judge/helpme'
+* Used by judges to request help from the admin.
+
+#### Request
+```json
+header: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+}
+body: {
+  "route_id": "EgN4g...",
+}
+```
+
+#### Response
+```json
+body: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+  "route_id": "EgN4g...",
+}
+```
+* Response is immediate to acknowledge that the server has received it. It does not mean that the admin has acknowledged it.
+<br><br><br>
+
+
+
+## POST '/api/judge/report'
+* Used to inform CRIMP server that this user will attempt to judge a route. Provides a way to resolve conflict when there are multiple user trying to judge the same route.
+* Used by admin to make sure that the judges are on the correct route.
+
+#### Request
+```json
+header: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+}
+
+body: {
+  "category_id": "e4gMzdjR...",
+  "route_id": "EgN4g...",
+  "force": false
+}
+```
+
+#### Response
+```json
+Body: {
+  "X-User-Id": "jfJnk4B...",
+  "user_name": "Weizhi",
+  "category_id": "e4gMzdjR...",
+  "route_id": "EgN4g...",
+}
+```
+* `fb_user_id` and `user_name` refers to the active judge as seen by server.
+<br><br><br>
+
+
+
 ## PUT '/api/judge/setactive'
 * Set a climber for a route
 
 #### Request
 ```json
 header: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
 }
 body: {
   "route_id": "yGXAk...",
@@ -274,9 +424,8 @@ Body: {
 #### Request
 ```json
 header: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
 }
 body: {
   "route_id": "yGXAk...",
@@ -295,144 +444,3 @@ Body: {
 <br><br><br>
 
 
-
-## POST '/api/judge/login'
-* Login and let the server know about user.
-
-#### Request
-```json
-Body: {
-  "fb_user_id": 23,
-  "fb_access_token": "CAAE1913yZC2ABAAO6...",
-  "force_login": true
-}
-```
-
-#### Response
-```json
-Body: {
-  "fb_user_id": 23,
-  "fb_access_token": "CAAE1913yZC2ABAAO6...",
-  "user_name": "John Doe",
-  "remind_logout": true,
-  "sequential_token": 1
-}
-```
-* `sequential_token` cannot be negative.
-<br><br><br>
-
-
-
-## POST '/api/judge/report'
-* Used to inform CRIMP server that this user will attempt to judge a route. Provides a way to resolve conflict when there are multiple user trying to judge the same route.
-* Used by admin to make sure that the judges are on the correct route.
-
-#### Request
-```json
-header: {
-  "fb_user_id": 23,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
-}
-
-body: {
-  "category_id": "e4gMzdjR...",
-  "route_id": "EgN4g...",
-  "force": false
-}
-```
-
-#### Response
-```json
-Body: {
-  "fb_user_id": 23,
-  "user_name": "Weizhi",
-  "category_id": "e4gMzdjR...",
-  "route_id": "EgN4g...",
-}
-```
-* `fb_user_id` and `user_name` refers to the active judge as seen by server.
-<br><br><br>
-
-
-
-## POST '/api/judge/helpme'
-* Used by judges to request help from the admin.
-
-#### Request
-```json
-header: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
-}
-body: {
-  "route_id": "EgN4g...",
-}
-```
-
-#### Response
-```json
-body: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "route_id": "EgN4g...",
-}
-```
-* Response is immediate to acknowledge that the server has received it. It does not mean that the admin has acknowledged it.
-<br><br><br>
-
-
-
-## POST '/api/judge/score/:route_id/:marker_id'
-* Used by judges to update the score of a climber on a specific route
-* If `scores_finalized` is `true` for a category, then the scores will not be updated any more.
-  * You'll receive error response code.
-
-#### Request
-```json
-header: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
-}
-body: {
-  "score_string": "11T"
-}
-```
-
-#### Response
-```json
-body: {
-  "climber_id": 14,
-  "climber_name": "Antonio Paul",
-  "category_id": "e4gMzdjR...",
-  "route_id": "rbjJ...",
-  "marker_id": "NMF002",
-  "score": "11B11T"
-}
-```
-* Response is the current state as seen by server.
-* `score_string` should only cover climb on that attempt and are appended to whatever score_string accumulated by previous attempt.
-  * e.g. sending in `11B` followed by `1T` will make the overall score_string to be `11B1T`.
-* `score_string` is a raw value with no semantics. Interpretation of this field should be done by the client.
-<br><br><br>
-
-
-
-## POST '/api/judge/logout'
-* Used to logout.
-
-#### Request
-```json
-body: {
-  "fb_user_id": 28,
-  "fb_access_token": "RCDBy6X3zS8...",
-  "sequential_token": 98
-}
-```
-
-#### Response
-```json
-body: {}
-```
