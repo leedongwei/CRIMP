@@ -181,47 +181,33 @@ describe('Categories', function () {
       });
 
       it('reject category with child because isRecursive is false', function () {
-        // const targetCategory = Factory.create('event');
-        // const newCategoryDoc = Factory.build('category');
-        // newCategoryDoc.event = targetCategory;
-        // Categories.insert(newCategoryDoc);
+        const targetCategory = Categories.findOne({});
+        const newTeam = Factory.build('team');
+        newTeam.category_id = targetCategory._id;
+        Teams.insert(newTeam);
 
-        // const removedEvents = Events.methods.remove.call({
-        //   selector: targetCategory._id,
-        // });
+        const removedCategories = Categories.methods.remove.call({
+          selector: targetCategory._id,
+        });
 
-        // assert.equal(removedEvents, 0);
-        // assert.isDefined(Events.findOne(targetCategory._id));
-        assert.equal(0, 1);
+        assert.equal(removedCategories, 0);
+        assert.isDefined(Categories.findOne(targetCategory._id));
       });
 
-      /**
-       *  Need CategoriesCollection stub to isolate Events
-       */
       it('delete category with child because isRecursive is true', function () {
-        // const targetCategory = Factory.create('event');
+        const targetCategory = Categories.findOne({});
+        const newTeam = Factory.build('team');
+        newTeam.category_id = targetCategory._id;
+        Teams.insert(newTeam);
 
-        // // Set 3 child Categories under Event
-        // let newCategoryDoc;
-        // newCategoryDoc = Factory.build('category');
-        // newCategoryDoc.event = targetCategory;
-        // Categories.insert(newCategoryDoc);
-        // newCategoryDoc = Factory.build('category');
-        // newCategoryDoc.event = targetCategory;
-        // Categories.insert(newCategoryDoc);
-        // newCategoryDoc = Factory.build('category');
-        // newCategoryDoc.event = targetCategory;
-        // Categories.insert(newCategoryDoc);
+        const removedCategories = Categories.methods.remove.call({
+          selector: targetCategory._id,
+          callback: null,
+          isRecursive: true,
+        });
 
-        // const removedEvents = Events.methods.remove.call({
-        //   selector: targetCategory._id,
-        //   isRecursive: true,
-        // });
-
-        // assert.equal(removedEvents, 1);
-        // assert.equal(Categories.find({}).count(), 0);
-        // assert.isUndefined(Events.findOne(targetCategory._id));
-        assert.equal(0, 1);
+        assert.equal(removedCategories, 1);
+        assert.isUndefined(Categories.findOne(targetCategory._id));
       });
 
       it('reject non ._id selectors', function () {

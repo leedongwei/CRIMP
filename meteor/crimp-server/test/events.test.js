@@ -176,9 +176,6 @@ describe('Events', function () {
         assert.isDefined(Events.findOne(targetEvent._id));
       });
 
-      /**
-       *  Need CategoriesCollection stub to isolate Events
-       */
       it('delete event with child because isRecursive is true', function () {
         const targetEvent = Events.findOne({});
 
