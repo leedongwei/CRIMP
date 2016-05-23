@@ -30,21 +30,27 @@ Factory.define('category', Categories, {
   routes: [{
     _id: Random.id(),
     route_name: 'R1',
+    score_system_rules: {},
   }, {
     _id: Random.id(),
     route_name: 'R2',
+    score_system_rules: {},
   }, {
     _id: Random.id(),
     route_name: 'R3',
+    score_system_rules: {},
   }, {
     _id: Random.id(),
     route_name: 'R4',
+    score_system_rules: {},
   }, {
     _id: Random.id(),
     route_name: 'R5',
+    score_system_rules: {},
   }, {
     _id: Random.id(),
     route_name: 'R6',
+    score_system_rules: {},
   }],
   event: {},
 });

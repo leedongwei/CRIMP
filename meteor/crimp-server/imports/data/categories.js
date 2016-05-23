@@ -14,20 +14,25 @@ class CategoriesCollection extends Mongo.Collection {
     const targetDocs = Categories.find(selector);
     if (targetDocs.count() === 0) return 0;
 
-    // Retrieve all affected child Teams and Climbers
+    // Retrieve all affected child Teams and Scores
     let childTeams = 0;
+    let childScores = 0;
     targetDocs.forEach((categoryDoc) => {
       childTeams += Teams
                         .find({ category_id: categoryDoc._id })
                         .count();
+      childScores += Scores
+                        .find({ category_id: categoryDoc._id })
+                        .count();
 
-      if (isRecursive && categoryDoc.is_team_category) {
+      if (isRecursive) {
         childTeams -= Teams.remove({ category_id: categoryDoc._id });
+        childScores -= Scores.remove({ category_id: categoryDoc._id });
       }
     });
 
-    // Do not delete Categories if there are child Teams
-    return (childTeams > 0)
+    // Do not delete Categories if there are child Teams/Scores
+    return (childTeams + childScores > 0)
       ? 0
       : super.remove(selector, callback);
   }
@@ -85,11 +90,9 @@ Categories.schema = new SimpleSchema({
   'routes.$.route_name': {
     type: String,
   },
-  // TODO: DongWei
   'routes.$.score_rules': {
     type: Object,
     label: 'Score rules specific to a route',
-    optional: true,
     blackbox: true,
   },
 
@@ -160,6 +163,7 @@ Categories.methods.update = new ValidatedMethod({
     'categoryDoc.routes': { type: Object, optional: true },
     'categoryDoc.routes.$._id': { type: String, optional: true },
     'categoryDoc.routes.$.route_name': { type: String, optional: true },
+    'categoryDoc.routes.$.score_rules': { type: String, optional: true },
   }).validator(),
   run({ selector, modifier, categoryDoc }) {
     /**
