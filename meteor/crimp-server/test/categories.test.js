@@ -28,6 +28,7 @@ function assertAllFields(category) {
   assert.typeOf(category.acronym, 'string');
   assert.typeOf(category.is_team_category, 'boolean');
   assert.typeOf(category.is_score_finalized, 'boolean');
+  assert.typeOf(category.climber_count, 'number');
   assert.typeOf(category.time_start, 'date');
   assert.typeOf(category.time_end, 'date');
   assert.typeOf(category.score_system, 'string');

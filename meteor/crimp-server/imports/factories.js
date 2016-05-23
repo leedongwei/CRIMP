@@ -21,9 +21,10 @@ Factory.define('event', Events, {
 
 Factory.define('category', Categories, {
   category_name: faker.commerce.productName(),
-  acronym: String(faker.random.uuid).substr(0, 3),
+  acronym: String(faker.random.uuid()).substr(0, 3),
   is_team_category: false,
   is_score_finalized: false,
+  climber_count: 0,
   time_start: new Date(),
   time_end: new Date(),
   score_system: 'ifsc-top-bonus',
@@ -59,8 +60,5 @@ Factory.define('climber', Climbers, {
   climber_name: faker.name.findName(),
   identity: faker.phone.phoneNumberFormat(),
   affliation: faker.name.jobType(),
-  categories: [{
-    _id: 'fake',
-    score_tiebreak: 1,
-  }],
+  categories: [],
 });

@@ -44,11 +44,20 @@ describe('Climbers', function () {
   beforeEach(function () {
     resetDatabase();
 
-    // Creates a Climber document with a parent Category
+    // Creates a Climber document with a parent Category and a child Score
     const newCategory = Factory.create('category');
     const newClimberDoc = Factory.build('climber');
-    newClimberDoc.categories[0]._id = newCategory._id;
-    Climbers.insert(newClimberDoc);
+
+    newClimberDoc.categories.push({ _id: newCategory._id });
+    const newClimberId = Climbers.insert(newClimberDoc);
+
+    const newScoreDoc = {
+      category_id: newCategory._id,
+      climber_id: newClimberId,
+      marker_id: 'fake',
+      scores: [],
+    };
+    Scores.insert(newScoreDoc);
   });
 
 
@@ -142,7 +151,7 @@ describe('Climbers', function () {
 
     describe('remove', function () {
       it('delete with _id, no children', function () {
-        const targetclimber = Climbers.findOne({});
+        const targetclimber = Factory.create('climber');
         const removedClimbers = Climbers.methods.remove.call({
           selector: targetclimber._id,
         });
@@ -152,44 +161,25 @@ describe('Climbers', function () {
       });
 
       it('reject event with child because isRecursive is false', function () {
-        // const targetclimber = Factory.create('event');
-        // const newclimberDoc = Factory.build('climber');
-        // newclimberDoc.event = targetclimber;
-        // Categories.insert(newclimberDoc);
+        const targetclimber = Climbers.findOne({});
+        const removedClimbers = Climbers.methods.remove.call({
+          selector: targetclimber._id,
+        });
 
-        // const removedEvents = Events.methods.remove.call({
-        //   selector: targetclimber._id,
-        // });
-
-        // assert.equal(removedEvents, 0);
-        // assert.isDefined(Events.findOne(targetclimber._id));
-        assert.equal(0, 1);
+        assert.equal(removedClimbers, 0);
+        assert.isDefined(Climbers.findOne(targetclimber._id));
       });
 
       it('delete event with child because isRecursive is true', function () {
-        // const targetclimber = Factory.create('event');
+        const targetclimber = Climbers.findOne({});
+        const removedClimbers = Climbers.methods.remove.call({
+          selector: targetclimber._id,
+          callback: null,
+          isRecursive: true,
+        });
 
-        // // Set 3 child Categories under Event
-        // let newclimberDoc;
-        // newclimberDoc = Factory.build('climber');
-        // newclimberDoc.event = targetclimber;
-        // Categories.insert(newclimberDoc);
-        // newclimberDoc = Factory.build('climber');
-        // newclimberDoc.event = targetclimber;
-        // Categories.insert(newclimberDoc);
-        // newclimberDoc = Factory.build('climber');
-        // newclimberDoc.event = targetclimber;
-        // Categories.insert(newclimberDoc);
-
-        // const removedEvents = Events.methods.remove.call({
-        //   selector: targetclimber._id,
-        //   isRecursive: true,
-        // });
-
-        // assert.equal(removedEvents, 1);
-        // assert.equal(Categories.find({}).count(), 0);
-        // assert.isUndefined(Events.findOne(targetclimber._id));
-        assert.equal(0, 1);
+        assert.equal(removedClimbers, 1);
+        assert.isUndefined(Climbers.findOne(targetclimber._id));
       });
 
       it('reject non _.id selectors', function () {
@@ -197,9 +187,87 @@ describe('Climbers', function () {
 
         assert.throws(() => {
           Climbers.methods.remove.call({
-            selector: {
-              acronym: targetclimber.acronym,
-            },
+            selector: { acronym: targetclimber.acronym },
+          });
+        }, Meteor.Error);
+      });
+    });
+
+    describe('add to Categories', function () {
+      it('add to a valid category', function () {
+        const targetCategory = Categories.findOne({});
+        const newClimberDoc = Factory.tree('climber');
+        const newClimberId = Climbers.insert(newClimberDoc);
+
+        const scoreId = Climbers.methods.addToCategory.call({
+          climberId: newClimberId,
+          categoryId: targetCategory._id,
+        });
+
+        const testCategory = Categories.findOne(targetCategory._id);
+        const testClimber = Climbers.findOne(newClimberId);
+        const testScore = Scores.findOne(scoreId);
+
+        assert.equal(
+          testCategory.climber_count,
+          targetCategory.climber_count + 1
+        );
+        assert.equal(
+          testClimber.categories[0]._id,
+          targetCategory._id
+        );
+        assert.equal(testScore.scores.length, testCategory.routes.length);
+      });
+
+      it('reject if there is an existing link', function () {
+        const targetCategory = Categories.findOne({});
+        const targetClimber = Climbers.findOne({});
+
+        // Should not be able to add a Climber to a Category twice
+        assert.throws(() => {
+          Climbers.methods.addToCategory.call({
+            climberId: targetClimber._id,
+            categoryId: targetCategory._id,
+          });
+        }, Meteor.Error);
+      });
+    });
+
+    describe('remove from Categories', function () {
+      it('delete link in Climber and Scores', function () {
+        const targetCategory = Categories.findOne({});
+        const targetClimber = Climbers.findOne({});
+
+        Climbers.methods.removeFromCategory.call({
+          climberId: targetClimber._id,
+          categoryId: targetCategory._id,
+        });
+
+        const testClimber = Climbers.findOne(targetClimber._id);
+        assert.equal(testClimber.categories.length, 0);
+        assert.isUndefined(Scores.findOne({
+          climber_id: targetClimber._id,
+          category_id: targetCategory._id,
+        }));
+      });
+
+      it('no error if no linkage between Category and Climber', function () {
+        const targetCategory = Categories.findOne({});
+        const targetClimber = Factory.create('climber');
+
+        assert.equal(Climbers.methods.removeFromCategory.call({
+          climberId: targetClimber._id,
+          categoryId: targetCategory._id,
+        }), 0);
+      });
+
+      it('throw error for invalid IDs', function () {
+        const targetCategory = Categories.findOne({});
+
+        assert.throws(() => {
+          Climbers.methods.removeFromCategory.call({
+            climberId: 'Invalid Id',
+            categoryId: targetCategory._id,
           });
         }, Meteor.Error);
       });

@@ -62,6 +62,13 @@ Categories.schema = new SimpleSchema({
     type: Boolean,
     label: 'Confirm scores for category',
   },
+  climber_count: {
+    type: Number,
+    label: 'Count climbers added to category (will not decrease)',
+    // If you holding a sick event and you need more than 999 Climbers
+    // in a Category, you can change the count.length to 4 at
+    // 'Climbers.methods.addToCategory' inside 'import/data/climber.js'
+  },
   time_start: {
     type: Date,
     label: 'Starting time of category',
@@ -192,5 +199,6 @@ Categories.methods.forceRemove = new ValidatedMethod({
     return Categories.remove({ _id: selector }, null, true);
   },
 });
+
 
 export default Categories;
