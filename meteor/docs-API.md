@@ -64,7 +64,7 @@ Body: {
 
 #### Request
 ```json
-body: {
+header: {
   "X-User-Id": "jfJnk4B...",
   "X-Auth-Token": "LNZoISu...",
 }
