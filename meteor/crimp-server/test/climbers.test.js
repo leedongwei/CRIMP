@@ -5,10 +5,8 @@
 */
 
 import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
 import { Factory } from 'meteor/dburles:factory';
-import { faker } from 'meteor/practicalmeteor:faker';
-import { chai, assert, expect } from 'meteor/practicalmeteor:chai';
+import { assert } from 'meteor/practicalmeteor:chai';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 
 import '../imports/factories';
@@ -63,8 +61,8 @@ describe('Climbers', function () {
 
   describe('Mutator', function () {
     it('builds correctly from factory', function () {
-      const targetclimber = Climbers.findOne({});
-      assertAllFields(targetclimber);
+      const targetClimber = Climbers.findOne({});
+      assertAllFields(targetClimber);
     });
   });
 
@@ -109,30 +107,30 @@ describe('Climbers', function () {
 
     describe('update', function () {
       it('update with valid document', function () {
-        const targetclimber = Climbers.findOne({});
-        const newclimberName = 'Updated climber Name';
+        const targetClimber = Climbers.findOne({});
+        const newclimberName = 'Updated Climber Name';
 
         Climbers.methods.update.call({
-          selector: targetclimber._id,
+          selector: targetClimber._id,
           modifier: '$set',
           climberDoc: { climber_name: newclimberName },
         });
 
         assert.equal(
-          Climbers.findOne(targetclimber._id).climber_name,
+          Climbers.findOne(targetClimber._id).climber_name,
           newclimberName
         );
       });
 
       it('reject wrong types', function () {
-        const targetclimber = Climbers.findOne({});
+        const targetClimber = Climbers.findOne({});
         const number = 123456;
         const string = 'true';
 
         // Try number in boolean
         assert.throws(() => {
           Climbers.methods.update.call({
-            selector: targetclimber._id,
+            selector: targetClimber._id,
             modifier: '$set',
             eventDoc: { is_team_climber: number },
           });
@@ -141,7 +139,7 @@ describe('Climbers', function () {
         // Try string in boolean
         assert.throws(() => {
           Climbers.methods.update.call({
-            selector: targetclimber._id,
+            selector: targetClimber._id,
             modifier: '$set',
             eventDoc: { is_score_finalized: string },
           });
@@ -151,43 +149,43 @@ describe('Climbers', function () {
 
     describe('remove', function () {
       it('delete with _id, no children', function () {
-        const targetclimber = Factory.create('climber');
+        const targetClimber = Factory.create('climber');
         const removedClimbers = Climbers.methods.remove.call({
-          selector: targetclimber._id,
+          selector: targetClimber._id,
         });
 
         assert.equal(removedClimbers, 1);
-        assert.isUndefined(Climbers.findOne(targetclimber._id));
+        assert.isUndefined(Climbers.findOne(targetClimber._id));
       });
 
-      it('reject event with child because isRecursive is false', function () {
-        const targetclimber = Climbers.findOne({});
+      it('reject climber with child because isRecursive is false', function () {
+        const targetClimber = Climbers.findOne({});
         const removedClimbers = Climbers.methods.remove.call({
-          selector: targetclimber._id,
+          selector: targetClimber._id,
         });
 
         assert.equal(removedClimbers, 0);
-        assert.isDefined(Climbers.findOne(targetclimber._id));
+        assert.isDefined(Climbers.findOne(targetClimber._id));
       });
 
-      it('delete event with child because isRecursive is true', function () {
-        const targetclimber = Climbers.findOne({});
+      it('delete climber with child because isRecursive is true', function () {
+        const targetClimber = Climbers.findOne({});
         const removedClimbers = Climbers.methods.remove.call({
-          selector: targetclimber._id,
+          selector: targetClimber._id,
           callback: null,
           isRecursive: true,
         });
 
         assert.equal(removedClimbers, 1);
-        assert.isUndefined(Climbers.findOne(targetclimber._id));
+        assert.isUndefined(Climbers.findOne(targetClimber._id));
       });
 
-      it('reject non _.id selectors', function () {
-        const targetclimber = Climbers.findOne({});
+      it('reject non ._id selectors', function () {
+        const targetClimber = Climbers.findOne({});
 
         assert.throws(() => {
           Climbers.methods.remove.call({
-            selector: { acronym: targetclimber.acronym },
+            selector: { acronym: targetClimber.acronym },
           });
         }, Meteor.Error);
       });

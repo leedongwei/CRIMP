@@ -5,6 +5,7 @@ import { faker } from 'meteor/practicalmeteor:faker';
 import Events from './data/events';
 import Categories from './data/categories';
 import Climbers from './data/climbers';
+import Teams from './data/teams';
 
 
 /**
@@ -22,36 +23,48 @@ Factory.define('event', Events, {
 Factory.define('category', Categories, {
   category_name: faker.commerce.productName(),
   acronym: String(faker.random.uuid()).substr(0, 3),
-  is_team_category: false,
+  is_team_category: true,
   is_score_finalized: false,
   climber_count: 0,
   time_start: new Date(),
   time_end: new Date(),
-  score_system: 'ifsc-top-bonus',
+  score_system: 'points',
   routes: [{
     _id: Random.id(),
     route_name: 'R1',
-    score_rules: {},
+    score_rules: {
+      points: 10,
+    },
   }, {
     _id: Random.id(),
     route_name: 'R2',
-    score_rules: {},
+    score_rules: {
+      points: 10,
+    },
   }, {
     _id: Random.id(),
     route_name: 'R3',
-    score_rules: {},
+    score_rules: {
+      points: 10,
+    },
   }, {
     _id: Random.id(),
     route_name: 'R4',
-    score_rules: {},
+    score_rules: {
+      points: 10,
+    },
   }, {
     _id: Random.id(),
     route_name: 'R5',
-    score_rules: {},
+    score_rules: {
+      points: 10,
+    },
   }, {
     _id: Random.id(),
     route_name: 'R6',
-    score_rules: {},
+    score_rules: {
+      points: 10,
+    },
   }],
   event: {},
 });
@@ -61,4 +74,10 @@ Factory.define('climber', Climbers, {
   identity: faker.phone.phoneNumberFormat(),
   affliation: faker.name.jobType(),
   categories: [],
+});
+
+Factory.define('team', Teams, {
+  team_name: faker.company.catchPhrase(),
+  category_id: 'category_id',
+  climbers: [],
 });

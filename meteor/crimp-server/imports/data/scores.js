@@ -28,9 +28,7 @@ Scores.schema = new SimpleSchema({
   },
   'scores.$.score_string': {
     type: String,
-    autoValue: function defaultScoreString() {
-      return this.isSet ? this.value : '';
-    },
+    defaultValue: '',
   },
   updated_at: {
     type: Date,
@@ -68,6 +66,9 @@ Scores.methods.update = new ValidatedMethod({
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *  Utility functions                                      *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/**
+ *  Checks if a Score for marker_id exists within a Category
+ */
 Scores.methods.isMarkerIdUnique = new ValidatedMethod({
   name: 'Scores.method.isMarkerIdUnique',
   validate: new SimpleSchema({
@@ -78,6 +79,10 @@ Scores.methods.isMarkerIdUnique = new ValidatedMethod({
     return Scores.find({ marker_id, category_id }).count() === 0;
   },
 });
+
+/**
+ *  Checks if Climber has existing Score for a Category
+ */
 Scores.methods.isClimberUnique = new ValidatedMethod({
   name: 'Scores.method.isClimberUnique',
   validate: new SimpleSchema({

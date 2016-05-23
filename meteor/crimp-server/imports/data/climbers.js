@@ -5,6 +5,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import CRIMP from '../settings';
 import Categories from './categories';
+import Teams from './teams';
 import Scores from './scores';
 
 class ClimbersCollection extends Mongo.Collection {
@@ -93,6 +94,7 @@ Climbers.methods.insert = new ValidatedMethod({
     return Climbers.insert(climberDoc);
   },
 });
+
 Climbers.methods.update = new ValidatedMethod({
   name: 'Climbers.method.update',
   validate: new SimpleSchema({
@@ -111,6 +113,7 @@ Climbers.methods.update = new ValidatedMethod({
     return Climbers.update(selector, { [`${modifier}`]: climberDoc });
   },
 });
+
 Climbers.methods.remove = new ValidatedMethod({
   name: 'Climbers.method.remove',
   validate: new SimpleSchema({
@@ -122,6 +125,7 @@ Climbers.methods.remove = new ValidatedMethod({
     return Climbers.remove({ _id: selector }, callback, isRecursive);
   },
 });
+
 Climbers.methods.forceRemove = new ValidatedMethod({
   name: 'Climbers.method.forceRemove',
   validate: new SimpleSchema({

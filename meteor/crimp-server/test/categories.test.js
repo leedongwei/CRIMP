@@ -6,7 +6,6 @@
 
 import { Meteor } from 'meteor/meteor';
 import { Factory } from 'meteor/dburles:factory';
-import { faker } from 'meteor/practicalmeteor:faker';
 import { assert } from 'meteor/practicalmeteor:chai';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 
@@ -63,11 +62,11 @@ describe('Categories', function () {
   describe('Meteor.methods', function () {
     describe('insert', function () {
       it('insert with valid document', function () {
-        const parentEventDoc = Events.findOne({});
+        const parentEvent = Events.findOne({});
         const categoryDoc = Factory.tree('category');
 
         const newCategoryId = Categories.methods.insert.call({
-          parentEventDoc,
+          parentEvent,
           categoryDoc,
         });
 
@@ -76,39 +75,39 @@ describe('Categories', function () {
       });
 
       it('reject extra fields', function () {
-        const parentEventDoc = Events.findOne({});
+        const parentEvent = Events.findOne({});
         const categoryDoc = Factory.tree('category');
         categoryDoc.extra_field = true;
 
         assert.throws(() => {
           Categories.methods.insert.call({
-            parentEventDoc,
+            parentEvent,
             categoryDoc,
           });
         }, Meteor.Error);
       });
 
       it('reject missing fields', function () {
-        const parentEventDoc = Events.findOne({});
+        const parentEvent = Events.findOne({});
         const categoryDoc = Factory.tree('category');
         delete categoryDoc.score_system;
 
         assert.throws(() => {
           Categories.methods.insert.call({
-            parentEventDoc,
+            parentEvent,
             categoryDoc,
           });
         }, Meteor.Error);
       });
 
       it('reject wrong types', function () {
-        const parentEventDoc = Events.findOne({});
+        const parentEvent = Events.findOne({});
         const categoryDoc = Factory.tree('category');
         categoryDoc.is_score_finalized = 1;
 
         assert.throws(() => {
           Categories.methods.insert.call({
-            parentEventDoc,
+            parentEvent,
             categoryDoc,
           });
         }, Meteor.Error);
@@ -181,7 +180,7 @@ describe('Categories', function () {
         assert.isUndefined(Categories.findOne(targetCategory._id));
       });
 
-      it('reject event with child because isRecursive is false', function () {
+      it('reject category with child because isRecursive is false', function () {
         // const targetCategory = Factory.create('event');
         // const newCategoryDoc = Factory.build('category');
         // newCategoryDoc.event = targetCategory;
@@ -199,7 +198,7 @@ describe('Categories', function () {
       /**
        *  Need CategoriesCollection stub to isolate Events
        */
-      it('delete event with child because isRecursive is true', function () {
+      it('delete category with child because isRecursive is true', function () {
         // const targetCategory = Factory.create('event');
 
         // // Set 3 child Categories under Event
@@ -225,7 +224,7 @@ describe('Categories', function () {
         assert.equal(0, 1);
       });
 
-      it('reject non _.id selectors', function () {
+      it('reject non ._id selectors', function () {
         const targetCategory = Categories.findOne({});
 
         assert.throws(() => {

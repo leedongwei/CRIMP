@@ -6,7 +6,6 @@
 
 import { Meteor } from 'meteor/meteor';
 import { Factory } from 'meteor/dburles:factory';
-import { faker } from 'meteor/practicalmeteor:faker';
 import { assert } from 'meteor/practicalmeteor:chai';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 
@@ -209,7 +208,7 @@ describe('Events', function () {
         assert.isUndefined(Events.findOne(targetEvent._id));
       });
 
-      it('reject non _.id selectors', function () {
+      it('reject non ._id selectors', function () {
         const targetEvent = Events.findOne({});
 
         assert.throws(() => {

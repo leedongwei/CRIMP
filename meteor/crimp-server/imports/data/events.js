@@ -74,6 +74,7 @@ Events.methods.insert = new ValidatedMethod({
     return Events.insert(eventDoc);
   },
 });
+
 Events.methods.update = new ValidatedMethod({
   name: 'Events.method.update',
   validate: new SimpleSchema({
@@ -89,6 +90,7 @@ Events.methods.update = new ValidatedMethod({
     return Events.update(selector, { [`${modifier}`]: eventDoc });
   },
 });
+
 Events.methods.remove = new ValidatedMethod({
   name: 'Events.method.remove',
   validate: new SimpleSchema({
@@ -100,6 +102,7 @@ Events.methods.remove = new ValidatedMethod({
     return Events.remove({ _id: selector }, callback, isRecursive);
   },
 });
+
 Events.methods.forceRemove = new ValidatedMethod({
   name: 'Events.method.forceRemove',
   validate: new SimpleSchema({

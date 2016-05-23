@@ -5,7 +5,6 @@ import { scoreSystemsNames } from '../scoreSystem.js';
 
 import CRIMP from '../settings';
 import Teams from './teams';
-import Climbers from './climbers';
 import Scores from './scores';
 
 class CategoriesCollection extends Mongo.Collection {
@@ -137,21 +136,22 @@ Categories.methods = {};
 Categories.methods.insert = new ValidatedMethod({
   name: 'Categories.method.insert',
   validate: new SimpleSchema({
-    parentEventDoc: { type: Object, blackbox: true },
-    'parentEventDoc._id': { type: String },
-    'parentEventDoc.event_name_full': { type: String },
+    parentEvent: { type: Object, blackbox: true },
+    'parentEvent._id': { type: String },
+    'parentEvent.event_name_full': { type: String },
     categoryDoc: { type: Categories.schema },
   }).validator(),
-  run({ parentEventDoc, categoryDoc }) {
+  run({ parentEvent, categoryDoc }) {
     const newDoc = categoryDoc;
     newDoc.event = {
-      _id: parentEventDoc._id,
-      event_name_full: parentEventDoc.event_name_full,
+      _id: parentEvent._id,
+      event_name_full: parentEvent.event_name_full,
     };
 
     return Categories.insert(newDoc);
   },
 });
+
 Categories.methods.update = new ValidatedMethod({
   name: 'Categories.method.update',
   validate: new SimpleSchema({
@@ -179,6 +179,7 @@ Categories.methods.update = new ValidatedMethod({
     return Categories.update(selector, { [`${modifier}`]: categoryDoc });
   },
 });
+
 Categories.methods.remove = new ValidatedMethod({
   name: 'Categories.method.remove',
   validate: new SimpleSchema({
@@ -190,6 +191,7 @@ Categories.methods.remove = new ValidatedMethod({
     return Categories.remove({ _id: selector }, callback, isRecursive);
   },
 });
+
 Categories.methods.forceRemove = new ValidatedMethod({
   name: 'Categories.method.forceRemove',
   validate: new SimpleSchema({
