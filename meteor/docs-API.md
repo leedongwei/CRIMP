@@ -149,7 +149,7 @@ Body: {
 
 
 
-## GET '/api/judge/score/{?climber_id}{?category_id}{?route_id}{?marker_id}'
+## GET '/api/judge/score{?climber_id}{?category_id}{?route_id}{?marker_id}'
 * Get score
 
 #### Request
