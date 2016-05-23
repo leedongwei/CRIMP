@@ -1,14 +1,16 @@
-mongo:
-  image: mongo
+crimpDB:
+  image: mongo:latest
   command: mongod --smallfiles --oplogSize 128
 
-crimp:
+crimpDev:
   image: leedongwei/crimp-dev:latest
   environment:
     - PORT=3000
     - ROOT_URL=http://localhost:3000
     - MONGO_URL=mongodb://mongo:27017/crimp
   links:
-    - mongo:mongo
+    - crimpDB
   ports:
     - 80:3000
+  autoredeploy: true
+  restart: on-failure

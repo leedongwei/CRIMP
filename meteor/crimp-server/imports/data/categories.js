@@ -4,9 +4,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { scoreSystemsNames } from '../scoreSystem.js';
 
 import CRIMP from '../settings';
-import Events from './events';
 import Teams from './teams';
-import Climbers from './climbers';
 import Scores from './scores';
 
 class CategoriesCollection extends Mongo.Collection {
@@ -14,20 +12,25 @@ class CategoriesCollection extends Mongo.Collection {
     const targetDocs = Categories.find(selector);
     if (targetDocs.count() === 0) return 0;
 
-    // Retrieve all affected child Teams and Climbers
+    // Retrieve all affected child Teams and Scores
     let childTeams = 0;
+    let childScores = 0;
     targetDocs.forEach((categoryDoc) => {
-      childTeams += Teams
-                        .find({ category_id: categoryDoc._id })
-                        .count();
-
-      if (isRecursive && categoryDoc.is_team_category) {
-        childTeams -= Teams.remove({ category_id: categoryDoc._id });
+      if (isRecursive) {
+        childScores -= Scores.remove({ category_id: categoryDoc._id });
+        childTeams -= categoryDoc.is_team_category
+                        ? Teams.remove({ category_id: categoryDoc._id })
+                        : 0;
+      } else {
+        childScores += Scores.find({ category_id: categoryDoc._id }).count();
+        childTeams += categoryDoc.is_team_category
+                        ? Teams.find({ category_id: categoryDoc._id }).count()
+                        : 0;
       }
     });
 
-    // Do not delete Categories if there are child Teams
-    return (childTeams > 0)
+    // Do not delete Categories if there are child Teams/Scores
+    return (childTeams + childScores > 0)
       ? 0
       : super.remove(selector, callback);
   }
@@ -58,6 +61,13 @@ Categories.schema = new SimpleSchema({
     type: Boolean,
     label: 'Confirm scores for category',
   },
+  climber_count: {
+    type: Number,
+    label: 'Count climbers added to category (will not decrease)',
+    // If you holding a sick event and you need more than 999 Climbers
+    // in a Category, you can change the count.length to 4 at
+    // 'Climbers.methods.addToCategory' inside 'import/data/climber.js'
+  },
   time_start: {
     type: Date,
     label: 'Starting time of category',
@@ -85,11 +95,9 @@ Categories.schema = new SimpleSchema({
   'routes.$.route_name': {
     type: String,
   },
-  // TODO: DongWei
   'routes.$.score_rules': {
     type: Object,
     label: 'Score rules specific to a route',
-    optional: true,
     blackbox: true,
   },
 
@@ -128,22 +136,22 @@ Categories.methods = {};
 Categories.methods.insert = new ValidatedMethod({
   name: 'Categories.method.insert',
   validate: new SimpleSchema({
-    parentEventDoc: { type: Object, blackbox: true },
-    'parentEventDoc._id': { type: String },
-    'parentEventDoc.event_name_full': { type: String },
+    parentEvent: { type: Object, blackbox: true },
+    'parentEvent._id': { type: String },
+    'parentEvent.event_name_full': { type: String },
     categoryDoc: { type: Categories.schema },
   }).validator(),
-  run({ parentEventDoc, categoryDoc }) {
-
+  run({ parentEvent, categoryDoc }) {
     const newDoc = categoryDoc;
     newDoc.event = {
-      _id: parentEventDoc._id,
-      event_name_full: parentEventDoc.event_name_full,
+      _id: parentEvent._id,
+      event_name_full: parentEvent.event_name_full,
     };
 
     return Categories.insert(newDoc);
   },
 });
+
 Categories.methods.update = new ValidatedMethod({
   name: 'Categories.method.update',
   validate: new SimpleSchema({
@@ -160,6 +168,9 @@ Categories.methods.update = new ValidatedMethod({
     'categoryDoc.routes': { type: Object, optional: true },
     'categoryDoc.routes.$._id': { type: String, optional: true },
     'categoryDoc.routes.$.route_name': { type: String, optional: true },
+    'categoryDoc.routes.$.score_rules': { type: Object,
+                                          optional: true,
+                                          blackbox: true },
   }).validator(),
   run({ selector, modifier, categoryDoc }) {
     /**
@@ -168,6 +179,7 @@ Categories.methods.update = new ValidatedMethod({
     return Categories.update(selector, { [`${modifier}`]: categoryDoc });
   },
 });
+
 Categories.methods.remove = new ValidatedMethod({
   name: 'Categories.method.remove',
   validate: new SimpleSchema({
@@ -179,6 +191,7 @@ Categories.methods.remove = new ValidatedMethod({
     return Categories.remove({ _id: selector }, callback, isRecursive);
   },
 });
+
 Categories.methods.forceRemove = new ValidatedMethod({
   name: 'Categories.method.forceRemove',
   validate: new SimpleSchema({
@@ -188,5 +201,6 @@ Categories.methods.forceRemove = new ValidatedMethod({
     return Categories.remove({ _id: selector }, null, true);
   },
 });
+
 
 export default Categories;

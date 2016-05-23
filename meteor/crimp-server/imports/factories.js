@@ -4,6 +4,8 @@ import { faker } from 'meteor/practicalmeteor:faker';
 
 import Events from './data/events';
 import Categories from './data/categories';
+import Climbers from './data/climbers';
+import Teams from './data/teams';
 
 
 /**
@@ -12,7 +14,6 @@ import Categories from './data/categories';
  */
 
 Factory.define('event', Events, {
-  _id: Random.id(),
   event_name_full: faker.company.companyName(),
   event_name_short: 'event_name_short',
   time_start: new Date(),
@@ -21,72 +22,62 @@ Factory.define('event', Events, {
 
 Factory.define('category', Categories, {
   category_name: faker.commerce.productName(),
-  acronym: String(faker.random.uuid).substr(0, 3),
-  is_team_category: false,
+  acronym: String(faker.random.uuid()).substr(0, 3),
+  is_team_category: true,
   is_score_finalized: false,
-  time_start: new Date(),
-  time_end: new Date(),
-  score_system: 'ifsc-top-bonus',
-  routes: [{
-    _id: Random.id(),
-    route_name: 'R1',
-  }, {
-    _id: Random.id(),
-    route_name: 'R2',
-  }, {
-    _id: Random.id(),
-    route_name: 'R3',
-  }, {
-    _id: Random.id(),
-    route_name: 'R4',
-  }, {
-    _id: Random.id(),
-    route_name: 'R5',
-  }, {
-    _id: Random.id(),
-    route_name: 'R6',
-  }],
-  event: {},
-});
-
-
-/*
-const OMQ_BA2016 = Categories.insert({
-  category_name: 'Open Men Qualifiers',
-  acronym: 'OMQ',
-  is_team_category: false,
-  is_score_finalized: false,
+  climber_count: 0,
   time_start: new Date(),
   time_end: new Date(),
   score_system: 'points',
   routes: [{
     _id: Random.id(),
-    route_name: 'OMQ1',
-    score_rules: {
-      points: 1,
-    },
-  }, {
-    _id: Random.id(),
-    route_name: 'OMQ2',
+    route_name: 'R1',
     score_rules: {
       points: 10,
     },
   }, {
     _id: Random.id(),
-    route_name: 'OMQ3',
+    route_name: 'R2',
     score_rules: {
-      points: 100,
+      points: 10,
     },
   }, {
     _id: Random.id(),
-    route_name: 'OMQ4',
+    route_name: 'R3',
     score_rules: {
-      points: 1000,
+      points: 10,
+    },
+  }, {
+    _id: Random.id(),
+    route_name: 'R4',
+    score_rules: {
+      points: 10,
+    },
+  }, {
+    _id: Random.id(),
+    route_name: 'R5',
+    score_rules: {
+      points: 10,
+    },
+  }, {
+    _id: Random.id(),
+    route_name: 'R6',
+    score_rules: {
+      points: 10,
     },
   }],
-  event: {
-    _id: BA2016,
-    event_name_short: 'Boulderactive 2016',
-  },
+  event: {},
 });
-*/
+
+Factory.define('climber', Climbers, {
+  climber_name: faker.name.findName(),
+  identity: faker.phone.phoneNumberFormat(),
+  affliation: faker.name.jobType(),
+  categories: [],
+});
+
+Factory.define('team', Teams, {
+  team_name: faker.company.catchPhrase(),
+  category_id: 'category_id',
+  climbers: [],
+});

@@ -42,15 +42,6 @@ const Api = new Restivus({
 
 Api.addRoute('judge/login', { authRequired: false }, {
   post: function postLogin() {
-    // Ensure that judge is logging in from production-version of the app
-    if (CRIMP.ENVIRONMENT.NODE_ENV === 'production' &&
-        this.bodyParams.isProductionApp !== 'true') {
-      return {
-        statusCode: 400,
-        body: { error: 'Missing/wrong isProductionApp in body' },
-      };
-    }
-
     if (!('fb_access_token' in this.bodyParams)) {
       return {
         statusCode: 400,
@@ -102,17 +93,6 @@ Api.addRoute('judge/login', { authRequired: false }, {
       hasExistingLogins = user.services.resume.loginTokens.length > 0;
     } catch (e) { /* do nothing */ }
 
-    // Do not issue new tokens if there are existing tokens and it is not
-    // a force_login
-    if (hasExistingLogins && this.bodyParams.force_login === 'false') {
-      return {
-        statusCode: 409,
-        body: {
-          error: 'Has an existing session in another device',
-        },
-      };
-    }
-
     // Find out number of login counts of user
     let tokenCount = user.services.resume.loginTokensCount;
     tokenCount = typeof tokenCount === 'number'
@@ -153,7 +133,6 @@ Api.addRoute('judge/login', { authRequired: false }, {
         'X-Auth-Token': stampedToken.token,
         remind_logout: hasExistingLogins,
         roles: userRoles,
-        sequential_token: tokenCount,
       },
     };
   },
@@ -178,19 +157,49 @@ Api.addRoute('judge/logout', { authRequired: true }, {
 Api.addRoute('judge/categories', { authRequired: false }, {
   get: function getCategories() {
     const categoryDocs = Categories.find({}).fetch();
+    const picked = [
+      '_id',
+      'category_name',
+      'acronym',
+      'is_score_finalized',
+      'time_start',
+      'time_end',
+      'routes',
+    ];
     const map = {
       _id: 'category_id',
       score_finalized: 'is_score_finalized',
     };
 
+    // Go through each Category doc to rename/discard keys
     categoryDocs.forEach((doc, index, array) => {
-      const newDoc = {};
-      _.each(doc, (value, key) => {
+      const truncatedDoc = _.pick(doc, picked);
+      const mappedDoc = {};
+
+      // Rename the DB keys to conform with API spec
+      _.each(truncatedDoc, (value, key) => {
         const newkey = map[key] || key;
-        newDoc[newkey] = value;
+        mappedDoc[newkey] = value;
       });
 
-      array[index] = newDoc;
+      console.log('\r\n$ $ $\r\n');
+      console.log(doc);
+
+      // Go through each route to generate score_rules
+      (mappedDoc.routes).forEach((route) => {
+        let scoreRules = doc.score_system;
+
+        // TODO: Use the scoreSystem object to generate this
+        // This is suitable for now because points is the only system that
+        // uses this, but eventually we have to extend it for more systems
+        if (route.score_rules.points) {
+          scoreRules += `__${route.score_rules.points}`;
+        }
+
+        route.score_rules = scoreRules;
+      });
+
+      array[index] = mappedDoc;
     });
 
     return {
@@ -295,16 +304,7 @@ Api.addRoute('judge/score/:route_id/:marker_id', { authRequired: true }, {
 
 Api.addRoute('judge/helpme', { authRequired: true }, {
   post: function postHelpMe() {
-    return {
-      "X-User-Id": this.userId,
-      "X-Auth-Token": this.user.services.facebook.name,
-      "route_id": this.bodyParams.route_id,
-    }
-
-    // return {
-    //   statusCode: 501,
-    //   body: { error: 'Not implemented (yet)' },
-    // };
+    return {};
   },
 });
 
@@ -340,33 +340,14 @@ Api.addRoute('judge/report', { authRequired: true }, {
 
 Api.addRoute('judge/setactive', { authRequired: true }, {
   put: function putSetActive() {
-    return {
-      "route_id": this.bodyParams.route_id,
-      "marker_id": this.bodyParams.marker_id,
-      "climber_id": "123123",
-      "climber_name": "caterpie",
-    }
-
-    // return {
-    //   statusCode: 501,
-    //   body: { error: 'Not implemented (yet)' },
-    // };
+    return {};
   },
 });
 
 
 Api.addRoute('judge/clearactive', { authRequired: true }, {
   put: function putClearActive() {
-    return {
-      "route_id": this.bodyParams.route_id,
-      "marker_id": "",
-      "climber_id": "",
-      "climber_name": "",
-    }
-    // return {
-    //   statusCode: 501,
-    //   body: { error: 'Not implemented (yet)' },
-    // };
+    return {};
   },
 });
 
