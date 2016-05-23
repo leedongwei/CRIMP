@@ -328,11 +328,7 @@ body: {
 
 #### Response
 ```json
-body: {
-  "X-User-Id": "jfJnk4B...",
-  "X-Auth-Token": "LNZoISu...",
-  "route_id": "EgN4g...",
-}
+body: {}
 ```
 * Response is immediate to acknowledge that the server has received it. It does not mean that the admin has acknowledged it.
 <br><br><br>
