@@ -5,10 +5,9 @@
 */
 
 import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
 import { Factory } from 'meteor/dburles:factory';
 import { faker } from 'meteor/practicalmeteor:faker';
-import { chai, assert, expect } from 'meteor/practicalmeteor:chai';
+import { assert } from 'meteor/practicalmeteor:chai';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 
 import '../imports/factories';
@@ -54,8 +53,8 @@ describe('Categories', function () {
 
   describe('Mutator', function () {
     it('builds correctly from factory', function () {
-      const newCategory = Categories.findOne({});
-      assertAllFields(newCategory);
+      const targetCategory = Categories.findOne({});
+      assertAllFields(targetCategory);
     });
   });
 
@@ -107,7 +106,10 @@ describe('Categories', function () {
         categoryDoc.is_score_finalized = 1;
 
         assert.throws(() => {
-          Categories.methods.insert.call(categoryDoc);
+          Categories.methods.insert.call({
+            parentEventDoc,
+            categoryDoc,
+          });
         }, Meteor.Error);
       });
     });
@@ -133,14 +135,13 @@ describe('Categories', function () {
         const targetCategory = Categories.findOne({});
         const number = 123456;
         const boolean = true;
-        const object = {};
 
         // Try number in boolean
         assert.throws(() => {
           Categories.methods.update.call({
             selector: targetCategory._id,
             modifier: '$set',
-            eventDoc: { is_team_category: 1 },
+            eventDoc: { is_team_category: number },
           });
         }, Meteor.Error);
 
@@ -149,7 +150,7 @@ describe('Categories', function () {
           Categories.methods.update.call({
             selector: targetCategory._id,
             modifier: '$set',
-            eventDoc: { is_score_finalized: 'true' },
+            eventDoc: { is_score_finalized: boolean },
           });
         }, Meteor.Error);
       });
@@ -165,7 +166,6 @@ describe('Categories', function () {
             categoryDoc: { event: fakeEvent },
           });
         }, Meteor.Error);
-
       });
     });
 
@@ -226,13 +226,12 @@ describe('Categories', function () {
 
       it('reject non _.id selectors', function () {
         const targetCategory = Categories.findOne({});
-        const removedCategories =
 
         assert.throws(() => {
           Categories.methods.remove.call({
             selector: {
               acronym: targetCategory.acronym,
-            }
+            },
           });
         }, Meteor.Error);
       });

@@ -38,8 +38,8 @@ describe('Events', function () {
 
   describe('Mutator', function () {
     it('builds correctly from factory', function () {
-      const newEvent = Events.findOne({});
-      assertAllFields(newEvent);
+      const targetEvent = Events.findOne({});
+      assertAllFields(targetEvent);
     });
   });
 

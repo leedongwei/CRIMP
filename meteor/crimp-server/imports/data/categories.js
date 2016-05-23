@@ -4,7 +4,6 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { scoreSystemsNames } from '../scoreSystem.js';
 
 import CRIMP from '../settings';
-import Events from './events';
 import Teams from './teams';
 import Climbers from './climbers';
 import Scores from './scores';
@@ -18,16 +17,16 @@ class CategoriesCollection extends Mongo.Collection {
     let childTeams = 0;
     let childScores = 0;
     targetDocs.forEach((categoryDoc) => {
-      childTeams += Teams
-                        .find({ category_id: categoryDoc._id })
-                        .count();
-      childScores += Scores
-                        .find({ category_id: categoryDoc._id })
-                        .count();
-
       if (isRecursive) {
-        childTeams -= Teams.remove({ category_id: categoryDoc._id });
         childScores -= Scores.remove({ category_id: categoryDoc._id });
+        childTeams -= categoryDoc.is_team_category
+                        ? Teams.remove({ category_id: categoryDoc._id })
+                        : 0;
+      } else {
+        childScores += Scores.find({ category_id: categoryDoc._id }).count();
+        childTeams += categoryDoc.is_team_category
+                        ? Teams.find({ category_id: categoryDoc._id }).count()
+                        : 0;
       }
     });
 
@@ -137,7 +136,6 @@ Categories.methods.insert = new ValidatedMethod({
     categoryDoc: { type: Categories.schema },
   }).validator(),
   run({ parentEventDoc, categoryDoc }) {
-
     const newDoc = categoryDoc;
     newDoc.event = {
       _id: parentEventDoc._id,
@@ -163,7 +161,9 @@ Categories.methods.update = new ValidatedMethod({
     'categoryDoc.routes': { type: Object, optional: true },
     'categoryDoc.routes.$._id': { type: String, optional: true },
     'categoryDoc.routes.$.route_name': { type: String, optional: true },
-    'categoryDoc.routes.$.score_rules': { type: String, optional: true },
+    'categoryDoc.routes.$.score_rules': { type: Object,
+                                          optional: true,
+                                          blackbox: true },
   }).validator(),
   run({ selector, modifier, categoryDoc }) {
     /**
