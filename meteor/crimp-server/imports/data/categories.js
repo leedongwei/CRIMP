@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
@@ -5,6 +6,7 @@ import { scoreSystemsNames } from '../scoreSystem.js';
 
 import CRIMP from '../settings';
 import Teams from './teams';
+import Climbers from './climbers';
 import Scores from './scores';
 
 class CategoriesCollection extends Mongo.Collection {
@@ -199,6 +201,104 @@ Categories.methods.forceRemove = new ValidatedMethod({
   }).validator(),
   run(selector) {
     return Categories.remove({ _id: selector }, null, true);
+  },
+});
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *  Multi-collections functions                            *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+Categories.methods.addClimber = new ValidatedMethod({
+  name: 'Categories.methods.addClimber',
+  validate: new SimpleSchema({
+    climberId: { type: String },
+    categoryId: { type: String },
+  }).validator(),
+  run({ categoryId, climberId }) {
+    const targetClimber = Climbers.findOne(climberId);
+    const targetCategory = Categories.findOne(categoryId);
+    const climberCategoryDoc = {
+      _id: targetCategory._id,
+      score_tiebreak: 1,
+    };
+    const scoreDoc = {
+      category_id: targetCategory._id,
+      climber_id: targetClimber._id,
+      marker_id: `${targetCategory.acronym}`,
+      scores: [],
+    };
+
+    // Set up marker_id in Score document, max 999 Climbers in a Category
+    let count = String(targetCategory.climber_count);
+    while (count.length < 3) count = `0${count}`;
+    scoreDoc.marker_id += count;
+
+    // Ensure marker_id is unique for Category
+    // Ensure no Score doc for Climber in Category
+    const isUnique = Scores.methods.isMarkerIdUnique.call({
+      marker_id: scoreDoc.marker_id,
+      category_id: targetCategory._id,
+    }) && Scores.methods.isClimberUnique.call({
+      climber_id: targetClimber._id,
+      category_id: targetCategory._id,
+    });
+
+    if (!isUnique) {
+      throw new Meteor.Error('ClimberAlreadyInCategory');
+    } else {
+      // +1 to climber_counter in Categories
+      Categories.update(targetCategory._id, {
+        $inc: { climber_count: 1 },
+      });
+    }
+
+
+    // Add reference to Category in Climber
+    const isSuccessfulUpdate = Climbers.update(
+      { _id: targetClimber._id, 'categories._id': { $ne: targetCategory._id } },
+      { $addToSet: { categories: climberCategoryDoc } }
+    ) === 1;
+
+    if (!isSuccessfulUpdate) {
+      throw new Meteor.Error('ClimberAlreadyInCategory');
+    }
+
+
+    // Set up Routes in Score document
+    (targetCategory.routes).forEach((route) => {
+      const newRoute = {
+        route_id: route._id,
+        // score_string: set by autoValue
+      };
+      scoreDoc.scores.push(newRoute);
+    });
+
+    return Scores.insert(scoreDoc);
+  },
+});
+
+Categories.methods.removeClimbers = new ValidatedMethod({
+  name: 'Categories.methods.removeClimbers',
+  validate: new SimpleSchema({
+    climberId: { type: String },
+    categoryId: { type: String },
+  }).validator(),
+  run({ categoryId, climberId }) {
+    const targetClimber = Climbers.findOne(climberId);
+    const targetCategory = Categories.findOne(categoryId);
+
+    try {
+      Climbers.update(targetClimber._id,
+        { $pull: { categories: { _id: targetCategory._id } } }
+      );
+    } catch (e) {
+      throw new Meteor.Error('Invalid Category/Climber ID');
+    }
+
+    return Scores.remove({
+      climber_id: targetClimber._id,
+      category_id: targetCategory._id,
+    });
   },
 });
 

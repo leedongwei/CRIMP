@@ -47,7 +47,7 @@ describe('Categories', function () {
     const newEvent = Factory.create('event');
     const newCategoryDoc = Factory.build('category');
     newCategoryDoc.event = newEvent;
-    Categories.insert(newCategoryDoc);
+    const newCategoryId = Categories.insert(newCategoryDoc);
   });
 
 
@@ -220,6 +220,107 @@ describe('Categories', function () {
             },
           });
         }, Meteor.Error);
+      });
+    });
+
+    describe('Multi-collection functions', function () {
+      beforeEach(function () {
+        const targetCategory = Categories.findOne({});
+
+        // Create a child Climber in the Category
+        const newClimberDoc = Factory.build('climber');
+        newClimberDoc.categories.push({ _id: targetCategory._id });
+        const newClimberId = Climbers.insert(newClimberDoc);
+
+        // Add Score for Climber in Category
+        const newScoreDoc = {
+          category_id: targetCategory._id,
+          climber_id: newClimberId,
+          marker_id: 'fake',
+          scores: [],
+        };
+        Scores.insert(newScoreDoc);
+      });
+
+      describe('add Climber', function () {
+        it('add to a valid category', function () {
+          const targetCategory = Categories.findOne({});
+          const newClimberDoc = Factory.tree('climber');
+          const newClimberId = Climbers.insert(newClimberDoc);
+
+          const scoreId = Categories.methods.addClimber.call({
+            categoryId: targetCategory._id,
+            climberId: newClimberId,
+          });
+
+          const testCategory = Categories.findOne(targetCategory._id);
+          const testClimber = Climbers.findOne(newClimberId);
+          const testScore = Scores.findOne(scoreId);
+
+          assert.equal(
+            testCategory.climber_count,
+            targetCategory.climber_count + 1
+          );
+          assert.equal(
+            testClimber.categories[0]._id,
+            targetCategory._id
+          );
+          assert.equal(testScore.scores.length, testCategory.routes.length);
+        });
+
+        it('reject if there is an existing link', function () {
+          const targetCategory = Categories.findOne({});
+          const targetClimber = Climbers.findOne({});
+          const targetScores = Scores.findOne({});
+
+          // Should not be able to add a Climber to a Category twice
+          assert.throws(() => {
+            Categories.methods.addClimber.call({
+              categoryId: targetCategory._id,
+              climberId: targetClimber._id,
+            });
+          }, Meteor.Error);
+        });
+      });
+
+      describe('remove Climber', function () {
+        it('delete link in Climber and Scores', function () {
+          const targetCategory = Categories.findOne({});
+          const targetClimber = Climbers.findOne({});
+
+          Categories.methods.removeClimbers.call({
+            categoryId: targetCategory._id,
+            climberId: targetClimber._id,
+          });
+
+          const testClimber = Climbers.findOne(targetClimber._id);
+          assert.equal(testClimber.categories.length, 0);
+          assert.isUndefined(Scores.findOne({
+            climber_id: targetClimber._id,
+            category_id: targetCategory._id,
+          }));
+        });
+
+        it('no error if no linkage between Category and Climber', function () {
+          const targetCategory = Categories.findOne({});
+          const targetClimber = Factory.create('climber');
+
+          assert.equal(Categories.methods.removeClimbers.call({
+            categoryId: targetCategory._id,
+            climberId: targetClimber._id,
+          }), 0);
+        });
+
+        it('throw error for invalid Climber IDs', function () {
+          const targetCategory = Categories.findOne({});
+
+          assert.throws(() => {
+            Categories.methods.removeClimbers.call({
+              categoryId: targetCategory._id,
+              climberId: 'Invalid Id',
+            });
+          }, Meteor.Error);
+        });
       });
     });
   });
