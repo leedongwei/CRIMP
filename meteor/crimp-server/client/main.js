@@ -10,6 +10,10 @@ import Teams from '../imports/data/teams';
 import Climbers from '../imports/data/climbers.js';
 import Scores from '../imports/data/scores.js';
 
+// TODO: REMOVE seedDatabase. DEV TESTING ONLY.
+import seedDatabase from '../imports/seedDatabase';
+
+
 import './main.html';
 
 

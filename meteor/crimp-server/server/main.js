@@ -13,6 +13,10 @@ import Teams from '../imports/data/teams';
 import Climbers from '../imports/data/climbers';
 import Scores from '../imports/data/scores';
 
+// TODO: REMOVE seedDatabase. DEV TESTING ONLY.
+import seedDatabase from '../imports/seedDatabase';
+
+
 Meteor.startup(() => {
   // TODO: Delete this crazy publication
   Meteor.publish('development', () => Meteor.users.find({}));
@@ -23,6 +27,7 @@ Meteor.startup(() => {
   Meteor.publish('climbers', () => Climbers.find({}));
   Meteor.publish('scores', () => Scores.find({}));
 });
+
 
 const Api = new Restivus({
   defaultHeaders: { 'Content-Type': 'application/json' },
@@ -369,4 +374,3 @@ Api.addRoute('test/latency', { authRequired: true }, {
     return insertStatus;
   },
 });
-
