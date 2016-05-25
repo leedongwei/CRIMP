@@ -156,8 +156,8 @@ Body: {
 * `event_id` get scores from a specific event
 * `category_id` get scores from a specific category
 * `route_id` get scores from a specfic route
-* `climber_id` get all the scores of a climber
-* `marker_id` get scores of a climber from a specific category
+* `climber_id` get all the scores of a specific climber
+* `marker_id` get scores of climbers with that marker_id
 
 ```json
 header: {
@@ -296,7 +296,6 @@ body: {
 ```json
 body: {
   "climber_id": "climberId1",
-  "climber_name": "Antonio Paul",
   "category_id": "e4gMzdjR...",
   "route_id": "rbjJ...",
   "marker_id": "NMF002",

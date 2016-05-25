@@ -229,7 +229,7 @@ Categories.methods.addClimber = new ValidatedMethod({
     };
 
     // Set up marker_id in Score document, max 999 Climbers in a Category
-    let count = String(targetCategory.climber_count);
+    let count = String(targetCategory.climber_count + 1);
     while (count.length < 3) count = `0${count}`;
     scoreDoc.marker_id += count;
 

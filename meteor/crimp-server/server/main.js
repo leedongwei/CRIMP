@@ -187,9 +187,6 @@ Api.addRoute('judge/categories', { authRequired: false }, {
         mappedDoc[newkey] = value;
       });
 
-      console.log('\r\n$ $ $\r\n');
-      console.log(doc);
-
       // Go through each route to generate score_rules
       (mappedDoc.routes).forEach((route) => {
         let scoreRules = doc.score_system;
@@ -217,67 +214,123 @@ Api.addRoute('judge/categories', { authRequired: false }, {
 
 Api.addRoute('judge/score', { authRequired: true }, {
   get: function getScore() {
-    const options = this.queryParams;
+    const allowedOptions = ['event_id',
+                            'category_id',
+                            'route_id',
+                            'climber_id',
+                            'marker_id'];
+    const options = _.pick(this.queryParams, allowedOptions);
+    const scoreSelector = {};
 
-    // const scoreSelector = {
-    //   category_id: options.category_id,
-    //   climber_id: options.climber_id,
-    //   marker_id: options.marker_id,
-    // };
-    const cat = Categories.findOne({_id: options.category_id}) || Categories.findOne({});
+    const targetCategories = [];
 
-    const climberDocs = Climbers.find({}).fetch();
-    const newClimberDocs = [];
-    climberDocs.forEach((doc, index) => {
-      const newDoc = _.pick(doc, ['climber_name']);
-      newDoc.climber_id = doc._id;
-      newDoc.scores = [
-        {
-          'marker_id': 'NMQ00'+index,
-          'category_id': cat._id,
-          'route_id': cat.routes[0]._id || 'WmiYdjftrrBhiuzd9',
-          'score': 'hello_we1zh1',
-        },
-        {
-          'marker_id': 'NMQ00'+index,
-          'category_id': cat._id,
-          'route_id':  cat.routes[1].route_id || 'sFpauqFGuxDeCwDz7',
-          'score': '11B',
-        },
-        {
-          'marker_id': 'NMQ00'+index,
-          'category_id': cat._id,
-          'route_id': '6GW2eLgpNE2Ad2RrA',
-          'score': '11B11T'
-        },
-        {
-          'marker_id': 'NMQ00'+index,
-          'category_id': cat._id,
-          'route_id': 'v3fNAhZ79Med5cfLW',
-          'score': 'B11T'
-        },
-        {
-          'marker_id': 'NMQ00'+index,
-          'category_id': cat._id,
-          'route_id': 'v3fNAhZ79Med5cfLW',
-          'score': 'T11T'
-        },
-        {
-          'marker_id': 'NMQ00'+index,
-          'category_id': cat._id,
-          'route_id': 'v3fNAhZ79Med5cfLW',
-          'score': 'T11T'
-        },
-      ]
+    // Event is not stored inside a Score document, hence we need to
+    // do a look-up to get all the Categories inside an Event
+    if (options.event_id) {
+      Categories
+        .find({ 'event._id': options.event_id })
+        .fetch()
+        .forEach((category) => {
+          targetCategories.push(category._id);
+        });
 
-      newClimberDocs.push(newDoc);
+      scoreSelector.category_id = { $in: targetCategories };
+    }
+
+
+    if (options.category_id) {
+      // If Event and Category is specified, check if Category is
+      // child of the Event
+      if (targetCategories.length
+          && !targetCategories.includes(options.category_id)) {
+        throw new Meteor.Error('CategoryNotLinkedToEvent');
+      } else {
+        scoreSelector.category_id = options.category_id;
+      }
+    }
+
+    // Note: route_id is not checked against the Categories
+    if (options.route_id) {
+      scoreSelector.scores = { $elemMatch: {
+        route_id: options.route_id,
+      } };
+    }
+
+    if (options.climber_id) {
+      scoreSelector.climber_id = options.climber_id;
+    }
+
+    if (options.marker_id) {
+      scoreSelector.marker_id = options.marker_id;
+    }
+
+    const targetScores = Scores.find(scoreSelector);
+
+    if (targetScores.count() === 0) {
+      return {
+        statusCode: 200,
+        body: { climber_scores: [] },
+      };
+    }
+
+    // Get set of climbers affected by operation
+    let targetClimbers = [];
+    targetScores.fetch().forEach((score) => {
+      targetClimbers.push(score.climber_id);
+    });
+    targetClimbers = Climbers.find({
+      _id: { $in: targetClimbers },
+    }).fetch();
+
+
+    const map = { _id: 'climber_id' };
+    targetClimbers.forEach((climber, index, array) => {
+      const truncatedDoc = _.pick(climber, ['_id', 'climber_name']);
+      const mappedDoc = {};
+
+      _.each(truncatedDoc, (value, key) => {
+        const newkey = map[key] || key;
+        mappedDoc[newkey] = value;
+      });
+
+      array[index] = mappedDoc;
     });
 
 
-    // const scoreDocs = Scores.find(scoreSelector).fetch();
+    const scoreOutput = [];
+    targetScores
+      .fetch()
+      .forEach((scoreDoc) => {
+        for (let i = targetClimbers.length - 1; i >= 0; i--) {
+          if (scoreDoc.climber_id === targetClimbers[i].climber_id) {
+            const allScores = [];
+
+            for (let j = scoreDoc.scores.length - 1; j >= 0; j--) {
+              const singleScore = {};
+              singleScore.marker_id = scoreDoc.marker_id;
+              singleScore.category_id = scoreDoc.category_id;
+              singleScore.route_id = scoreDoc.scores[j].route_id;
+              singleScore.score = scoreDoc.scores[j].score_string;
+
+
+              if (options.route_id) {
+                if (options.route_id === singleScore.route_id) {
+                  allScores.push(singleScore);
+                }
+              } else {
+                allScores.push(singleScore);
+              }
+            }
+
+            targetClimbers[i].scores = allScores;
+            scoreOutput.push(targetClimbers[i]);
+          }
+        }
+      });
+
     return {
       statusCode: 200,
-      body: { climber_scores: newClimberDocs },
+      body: { climber_scores: scoreOutput },
     };
   },
 });
@@ -287,10 +340,34 @@ Api.addRoute('judge/score/:route_id/:marker_id', { authRequired: true }, {
   post: function postScore() {
     const options = this.urlParams;
 
-    const cat = Categories.findOne({ 'routes._id': options.route_id });
-    // const scs = Scores.findOne({
-    //               marker_id: );
-    // console.log(cat);
+    /**
+     * TODO: Implement the magic sequencing with sequential token
+     */
+
+    const targetScore = Scores.find({
+      marker_id: options.marker_id,
+      scores: { $elemMatch: {
+        route_id: options.route_id,
+      } },
+    });
+
+    if (targetScore.count() === 0) {
+      throw new Meteor.Error('RouteOrMarkerError');
+    } else if (targetScore.count() >= 1) {
+      throw new Meteor.Error('SelectedMultipleScoresForUpdate');
+    }
+
+    // Scores.update({
+    //   marker_id: options.marker_id,
+    //   scores: { $elemMatch: {
+    //     route_id: options.route_id,
+    //   } },
+    // }, {
+    //   $set: {
+
+    //   }
+    // })
+
 
     return {
       statusCode: 501,
