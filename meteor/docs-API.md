@@ -296,7 +296,6 @@ body: {
 ```json
 body: {
   "climber_id": "climberId1",
-  "climber_name": "Antonio Paul",
   "category_id": "e4gMzdjR...",
   "route_id": "rbjJ...",
   "marker_id": "NMF002",
