@@ -1,0 +1,55 @@
+{
+  "categories": [
+    {
+	  "category_id": "iaA4T76ihpvmAhEtc",
+      "category_name": "Novice Men Qualifiers",
+      "acronym": "NMQ",
+      "is_score_finalized": false,
+      "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
+      "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
+      "routes": [
+	    {
+          "_id": "ZcakJrZnpuwg9fXoE",
+          "route_name": "Route 1",
+          "score_rules": "points__1000"
+        },
+        {
+          "_id": "2uALvGuYPxB9m8jAm",
+          "route_name": "Route 2",
+          "score_rules": "points__800"
+        },
+        {
+          "_id": "juoFyiJSfnmTWvsXC",
+          "route_name": "Route 3",
+          "score_rules": "points__1800"
+        }
+	  ]
+    },
+    {
+      "category_id": "NNS2rzA5ayNJs9i94",
+      "category_name": "Novice Women Qualifiers",
+      "acronym": "NWQ",
+      "is_team_category": true,
+      "is_score_finalized": true,
+      "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
+      "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
+      "routes": [
+        {
+          "_id": "hijbH8aYFFQrCXxhu",
+          "route_name": "Route 1",
+          "score_rules": "ifsc-top-bonus"
+        },
+        {
+          "_id": "NS3pLaS9tDe9MQ9dw",
+          "route_name": "Route 2",
+          "score_rules": "ifsc-top-bonus"
+        },
+        {
+          "_id": "YNPAJBHxrWvXJDTxc",
+          "route_name": "Route 3",
+          "score_rules": "ifsc-top-bonus"
+        }
+      ]
+    }
+  ]
+}

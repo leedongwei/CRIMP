@@ -45,6 +45,8 @@ public class LocalModelTest {
     @After
     public void onAfter(){
         mLocalModel.deleteModel();
+        File file = new File(CATEGORIES_FILE);
+        file.delete();
     }
 
     @Test
@@ -128,6 +130,8 @@ public class LocalModelTest {
             assertThat(categoryAfter.getAcronym(), is(categoryBefore.getAcronym()));
             assertThat(categoryAfter.getCategoryId(), is(categoryBefore.getCategoryId()));
             assertThat(categoryAfter.getCategoryName(), is(categoryBefore.getCategoryName()));
+            assertThat(categoryAfter.getTimeStart(), is(categoryBefore.getTimeStart()));
+            assertThat(categoryAfter.getTimeEnd(), is(categoryBefore.getTimeEnd()));
 
             List<RouteJs> routeListBefore = categoryBefore.getRoutes();
             List<RouteJs> routeListAfter = categoryAfter.getRoutes();
@@ -136,9 +140,7 @@ public class LocalModelTest {
                 RouteJs routeAfter = routeListAfter.get(i);
                 assertThat(routeAfter.getRouteId(), is(routeBefore.getRouteId()));
                 assertThat(routeAfter.getRouteName(), is(routeBefore.getRouteName()));
-                assertThat(routeAfter.getScoreType(), is(routeBefore.getScoreType()));
-                assertThat(routeAfter.getTimeEnd(), is(routeBefore.getTimeEnd()));
-                assertThat(routeAfter.getTimeStart(), is(routeBefore.getTimeStart()));
+                assertThat(routeAfter.getScoreRules(), is(routeBefore.getScoreRules()));
             }
         }
     }
@@ -146,40 +148,30 @@ public class LocalModelTest {
     public static CategoriesJs injectCategories(){
         RouteJs routeA1 = new RouteJs();
         routeA1.setRouteName("route A1");
-        routeA1.setRouteId(1);
-        routeA1.setScoreType("top_bonus");
-        routeA1.setScoreFinalized(false);
-        routeA1.setTimeStart(new Date());
-        routeA1.setTimeEnd(new Date());
+        routeA1.setRouteId("routeIdA1");
+        routeA1.setScoreRules("top_bonus");
 
         RouteJs routeA2 = new RouteJs();
         routeA2.setRouteName("route A2");
-        routeA2.setRouteId(2);
-        routeA2.setScoreType("top_bonus");
-        routeA2.setScoreFinalized(false);
-        routeA2.setTimeStart(new Date());
-        routeA2.setTimeEnd(new Date());
+        routeA2.setRouteId("routeIdA2");
+        routeA2.setScoreRules("top_bonus");
 
         RouteJs routeB1 = new RouteJs();
         routeB1.setRouteName("route B1");
-        routeB1.setRouteId(3);
-        routeB1.setScoreType("bonus_2");
-        routeB1.setScoreFinalized(false);
-        routeB1.setTimeStart(new Date());
-        routeB1.setTimeEnd(new Date());
+        routeB1.setRouteId("routeIdB1");
+        routeB1.setScoreRules("bonus_2");
 
         RouteJs routeB2 = new RouteJs();
         routeB2.setRouteName("route B2");
-        routeB2.setRouteId(4);
-        routeB2.setScoreType("bonus_2");
-        routeB2.setScoreFinalized(false);
-        routeB2.setTimeStart(new Date());
-        routeB2.setTimeEnd(new Date());
+        routeB2.setRouteId("routeIdB2");
+        routeB2.setScoreRules("bonus_2");
 
         CategoryJs categoryA = new CategoryJs();
         categoryA.setCategoryName("Novice Man Qualifier");
-        categoryA.setCategoryId(1);
+        categoryA.setCategoryId("categoryIdA");
         categoryA.setAcronym("NMQ");
+        categoryA.setTimeStart("timeStartA");
+        categoryA.setTimeEnd("timeEndA");
         ArrayList<RouteJs> cat1Route = new ArrayList<>();
         cat1Route.add(routeA1);
         cat1Route.add(routeA2);
@@ -187,8 +179,10 @@ public class LocalModelTest {
 
         CategoryJs categoryB = new CategoryJs();
         categoryB.setCategoryName("Inter Woman Final");
-        categoryB.setCategoryId(2);
+        categoryB.setCategoryId("categoryIdB");
         categoryB.setAcronym("IWF");
+        categoryB.setTimeStart("timeStartB");
+        categoryB.setTimeEnd("timeStartB");
         ArrayList<RouteJs> cat2Route = new ArrayList<>();
         cat2Route.add(routeB1);
         cat2Route.add(routeB2);

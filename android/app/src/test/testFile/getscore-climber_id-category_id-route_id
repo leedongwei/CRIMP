@@ -1,0 +1,16 @@
+{
+  "climber_scores": [
+	{
+      "climber_id":  "climberId3",
+      "climber_name": "Tranny",
+      "scores": [
+	    {
+          "marker_id": "NMQ006",
+          "category_id": "iaA4T76ihpvmAhEtc",
+          "route_id": "ZcakJrZnpuwg9fXoE",
+          "score": ""
+        }
+      ]
+    }
+  ]
+}
