@@ -1,18 +1,17 @@
 # CRIMP-server
 * Communicates with spectator and admin web interface using DDP
 * Exposes a HTTP, REST API for the judges' mobile app
+* Endpoints expects `x-www-form-urlencoded`, or force all values to `String`
 * When there is an error processing the request, the server will reply with the appropriate HTTP response code (i.e. 4xx, 5xx).
-
-<br><br><br>
-
+<br><br>
 
 
 ## API List
 * [POST '/api/judge/login'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgelogin)
 * [POST '/api/judge/logout'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgelogout)
 * [GET '/api/judge/categories'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#get-apijudgecategories)
-* [GET '/api/judge/score/{?climber_id}{?category_id}{?route_id}{?marker_id}'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#get-apijudgeclimber_idcategory_idroute_idmarker_id)
-* [POST '/api/judge/score/:route_id/:climber_id'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgescoreroute_idclimber_id)
+* [GET '/api/judge/score/{?climber_id}{?category_id}{?route_id}{?marker_id}'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#get-apijudgescoreclimber_idcategory_idroute_idmarker_id)
+* [POST '/api/judge/score/:route_id/:climber_id'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgescoreroute_idmarker_id)
 * [POST '/api/judge/helpme'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgehelpme)
 * [POST '/api/judge/report'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgereport)
 * [PUT '/api/judge/setactive'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#put-apijudgesetactive)
@@ -30,8 +29,6 @@
 ```json
 Body: {
   "fb_access_token": "CAAE1913yZC2ABAAO6...",
-  "force_login": true,
-  "isProductionApp": true,
 }
 ```
 
@@ -44,12 +41,12 @@ Body: {
   "roles": ["admin"],
 }
 ```
-* If `force_login` is `false` and there are existing sessions, login will be rejected
 * `isProductionApp` prevents the situation of a judge using an old dev app
 * `X-User-Id` and `X-Auth-Token` is used in endpoints requiring authorization
-* `remind_logout` is `true` if there are existing sessions on other devices
+* `remind_logout` is `true` if there are existing sessions on other devices. The mobile app should display a reminder for user to log out on other devices.
 * `roles` is the privilege level of the user
   * The mobile app should deny access to user if role is not higher than `judge`
+  * Tokens will not be issued for users with insufficient role permissions
   * roles in increasing order of access: `denied`, `pending`, `partner`, `judge`, `admin`, `hukkataival`
     * `denied` is a stranger and is denied access
     * `pending` is a new user, and should be sorted by an admin
@@ -66,7 +63,7 @@ Body: {
 
 #### Request
 ```json
-body: {
+header: {
   "X-User-Id": "jfJnk4B...",
   "X-Auth-Token": "LNZoISu...",
 }
@@ -90,38 +87,26 @@ Body: {
       "category_id": "e4gMzdjR...",
       "category_name": "Novice Men Qualifiers",
       "acronym": "NMQ",
-      "is_team_category": false,
       "is_score_finalized": false,
       "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
       "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
-      "score_system": "points"
       "routes": [
         {
-          "route_id": "rbjJ...",
+          "_id": "rbjJ...",
           "route_name": "Route 1",
-          "score_rules": {
-            "points": 1000
-          },
+          "score_rules": "points__1000"
         },
         {
-          "route_id": "TC3R...",
+          "_id": "TC3R...",
           "route_name": "Route 2",
-          "score_rules": {
-            "points": 800
-          },
+          "score_rules": "points__800"
         },
         {
-          "route_id": "EgN4g...",
+          "_id": "EgN4g...",
           "route_name": "Route 3",
-          "score_rules": {
-            "points": 1800
-          },
+          "score_rules": "points__1800"
         }
       ],
-      "event": {
-        "_id": "DsJnHX...",
-        "event_name": "Boulderactive 2016"
-      }
     },
     {
       "category_id": "e4gMzdjR...",
@@ -131,28 +116,23 @@ Body: {
       "is_score_finalized": true,
       "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
       "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
-      "score_system": "ifsc-top-bonus"
       "routes": [
         {
           "_id": "rbjJ...",
           "route_name": "Route 1",
-          "score_rules": {},
+          "score_rules": "ifsc-top-bonus",
         },
         {
           "_id": "TC3R...",
           "route_name": "Route 2",
-          "score_rules": {},
+          "score_rules": "ifsc-top-bonus",
         },
         {
           "_id": "EgN4g...",
           "route_name": "Route 3",
-          "score_rules": {},
+          "score_rules": "ifsc-top-bonus",
         }
       ],
-      "event": {
-        "_id": "DsJnHX...",
-        "event_name": "Boulderactive 2016"
-      }
     },
 
     ...
@@ -168,7 +148,7 @@ Body: {
 
 
 
-## GET '/api/judge/score/{?climber_id}{?category_id}{?route_id}{?marker_id}'
+## GET '/api/judge/score{?climber_id}{?category_id}{?route_id}{?marker_id}'
 * Get score
 
 #### Request
@@ -217,7 +197,7 @@ Body: {
       {
         "marker_id": "OMQ007",
         "category_id": "Q0afR...",
-        "route_id": "FTHew..."
+        "route_id": "FTHew...",
         "score": ""
       },
       {
@@ -315,8 +295,7 @@ body: {
 #### Response
 ```json
 body: {
-  "climber_id": 14,
-  "climber_name": "Antonio Paul",
+  "climber_id": "climberId1",
   "category_id": "e4gMzdjR...",
   "route_id": "rbjJ...",
   "marker_id": "NMF002",
@@ -347,11 +326,7 @@ body: {
 
 #### Response
 ```json
-body: {
-  "X-User-Id": "jfJnk4B...",
-  "X-Auth-Token": "LNZoISu...",
-  "route_id": "EgN4g...",
-}
+body: {}
 ```
 * Response is immediate to acknowledge that the server has received it. It does not mean that the admin has acknowledged it.
 <br><br><br>
@@ -401,15 +376,15 @@ header: {
 }
 body: {
   "route_id": "yGXAk...",
-  "marker_id": "NMF001"
+  "marker_id": "NMF001",
 }
 ```
 
 #### Response
 ```json
 Body: {
-  "route_route": "yGXAk...",
-  "marker_id": "NMF001"
+  "route_id": "yGXAk...",
+  "marker_id": "NMF001",
   "climber_id": "nJXAk...",
   "climber_name": "Dongie",
 }
@@ -434,12 +409,7 @@ body: {
 
 #### Response
 ```json
-Body: {
-  "route_id": "yGXAk...",
-  "marker_id": ""
-  "climber_id": "",
-  "climber_name": "",
-}
+Body: {}
 ```
 <br><br><br>
 

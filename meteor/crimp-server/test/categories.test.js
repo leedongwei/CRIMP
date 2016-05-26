@@ -5,10 +5,8 @@
 */
 
 import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
 import { Factory } from 'meteor/dburles:factory';
-import { faker } from 'meteor/practicalmeteor:faker';
-import { chai, assert, expect } from 'meteor/practicalmeteor:chai';
+import { assert } from 'meteor/practicalmeteor:chai';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 
 import '../imports/factories';
@@ -29,6 +27,7 @@ function assertAllFields(category) {
   assert.typeOf(category.acronym, 'string');
   assert.typeOf(category.is_team_category, 'boolean');
   assert.typeOf(category.is_score_finalized, 'boolean');
+  assert.typeOf(category.climber_count, 'number');
   assert.typeOf(category.time_start, 'date');
   assert.typeOf(category.time_end, 'date');
   assert.typeOf(category.score_system, 'string');
@@ -54,8 +53,8 @@ describe('Categories', function () {
 
   describe('Mutator', function () {
     it('builds correctly from factory', function () {
-      const newCategory = Categories.findOne({});
-      assertAllFields(newCategory);
+      const targetCategory = Categories.findOne({});
+      assertAllFields(targetCategory);
     });
   });
 
@@ -63,11 +62,11 @@ describe('Categories', function () {
   describe('Meteor.methods', function () {
     describe('insert', function () {
       it('insert with valid document', function () {
-        const parentEventDoc = Events.findOne({});
+        const parentEvent = Events.findOne({});
         const categoryDoc = Factory.tree('category');
 
         const newCategoryId = Categories.methods.insert.call({
-          parentEventDoc,
+          parentEvent,
           categoryDoc,
         });
 
@@ -76,38 +75,41 @@ describe('Categories', function () {
       });
 
       it('reject extra fields', function () {
-        const parentEventDoc = Events.findOne({});
+        const parentEvent = Events.findOne({});
         const categoryDoc = Factory.tree('category');
         categoryDoc.extra_field = true;
 
         assert.throws(() => {
           Categories.methods.insert.call({
-            parentEventDoc,
+            parentEvent,
             categoryDoc,
           });
         }, Meteor.Error);
       });
 
       it('reject missing fields', function () {
-        const parentEventDoc = Events.findOne({});
+        const parentEvent = Events.findOne({});
         const categoryDoc = Factory.tree('category');
         delete categoryDoc.score_system;
 
         assert.throws(() => {
           Categories.methods.insert.call({
-            parentEventDoc,
+            parentEvent,
             categoryDoc,
           });
         }, Meteor.Error);
       });
 
       it('reject wrong types', function () {
-        const parentEventDoc = Events.findOne({});
+        const parentEvent = Events.findOne({});
         const categoryDoc = Factory.tree('category');
         categoryDoc.is_score_finalized = 1;
 
         assert.throws(() => {
-          Categories.methods.insert.call(categoryDoc);
+          Categories.methods.insert.call({
+            parentEvent,
+            categoryDoc,
+          });
         }, Meteor.Error);
       });
     });
@@ -133,14 +135,13 @@ describe('Categories', function () {
         const targetCategory = Categories.findOne({});
         const number = 123456;
         const boolean = true;
-        const object = {};
 
         // Try number in boolean
         assert.throws(() => {
           Categories.methods.update.call({
             selector: targetCategory._id,
             modifier: '$set',
-            eventDoc: { is_team_category: 1 },
+            eventDoc: { is_team_category: number },
           });
         }, Meteor.Error);
 
@@ -149,7 +150,7 @@ describe('Categories', function () {
           Categories.methods.update.call({
             selector: targetCategory._id,
             modifier: '$set',
-            eventDoc: { is_score_finalized: 'true' },
+            eventDoc: { is_score_finalized: boolean },
           });
         }, Meteor.Error);
       });
@@ -165,7 +166,6 @@ describe('Categories', function () {
             categoryDoc: { event: fakeEvent },
           });
         }, Meteor.Error);
-
       });
     });
 
@@ -180,7 +180,7 @@ describe('Categories', function () {
         assert.isUndefined(Categories.findOne(targetCategory._id));
       });
 
-      it('reject event with child because isRecursive is false', function () {
+      it('reject category with child because isRecursive is false', function () {
         // const targetCategory = Factory.create('event');
         // const newCategoryDoc = Factory.build('category');
         // newCategoryDoc.event = targetCategory;
@@ -198,7 +198,7 @@ describe('Categories', function () {
       /**
        *  Need CategoriesCollection stub to isolate Events
        */
-      it('delete event with child because isRecursive is true', function () {
+      it('delete category with child because isRecursive is true', function () {
         // const targetCategory = Factory.create('event');
 
         // // Set 3 child Categories under Event
@@ -224,15 +224,14 @@ describe('Categories', function () {
         assert.equal(0, 1);
       });
 
-      it('reject non _.id selectors', function () {
+      it('reject non ._id selectors', function () {
         const targetCategory = Categories.findOne({});
-        const removedCategories =
 
         assert.throws(() => {
           Categories.methods.remove.call({
             selector: {
               acronym: targetCategory.acronym,
-            }
+            },
           });
         }, Meteor.Error);
       });

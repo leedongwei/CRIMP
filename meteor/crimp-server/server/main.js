@@ -42,15 +42,6 @@ const Api = new Restivus({
 
 Api.addRoute('judge/login', { authRequired: false }, {
   post: function postLogin() {
-    // Ensure that judge is logging in from production-version of the app
-    if (CRIMP.ENVIRONMENT.NODE_ENV === 'production' &&
-        this.bodyParams.isProductionApp !== 'true') {
-      return {
-        statusCode: 400,
-        body: { error: 'Missing/wrong "isProductionApp" value in body' },
-      };
-    }
-
     if (!('fb_access_token' in this.bodyParams)) {
       return {
         statusCode: 400,
@@ -102,17 +93,6 @@ Api.addRoute('judge/login', { authRequired: false }, {
       hasExistingLogins = user.services.resume.loginTokens.length > 0;
     } catch (e) { /* do nothing */ }
 
-    // Do not issue new tokens if there are existing tokens and it is not
-    // a force_login
-    if (hasExistingLogins && !this.bodyParams.force_login) {
-      return {
-        statusCode: 409,
-        body: {
-          error: 'Has an existing session in another device',
-        },
-      };
-    }
-
     // Find out number of login counts of user
     let tokenCount = user.services.resume.loginTokensCount;
     tokenCount = typeof tokenCount === 'number'
@@ -153,18 +133,22 @@ Api.addRoute('judge/login', { authRequired: false }, {
         'X-Auth-Token': stampedToken.token,
         remind_logout: hasExistingLogins,
         roles: userRoles,
-        sequential_token: tokenCount,
       },
     };
   },
 });
 
 
-Api.addRoute('judge/logout', { authRequired: false }, {
+Api.addRoute('judge/logout', { authRequired: true }, {
   post: function postLogout() {
+    const loginToken = this.request.headers['x-auth-token'];
+    const hashed = Accounts._hashLoginToken(loginToken);
+
+    Accounts.destroyToken(this.userId, hashed.hashedToken);
+
     return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
+      statusCode: 200,
+      body: {},
     };
   },
 });
@@ -172,76 +156,204 @@ Api.addRoute('judge/logout', { authRequired: false }, {
 
 Api.addRoute('judge/categories', { authRequired: false }, {
   get: function getCategories() {
+    const categoryDocs = Categories.find({}).fetch();
+    const picked = [
+      '_id',
+      'category_name',
+      'acronym',
+      'is_score_finalized',
+      'time_start',
+      'time_end',
+      'routes',
+    ];
+    const map = {
+      _id: 'category_id',
+      score_finalized: 'is_score_finalized',
+    };
+
+    // Go through each Category doc to rename/discard keys
+    categoryDocs.forEach((doc, index, array) => {
+      const truncatedDoc = _.pick(doc, picked);
+      const mappedDoc = {};
+
+      // Rename the DB keys to conform with API spec
+      _.each(truncatedDoc, (value, key) => {
+        const newkey = map[key] || key;
+        mappedDoc[newkey] = value;
+      });
+
+      console.log('\r\n$ $ $\r\n');
+      console.log(doc);
+
+      // Go through each route to generate score_rules
+      (mappedDoc.routes).forEach((route) => {
+        let scoreRules = doc.score_system;
+
+        // TODO: Use the scoreSystem object to generate this
+        // This is suitable for now because points is the only system that
+        // uses this, but eventually we have to extend it for more systems
+        if (route.score_rules.points) {
+          scoreRules += `__${route.score_rules.points}`;
+        }
+
+        route.score_rules = scoreRules;
+      });
+
+      array[index] = mappedDoc;
+    });
+
     return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
+      statusCode: 200,
+      body: { categories: categoryDocs },
     };
   },
 });
 
 
-Api.addRoute('judge/score', { authRequired: false }, {
+Api.addRoute('judge/score', { authRequired: true }, {
   get: function getScore() {
+    const options = this.queryParams;
+
+    // const scoreSelector = {
+    //   category_id: options.category_id,
+    //   climber_id: options.climber_id,
+    //   marker_id: options.marker_id,
+    // };
+    const cat = Categories.findOne({_id: options.category_id}) || Categories.findOne({});
+
+    const climberDocs = Climbers.find({}).fetch();
+    const newClimberDocs = [];
+    climberDocs.forEach((doc, index) => {
+      const newDoc = _.pick(doc, ['climber_name']);
+      newDoc.climber_id = doc._id;
+      newDoc.scores = [
+        {
+          'marker_id': 'NMQ00'+index,
+          'category_id': cat._id,
+          'route_id': cat.routes[0]._id || 'WmiYdjftrrBhiuzd9',
+          'score': 'hello_we1zh1',
+        },
+        {
+          'marker_id': 'NMQ00'+index,
+          'category_id': cat._id,
+          'route_id':  cat.routes[1].route_id || 'sFpauqFGuxDeCwDz7',
+          'score': '11B',
+        },
+        {
+          'marker_id': 'NMQ00'+index,
+          'category_id': cat._id,
+          'route_id': '6GW2eLgpNE2Ad2RrA',
+          'score': '11B11T'
+        },
+        {
+          'marker_id': 'NMQ00'+index,
+          'category_id': cat._id,
+          'route_id': 'v3fNAhZ79Med5cfLW',
+          'score': 'B11T'
+        },
+        {
+          'marker_id': 'NMQ00'+index,
+          'category_id': cat._id,
+          'route_id': 'v3fNAhZ79Med5cfLW',
+          'score': 'T11T'
+        },
+        {
+          'marker_id': 'NMQ00'+index,
+          'category_id': cat._id,
+          'route_id': 'v3fNAhZ79Med5cfLW',
+          'score': 'T11T'
+        },
+      ]
+
+      newClimberDocs.push(newDoc);
+    });
+
+
+    // const scoreDocs = Scores.find(scoreSelector).fetch();
     return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
+      statusCode: 200,
+      body: { climber_scores: newClimberDocs },
     };
   },
 });
 
 
-Api.addRoute('judge//score/:route_id/:climber_id', { authRequired: false }, {
+Api.addRoute('judge/score/:route_id/:marker_id', { authRequired: true }, {
   post: function postScore() {
+    const options = this.urlParams;
+
+    const cat = Categories.findOne({ 'routes._id': options.route_id });
+    // const scs = Scores.findOne({
+    //               marker_id: );
+    // console.log(cat);
+
     return {
       statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
+      body: {
+        "climber_id": '123123',
+        "climber_name": 'CATERPIE',
+        "category_id": cat._id,
+        "route_id": options.route_id,
+        "marker_id": "abc007",
+        "score": "11B11T"
+      },
     };
   },
 });
 
 
-Api.addRoute('judge/report', { authRequired: false }, {
-  post: function postReport() {
-    return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
-    };
-  },
-});
-
-
-Api.addRoute('judge/helpme', { authRequired: false }, {
+Api.addRoute('judge/helpme', { authRequired: true }, {
   post: function postHelpMe() {
-    return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
-    };
+    return {};
   },
 });
 
 
-Api.addRoute('judge/setactive', { authRequired: false }, {
+Api.addRoute('judge/report', { authRequired: true }, {
+  post: function postReport() {
+
+    const options = this.bodyParams;
+    if (options.blocked === 'true' && options.force === 'false') {
+      return {
+        "X-User-Id": '123123',
+        "user_name": 'CATERPIE',
+        "category_id": options.category_id,
+        "route_id": options.route_id,
+      }
+    } else {
+      return {
+        "X-User-Id": this.userId,
+        "user_name": this.user.services.facebook.name,
+        "category_id": options.category_id,
+        "route_id": options.route_id,
+      }
+    }
+
+
+    // return {
+    //   statusCode: 501,
+    //   body: { error: 'Not implemented (yet)' },
+    // };
+  },
+});
+
+
+Api.addRoute('judge/setactive', { authRequired: true }, {
   put: function putSetActive() {
-    return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
-    };
+    return {};
   },
 });
 
 
-Api.addRoute('judge/clearactive', { authRequired: false }, {
+Api.addRoute('judge/clearactive', { authRequired: true }, {
   put: function putClearActive() {
-    return {
-      statusCode: 501,
-      body: { error: 'Not implemented (yet)' },
-    };
+    return {};
   },
 });
 
 
 // TODO: Remove latency endpoint
-Api.addRoute('test/latency', { authRequired: false }, {
+Api.addRoute('test/latency', { authRequired: true }, {
   get: () => {
     // simulate latency
     Meteor._sleepForMs(10000);
