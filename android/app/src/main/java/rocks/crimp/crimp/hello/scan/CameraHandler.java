@@ -63,14 +63,14 @@ public class CameraHandler extends Handler {
     public void handleMessage(Message msg){
         switch(msg.what){
             case ACQUIRE_CAMERA:
-                Timber.d("Received ACQUIRE_CAMERA: mCamera: %s", mCamera);
+                Timber.v("Received ACQUIRE_CAMERA: mCamera: %s", mCamera);
                 if(mCamera == null){
                     mCamera = acquireCamera();
                 }
                 break;
 
             case INITIALIZE_CAMERA_PARAMS:
-                Timber.d("Received INITIALIZE_CAMERA_PARAMS");
+                Timber.v("Received INITIALIZE_CAMERA_PARAMS");
                 Parameters params;
                 if(msg.obj!=null && msg.obj instanceof Parameters){
                     params = (Parameters) msg.obj;
@@ -89,7 +89,7 @@ public class CameraHandler extends Handler {
                 break;
 
             case START_PREVIEW:
-                Timber.d("Received START_PREVIEW");
+                Timber.v("Received START_PREVIEW");
                 SurfaceView surface;
                 if(msg.obj != null && msg.obj instanceof SurfaceView){
                     surface = (SurfaceView) msg.obj;
@@ -107,7 +107,7 @@ public class CameraHandler extends Handler {
                 break;
 
             case START_SCAN:
-                Timber.d("Received START_SCAN");
+                Timber.v("Received START_SCAN");
                 Camera.PreviewCallback callback;
                 if(msg.obj != null && msg.obj instanceof Camera.PreviewCallback){
                     callback = (Camera.PreviewCallback) msg.obj;
@@ -282,7 +282,7 @@ public class CameraHandler extends Handler {
         }
 
         param.setPreviewSize(mBestPreviewSize.width, mBestPreviewSize.height);
-        Timber.d("Chosen size: H%d x W%d", mBestPreviewSize.height, mBestPreviewSize.width);
+        Timber.v("Chosen size: H%d x W%d", mBestPreviewSize.height, mBestPreviewSize.width);
 
         // Set autofocus if possible.
         List<String> focusModes = param.getSupportedFocusModes();
@@ -294,7 +294,7 @@ public class CameraHandler extends Handler {
         param.setPreviewFormat(ImageFormat.NV21);
 
         camera.setParameters(param);
-        Timber.d("Camera parameter set");
+        Timber.v("Camera parameter set");
         CrimpApplication.getBusInstance()
                 .post(new CameraAcquired(targetWidth, mPxSurfaceExpectedHeight));
 

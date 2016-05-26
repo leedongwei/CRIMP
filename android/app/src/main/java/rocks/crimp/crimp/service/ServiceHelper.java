@@ -10,6 +10,7 @@ import java.util.UUID;
 import rocks.crimp.crimp.network.model.HeaderBean;
 import rocks.crimp.crimp.network.model.MetaBean;
 import rocks.crimp.crimp.network.model.PathBean;
+import rocks.crimp.crimp.network.model.QueryBean;
 import rocks.crimp.crimp.network.model.RequestBean;
 import rocks.crimp.crimp.network.model.RequestBodyJs;
 
@@ -45,25 +46,23 @@ public class ServiceHelper {
 
     @NonNull
     public static UUID getScore(@NonNull Context context, @Nullable UUID txId,
-                                @Nullable Long climberId, @Nullable Long categoryId,
-                                @Nullable Long routeId, @Nullable String markerId,
-                                @NonNull String fbUserId, @NonNull String fbAccessToken,
-                                long sequentialToken){
+                                @Nullable String climberId, @Nullable String categoryId,
+                                @Nullable String routeId, @Nullable String markerId,
+                                @NonNull String xUserId, @NonNull String xAuthToken){
         if(txId == null){
             txId = UUID.randomUUID();
         }
         RequestBean requestBean = new RequestBean();
         HeaderBean header = new HeaderBean();
-        header.setFbUserId(fbUserId);
-        header.setFbAccessToken(fbAccessToken);
-        header.setSequentialToken(sequentialToken);
+        header.setxUserId(xUserId);
+        header.setxAuthToken(xAuthToken);
         requestBean.setHeaderBean(header);
-        RequestBodyJs body = new RequestBodyJs();
-        body.setClimberId(climberId);
-        body.setCategoryId(categoryId);
-        body.setRouteId(routeId);
-        body.setMarkerId(markerId);
-        requestBean.setRequestBodyJs(body);
+        QueryBean query = new QueryBean();
+        query.setClimberId(climberId);
+        query.setCategoryId(categoryId);
+        query.setRouteId(routeId);
+        query.setMarkerId(markerId);
+        requestBean.setQueryBean(query);
 
         Intent intent = new Intent(context, CrimpService.class);
         intent.setAction(CrimpService.ACTION_GET_SCORE);
@@ -76,16 +75,15 @@ public class ServiceHelper {
 
     @NonNull
     public static UUID setActive(@NonNull Context context, @Nullable UUID txId,
-                                 @NonNull String fbUserId, @NonNull String fbAccessToken,
-                                 long sequentialToken, long routeId, String markerId){
+                                 @NonNull String xUserId, @NonNull String xAuthToken,
+                                 @NonNull String routeId, @NonNull String markerId){
         if(txId == null){
             txId = UUID.randomUUID();
         }
         RequestBean requestBean = new RequestBean();
         HeaderBean header = new HeaderBean();
-        header.setFbUserId(fbUserId);
-        header.setFbAccessToken(fbAccessToken);
-        header.setSequentialToken(sequentialToken);
+        header.setxUserId(xUserId);
+        header.setxAuthToken(xAuthToken);
         requestBean.setHeaderBean(header);
         RequestBodyJs body = new RequestBodyJs();
         body.setRouteId(routeId);
@@ -103,16 +101,15 @@ public class ServiceHelper {
 
     @NonNull
     public static UUID clearActive(@NonNull Context context, @Nullable UUID txId,
-                                   @NonNull String fbUserId, @NonNull String fbAccessToken,
-                                   long sequentialToken, long routeId){
+                                   @NonNull String xUserId, @NonNull String xAuthToken,
+                                   @NonNull String routeId){
         if(txId == null){
             txId = UUID.randomUUID();
         }
         RequestBean requestBean = new RequestBean();
         HeaderBean header = new HeaderBean();
-        header.setFbUserId(fbUserId);
-        header.setFbAccessToken(fbAccessToken);
-        header.setSequentialToken(sequentialToken);
+        header.setxUserId(xUserId);
+        header.setxAuthToken(xAuthToken);
         requestBean.setHeaderBean(header);
         RequestBodyJs body = new RequestBodyJs();
         body.setRouteId(routeId);
@@ -129,16 +126,13 @@ public class ServiceHelper {
 
     @NonNull
     public static UUID login(@NonNull Context context, @Nullable UUID txId,
-                             @NonNull String fbUserId, @NonNull String fbAccessToken,
-                             boolean forceLogin){
+                             @NonNull String fbAccessToken){
         if(txId == null){
             txId = UUID.randomUUID();
         }
         RequestBean requestBean = new RequestBean();
         RequestBodyJs body = new RequestBodyJs();
-        body.setFbUserId(fbUserId);
         body.setFbAccessToken(fbAccessToken);
-        body.setForceLogin(forceLogin);
         requestBean.setRequestBodyJs(body);
 
         Intent intent = new Intent(context, CrimpService.class);
@@ -151,17 +145,17 @@ public class ServiceHelper {
     }
 
     @NonNull
-    public static UUID reportIn(@NonNull Context context, @Nullable UUID txId, String fbUserId,
-                                @NonNull String fbAccessToken, long sequentialToken,
-                                long categoryId, long routeId, boolean force){
+    public static UUID reportIn(@NonNull Context context, @Nullable UUID txId,
+                                @NonNull String xUserId, @NonNull String xAuthToken,
+                                @NonNull String categoryId, @NonNull String routeId,
+                                boolean force){
         if(txId == null){
             txId = UUID.randomUUID();
         }
         RequestBean requestBean = new RequestBean();
         HeaderBean header = new HeaderBean();
-        header.setFbUserId(fbUserId);
-        header.setFbAccessToken(fbAccessToken);
-        header.setSequentialToken(sequentialToken);
+        header.setxUserId(xUserId);
+        header.setxAuthToken(xAuthToken);
         RequestBodyJs body = new RequestBodyJs();
         body.setCategoryId(categoryId);
         body.setRouteId(routeId);
@@ -179,16 +173,25 @@ public class ServiceHelper {
     }
 
     @NonNull
-    public static UUID requestHelp(@NonNull Context context, @Nullable UUID txId, String fbUserId,
-                                   @NonNull String fbAccessToken, long sequentialToken,
-                                   long routeId){
-        //TODO STUB
+    public static UUID requestHelp(@NonNull Context context, @Nullable UUID txId,
+                                   @NonNull String xUserId, @NonNull String xAuthToken,
+                                   @NonNull String routeId){
         if(txId == null){
             txId = UUID.randomUUID();
         }
+        RequestBean requestBean = new RequestBean();
+        HeaderBean header = new HeaderBean();
+        header.setxUserId(xUserId);
+        header.setxAuthToken(xAuthToken);
+        requestBean.setHeaderBean(header);
+        RequestBodyJs body = new RequestBodyJs();
+        body.setRouteId(routeId);
+        requestBean.setRequestBodyJs(body);
+
         Intent intent = new Intent(context, CrimpService.class);
         intent.setAction(CrimpService.ACTION_REQUEST_HELP);
         intent.putExtra(CrimpService.SERIALIZABLE_UUID, txId);
+        intent.putExtra(CrimpService.SERIALIZABLE_REQUEST, requestBean);
         context.startService(intent);
 
         return txId;
@@ -196,18 +199,17 @@ public class ServiceHelper {
 
     @NonNull
     public static UUID postScore(@NonNull Context context, @Nullable UUID txId,
-                                 @NonNull long routeId, @NonNull String markerId,
-                                 @NonNull String fbUserId, @NonNull String fbAccessToken,
-                                 long sequentialToken, @NonNull String score,
-                                 @NonNull String categoryName, @NonNull String routeName){
+                                 @NonNull String routeId, @NonNull String markerId,
+                                 @NonNull String xUserId, @NonNull String xAuthToken,
+                                 @NonNull String score, @NonNull String categoryName,
+                                 @NonNull String routeName){
         if(txId == null){
             txId = UUID.randomUUID();
         }
         RequestBean requestBean = new RequestBean();
         HeaderBean header = new HeaderBean();
-        header.setFbUserId(fbUserId);
-        header.setFbAccessToken(fbAccessToken);
-        header.setSequentialToken(sequentialToken);
+        header.setxUserId(xUserId);
+        header.setxAuthToken(xAuthToken);
         RequestBodyJs body = new RequestBodyJs();
         body.setScoreString(score);
         PathBean path = new PathBean();
@@ -231,15 +233,21 @@ public class ServiceHelper {
     }
 
     @NonNull
-    public static UUID logout(@NonNull Context context, @Nullable UUID txId, long fbUserId,
-                              @NonNull String fbAccessToken, long sequentialToken){
-        //TODO STUB
+    public static UUID logout(@NonNull Context context, @Nullable UUID txId,
+                              @NonNull String xUserId, @NonNull String xAuthToken){
         if(txId == null){
             txId = UUID.randomUUID();
         }
+        RequestBean requestBean = new RequestBean();
+        HeaderBean header = new HeaderBean();
+        header.setxUserId(xUserId);
+        header.setxAuthToken(xAuthToken);
+        requestBean.setHeaderBean(header);
+
         Intent intent = new Intent(context, CrimpService.class);
         intent.setAction(CrimpService.ACTION_LOGOUT);
         intent.putExtra(CrimpService.SERIALIZABLE_UUID, txId);
+        intent.putExtra(CrimpService.SERIALIZABLE_REQUEST, requestBean);
         context.startService(intent);
 
         return txId;

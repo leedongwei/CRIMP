@@ -3,11 +3,15 @@ package rocks.crimp.crimp.network;
 import android.support.annotation.Nullable;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 import retrofit2.http.Body;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
@@ -33,13 +37,21 @@ import rocks.crimp.crimp.network.model.SetActiveJs;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class CrimpWsImpl implements CrimpWS {
-    private static final String BASEURL = "http://dev.crimp.rocks/";
+    public static final String BASEURL = "http://dev.crimp.rocks/";
     private final RetrofitWs webService;
 
-    public CrimpWsImpl(){
+    public CrimpWsImpl(String baseUrl){
+        /*
+        OkHttpClient client = new OkHttpClient.Builder()
+                .readTimeout(60, TimeUnit.MINUTES)
+                .connectTimeout(60, TimeUnit.MINUTES)
+                .build();
+        */
+
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASEURL)
+                .baseUrl(baseUrl)
                 .addConverterFactory(JacksonConverterFactory.create())
+                //.client(client)
                 .build();
         webService = retrofit.create(RetrofitWs.class);
     }
@@ -56,8 +68,8 @@ public class CrimpWsImpl implements CrimpWS {
         HeaderBean header = requestBean.getHeaderBean();
 
         Call<GetScoreJs> call = webService.getScore(query.getClimberId(), query.getCategoryId(),
-                query.getRouteId(), query.getMarkerId(), header.getFbUserId(),
-                header.getFbAccessToken(), header.getSequentialToken());
+                query.getRouteId(), query.getMarkerId(), header.getxUserId(),
+                header.getxAuthToken());
         return call.execute().body();
     }
 
@@ -66,8 +78,8 @@ public class CrimpWsImpl implements CrimpWS {
         HeaderBean header = requestBean.getHeaderBean();
         RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
 
-        Call<SetActiveJs> call = webService.setActive(header.getFbUserId(),
-                header.getFbAccessToken(), header.getSequentialToken(), requestBodyJs);
+        Call<SetActiveJs> call = webService.setActive(header.getxUserId(),
+                header.getxAuthToken(), requestBodyJs.getRouteId(), requestBodyJs.getMarkerId());
         return call.execute().body();
     }
 
@@ -76,8 +88,8 @@ public class CrimpWsImpl implements CrimpWS {
         HeaderBean header = requestBean.getHeaderBean();
         RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
 
-        Call<ClearActiveJs> call = webService.clearActive(header.getFbUserId(),
-                header.getFbAccessToken(), header.getSequentialToken(), requestBodyJs);
+        Call<ClearActiveJs> call = webService.clearActive(header.getxUserId(),
+                header.getxAuthToken(), requestBodyJs.getRouteId());
         return call.execute().body();
     }
 
@@ -85,7 +97,7 @@ public class CrimpWsImpl implements CrimpWS {
     public LoginJs login(RequestBean requestBean) throws IOException {
         RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
 
-        Call<LoginJs> call = webService.login(requestBodyJs);
+        Call<LoginJs> call = webService.login(requestBodyJs.getFbAccessToken());
         return call.execute().body();
     }
 
@@ -94,8 +106,9 @@ public class CrimpWsImpl implements CrimpWS {
         HeaderBean header = requestBean.getHeaderBean();
         RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
 
-        Call<ReportJs> call = webService.reportIn(header.getFbUserId(), header.getFbAccessToken(),
-                header.getSequentialToken(), requestBodyJs);
+        Call<ReportJs> call = webService.reportIn(header.getxUserId(), header.getxAuthToken(),
+                requestBodyJs.getCategoryId(), requestBodyJs.getRouteId(),
+                requestBodyJs.isForceReport());
         return call.execute().body();
     }
 
@@ -104,8 +117,8 @@ public class CrimpWsImpl implements CrimpWS {
         HeaderBean header = requestBean.getHeaderBean();
         RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
 
-        Call<HelpMeJs> call = webService.requestHelp(header.getFbUserId(),
-                header.getFbAccessToken(), header.getSequentialToken(), requestBodyJs);
+        Call<HelpMeJs> call = webService.requestHelp(header.getxUserId(),
+                header.getxAuthToken(), requestBodyJs.getRouteId());
         return call.execute().body();
     }
 
@@ -116,16 +129,16 @@ public class CrimpWsImpl implements CrimpWS {
         RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
 
         Call<PostScoreJs> call = webService.postScore(path.getRouteId(), path.getMarkerId(),
-                header.getFbUserId(), header.getFbAccessToken(), header.getSequentialToken(),
-                requestBodyJs);
+                header.getxUserId(), header.getxAuthToken(), requestBodyJs.getScoreString());
         return call.execute().body();
     }
 
     @Override
     public LogoutJs logout(RequestBean requestBean) throws IOException {
-        RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
+        HeaderBean header = requestBean.getHeaderBean();
 
-        Call<LogoutJs> call = webService.logout(requestBodyJs);
+        Call<LogoutJs> call = webService.logout(header.getxUserId(),
+                header.getxAuthToken());
         return call.execute().body();
     }
 
@@ -234,61 +247,59 @@ public class CrimpWsImpl implements CrimpWS {
     }
     */
 
-    @Override
-    public String getBaseUrl(){
-        return BASEURL;
-    }
-
-
     private interface RetrofitWs{
         @GET("api/judge/categories")
         Call<CategoriesJs> getCategories();
 
         @GET("api/judge/score")
-        Call<GetScoreJs> getScore(@Query("climber_id") @Nullable Long climberId,
-                                  @Query("category_id") @Nullable Long categoryId,
-                                  @Query("route_id") @Nullable Long routeId,
+        Call<GetScoreJs> getScore(@Query("climber_id") @Nullable String climberId,
+                                  @Query("category_id") @Nullable String categoryId,
+                                  @Query("route_id") @Nullable String routeId,
                                   @Query("marker_id") @Nullable String markerId,
-                                  @Header("fb-user-id") String fbUserId,
-                                  @Header("fb-access-token") String fbAccessToken,
-                                  @Header("sequential_token") long sequentialToken);
+                                  @Header("X-User-Id") String xUserId,
+                                  @Header("X-Auth-Token") String xAuthToken);
 
+        @FormUrlEncoded
         @PUT("api/judge/setactive")
-        Call<SetActiveJs> setActive(@Header("fb-user-id") String fbUserId,
-                                    @Header("fb-access-token") String fbAccessToken,
-                                    @Header("sequential_token") long sequentialToken,
-                                    @Body RequestBodyJs requestBody);
+        Call<SetActiveJs> setActive(@Header("X-User-Id") String xUserId,
+                                    @Header("X-Auth-Token") String xAuthToken,
+                                    @Field("route_id") String routeId,
+                                    @Field("marker_id") String markerId);
 
+        @FormUrlEncoded
         @PUT("api/judge/clearactive")
-        Call<ClearActiveJs> clearActive(@Header("fb-user-id") String fbUserId,
-                                        @Header("fb-access-token") String fbAccessToken,
-                                        @Header("sequential_token") long sequentialToken,
-                                        @Body RequestBodyJs requestBody);
+        Call<ClearActiveJs> clearActive(@Header("X-User-Id") String xUserId,
+                                        @Header("X-Auth-Token") String xAuthToken,
+                                        @Field("route_id") String routeId);
 
+        @FormUrlEncoded
         @POST("api/judge/login")
-        Call<LoginJs> login(@Body RequestBodyJs requestBody);
+        Call<LoginJs> login(@Field("fb_access_token") String fbAccessToken);
 
+        @FormUrlEncoded
         @POST("api/judge/report")
-        Call<ReportJs> reportIn(@Header("fb-user-id") String fbUserId,
-                                @Header("fb-access-token") String fbAccessToken,
-                                @Header("sequential_token") long sequentialToken,
-                                @Body RequestBodyJs requestBody);
+        Call<ReportJs> reportIn(@Header("X-User-Id") String xUserId,
+                                @Header("X-Auth-Token") String xAuthToken,
+                                @Field("category_id") String categoryId,
+                                @Field("route_id") String routeId,
+                                @Field("force") boolean force);
 
+        @FormUrlEncoded
         @POST("api/judge/helpme")
-        Call<HelpMeJs> requestHelp(@Header("fb-user-id") String fbUserId,
-                                   @Header("fb-access-token") String fbAccessToken,
-                                   @Header("sequential_token") long sequentialToken,
-                                   @Body RequestBodyJs requestBody);
+        Call<HelpMeJs> requestHelp(@Header("X-User-Id") String xUserId,
+                                   @Header("X-Auth-Token") String xAuthToken,
+                                   @Field("route_id") String routeId);
 
+        @FormUrlEncoded
         @POST("api/judge/score/{route_id}/{marker_id}")
-        Call<PostScoreJs> postScore(@Path("route_id") long routeId,
-                                    @Path("marker_id") String marker_id,
-                                    @Header("fb-user-id") String fbUserId,
-                                    @Header("fb-access-token") String fbAccessToken,
-                                    @Header("sequential_token") long sequentialToken,
-                                    @Body RequestBodyJs requestBody);
+        Call<PostScoreJs> postScore(@Path("route_id") String routeId,
+                                    @Path("marker_id") String markerId,
+                                    @Header("X-User-Id") String xUserId,
+                                    @Header("X-Auth-Token") String xAuthToken,
+                                    @Field("score_string") String scoreString);
 
         @POST("api/judge/logout")
-        Call<LogoutJs> logout(@Body RequestBodyJs requestBody);
+        Call<LogoutJs> logout(@Header("X-User-Id") String xUserId,
+                              @Header("X-Auth-Token") String xAuthToken);
     }
 }

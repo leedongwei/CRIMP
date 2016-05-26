@@ -48,11 +48,13 @@
     <string name="scan_fragment_next">Next</string>
     <string name="scan_fragment_description_flash">flash button</string>
     <string name="scan_fragment_rescan_dialog_title">"Rescan QR code?"</string>
-    <string name="scan_fragment_rescan_dialog">"Rescan will discard your input on Score tab for %1$s, %2$s on %3$s."</string>
+    <string name="scan_fragment_rescan_dialog_name">"Rescan will discard your input on Score tab for %1$s, %2$s on %3$s."</string>
+    <string name="scan_fragment_rescan_dialog">"Rescan will discard your input on Score tab for %1$s on %2$s."</string>
     <string name="scan_fragment_rescan_dialog_positive">Rescan</string>
     <string name="scan_fragment_rescan_dialog_negative">Cancel</string>
     <string name="scan_fragment_remove_dialog_title">"Remove climber?"</string>
-    <string name="scan_fragment_remove_dialog">"Removing current climber will discard your input on Score tab for %1$s, %2$s on %3$s."</string>
+    <string name="scan_fragment_remove_dialog_name">"Removing current climber will discard your input on Score tab for %1$s, %2$s on %3$s."</string>
+    <string name="scan_fragment_remove_dialog">"Removing current climber will discard your input on Score tab for %1$s on %2$s."</string>
     <string name="scan_fragment_remove_dialog_positive">Remove</string>
     <string name="scan_fragment_remove_dialog_negative">Cancel</string>
 

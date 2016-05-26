@@ -17,17 +17,19 @@ public class SetActiveJs implements Serializable{
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("climber_id")
-    private long climberId;
+    private String climberId;
     @JsonProperty("climber_name")
     private String climberName;
-    @JsonProperty("active_route")
-    private long activeRoute;
+    @JsonProperty("route_id")
+    private String routeId;
+    @JsonProperty("marker_id")
+    private String markerId;
 
-    public long getClimberId() {
+    public String getClimberId() {
         return climberId;
     }
 
-    public void setClimberId(long climberId) {
+    public void setClimberId(String climberId) {
         this.climberId = climberId;
     }
 
@@ -39,11 +41,19 @@ public class SetActiveJs implements Serializable{
         this.climberName = climberName;
     }
 
-    public long getActiveRoute() {
-        return activeRoute;
+    public String getRouteId() {
+        return routeId;
     }
 
-    public void setActiveRoute(long activeRoute) {
-        this.activeRoute = activeRoute;
+    public void setRouteId(String routeId) {
+        this.routeId = routeId;
+    }
+
+    public String getMarkerId() {
+        return markerId;
+    }
+
+    public void setMarkerId(String markerId) {
+        this.markerId = markerId;
     }
 }

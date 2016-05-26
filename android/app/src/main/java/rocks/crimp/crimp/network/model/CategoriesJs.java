@@ -36,13 +36,13 @@ public class CategoriesJs implements Serializable{
      * such CategoryJs or CategoryJs list is null.
      */
     @JsonIgnore
-    public CategoryJs getCategoryById(long id){
+    public CategoryJs getCategoryById(String id){
         if (categories == null){
             return null;
         }
 
         for(CategoryJs categoryJs:categories){
-            if(categoryJs.getCategoryId() == id){
+            if(categoryJs.getCategoryId().equals(id)){
                 return categoryJs;
             }
         }

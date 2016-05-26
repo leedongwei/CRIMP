@@ -3,6 +3,7 @@ package rocks.crimp.crimp.hello;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -16,10 +17,15 @@ import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
 import com.squareup.otto.Produce;
+import com.squareup.otto.Subscribe;
+
+import java.util.UUID;
 
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.Action;
+import rocks.crimp.crimp.common.event.RequestFailed;
+import rocks.crimp.crimp.common.event.RequestSucceed;
 import rocks.crimp.crimp.common.event.SwipeTo;
 import rocks.crimp.crimp.hello.route.RouteFragment;
 import rocks.crimp.crimp.hello.scan.ScanFragment;
@@ -28,18 +34,20 @@ import rocks.crimp.crimp.login.LoginActivity;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
 import rocks.crimp.crimp.persistence.LocalModelImpl;
+import rocks.crimp.crimp.service.ServiceHelper;
 import rocks.crimp.crimp.tasklist.TaskListActivity;
+import timber.log.Timber;
 
 public class HelloActivity extends AppCompatActivity implements
         RouteFragment.RouteFragmentInterface,
         ScanFragment.ScanFragmentInterface,
         ScoreFragment.ScoreFragmentInterface{
-    public static final String SAVE_FB_USER_ID = "fb_user_id";
-    public static final String SAVE_FB_ACCESS_TOKEN = "fb_access_token";
-    public static final String SAVE_FB_USER_NAME = "fb_user_name";
-    public static final String SAVE_SEQUENTIAL_TOKEN = "sequential_token";
-
     public static final String SAVE_IMAGE = "save_image";
+    private static final String SAVE_LOGOUT_TXID = "save_logout_txid";
+    private static final String SAVE_HELPME_TXID = "save_helpme_txid";
+
+    private UUID mLogoutTxId;
+    private UUID mHelpMeTxId;
 
     // persisted info
     private CategoriesJs mCategories;
@@ -108,9 +116,6 @@ public class HelloActivity extends AppCompatActivity implements
         mTabLayout.setOnTabSelectedListener(new HelloOnTabSelectedListener(mPager, mTabLayout));
         int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
         mFragmentAdapter.setCanDisplay(canDisplay);
-
-
-
         mPager.setAdapter(mFragmentAdapter);
         mPager.addOnPageChangeListener(new HelloPageChangeListener(mTabLayout));
     }
@@ -130,6 +135,53 @@ public class HelloActivity extends AppCompatActivity implements
     @Produce
     public SwipeTo produceCurrentTab() {
         return new SwipeTo(mPager.getCurrentItem());
+    }
+
+    @Subscribe
+    public void requestSucceedReceived(RequestSucceed event) {
+        if(event.txId.equals(mLogoutTxId)){
+            Timber.d("Received RequestSucceed for Logout: %s", event.txId);
+            mLogoutTxId = null;
+
+            // Logout facebook and wipe data
+            LoginManager.getInstance().logOut();
+            mCategories = null;
+            mImage = null;
+            CrimpApplication.getAppState().edit().clear().apply();
+            Intent intent = new Intent(HelloActivity.this, LoginActivity.class);
+            finish();
+            startActivity(intent);
+        }
+        else if(event.txId.equals(mHelpMeTxId)){
+            Timber.d("Received RequestSucceed for HelpMe: %s", event.txId);
+            mHelpMeTxId = null;
+
+            //TODO handle received helpme response
+        }
+    }
+
+    @Subscribe
+    public void requestFailedReceived(RequestFailed event) {
+        if(event.txId.equals(mLogoutTxId)){
+            Timber.d("Received RequestFailed for Logout: %s", event.txId);
+            mLogoutTxId = null;
+
+            // We don't care that logout fail.
+            // Logout facebook and wipe data
+            LoginManager.getInstance().logOut();
+            mCategories = null;
+            mImage = null;
+            CrimpApplication.getAppState().edit().clear().apply();
+            Intent intent = new Intent(HelloActivity.this, LoginActivity.class);
+            finish();
+            startActivity(intent);
+        }
+        else if(event.txId.equals(mHelpMeTxId)){
+            Timber.d("Received RequestFailed for HelpMe: %s", event.txId);
+            mHelpMeTxId = null;
+
+            //TODO handle received helpme response
+        }
     }
 
     @Override
@@ -262,11 +314,16 @@ public class HelloActivity extends AppCompatActivity implements
                     LogoutDialog.create(this, new Action() {
                         @Override
                         public void act() {
-                            LoginManager.getInstance().logOut();
-                            CrimpApplication.getAppState().edit().clear().commit();
-                            Intent intent = new Intent(HelloActivity.this, LoginActivity.class);
-                            finish();
-                            startActivity(intent);
+                            // Do logout
+                            String xUserId = CrimpApplication.getAppState().getString(CrimpApplication.X_USER_ID, null);
+                            String xAuthToken = CrimpApplication.getAppState().getString(CrimpApplication.X_AUTH_TOKEN, null);
+                            if(xUserId == null){
+                                throw new NullPointerException("X-User-Id is null");
+                            }
+                            if(xAuthToken == null){
+                                throw new NullPointerException("X-Auth-Token is null");
+                            }
+                            doLogout(xUserId, xAuthToken);
                         }
                     }, new Action() {
                         @Override
@@ -289,11 +346,16 @@ public class HelloActivity extends AppCompatActivity implements
                     LogoutDialog.create(this, new Action() {
                         @Override
                         public void act() {
-                            LoginManager.getInstance().logOut();
-                            CrimpApplication.getAppState().edit().clear().commit();
-                            Intent intent = new Intent(HelloActivity.this, LoginActivity.class);
-                            finish();
-                            startActivity(intent);
+                            // Do logout
+                            String xUserId = CrimpApplication.getAppState().getString(CrimpApplication.X_USER_ID, null);
+                            String xAuthToken = CrimpApplication.getAppState().getString(CrimpApplication.X_AUTH_TOKEN, null);
+                            if(xUserId == null){
+                                throw new NullPointerException("X-User-Id is null");
+                            }
+                            if(xAuthToken == null){
+                                throw new NullPointerException("X-Auth-Token is null");
+                            }
+                            doLogout(xUserId, xAuthToken);
                         }
                     }, new Action() {
                         @Override
@@ -307,6 +369,10 @@ public class HelloActivity extends AppCompatActivity implements
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void doLogout(@NonNull String xUserId, @NonNull String mXAuthToken){
+        mLogoutTxId = ServiceHelper.logout(this, mLogoutTxId, xUserId, mXAuthToken);
     }
 
 }

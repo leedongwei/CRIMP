@@ -16,21 +16,21 @@ public class ReportJs implements Serializable{
     @JsonIgnore
     private static final long serialVersionUID = 1L;
 
-    @JsonProperty("fb_user_id")
-    private String fbUserId;
+    @JsonProperty("X-User-Id")
+    private String xUserId;
     @JsonProperty("user_name")
     private String userName;
     @JsonProperty("category_id")
-    private long categoryId;
+    private String categoryId;
     @JsonProperty("route_id")
-    private long routeId;
+    private String routeId;
 
-    public String getFbUserId() {
-        return fbUserId;
+    public String getxUserId() {
+        return xUserId;
     }
 
-    public void setFbUserId(String fbUserId) {
-        this.fbUserId = fbUserId;
+    public void setxUserId(String xUserId) {
+        this.xUserId = xUserId;
     }
 
     public String getUserName() {
@@ -41,19 +41,19 @@ public class ReportJs implements Serializable{
         this.userName = userName;
     }
 
-    public long getCategoryId() {
+    public String getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(long categoryId) {
+    public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
     }
 
-    public long getRouteId() {
+    public String getRouteId() {
         return routeId;
     }
 
-    public void setRouteId(long routeId) {
+    public void setRouteId(String routeId) {
         this.routeId = routeId;
     }
 }

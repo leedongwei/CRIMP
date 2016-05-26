@@ -19,9 +19,9 @@ public class ScoreJs implements Serializable{
     @JsonProperty("marker_id")
     private String markerId;
     @JsonProperty("category_id")
-    private long categoryId;
+    private String categoryId;
     @JsonProperty("route_id")
-    private long routeId;
+    private String routeId;
     @JsonProperty("score")
     private String score;
 
@@ -33,19 +33,19 @@ public class ScoreJs implements Serializable{
         this.markerId = markerId;
     }
 
-    public long getCategoryId() {
+    public String getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(long categoryId) {
+    public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
     }
 
-    public long getRouteId() {
+    public String getRouteId() {
         return routeId;
     }
 
-    public void setRouteId(long routeId) {
+    public void setRouteId(String routeId) {
         this.routeId = routeId;
     }
 

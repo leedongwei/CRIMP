@@ -17,46 +17,46 @@ public class PostScoreJs implements Serializable{
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("climber_id")
-    private long climberId;
-    @JsonProperty("climber_name")
-    private String climberName;
+    private String climberId;
     @JsonProperty("category_id")
-    private long categoryId;
+    private String categoryId;
     @JsonProperty("route_id")
-    private long routeId;
+    private String routeId;
+    @JsonProperty("marker_id")
+    private String markerId;
     @JsonProperty("score")
     private String score;
 
-    public long getClimberId() {
+    public String getClimberId() {
         return climberId;
     }
 
-    public void setClimberId(long climberId) {
+    public void setClimberId(String climberId) {
         this.climberId = climberId;
     }
 
-    public String getClimberName() {
-        return climberName;
-    }
-
-    public void setClimberName(String climberName) {
-        this.climberName = climberName;
-    }
-
-    public long getCategoryId() {
+    public String getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(long categoryId) {
+    public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
     }
 
-    public long getRouteId() {
+    public String getRouteId() {
         return routeId;
     }
 
-    public void setRouteId(long routeId) {
+    public void setRouteId(String routeId) {
         this.routeId = routeId;
+    }
+
+    public String getMarkerId() {
+        return markerId;
+    }
+
+    public void setMarkerId(String markerId) {
+        this.markerId = markerId;
     }
 
     public String getScore() {

@@ -16,36 +16,24 @@ public class RequestBodyJs implements Serializable{
     @JsonIgnore
     private static final Long serialVersionUID = 1L;
 
-    @JsonProperty("fb_user_id")
-    private String fbUserId;
     @JsonProperty("fb_access_token")
     private String fbAccessToken;
-    @JsonProperty("sequential_token")
-    private long sequentialToken;
-
-    @JsonProperty("force_login")
-    private boolean forceLogin;
-    @JsonProperty("forceReport")
-    private boolean forceReport;
-
+    @JsonProperty("X-User-Id")
+    private String xUserId;
+    @JsonProperty("X-Auth-Token")
+    private String xAuthToken;
     @JsonProperty("score_string")
     private String scoreString;
-    @JsonProperty("category_id")
-    private Long categoryId;
     @JsonProperty("route_id")
-    private Long routeId;
-    @JsonProperty("climber_id")
-    private Long climberId;
+    private String routeId;
+    @JsonProperty("category_id")
+    private String categoryId;
+    @JsonProperty("force")
+    private boolean forceReport;
     @JsonProperty("marker_id")
     private String markerId;
-
-    public String getFbUserId() {
-        return fbUserId;
-    }
-
-    public void setFbUserId(String fbUserId) {
-        this.fbUserId = fbUserId;
-    }
+    @JsonProperty("climber_id")
+    private String climberId;
 
     public String getFbAccessToken() {
         return fbAccessToken;
@@ -55,28 +43,20 @@ public class RequestBodyJs implements Serializable{
         this.fbAccessToken = fbAccessToken;
     }
 
-    public long getSequentialToken() {
-        return sequentialToken;
+    public String getxUserId() {
+        return xUserId;
     }
 
-    public void setSequentialToken(long sequentialToken) {
-        this.sequentialToken = sequentialToken;
+    public void setxUserId(String xUserId) {
+        this.xUserId = xUserId;
     }
 
-    public boolean isForceLogin() {
-        return forceLogin;
+    public String getxAuthToken() {
+        return xAuthToken;
     }
 
-    public void setForceLogin(boolean forceLogin) {
-        this.forceLogin = forceLogin;
-    }
-
-    public boolean isForceReport() {
-        return forceReport;
-    }
-
-    public void setForceReport(boolean forceReport) {
-        this.forceReport = forceReport;
+    public void setxAuthToken(String xAuthToken) {
+        this.xAuthToken = xAuthToken;
     }
 
     public String getScoreString() {
@@ -87,28 +67,28 @@ public class RequestBodyJs implements Serializable{
         this.scoreString = scoreString;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public Long getRouteId() {
+    public String getRouteId() {
         return routeId;
     }
 
-    public void setRouteId(Long routeId) {
+    public void setRouteId(String routeId) {
         this.routeId = routeId;
     }
 
-    public Long getClimberId() {
-        return climberId;
+    public String getCategoryId() {
+        return categoryId;
     }
 
-    public void setClimberId(Long climberId) {
-        this.climberId = climberId;
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public boolean isForceReport() {
+        return forceReport;
+    }
+
+    public void setForceReport(boolean forceReport) {
+        this.forceReport = forceReport;
     }
 
     public String getMarkerId() {
@@ -117,5 +97,13 @@ public class RequestBodyJs implements Serializable{
 
     public void setMarkerId(String markerId) {
         this.markerId = markerId;
+    }
+
+    public String getClimberId() {
+        return climberId;
+    }
+
+    public void setClimberId(String climberId) {
+        this.climberId = climberId;
     }
 }

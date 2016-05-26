@@ -8,32 +8,32 @@ import java.io.Serializable;
 public class QueryBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Long climberId;
-    private Long categoryId;
-    private Long routeId;
+    private String climberId;
+    private String categoryId;
+    private String routeId;
     private String markerId;
 
-    public Long getClimberId() {
+    public String getClimberId() {
         return climberId;
     }
 
-    public void setClimberId(Long climberId) {
+    public void setClimberId(String climberId) {
         this.climberId = climberId;
     }
 
-    public Long getCategoryId() {
+    public String getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(Long categoryId) {
+    public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
     }
 
-    public Long getRouteId() {
+    public String getRouteId() {
         return routeId;
     }
 
-    public void setRouteId(Long routeId) {
+    public void setRouteId(String routeId) {
         this.routeId = routeId;
     }
 

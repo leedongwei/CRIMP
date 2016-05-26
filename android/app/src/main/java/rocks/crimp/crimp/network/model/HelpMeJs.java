@@ -16,34 +16,34 @@ public class HelpMeJs implements Serializable{
     @JsonIgnore
     private static final long serialVersionUID = 1L;
 
-    @JsonProperty("fb_user_id")
-    private long fbUserId;
-    @JsonProperty("fb_access_token")
-    private String fbAccessToken;
+    @JsonProperty("X-User-Id")
+    private String XUserId;
+    @JsonProperty("X-Auth-Token")
+    private String xAuthToken;
     @JsonProperty("route_id")
-    private long routeId;
+    private String routeId;
 
-    public long getFbUserId() {
-        return fbUserId;
+    public String getXUserId() {
+        return XUserId;
     }
 
-    public void setFbUserId(long fbUserId) {
-        this.fbUserId = fbUserId;
+    public void setXUserId(String XUserId) {
+        this.XUserId = XUserId;
     }
 
-    public String getFbAccessToken() {
-        return fbAccessToken;
+    public String getxAuthToken() {
+        return xAuthToken;
     }
 
-    public void setFbAccessToken(String fbAccessToken) {
-        this.fbAccessToken = fbAccessToken;
+    public void setxAuthToken(String xAuthToken) {
+        this.xAuthToken = xAuthToken;
     }
 
-    public long getRouteId() {
+    public String getRouteId() {
         return routeId;
     }
 
-    public void setRouteId(long routeId) {
+    public void setRouteId(String routeId) {
         this.routeId = routeId;
     }
 }

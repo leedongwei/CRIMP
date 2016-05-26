@@ -8,23 +8,23 @@ import java.io.Serializable;
 public class PathBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Long routeId;
-    private Long climberId;
+    private String routeId;
+    private String climberId;
     private String markerId;
 
-    public Long getRouteId() {
+    public String getRouteId() {
         return routeId;
     }
 
-    public void setRouteId(Long routeId) {
+    public void setRouteId(String routeId) {
         this.routeId = routeId;
     }
 
-    public Long getClimberId() {
+    public String getClimberId() {
         return climberId;
     }
 
-    public void setClimberId(Long climberId) {
+    public void setClimberId(String climberId) {
         this.climberId = climberId;
     }
 

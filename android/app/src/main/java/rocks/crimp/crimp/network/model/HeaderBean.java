@@ -8,31 +8,22 @@ import java.io.Serializable;
 public class HeaderBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String fbUserId;
-    private String fbAccessToken;
-    private Long sequentialToken;
+    private String xUserId;
+    private String xAuthToken;
 
-    public String getFbUserId() {
-        return fbUserId;
+    public String getxUserId() {
+        return xUserId;
     }
 
-    public void setFbUserId(String fbUserId) {
-        this.fbUserId = fbUserId;
+    public void setxUserId(String xUserId) {
+        this.xUserId = xUserId;
     }
 
-    public String getFbAccessToken() {
-        return fbAccessToken;
+    public String getxAuthToken() {
+        return xAuthToken;
     }
 
-    public void setFbAccessToken(String fbAccessToken) {
-        this.fbAccessToken = fbAccessToken;
-    }
-
-    public Long getSequentialToken() {
-        return sequentialToken;
-    }
-
-    public void setSequentialToken(Long sequentialToken) {
-        this.sequentialToken = sequentialToken;
+    public void setxAuthToken(String xAuthToken) {
+        this.xAuthToken = xAuthToken;
     }
 }

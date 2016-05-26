@@ -21,17 +21,17 @@ public class ClimberScoreJs implements Serializable{
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("climber_id")
-    private long climberId;
+    private String climberId;
     @JsonProperty("climber_name")
     private String climberName;
     @JsonProperty("scores")
     private ArrayList<ScoreJs> scores;
 
-    public long getClimberId() {
+    public String getClimberId() {
         return climberId;
     }
 
-    public void setClimberId(long climberId) {
+    public void setClimberId(String climberId) {
         this.climberId = climberId;
     }
 

@@ -17,8 +17,6 @@ import rocks.crimp.crimp.network.model.SetActiveJs;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public interface CrimpWS {
-    String getBaseUrl();
-
     CategoriesJs getCategories() throws IOException;
 
     GetScoreJs getScore(RequestBean requestBean) throws IOException;

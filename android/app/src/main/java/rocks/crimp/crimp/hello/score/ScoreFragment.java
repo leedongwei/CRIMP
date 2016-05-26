@@ -57,7 +57,6 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
 
     public static ScoreFragment newInstance(int position, String title){
         ScoreFragment f = new ScoreFragment();
-        // TODO set arguments
         Bundle args = new Bundle();
         args.putInt(ARGS_POSITION, position);
         args.putString(ARGS_TITLE, title);
@@ -109,7 +108,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
             categoryName = categoryJs.getCategoryName();
             // minus one from routePosition because of hint in spinner adapter.
             routeName = categoryJs.getRoutes().get(routePosition-1).getRouteName();
-            scoreType = categoryJs.getRoutes().get(routePosition-1).getScoreType();
+            scoreType = categoryJs.getRoutes().get(routePosition-1).getScoreRules();
         }
         else {
             throw new RuntimeException("Unable to find out category Score tab");
@@ -157,8 +156,9 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     }
 
     private void inflateScoreModule(String scoreType){
-        switch(scoreType){
-            case "top_bonus":
+        String type[] = scoreType.split("__");
+        switch(type[0]){
+            case "ifsc-top-bonus":
                 if(mScoreModuleLayout != null){
                     mScoreModuleLayout.setLayoutResource(R.layout.fragment_top_bonus_scoring);
                     mInflatedScoreModule = mScoreModuleLayout.inflate();
@@ -166,7 +166,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                 }
                 mScoreModule = new TopBonusModule(mInflatedScoreModule, getActivity(), this);
                 break;
-            case "bonus_2":
+            case "points":
                 if(mScoreModuleLayout != null){
                     mScoreModuleLayout.setLayoutResource(R.layout.fragment_top_bonus2_scoring);
                     mInflatedScoreModule = mScoreModuleLayout.inflate();
@@ -189,8 +189,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
             mGetScoreTxId = null;
             mInfoProgressBar.setVisibility(View.GONE);
             mScoreProgressBar.setVisibility(View.GONE);
-            GetScoreJs response = CrimpApplication.getLocalModel()
-                    .fetch(event.txId.toString(), GetScoreJs.class);
+            GetScoreJs response = (GetScoreJs) event.value;
 
             String markerId = CrimpApplication.getAppState()
                     .getString(CrimpApplication.MARKER_ID, "");
@@ -251,18 +250,16 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                 mSubmitButton.setEnabled(false);
             }
 
-            String userId = CrimpApplication.getAppState()
-                    .getString(CrimpApplication.FB_USER_ID, "user_id");
-            String accessToken = CrimpApplication.getAppState()
-                    .getString(CrimpApplication.FB_ACCESS_TOKEN, "token");
-            long sequentialToken = CrimpApplication.getAppState()
-                    .getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
+            String xUserId = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.X_USER_ID, null);
+            String xAuthToken = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.X_AUTH_TOKEN, null);
 
             if(accumulatedScore == null){
                 mInfoProgressBar.setVisibility(View.VISIBLE);
                 mScoreProgressBar.setVisibility(View.VISIBLE);
                 mGetScoreTxId = ServiceHelper.getScore(getActivity(), mGetScoreTxId, null, null,
-                        null, markerId, userId, accessToken, sequentialToken);
+                        null, markerId, xUserId, xAuthToken);
             }
         }
     }
@@ -282,20 +279,18 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                 CategoryJs chosenCategory =
                         mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
                 String chosenCategoryName = chosenCategory.getCategoryName();
-                long routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
+                String routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
                 String chosenRouteName = chosenCategory.getRoutes().get(routePosition - 1).getRouteName();
                 String markerId = CrimpApplication.getAppState()
                         .getString(CrimpApplication.MARKER_ID, null);
-                String userId = CrimpApplication.getAppState()
-                        .getString(CrimpApplication.FB_USER_ID, null);
-                String accessToken = CrimpApplication.getAppState()
-                        .getString(CrimpApplication.FB_ACCESS_TOKEN, null);
-                long sequentialToken = CrimpApplication.getAppState()
-                        .getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
+                String xUserId = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_USER_ID, null);
+                String xAuthToken = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_AUTH_TOKEN, null);
                 String currentScore = mCurrentText.getText().toString();
 
-                ServiceHelper.postScore(getActivity(), null, routeId, markerId, userId, accessToken,
-                        sequentialToken, currentScore, chosenCategoryName, chosenRouteName);
+                ServiceHelper.postScore(getActivity(), null, routeId, markerId, xUserId, xAuthToken,
+                        currentScore, chosenCategoryName, chosenRouteName);
 
                 CrimpApplication.getAppState().edit()
                         .remove(CrimpApplication.MARKER_ID)
@@ -303,8 +298,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                         .remove(CrimpApplication.SHOULD_SCAN)
                         .remove(CrimpApplication.CURRENT_SCORE)
                         .remove(CrimpApplication.ACCUMULATED_SCORE)
-                        .remove(CrimpApplication.MARKER_ID_TEMP)
-                        .commit();
+                        .apply();
                 mScoreModule.notifyScore("");
                 mParent.goBackToScanTab();
                 break;

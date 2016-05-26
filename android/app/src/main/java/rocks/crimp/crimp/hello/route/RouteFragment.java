@@ -22,6 +22,7 @@ import java.util.UUID;
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.Action;
+import rocks.crimp.crimp.common.Helper;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
 import rocks.crimp.crimp.network.model.CategoriesJs;
@@ -42,6 +43,7 @@ public class RouteFragment extends Fragment {
 
     private RouteFragmentInterface mParent;
 
+    // View references
     private SwipeRefreshLayout mSwipeLayout;
     private ProgressBar mLoadWheel;
     private TextView mHelloText;
@@ -182,7 +184,14 @@ public class RouteFragment extends Fragment {
             }
             mCategoryAdapter.clear();
             mCategoryAdapter.addAll(categoryNames);
-            mCategorySpinner.setEnabled(true);
+            String currentScore = CrimpApplication.getAppState().getString(CrimpApplication.CURRENT_SCORE, null);
+            if(currentScore!=null && currentScore.length()>0){
+                mCategorySpinner.setEnabled(false);
+            }
+            else{
+                mCategorySpinner.setEnabled(true);
+            }
+
 
             int categoryPosition = CrimpApplication.getAppState()
                     .getInt(CrimpApplication.CATEGORY_POSITION, 0);
@@ -213,8 +222,7 @@ public class RouteFragment extends Fragment {
 
         if(event.txId.equals(mCategoriesTxId)){
             mCategoriesTxId = null;
-            CategoriesJs response = CrimpApplication.getLocalModel()
-                    .fetch(event.txId.toString(), CategoriesJs.class);
+            CategoriesJs response = (CategoriesJs) event.value;
             mParent.setCategoriesJs(response);
 
             ArrayList<String> categoryNames = new ArrayList<>();
@@ -224,33 +232,42 @@ public class RouteFragment extends Fragment {
 
             mCategoryAdapter.clear();
             mCategoryAdapter.addAll(categoryNames);
-            mCategorySpinner.setEnabled(true);
+            String currentScore = CrimpApplication.getAppState().getString(CrimpApplication.CURRENT_SCORE, null);
+            if(currentScore!=null && currentScore.length()>0){
+                mCategorySpinner.setEnabled(false);
+            }
+            else{
+                mCategorySpinner.setEnabled(true);
+            }
             mSwipeLayout.setRefreshing(false);
         }
         else if(event.txId.equals(mReportTxId)){
             mReportTxId = null;
-            ReportJs reportJs = CrimpApplication.getLocalModel()
-                    .fetch(event.txId.toString(), ReportJs.class);
+            ReportJs reportJs = (ReportJs) event.value;
 
-            String userId = CrimpApplication.getAppState()
-                    .getString(CrimpApplication.FB_USER_ID, null);
-            if(reportJs.getFbUserId().equals(userId)){
+            String xUserId = CrimpApplication.getAppState().getString(CrimpApplication.X_USER_ID, null);
+            if(reportJs.getxUserId().equals(xUserId)){
                 // Succeed
                 Timber.d("Report in is successful");
                 showHasCategories();
                 mSwipeLayout.setEnabled(true);
 
+
                 int categoryIndex = CrimpApplication.getAppState()
                         .getInt(CrimpApplication.CATEGORY_POSITION, 0);
                 int routeIndex = CrimpApplication.getAppState()
                         .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                // assert stuff
+                if(categoryIndex == 0){
+                    throw new IllegalStateException("categoryIndex is 0");
+                }
+                if(routeIndex == 0){
+                    throw new IllegalStateException("routeIndex is 0");
+                }
                 CrimpApplication.getAppState().edit()
                         .putInt(CrimpApplication.COMMITTED_CATEGORY, categoryIndex)
                         .putInt(CrimpApplication.COMMITTED_ROUTE, routeIndex)
-                        .remove(CrimpApplication.MARKER_ID)
-                        .remove(CrimpApplication.MARKER_ID_TEMP)
-                        .remove(CrimpApplication.CLIMBER_NAME)
-                        .commit();
+                        .apply();
                 mParent.goToScanTab();
             }
             else{
@@ -264,14 +281,13 @@ public class RouteFragment extends Fragment {
                     @Override
                     public void act() {
                         // Send request
-                        String userId = CrimpApplication.getAppState()
-                                .getString(CrimpApplication.FB_USER_ID, "user_id");
-                        String accessToken = CrimpApplication.getAppState()
-                                .getString(CrimpApplication.FB_ACCESS_TOKEN, "token");
-                        long sequentialToken = CrimpApplication.getAppState()
-                                .getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
+                        String xUserId = CrimpApplication.getAppState()
+                                .getString(CrimpApplication.X_USER_ID, null);
+                        String xAuthToken = CrimpApplication.getAppState()
+                                .getString(CrimpApplication.X_AUTH_TOKEN, null);
+
                         mReportTxId = ServiceHelper.reportIn(getActivity(), mReportTxId,
-                                userId, accessToken, sequentialToken, category.getCategoryId(),
+                                xUserId, xAuthToken, category.getCategoryId(),
                                 route.getRouteId(), true);
                     }
                 }, new Action() {
@@ -325,7 +341,14 @@ public class RouteFragment extends Fragment {
 
         mLoadWheel.setVisibility(View.GONE);
         mHelloText.setVisibility(View.VISIBLE);
-        mCategorySpinner.setEnabled(true);
+
+        String currentScore = CrimpApplication.getAppState().getString(CrimpApplication.CURRENT_SCORE, null);
+        if(currentScore != null && currentScore.length()>0){
+            mCategorySpinner.setEnabled(false);
+        }
+        else{
+            mCategorySpinner.setEnabled(true);
+        }
         int categoryPosition = CrimpApplication.getAppState()
                 .getInt(CrimpApplication.CATEGORY_POSITION, 0);
         mCategorySpinner.setSelection(categoryPosition);
@@ -361,7 +384,13 @@ public class RouteFragment extends Fragment {
         // Populate route adapter
         mRouteAdapter.clear();
         mRouteAdapter.addAll(routeNameList);
-        mRouteSpinner.setEnabled(true);
+        String currentScore = CrimpApplication.getAppState().getString(CrimpApplication.CURRENT_SCORE, null);
+        if(currentScore != null && currentScore.length()>0){
+            mRouteSpinner.setEnabled(false);
+        }
+        else{
+            mRouteSpinner.setEnabled(true);
+        }
 
         int committedCategoryPosition = CrimpApplication.getAppState()
                 .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
@@ -380,18 +409,19 @@ public class RouteFragment extends Fragment {
         CrimpApplication.getAppState().edit()
                 .putInt(CrimpApplication.CATEGORY_POSITION, position)
                 .putInt(CrimpApplication.ROUTE_POSITION, routePosition)
-                .commit();
+                .apply();
     }
 
     private void onRouteChosen(int position){
         Timber.d("onRouteChosen(%d)", position);
 
         int committedCategoryPosition = CrimpApplication.getAppState()
-                .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
+                .getInt(CrimpApplication.COMMITTED_CATEGORY, -1);
         int categoryPosition = CrimpApplication.getAppState()
                 .getInt(CrimpApplication.CATEGORY_POSITION, 0);
         int committedRoutePosition = CrimpApplication.getAppState()
-                .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
+                .getInt(CrimpApplication.COMMITTED_ROUTE, -1);
+
         if(committedCategoryPosition == categoryPosition &&
                 committedRoutePosition == position){
             mRouteNextButton.setEnabled(false);
@@ -401,7 +431,7 @@ public class RouteFragment extends Fragment {
         }
 
         CrimpApplication.getAppState().edit()
-                .putInt(CrimpApplication.ROUTE_POSITION, position).commit();
+                .putInt(CrimpApplication.ROUTE_POSITION, position).apply();
     }
 
     private void onClickNext(){
@@ -424,6 +454,7 @@ public class RouteFragment extends Fragment {
             NextDialog.create(getActivity(), new Action() {
                 @Override
                 public void act() {
+                    // do proceed
                     CrimpApplication.getAppState().edit()
                             .remove(CrimpApplication.MARKER_ID)
                             .remove(CrimpApplication.CLIMBER_NAME)
@@ -432,8 +463,7 @@ public class RouteFragment extends Fragment {
                             .remove(CrimpApplication.ACCUMULATED_SCORE)
                             .remove(CrimpApplication.COMMITTED_CATEGORY)
                             .remove(CrimpApplication.COMMITTED_ROUTE)
-                            .remove(CrimpApplication.MARKER_ID_TEMP)
-                            .commit();
+                            .apply();
                     mParent.setCanDisplay(0b001);
                     doNextButton();
                 }
@@ -460,16 +490,30 @@ public class RouteFragment extends Fragment {
                 .getInt(CrimpApplication.CATEGORY_POSITION, 0);
         int routePosition = CrimpApplication.getAppState()
                 .getInt(CrimpApplication.ROUTE_POSITION, 0);
-        String userId = CrimpApplication.getAppState()
-                .getString(CrimpApplication.FB_USER_ID, "user_id");
-        String accessToken = CrimpApplication.getAppState()
-                .getString(CrimpApplication.FB_ACCESS_TOKEN, "token");
-        long sequentialToken = CrimpApplication.getAppState()
-                .getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
+        String xUserId = CrimpApplication.getAppState()
+                .getString(CrimpApplication.X_USER_ID, null);
+        String xAuthToken = CrimpApplication.getAppState()
+                .getString(CrimpApplication.X_AUTH_TOKEN, null);
+
+        // assert stuff
+        if(categoryPosition == 0){
+            throw new IllegalStateException("Category position cannot be 0");
+        }
+        if(routePosition == 0){
+            throw new IllegalStateException("Route position cannot be 0");
+        }
+        if(xUserId == null){
+            throw new IllegalStateException("xUserId is null");
+        }
+        if(xAuthToken == null){
+            throw new IllegalStateException("xAuthToken is null");
+        }
+
         CategoryJs chosenCategory =
                 mParent.getCategoriesJs().getCategories().get(categoryPosition-1);
-        mReportTxId = ServiceHelper.reportIn(getActivity(), mReportTxId, userId, accessToken,
-                sequentialToken, chosenCategory.getCategoryId(),
+
+        mReportTxId = ServiceHelper.reportIn(getActivity(), mReportTxId, xUserId, xAuthToken,
+                chosenCategory.getCategoryId(),
                 chosenCategory.getRoutes().get(routePosition-1).getRouteId(), false);
     }
 
@@ -538,7 +582,6 @@ public class RouteFragment extends Fragment {
                 .remove(CrimpApplication.COMMITTED_CATEGORY)
                 .remove(CrimpApplication.ROUTE_POSITION)
                 .remove(CrimpApplication.COMMITTED_ROUTE)
-                .remove(CrimpApplication.MARKER_ID_TEMP)
                 .commit();
 
         showNoCategories();

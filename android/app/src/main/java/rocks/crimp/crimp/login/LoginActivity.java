@@ -3,6 +3,7 @@ package rocks.crimp.crimp.login;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -14,37 +15,40 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.Profile;
+import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.squareup.otto.Subscribe;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.Action;
+import rocks.crimp.crimp.common.Helper;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
 import rocks.crimp.crimp.hello.HelloActivity;
+import rocks.crimp.crimp.network.model.HelpMeJs;
 import rocks.crimp.crimp.network.model.LoginJs;
 import rocks.crimp.crimp.service.ServiceHelper;
 import timber.log.Timber;
 
 public class LoginActivity extends AppCompatActivity {
-    private static final String SAVE_UUID = "save_uuid";
-    private static final String SAVE_FB_ACCESS_TOKEN = "fb_access_token";
-    private static final String SAVE_FB_USER_ID = "fb_user_id";
-    private static final String SAVE_FB_USER_NAME = "fb_user_name";
-    private static final String SAVE_SEQUENTIAL_TOKEN = "sequential_token";
+    private static final String SAVE_LOGIN_TXID = "save_login_txid";
+    private static final String SAVE_LOGOUT_TXID = "save_logout_txid";
 
-    private static final boolean DEBUG = true;
-
-    private String mFbUserId;
     private String mFbAccessToken;
     private String mFbUserName;
-    private long mSequentialToken;
-    private UUID txId;
+    private String mXUserId;
+    private String mXAuthToken;
+    private Set<String> mRoles;
+    private UUID mLoginTxId;
+    private UUID mLogoutTxId;
 
     // UI references.
     private TextView mErrorMsg;
@@ -53,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
     private LoginButton mLoginButton;
 
     // Facebook references.
-    private CallbackManager fbCallbackManager;
+    private CallbackManager mFbCallbackManager;
 
     private void showVerifyingUI(String responseText){
         Timber.d("showVerifyingUI");
@@ -82,13 +86,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void launchHelloActivity(){
+        Helper.assertStuff(true, true, true, true, true);
+
         Timber.d("Launching HelloActivity");
         Intent intent = new Intent(this, HelloActivity.class);
-        intent.putExtra(HelloActivity.SAVE_FB_USER_NAME, mFbUserName);
-        intent.putExtra(HelloActivity.SAVE_FB_ACCESS_TOKEN, mFbAccessToken);
-        intent.putExtra(HelloActivity.SAVE_FB_USER_ID, mFbUserId);
-        intent.putExtra(HelloActivity.SAVE_SEQUENTIAL_TOKEN, mSequentialToken);
-
         finish();
         startActivity(intent);
     }
@@ -106,19 +107,53 @@ public class LoginActivity extends AppCompatActivity {
         mLoginButton = (LoginButton) findViewById(R.id.login_button);
 
         // Setting up Facebook login button stuff.
-        fbCallbackManager = CallbackManager.Factory.create();
+        mFbCallbackManager = CallbackManager.Factory.create();
         mLoginButton.setReadPermissions("public_profile");
-        mLoginButton.registerCallback(fbCallbackManager, new FacebookCallback<LoginResult>() {
+        mLoginButton.registerCallback(mFbCallbackManager, new FacebookCallback<LoginResult>() {
+            private ProfileTracker mProfileTracker;
+
             @Override
             public void onSuccess(LoginResult loginResult) {
-                if(DEBUG){
-                    AccessToken accessToken = loginResult.getAccessToken();
-                    if(accessToken != null) {
-                        Timber.d("Facebook login onSuccess with userId: %s", accessToken.getUserId());
-                    }
-                    else{
-                        Timber.d("Facebook login onSuccess with null token");
-                    }
+                Timber.d("Facebook login onSuccess with token: %s", loginResult.getAccessToken());
+
+                mFbAccessToken = loginResult.getAccessToken().getToken();
+                if(mFbAccessToken == null){
+                    throw new IllegalStateException("fb access token is null");
+                }
+                CrimpApplication.getAppState().edit()
+                        .putString(CrimpApplication.FB_ACCESS_TOKEN, mFbAccessToken)
+                        .apply();
+
+                if(Profile.getCurrentProfile() == null) {
+                    Helper.assertStuff(true, false, null, null, null);
+
+                    mProfileTracker = new ProfileTracker() {
+                        @Override
+                        protected void onCurrentProfileChanged(Profile profile, Profile profile2) {
+                            Helper.assertStuff(true, false, null, null, null);
+
+                            // profile2 is the new profile
+                            mFbUserName = profile2.getName();
+                            mProfileTracker.stopTracking();
+
+                            CrimpApplication.getAppState().edit()
+                                    .putString(CrimpApplication.FB_USER_NAME, mFbUserName)
+                                    .apply();
+
+                            doLogin(mFbAccessToken);
+                            showVerifyingUI("Logging in to CRIMP...");
+                        }
+                    };
+                }
+                else {
+                    mFbUserName = Profile.getCurrentProfile().getName();
+                    CrimpApplication.getAppState().edit()
+                            .putString(CrimpApplication.FB_USER_NAME, mFbUserName)
+                            .apply();
+
+                    Helper.assertStuff(true, true, null, null, null);
+                    doLogin(mFbAccessToken);
+                    showVerifyingUI("Logging in to CRIMP...");
                 }
             }
 
@@ -135,25 +170,20 @@ public class LoginActivity extends AppCompatActivity {
 
         // Restore state
         if(savedInstanceState != null){
-            txId = (UUID) savedInstanceState.getSerializable(SAVE_UUID);
-            mFbUserId = savedInstanceState.getString(SAVE_FB_USER_ID);
-            mFbAccessToken = savedInstanceState.getString(SAVE_FB_ACCESS_TOKEN);
-            mFbUserName = savedInstanceState.getString(SAVE_FB_USER_NAME);
-            mSequentialToken = savedInstanceState.getLong(SAVE_SEQUENTIAL_TOKEN, -1);
-        }
-        else{
-            mFbUserId = CrimpApplication.getAppState()
-                    .getString(CrimpApplication.FB_USER_ID, null);
-            mFbAccessToken = CrimpApplication.getAppState()
-                    .getString(CrimpApplication.FB_ACCESS_TOKEN, null);
-            mFbUserName = CrimpApplication.getAppState()
-                    .getString(CrimpApplication.FB_USER_NAME, null);
-            mSequentialToken = CrimpApplication.getAppState()
-                    .getLong(CrimpApplication.SEQUENTIAL_TOKEN, -1);
+            mLoginTxId = (UUID) savedInstanceState.getSerializable(SAVE_LOGIN_TXID);
+            mLogoutTxId = (UUID) savedInstanceState.getSerializable(SAVE_LOGOUT_TXID);
         }
 
+        mFbAccessToken = CrimpApplication.getAppState()
+                .getString(CrimpApplication.FB_ACCESS_TOKEN, null);
+        mFbUserName = CrimpApplication.getAppState().getString(CrimpApplication.FB_USER_NAME, null);
+        mXUserId = CrimpApplication.getAppState().getString(CrimpApplication.X_USER_ID, null);
+        mXAuthToken = CrimpApplication.getAppState().getString(CrimpApplication.X_AUTH_TOKEN, null);
+        mRoles = CrimpApplication.getAppState()
+                .getStringSet(CrimpApplication.ROLES, null);
+
         // Check if we already log in
-        if(mSequentialToken != -1){
+        if(mXUserId != null && mXAuthToken != null && Helper.isJudgeOrAbove(mRoles)){
             launchHelloActivity();
         }
     }
@@ -163,12 +193,24 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
         CrimpApplication.getBusInstance().register(this);
 
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        if(accessToken != null){
-            doLogin(accessToken.getToken(), accessToken.getUserId(), false);
+        if(mLoginTxId != null){
+            // some assertion
+            Helper.assertStuff(true, true, false, false, false);
+
+            doLogin(mFbAccessToken);
             showVerifyingUI("Logging in to CRIMP...");
         }
+        else if(mLogoutTxId != null){
+            // some assertion
+            Helper.assertStuff(true, true, true, true, true);
+
+            doLogout(mXUserId, mXAuthToken);
+            showVerifyingUI("Logging out of CRIMP...");
+        }
         else{
+            // some assertion
+            Helper.assertStuff(false, false, false, false, false);
+
             showDefaultUI();
         }
     }
@@ -182,109 +224,164 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState (Bundle outState){
         super.onSaveInstanceState(outState);
-        outState.putSerializable(SAVE_UUID, txId);
-        outState.putString(SAVE_FB_USER_NAME, mFbUserName);
-        outState.putString(SAVE_FB_USER_ID, mFbUserId);
-        outState.putString(SAVE_FB_ACCESS_TOKEN, mFbAccessToken);
-        outState.putLong(SAVE_SEQUENTIAL_TOKEN, mSequentialToken);
+        outState.putSerializable(SAVE_LOGIN_TXID, mLoginTxId);
+        outState.putSerializable(SAVE_LOGOUT_TXID, mLogoutTxId);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        fbCallbackManager.onActivityResult(requestCode, resultCode, data);
+        mFbCallbackManager.onActivityResult(requestCode, resultCode, data);
         Timber.d("Facebook login returned. resultCode: %s", resultCode);
 
         if(resultCode == RESULT_OK){
             AccessToken accessToken = AccessToken.getCurrentAccessToken();
             if(accessToken != null){
-                doLogin(accessToken.getToken(), accessToken.getUserId(), false);
-                showVerifyingUI("Logging in to CRIMP...");
+                mFbAccessToken = accessToken.getToken();
+                CrimpApplication.getAppState().edit()
+                        .putString(CrimpApplication.FB_ACCESS_TOKEN, mFbAccessToken)
+                        .apply();
             }
             else{
                 // This should not happen normally. Attempt to fix it by logging out user and set
                 // to default UI.
-                doLogout();
+                mFbAccessToken = null;
+                mFbUserName = null;
+                CrimpApplication.getAppState().edit()
+                        .remove(CrimpApplication.FB_ACCESS_TOKEN)
+                        .remove(CrimpApplication.FB_USER_NAME)
+                        .apply();
+                LoginManager.getInstance().logOut();
                 showDefaultUI();
             }
         }
     }
 
-    private void doLogin(@NonNull String accessToken, @NonNull String userId, boolean force){
-        Timber.d("Sending login request to ServiceHelper. txId: %s", txId);
-        txId = ServiceHelper.login(this, txId, userId, accessToken, force);
-        Timber.d("Login request sent to ServiceHelper. txId: %s", txId);
+    private void doLogin(@NonNull String accessToken){
+        Helper.assertStuff(true, true, false, false, false);
+
+        mLoginTxId = ServiceHelper.login(this, mLoginTxId, accessToken);
     }
 
-    private void doLogout(){
-        LoginManager.getInstance().logOut();
-
-        mFbAccessToken = null;
-        mFbUserId = null;
-        mFbAccessToken = null;
-        mSequentialToken = -1;
-        CrimpApplication.getAppState().edit().remove(CrimpApplication.FB_USER_NAME)
-                .remove(CrimpApplication.FB_USER_ID)
-                .remove(CrimpApplication.FB_ACCESS_TOKEN)
-                .remove(CrimpApplication.SEQUENTIAL_TOKEN)
-                .commit();
-        Timber.d("logout done");
+    private void doLogout(@NonNull String xUserId, @NonNull String mXAuthToken){
+        mLogoutTxId = ServiceHelper.logout(this, mLogoutTxId, xUserId, mXAuthToken);
     }
 
     @Subscribe
     public void requestSucceedReceived(RequestSucceed event) {
-        if(!event.txId.equals(txId)){
-            return;
-        }
+        if(event.txId.equals(mLoginTxId)){
+            Timber.d("Received RequestSucceed for Login: %s", event.txId);
+            final LoginJs result = (LoginJs) event.value;
+            mLoginTxId = null;
 
-        // TODO: React to the event somehow! REMEMBER TO CLEAR THE TXID
-        Timber.d("Received RequestSucceed %s", event.txId);
+            mXUserId = result.getxUserId();
+            mXAuthToken = result.getxAuthToken();
+            boolean remindLogout = result.getRemindLogout();
+            mRoles = new HashSet<>(result.getRoles());
+            String error = result.getError();
 
-        final LoginJs result = CrimpApplication.getLocalModel().fetch(txId.toString(), LoginJs.class);
-
-        txId = null;
-        mFbUserName = result.getUserName();
-        mFbUserId = result.getFbUserId();
-        mFbAccessToken = result.getFbAccessToken();
-        mSequentialToken = result.getSequentialToken();
-
-        if(result.isRemindLogout()){
-            AlertDialog dialog = LoginReminder.create(this, new Action() {
-                @Override
-                public void act() {
-                    doLogin(result.getFbAccessToken(), result.getFbUserId(), true);
-                    showVerifyingUI("Logging in to CRIMP...");
+            if(error == null){
+                // Some assertion
+                if(!Helper.isJudgeOrAbove(mRoles)){
+                    throw new IllegalStateException("Roles is not judge or above");
                 }
-            }, new Action() {
-                @Override
-                public void act() {
-                    doLogout();
-                    showDefaultUI();
+
+                CrimpApplication.getAppState().edit()
+                        .putString(CrimpApplication.X_USER_ID, mXUserId)
+                        .putString(CrimpApplication.X_AUTH_TOKEN, mXAuthToken)
+                        .putStringSet(CrimpApplication.ROLES, mRoles)
+                        .apply();
+
+                if(remindLogout){
+                    AlertDialog dialog = LoginReminder.create(this, new Action() {
+                        @Override
+                        public void act() {
+                            // Some assertion
+                            Helper.assertStuff(true, true, true, true, true);
+
+                            launchHelloActivity();
+                        }
+                    }, new Action() {
+                        @Override
+                        public void act() {
+                            // Some assertion
+                            Helper.assertStuff(true, true, true, true, true);
+
+                            doLogout(mXUserId, mXAuthToken);
+                            showVerifyingUI("Logging out of CRIMP...");
+                        }
+                    });
+                    dialog.show();
                 }
-            });
-            dialog.show();
+                else{
+                    // Some assertion
+                    Helper.assertStuff(true, true, true, true, true);
+
+                    launchHelloActivity();
+                }
+            }
+            else{
+                showErrorUI(error);
+            }
         }
-        else{
-            Timber.d("Login completed");
-            CrimpApplication.getAppState().edit().putString(CrimpApplication.FB_USER_NAME, mFbUserName)
-                    .putString(CrimpApplication.FB_USER_ID, mFbUserId)
-                    .putString(CrimpApplication.FB_ACCESS_TOKEN, mFbAccessToken)
-                    .putLong(CrimpApplication.SEQUENTIAL_TOKEN, mSequentialToken)
-                    .commit();
-            launchHelloActivity();
+        else if(event.txId.equals(mLogoutTxId)){
+            Timber.d("Received RequestSucceed for Logout: %s", event.txId);
+            mLogoutTxId = null;
+
+            LoginManager.getInstance().logOut();
+            mFbAccessToken = null;
+            mFbUserName = null;
+            mXUserId = null;
+            mXAuthToken = null;
+            mRoles = null;
+            CrimpApplication.getAppState().edit()
+                    .remove(CrimpApplication.FB_USER_NAME)
+                    .remove(CrimpApplication.FB_ACCESS_TOKEN)
+                    .remove(CrimpApplication.X_USER_ID)
+                    .remove(CrimpApplication.X_AUTH_TOKEN)
+                    .remove(CrimpApplication.ROLES)
+                    .apply();
         }
     }
 
     @Subscribe
     public void requestFailedReceived(RequestFailed event) {
-        if(!event.txId.equals(txId)){
-            return;
-        }
+        if(event.txId.equals(mLoginTxId)){
+            Timber.d("Received RequestFailed for Login: %s", event.txId);
+            mLoginTxId = null;
 
-        // TODO: React to the event somehow! REMEMBER TO CLEAR THE TXID
-        Timber.d("Received RequestFailed %s", event.txId);
-        txId = null;
-        doLogout();
-        showErrorUI("Server exploded");
+            // some assertion
+            Helper.assertStuff(true, true, false, false, false);
+
+            mFbAccessToken = null;
+            mFbUserName = null;
+            CrimpApplication.getAppState().edit()
+                    .remove(CrimpApplication.FB_ACCESS_TOKEN)
+                    .remove(CrimpApplication.FB_USER_NAME)
+                    .apply();
+            LoginManager.getInstance().logOut();
+            showErrorUI("Request failed");
+        }
+        else if(event.txId.equals(mLogoutTxId)){
+            Timber.d("Received RequestFailed for Logout: %s", event.txId);
+            mLogoutTxId = null;
+
+            // some assertion
+            Helper.assertStuff(true, true, true, true, true);
+
+            LoginManager.getInstance().logOut();
+            mFbAccessToken = null;
+            mFbUserName = null;
+            mXUserId = null;
+            mXAuthToken = null;
+            mRoles = null;
+            CrimpApplication.getAppState().edit()
+                    .remove(CrimpApplication.FB_USER_NAME)
+                    .remove(CrimpApplication.FB_ACCESS_TOKEN)
+                    .remove(CrimpApplication.X_USER_ID)
+                    .remove(CrimpApplication.X_AUTH_TOKEN)
+                    .remove(CrimpApplication.ROLES)
+                    .apply();
+        }
     }
 }

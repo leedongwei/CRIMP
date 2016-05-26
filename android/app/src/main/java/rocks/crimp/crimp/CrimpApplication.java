@@ -10,6 +10,7 @@ import com.squareup.otto.Bus;
 
 import rocks.crimp.crimp.common.MainThreadBus;
 import rocks.crimp.crimp.network.CrimpWS;
+import rocks.crimp.crimp.network.CrimpWsImpl;
 import rocks.crimp.crimp.network.StubWS;
 import rocks.crimp.crimp.persistence.LocalModel;
 import rocks.crimp.crimp.persistence.LocalModelImpl;
@@ -22,10 +23,11 @@ import timber.log.Timber;
  */
 public class CrimpApplication extends Application {
     private static final String APP_SHARED_PREF = "crimp_state";
-    public static final String FB_USER_ID = "fb_user_id";
     public static final String FB_ACCESS_TOKEN = "fb_access_token";
     public static final String FB_USER_NAME = "fb_user_name";
-    public static final String SEQUENTIAL_TOKEN = "sequential_token";
+    public static final String X_USER_ID = "x_user_id";
+    public static final String X_AUTH_TOKEN = "x_auth_token";
+    public static final String ROLES = "ROLES";
     public static final String CAN_DISPLAY = "can_display";                 //update when refresh + rescan
     public static final String MARKER_ID = "marker_id";                     //erase when refresh + rescan
     public static final String CLIMBER_NAME = "climber_name";               //erase when refresh + rescan
@@ -34,9 +36,11 @@ public class CrimpApplication extends Application {
     public static final String COMMITTED_ROUTE = "committed_route";         //erase when refresh categories
     public static final String CATEGORY_POSITION = "category_position";     //erase when refresh categories
     public static final String ROUTE_POSITION = "route_position";           //erase when refresh categories
+
+
     public static final String CURRENT_SCORE = "current_score";             //erase when refresh categories
     public static final String ACCUMULATED_SCORE = "accumulated_score";     //erase when refresh categories
-    public static final String MARKER_ID_TEMP = "marker_id_temp";
+
     public static final String IMAGE_HEIGHT = "image_height";
 
     private static Context mContext;
@@ -109,7 +113,7 @@ public class CrimpApplication extends Application {
 
     public static CrimpWS getCrimpWS(){
         if(mCrimpWs == null){
-            mCrimpWs = new StubWS();
+            mCrimpWs = new CrimpWsImpl(CrimpWsImpl.BASEURL);
         }
 
         return mCrimpWs;

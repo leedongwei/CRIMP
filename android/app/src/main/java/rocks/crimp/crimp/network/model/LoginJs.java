@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
@@ -16,54 +17,54 @@ public class LoginJs implements Serializable{
     @JsonIgnore
     private static final long serialVersionUID = 1L;
 
-    @JsonProperty("fb_user_id")
-    private String fbUserId;
-    @JsonProperty("fb_access_token")
-    private String fbAccessToken;
-    @JsonProperty("user_name")
-    private String userName;
+    @JsonProperty("X-User-Id")
+    private String xUserId;
+    @JsonProperty("X-Auth-Token")
+    private String xAuthToken;
+    @JsonProperty("roles")
+    private ArrayList<String> roles;
+    @JsonProperty("error")
+    private String error;
     @JsonProperty("remind_logout")
-    private boolean remindLogout;
-    @JsonProperty("sequential_token")
-    private long sequentialToken;
+    private Boolean remindLogout;
 
-    public String getFbUserId() {
-        return fbUserId;
+    public String getxUserId() {
+        return xUserId;
     }
 
-    public void setFbUserId(String fbUserId) {
-        this.fbUserId = fbUserId;
+    public void setxUserId(String xUserId) {
+        this.xUserId = xUserId;
     }
 
-    public String getFbAccessToken() {
-        return fbAccessToken;
+    public String getxAuthToken() {
+        return xAuthToken;
     }
 
-    public void setFbAccessToken(String fbAccessToken) {
-        this.fbAccessToken = fbAccessToken;
+    public void setxAuthToken(String xAuthToken) {
+        this.xAuthToken = xAuthToken;
     }
 
-    public String getUserName() {
-        return userName;
+    public ArrayList<String> getRoles() {
+        return roles;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setRoles(ArrayList<String> roles) {
+        this.roles = roles;
     }
 
-    public boolean isRemindLogout() {
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
+
+    public Boolean getRemindLogout() {
         return remindLogout;
     }
 
-    public void setRemindLogout(boolean remindLogout) {
+    public void setRemindLogout(Boolean remindLogout) {
         this.remindLogout = remindLogout;
-    }
-
-    public long getSequentialToken() {
-        return sequentialToken;
-    }
-
-    public void setSequentialToken(long sequentialToken) {
-        this.sequentialToken = sequentialToken;
     }
 }

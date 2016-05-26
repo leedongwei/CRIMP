@@ -27,11 +27,6 @@ public class StubWS implements CrimpWS {
     private static final int TIME_TO_RESPOND = 2000;
 
     @Override
-    public String getBaseUrl() {
-        return null;
-    }
-
-    @Override
     public CategoriesJs getCategories() throws IOException {
         Timber.d("sending getCategories request...");
         try {
@@ -42,6 +37,7 @@ public class StubWS implements CrimpWS {
         }
         Timber.d("getCategories request completed");
 
+        /*
         // INJECTION
         RouteJs routeA1 = new RouteJs();
         routeA1.setRouteName("route A1");
@@ -96,9 +92,10 @@ public class StubWS implements CrimpWS {
         ArrayList<CategoryJs> categoryList = new ArrayList<>();
         categoryList.add(categoryA);
         categoryList.add(categoryB);
+        */
 
         CategoriesJs categoriesJs = new CategoriesJs();
-        categoriesJs.setCategories(categoryList);
+        //categoriesJs.setCategories(categoryList);
 
         return categoriesJs;
     }
@@ -189,7 +186,8 @@ public class StubWS implements CrimpWS {
         }
         Timber.d("login request completed");
 
-        LoginJs loginJs;
+        LoginJs loginJs = null;
+        /*
         boolean force = requestBean.getRequestBodyJs().isForceLogin();
         if(force){
             loginJs = new LoginJs();
@@ -207,6 +205,7 @@ public class StubWS implements CrimpWS {
             loginJs.setRemindLogout(true);
             loginJs.setSequentialToken(1);
         }
+        */
 
         return loginJs;
     }
@@ -222,8 +221,9 @@ public class StubWS implements CrimpWS {
         }
         Timber.d("reportIn request completed");
 
-        ReportJs reportJs;
+        ReportJs reportJs = null;
         boolean force = requestBean.getRequestBodyJs().isForceReport();
+        /*
         if(force){
             reportJs = new ReportJs();
             reportJs.setFbUserId(requestBean.getHeaderBean().getFbUserId());
@@ -238,6 +238,7 @@ public class StubWS implements CrimpWS {
             reportJs.setCategoryId(requestBean.getRequestBodyJs().getCategoryId());
             reportJs.setRouteId(requestBean.getRequestBodyJs().getRouteId());
         }
+        */
 
         return reportJs;
     }

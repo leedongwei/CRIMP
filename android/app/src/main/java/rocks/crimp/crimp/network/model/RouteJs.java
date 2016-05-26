@@ -17,24 +17,18 @@ public class RouteJs implements Serializable{
     @JsonIgnore
     private static final long serialVersionUID = 1L;
 
-    @JsonProperty("route_id")
-    private long routeId;
+    @JsonProperty("_id")
+    private String routeId;
     @JsonProperty("route_name")
     private String routeName;
-    @JsonProperty("score_type")
-    private String scoreType;
-    @JsonProperty("score_finalized")
-    private boolean scoreFinalized;
-    @JsonProperty("time_start")
-    private Date timeStart;
-    @JsonProperty("time_end")
-    private Date timeEnd;
+    @JsonProperty("score_rules")
+    private String scoreRules;
 
-    public long getRouteId() {
+    public String getRouteId() {
         return routeId;
     }
 
-    public void setRouteId(long routeId) {
+    public void setRouteId(String routeId) {
         this.routeId = routeId;
     }
 
@@ -46,35 +40,11 @@ public class RouteJs implements Serializable{
         this.routeName = routeName;
     }
 
-    public String getScoreType() {
-        return scoreType;
+    public String getScoreRules() {
+        return scoreRules;
     }
 
-    public void setScoreType(String scoreType) {
-        this.scoreType = scoreType;
-    }
-
-    public boolean isScoreFinalized() {
-        return scoreFinalized;
-    }
-
-    public void setScoreFinalized(boolean scoreFinalized) {
-        this.scoreFinalized = scoreFinalized;
-    }
-
-    public Date getTimeStart() {
-        return timeStart;
-    }
-
-    public void setTimeStart(Date timeStart) {
-        this.timeStart = timeStart;
-    }
-
-    public Date getTimeEnd() {
-        return timeEnd;
-    }
-
-    public void setTimeEnd(Date timeEnd) {
-        this.timeEnd = timeEnd;
+    public void setScoreRules(String scoreRules) {
+        this.scoreRules = scoreRules;
     }
 }
