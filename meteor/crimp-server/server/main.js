@@ -336,15 +336,16 @@ Api.addRoute('judge/score', { authRequired: true }, {
 });
 
 
-Api.addRoute('judge/score/:route_id/:marker_id', { authRequired: true }, {
+Api.addRoute('judge/score/:route_id/:marker_id', { authRequired: false }, {
   post: function postScore() {
     const options = this.urlParams;
+    const scoreString = this.bodyParams.score_string;
 
     /**
      * TODO: Implement the magic sequencing with sequential token
      */
 
-    const targetScore = Scores.find({
+    let targetScore = Scores.find({
       marker_id: options.marker_id,
       scores: { $elemMatch: {
         route_id: options.route_id,
@@ -353,31 +354,39 @@ Api.addRoute('judge/score/:route_id/:marker_id', { authRequired: true }, {
 
     if (targetScore.count() === 0) {
       throw new Meteor.Error('RouteOrMarkerError');
-    } else if (targetScore.count() >= 1) {
+    } else if (targetScore.count() > 1) {
       throw new Meteor.Error('SelectedMultipleScoresForUpdate');
     }
 
-    // Scores.update({
-    //   marker_id: options.marker_id,
-    //   scores: { $elemMatch: {
-    //     route_id: options.route_id,
-    //   } },
-    // }, {
-    //   $set: {
+    // There will only be 1 Score document fetched
+    targetScore = targetScore.fetch()[0];
 
-    //   }
-    // })
+    // Find the Score of the target Route
+    const scoreDoc = _.find(targetScore.scores,
+                            (doc) => (doc.route_id === options.route_id));
+
+    // Append latest Score to the existing String
+    const newScoreString = `${scoreDoc.score_string}${scoreString}`;
+
+
+    Scores.update({
+      marker_id: options.marker_id,
+      'scores.route_id': options.route_id,
+    }, {
+      $set: {
+        'scores.$.score_string': newScoreString,
+      },
+    });
 
 
     return {
       statusCode: 501,
       body: {
-        "climber_id": '123123',
-        "climber_name": 'CATERPIE',
-        "category_id": cat._id,
-        "route_id": options.route_id,
-        "marker_id": "abc007",
-        "score": "11B11T"
+        climber_id: targetScore.climber_id,
+        category_id: targetScore.category_id,
+        route_id: options.route_id,
+        marker_id: targetScore.marker_id,
+        score: newScoreString,
       },
     };
   },
