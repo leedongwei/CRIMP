@@ -382,12 +382,7 @@ body: {
 
 #### Response
 ```json
-Body: {
-  "route_id": "yGXAk...",
-  "marker_id": "NMF001",
-  "climber_id": "nJXAk...",
-  "climber_name": "Dongie",
-}
+Body: {}
 ```
 <br><br><br>
 

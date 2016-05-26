@@ -481,14 +481,106 @@ Api.addRoute('judge/report', { authRequired: true }, {
 
 Api.addRoute('judge/setactive', { authRequired: true }, {
   put: function putSetActive() {
-    return {};
+    const options = this.bodyParams;
+    const targetActive = ActiveTracker.findOne({ route_id: options.route_id });
+    const targetScore = Scores.findOne({
+      marker_id: options.marker_id,
+      scores: { $elemMatch: { route_id: options.route_id } },
+    });
+    const targetClimber = Climbers.findOne({ _id: targetScore.climber_id });
+
+    if (targetActive) {
+      // Existing ActiveTracker. Include an update of the judge name to
+      // ensure that it is current
+      ActiveTracker.update({
+        route_id: options.route_id,
+      }, { $set: {
+        user_id: this.userId,
+        user_name: this.user.services.facebook.name,
+        climber_id: targetScore.climber_id,
+        marker_id: targetScore.marker_id,
+        climber_name: targetClimber.climber_name,
+      } }, () => {});
+    } else {
+      // No existing ActiveTracker. Possibly that the timer deleted it.
+      // Hence, we would recreate the ActiveTracker document.
+      const targetCategory = Categories.findOne({
+        routes: { $elemMatch: {
+          _id: options.route_id,
+        } },
+      });
+
+      const targetRoute = _.find(targetCategory.routes,
+                               (route) => (route._id === options.route_id));
+
+      // Add a dummy callback function so the op does not block
+      ActiveTracker.insert({
+        route_id: targetRoute._id,
+        route_name: targetRoute.route_name,
+        category_id: targetCategory._id,
+        category_name: targetCategory.category_name,
+        user_id: this.userId,
+        user_name: this.user.services.facebook.name,
+        climber_id: targetScore.climber_id,
+        marker_id: targetScore.marker_id,
+        climber_name: targetClimber.climber_name,
+      }, () => {});
+    }
+
+    return {
+      statusCode: 200,
+      body: {},
+    };
   },
 });
 
 
 Api.addRoute('judge/clearactive', { authRequired: true }, {
   put: function putClearActive() {
-    return {};
+    const options = this.bodyParams;
+    const targetActive = ActiveTracker.findOne({ route_id: options.route_id });
+
+    if (targetActive) {
+      // Existing ActiveTracker. Include an update of the judge name to
+      // ensure that it is current
+      ActiveTracker.update({
+        route_id: options.route_id,
+      }, { $set: {
+        user_id: this.userId,
+        user_name: this.user.services.facebook.name,
+        climber_id: '',
+        marker_id: '',
+        climber_name: '',
+      } }, {
+        removeEmptyStrings: false,
+      }, () => {});
+    } else {
+      // No existing ActiveTracker. Possible that the timer deleted it.
+      // Hence, we would recreate the ActiveTracker document.
+      const targetCategory = Categories.findOne({
+        routes: { $elemMatch: {
+          _id: options.route_id,
+        } },
+      });
+
+      const targetRoute = _.find(targetCategory.routes,
+                               (route) => (route._id === options.route_id));
+
+      // Add a dummy callback function so the op does not block
+      ActiveTracker.insert({
+        route_id: targetRoute._id,
+        route_name: targetRoute.route_name,
+        category_id: targetCategory._id,
+        category_name: targetCategory.category_name,
+        user_id: this.userId,
+        user_name: this.user.services.facebook.name,
+      }, () => {});
+    }
+
+    return {
+      statusCode: 200,
+      body: {},
+    };
   },
 });
 

@@ -3,8 +3,8 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import CRIMP from '../settings';
-import Categories from './categories';
-import Climbers from './climbers';
+// import Categories from './categories';
+// import Climbers from './climbers';
 
 const ActiveTracker = new Mongo.Collection('ActiveTracker');
 ActiveTracker.schema = new SimpleSchema({
@@ -41,6 +41,11 @@ ActiveTracker.schema = new SimpleSchema({
     type: String,
     defaultValue: '',
   },
+  marker_id: {
+    type: String,
+    defaultValue: '',
+    label: 'Marker ID of climber',
+  },
   climber_name: {
     type: String,
     label: 'Name of climber',
@@ -65,49 +70,49 @@ if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
 
 
 ActiveTracker.methods = {};
-ActiveTracker.methods.addClimber = new ValidatedMethod({
-  name: 'ActiveTracker.methods.addClimber',
-  validate: new SimpleSchema({
-    routeId: { type: String },
-    climberId: { type: String },
-  }).validator(),
-  run({ routeId, climberId }) {
+// ActiveTracker.methods.addClimber = new ValidatedMethod({
+//   name: 'ActiveTracker.methods.addClimber',
+//   validate: new SimpleSchema({
+//     routeId: { type: String },
+//     climberId: { type: String },
+//   }).validator(),
+//   run({ routeId, climberId }) {
 
-  },
-});
+//   },
+// });
 
-ActiveTracker.methods.removeClimber = new ValidatedMethod({
-  name: 'ActiveTracker.methods.removeClimber',
-  validate: new SimpleSchema({
-    routeId: { type: String },
-    climberId: { type: String },
-  }).validator(),
-  run({ routeId, climberId }) {
+// ActiveTracker.methods.removeClimber = new ValidatedMethod({
+//   name: 'ActiveTracker.methods.removeClimber',
+//   validate: new SimpleSchema({
+//     routeId: { type: String },
+//     climberId: { type: String },
+//   }).validator(),
+//   run({ routeId, climberId }) {
 
-  },
-});
+//   },
+// });
 
-ActiveTracker.methods.addJudge = new ValidatedMethod({
-  name: 'ActiveTracker.methods.addJudge',
-  validate: new SimpleSchema({
-    routeId: { type: String },
-    userId: { type: String },
-  }).validator(),
-  run({ routeId, userId }) {
+// ActiveTracker.methods.addJudge = new ValidatedMethod({
+//   name: 'ActiveTracker.methods.addJudge',
+//   validate: new SimpleSchema({
+//     routeId: { type: String },
+//     userId: { type: String },
+//   }).validator(),
+//   run({ routeId, userId }) {
 
-  },
-});
+//   },
+// });
 
-ActiveTracker.methods.removeJudge = new ValidatedMethod({
-  name: 'ActiveTracker.methods.removeJudge',
-  validate: new SimpleSchema({
-    routeId: { type: String },
-    userId: { type: String },
-  }).validator(),
-  run({ routeId, userId }) {
+// ActiveTracker.methods.removeJudge = new ValidatedMethod({
+//   name: 'ActiveTracker.methods.removeJudge',
+//   validate: new SimpleSchema({
+//     routeId: { type: String },
+//     userId: { type: String },
+//   }).validator(),
+//   run({ routeId, userId }) {
 
-  },
-});
+//   },
+// });
 
 
 export default ActiveTracker;

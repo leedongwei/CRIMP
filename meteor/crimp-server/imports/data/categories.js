@@ -93,6 +93,7 @@ Categories.schema = new SimpleSchema({
   },
   'routes.$._id': {
     type: String,
+    unique: true,
   },
   'routes.$.route_name': {
     type: String,
