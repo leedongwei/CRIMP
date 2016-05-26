@@ -430,29 +430,51 @@ Api.addRoute('judge/helpme', { authRequired: true }, {
 
 Api.addRoute('judge/report', { authRequired: true }, {
   post: function postReport() {
-
     const options = this.bodyParams;
-    if (options.blocked === 'true' && options.force === 'false') {
+    const targetActive = ActiveTracker.findOne({ route_id: options.route_id });
+
+    if (targetActive
+        && options.force !== 'true') {
       return {
-        "X-User-Id": '123123',
-        "user_name": 'CATERPIE',
-        "category_id": options.category_id,
-        "route_id": options.route_id,
-      }
-    } else {
-      return {
-        "X-User-Id": this.userId,
-        "user_name": this.user.services.facebook.name,
-        "category_id": options.category_id,
-        "route_id": options.route_id,
-      }
+        statusCode: 200,
+        body: {
+          'X-User-Id': targetActive.user_id,
+          user_name: targetActive.user_name,
+          category_id: targetActive.category_id,
+          route_id: targetActive.route_id,
+        },
+      };
     }
 
+    const targetCategory = Categories.findOne({
+      category_id: options.category_id,
+      routes: { $elemMatch: {
+        _id: options.route_id,
+      } },
+    });
 
-    // return {
-    //   statusCode: 501,
-    //   body: { error: 'Not implemented (yet)' },
-    // };
+    const targetRoute = _.find(targetCategory.routes,
+                             (route) => (route._id === options.route_id));
+
+    // Add a dummy callback function so the op does not block
+    ActiveTracker.insert({
+      route_id: options.route_id,
+      route_name: targetRoute.route_name,
+      category_id: targetCategory._id,
+      category_name: targetCategory.category_name,
+      user_id: this.userId,
+      user_name: this.user.services.facebook.name,
+    }, () => {});
+
+    return {
+      statusCode: 200,
+      body: {
+        'X-User-Id': this.userId,
+        user_name: this.user.services.facebook.name,
+        category_id: targetCategory._id,
+        route_id: options.route_id,
+      },
+    };
   },
 });
 
