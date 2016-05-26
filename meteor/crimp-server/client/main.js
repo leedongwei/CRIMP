@@ -9,6 +9,8 @@ import Categories from '../imports/data/categories';
 import Teams from '../imports/data/teams';
 import Climbers from '../imports/data/climbers.js';
 import Scores from '../imports/data/scores.js';
+import HelpMe from '../imports/data/helpme';
+import ActiveTracker from '../imports/data/activetracker';
 
 // TODO: REMOVE seedDatabase. DEV TESTING ONLY.
 import seedDatabase from '../imports/seedDatabase';
@@ -25,6 +27,8 @@ Meteor.subscribe('categories');
 Meteor.subscribe('teams');
 Meteor.subscribe('climbers');
 Meteor.subscribe('scores');
+Meteor.subscribe('helpme');
+Meteor.subscribe('activetracker');
 
 Meteor.startup(() => {
   msg = Messages;
@@ -33,6 +37,8 @@ Meteor.startup(() => {
   tms = Teams;
   cmb = Climbers;
   scs = Scores;
+  hlp = HelpMe;
+  act = ActiveTracker;
 })
 
 Template.messages.onCreated(() => {

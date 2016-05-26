@@ -12,6 +12,8 @@ import Categories from '../imports/data/categories';
 import Teams from '../imports/data/teams';
 import Climbers from '../imports/data/climbers';
 import Scores from '../imports/data/scores';
+import HelpMe from '../imports/data/helpme';
+import ActiveTracker from '../imports/data/activetracker';
 
 // TODO: REMOVE seedDatabase. DEV TESTING ONLY.
 import seedDatabase from '../imports/seedDatabase';
@@ -26,6 +28,8 @@ Meteor.startup(() => {
   Meteor.publish('teams', () => Teams.find({}));
   Meteor.publish('climbers', () => Climbers.find({}));
   Meteor.publish('scores', () => Scores.find({}));
+  Meteor.publish('helpme', () => HelpMe.find({}));
+  Meteor.publish('activetracker', () => ActiveTracker.find({}));
 });
 
 
@@ -395,7 +399,31 @@ Api.addRoute('judge/score/:route_id/:marker_id', { authRequired: false }, {
 
 Api.addRoute('judge/helpme', { authRequired: true }, {
   post: function postHelpMe() {
-    return {};
+    const targetRouteId = this.bodyParams.route_id;
+    const targetCategory = Categories.findOne({
+      routes: { $elemMatch: {
+        _id: targetRouteId,
+      } },
+    });
+    const targetRoute = _.find(targetCategory.routes,
+                               (route) => (route._id === targetRouteId));
+
+    // Build the document for HelpMe
+    const helpMeDoc = {
+      route_id: targetRouteId,
+      route_name: targetRoute.route_name,
+      category_name: targetCategory.category_name,
+      user_id: this.userId,
+      user_name: this.user.services.facebook.name,
+    };
+
+    // Add a dummy callback function so the op does not block
+    HelpMe.insert(helpMeDoc, () => {});
+
+    return {
+      statusCode: 200,
+      body: {},
+    };
   },
 });
 
