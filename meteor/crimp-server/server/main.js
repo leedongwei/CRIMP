@@ -3,7 +3,7 @@ import { HTTP } from 'meteor/http';
 import { Accounts } from 'meteor/accounts-base';
 import { Roles } from 'meteor/alanning:roles';
 import { Restivus } from 'meteor/nimble:restivus';
-import { _ } from 'meteor/underscore';
+import { _ } from 'meteor/stevezhu:lodash';
 
 import CRIMP from '../imports/settings';
 import Messages from '../imports/data/messages';

@@ -26,7 +26,6 @@ msavin:mongol
 accounts-ui
 accounts-facebook
 accounts-base
-underscore
 alanning:roles
 random
 practicalmeteor:mocha
@@ -34,3 +33,4 @@ practicalmeteor:faker
 dburles:factory
 xolvio:cleaner
 practicalmeteor:chai
+stevezhu:lodash
