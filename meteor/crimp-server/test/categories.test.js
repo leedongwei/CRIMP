@@ -63,7 +63,7 @@ describe('Categories', function () {
     describe('insert', function () {
       it('insert with valid document', function () {
         const parentEvent = Events.findOne({});
-        const categoryDoc = Factory.tree('category');
+        const categoryDoc = Factory.tree('category-ifsc');
 
         const newCategoryId = Categories.methods.insert.call({
           parentEvent,
