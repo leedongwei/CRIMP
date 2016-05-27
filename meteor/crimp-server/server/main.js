@@ -479,7 +479,7 @@ Api.addRoute('judge/report', { authRequired: true }, {
       }
 
       const targetCategory = Categories.findOne({
-        category_id: options.category_id,
+        // category_id: options.category_id,
         routes: { $elemMatch: {
           _id: options.route_id,
         } },
@@ -489,14 +489,16 @@ Api.addRoute('judge/report', { authRequired: true }, {
                                (route) => (route._id === options.route_id));
 
       // Add a dummy callback function so the op does not block
-      ActiveTracker.insert({
+      ActiveTracker.upsert({
+        route_id: options.route_id,
+      }, { $set: {
         route_id: options.route_id,
         route_name: targetRoute.route_name,
         category_id: targetCategory._id,
         category_name: targetCategory.category_name,
         user_id: this.userId,
         user_name: this.user.services.facebook.name,
-      }, () => {});
+      } }, () => {});
 
       return {
         statusCode: 200,
