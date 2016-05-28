@@ -8,11 +8,18 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
@@ -110,10 +117,48 @@ public class HelloActivity extends AppCompatActivity implements
 
         // prepare view pager
         mFragmentAdapter = new HelloFragmentAdapter(getSupportFragmentManager(), mTabLayout);
+
+        // Tab and custom tab stuff
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(0)));
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(1)));
         mTabLayout.addTab(mTabLayout.newTab().setText(mFragmentAdapter.getPageTitle(2)));
         mTabLayout.setOnTabSelectedListener(new HelloOnTabSelectedListener(mPager, mTabLayout));
+        TabLayout.Tab scoreTab = mTabLayout.getTabAt(2);
+        scoreTab.setCustomView(R.layout.view_custom_tab);
+        TabViewHolder holder = new TabViewHolder();
+        holder.tabTitle = (TextView)scoreTab.getCustomView().findViewById(android.R.id.text1);
+        holder.tabBadge = (ImageView)scoreTab.getCustomView().findViewById(R.id.badge);
+        scoreTab.getCustomView().setTag(holder);
+
+        holder.tabBadge.setImageResource(R.drawable.ic_report_white_24dp);
+        if(mTabLayout.getSelectedTabPosition() == HelloFragmentAdapter.SCORE_TAB_POSITION){
+            scoreTab.getCustomView().setSelected(true);
+        }
+
+        // Initial setup for badge visibility
+        // Find out if we have currentScore in score tab
+        String currentScore = CrimpApplication.getAppState()
+                .getString(CrimpApplication.CURRENT_SCORE, null);
+        if(currentScore != null && currentScore.length()>0 ){
+            // We have currentScore. Set badge visibility base on which tab we are in.
+            if(mTabLayout.getSelectedTabPosition() != HelloFragmentAdapter.SCORE_TAB_POSITION){
+                if(holder.tabBadge!=null){
+                    holder.tabBadge.setVisibility(View.VISIBLE);
+                }
+            }
+            else{
+                if(holder.tabBadge!=null){
+                    holder.tabBadge.setVisibility(View.INVISIBLE);
+                }
+            }
+        }
+        else{
+            // We have no currentScore. No need to show badge.
+            if(holder.tabBadge!=null){
+                holder.tabBadge.setVisibility(View.INVISIBLE);
+            }
+        }
+
         int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
         mFragmentAdapter.setCanDisplay(canDisplay);
         mPager.setAdapter(mFragmentAdapter);

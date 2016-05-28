@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.hello.route.RouteFragment;
 import rocks.crimp.crimp.hello.scan.ScanFragment;
 import rocks.crimp.crimp.hello.score.ScoreFragment;
@@ -17,6 +18,10 @@ import rocks.crimp.crimp.hello.score.ScoreFragment;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class HelloFragmentAdapter extends FragmentStatePagerAdapter {
+    public static final int ROUTE_TAB_POSITION = 0;
+    public static final int SCAN_TAB_POSITION = 1;
+    public static final int SCORE_TAB_POSITION = 2;
+
     private static final int COUNT = 3;
 
     private Fragment[] fragmentArray = new Fragment[COUNT];
@@ -25,7 +30,7 @@ public class HelloFragmentAdapter extends FragmentStatePagerAdapter {
     private Context mContext;
     private TextView mRouteTabTextView;
     private TextView mScanTabTextView;
-    private TextView mScoreTabTextView;
+    private View mScoreTabCustomView;
 
     public HelloFragmentAdapter(FragmentManager fm, TabLayout tabLayout) {
         super(fm);
@@ -44,11 +49,11 @@ public class HelloFragmentAdapter extends FragmentStatePagerAdapter {
             // find route tab TextView
             ViewGroup vg = (ViewGroup) mTabLayout.getChildAt(0);
             int tabCount = vg.getChildCount();
-            if(tabCount != 3){
-                throw new IllegalStateException("We should have 3 tabs exactly.");
+            if(tabCount != COUNT){
+                throw new IllegalStateException("We should have "+COUNT+" tabs exactly.");
             }
 
-            ViewGroup vgTab = (ViewGroup) vg.getChildAt(0);
+            ViewGroup vgTab = (ViewGroup) vg.getChildAt(ROUTE_TAB_POSITION);
             int tabChildsCount = vgTab.getChildCount();
             for (int i = 0; i < tabChildsCount; i++) {
                 View tabViewChild = vgTab.getChildAt(i);
@@ -63,11 +68,11 @@ public class HelloFragmentAdapter extends FragmentStatePagerAdapter {
             // find scan tab TextView
             ViewGroup vg = (ViewGroup) mTabLayout.getChildAt(0);
             int tabCount = vg.getChildCount();
-            if(tabCount != 3){
-                throw new IllegalStateException("We should have 3 tabs exactly.");
+            if(tabCount != COUNT){
+                throw new IllegalStateException("We should have "+COUNT+" tabs exactly.");
             }
 
-            ViewGroup vgTab = (ViewGroup) vg.getChildAt(1);
+            ViewGroup vgTab = (ViewGroup) vg.getChildAt(SCAN_TAB_POSITION);
             int tabChildsCount = vgTab.getChildCount();
             for (int i = 0; i < tabChildsCount; i++) {
                 View tabViewChild = vgTab.getChildAt(i);
@@ -78,22 +83,14 @@ public class HelloFragmentAdapter extends FragmentStatePagerAdapter {
             }
         }
 
-        if(mScoreTabTextView == null){
-            // find score tab TextView
-            ViewGroup vg = (ViewGroup) mTabLayout.getChildAt(0);
-            int tabCount = vg.getChildCount();
-            if(tabCount != 3){
-                throw new IllegalStateException("We should have 3 tabs exactly.");
+        if(mScoreTabCustomView == null){
+            TabLayout.Tab scoreTab = mTabLayout.getTabAt(SCORE_TAB_POSITION);
+            if(scoreTab == null){
+                throw new IllegalStateException("We should have "+COUNT+" tabs exactly");
             }
-
-            ViewGroup vgTab = (ViewGroup) vg.getChildAt(2);
-            int tabChildsCount = vgTab.getChildCount();
-            for (int i = 0; i < tabChildsCount; i++) {
-                View tabViewChild = vgTab.getChildAt(i);
-                if (tabViewChild instanceof TextView) {
-                    mScoreTabTextView = (TextView) tabViewChild;
-                    break;
-                }
+            mScoreTabCustomView = scoreTab.getCustomView();
+            if(mScoreTabCustomView == null){
+                throw new IllegalStateException("We should have custom view for score tab");
             }
         }
 
@@ -112,19 +109,19 @@ public class HelloFragmentAdapter extends FragmentStatePagerAdapter {
         }
 
         if((canDisplay & 0b100) == 0){
-            mScoreTabTextView.setVisibility(View.INVISIBLE);
+            mScoreTabCustomView.setVisibility(View.INVISIBLE);
         }
         else{
-            mScoreTabTextView.setVisibility(View.VISIBLE);
+            mScoreTabCustomView.setVisibility(View.VISIBLE);
         }
     }
 
     @Override
     public CharSequence getPageTitle(int position){
         switch(position) {
-            case 0: return "Route";
-            case 1: return "Scan";
-            case 2: return "Score";
+            case ROUTE_TAB_POSITION: return "Route";
+            case SCAN_TAB_POSITION: return "Scan";
+            case SCORE_TAB_POSITION: return "Score";
             default: return null;
         }
     }
@@ -138,15 +135,15 @@ public class HelloFragmentAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
         switch(position){
-            case 0:
+            case ROUTE_TAB_POSITION:
                 fragmentArray[position] = RouteFragment.newInstance(position,
                         getPageTitle(position).toString());
                 break;
-            case 1:
+            case SCAN_TAB_POSITION:
                 fragmentArray[position] = ScanFragment.newInstance(position,
                         getPageTitle(position).toString());
                 break;
-            case 2:
+            case SCORE_TAB_POSITION:
                 fragmentArray[position] = ScoreFragment.newInstance(position,
                         getPageTitle(position).toString());
                 break;

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -47,11 +48,16 @@ public class CrimpWsImpl implements CrimpWS {
                 .connectTimeout(60, TimeUnit.MINUTES)
                 .build();
         */
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(interceptor)
+                .build();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(JacksonConverterFactory.create())
-                //.client(client)
+                .client(client)
                 .build();
         webService = retrofit.create(RetrofitWs.class);
     }

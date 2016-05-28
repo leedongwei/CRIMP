@@ -25,8 +25,7 @@
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabMode="fixed"
-            app:tabGravity="fill"/>
+            style="@style/Widget.Design.TabLayout"/>
     </android.support.design.widget.AppBarLayout>
 
     <rocks.crimp.crimp.hello.HelloViewPager

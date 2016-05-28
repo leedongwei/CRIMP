@@ -2,6 +2,7 @@ package rocks.crimp.crimp.hello;
 
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.view.View;
 
 import java.lang.ref.WeakReference;
 
@@ -60,6 +61,35 @@ public class HelloPageChangeListener implements ViewPager.OnPageChangeListener{
             TabLayout.Tab tab = tabLayout.getTabAt(position);
             if(tab != null) tab.select();
             //tabLayout.selectTab(tabLayout.getTabAt(position), updateIndicator);
+        }
+
+        // We want to decide whether to show tab badge. First try to get a reference to custom view
+        TabLayout.Tab scoreTab = tabLayout != null ?
+                tabLayout.getTabAt(HelloFragmentAdapter.SCORE_TAB_POSITION) : null;
+        View customView = scoreTab != null ? scoreTab.getCustomView() : null;
+        TabViewHolder holder = customView != null ? (TabViewHolder) customView.getTag() : null;
+
+        // Find out if we have currentScore in score tab
+        String currentScore = CrimpApplication.getAppState()
+                .getString(CrimpApplication.CURRENT_SCORE, null);
+        if(currentScore != null && currentScore.length()>0 ){
+            // We have currentScore. Set badge visibility base on which tab we are in.
+            if(position != HelloFragmentAdapter.SCORE_TAB_POSITION){
+                if(holder!=null && holder.tabBadge!=null){
+                    holder.tabBadge.setVisibility(View.VISIBLE);
+                }
+            }
+            else{
+                if(holder!=null && holder.tabBadge!=null){
+                    holder.tabBadge.setVisibility(View.INVISIBLE);
+                }
+            }
+        }
+        else{
+            // We have no currentScore. No need to show badge.
+            if(holder!=null && holder.tabBadge!=null){
+                holder.tabBadge.setVisibility(View.INVISIBLE);
+            }
         }
     }
 

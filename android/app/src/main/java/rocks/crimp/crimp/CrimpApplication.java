@@ -113,6 +113,7 @@ public class CrimpApplication extends Application {
 
     public static CrimpWS getCrimpWS(){
         if(mCrimpWs == null){
+            //mCrimpWs = new StubWS();
             mCrimpWs = new CrimpWsImpl(CrimpWsImpl.BASEURL);
         }
 
