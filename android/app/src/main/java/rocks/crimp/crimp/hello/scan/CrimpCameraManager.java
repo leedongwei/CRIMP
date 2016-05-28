@@ -163,11 +163,13 @@ class CrimpCameraManager implements Camera.PreviewCallback{
          * of the byte array data depends on the size in Camera.Parameters.setPreviewSize().
          */
         if(mDecodeThread != null && mDecodeThread.getHandler() != null){
-            mDecodeThread.getHandler().obtainMessage(DecodeHandler.DECODE,
-                    camera.getParameters().getPreviewSize().width,
-                    camera.getParameters().getPreviewSize().height, data).sendToTarget();
+            if(!mCameraHandler.cameraIsReleased()){
+                mDecodeThread.getHandler().obtainMessage(DecodeHandler.DECODE,
+                        camera.getParameters().getPreviewSize().width,
+                        camera.getParameters().getPreviewSize().height, data).sendToTarget();
+            }
+
             mCameraHandler.setIsScanning(false);
-            mCameraHandlerThread.interrupt();
         }
         else{
             throw new NullPointerException("Got preview callback, but no handler available");

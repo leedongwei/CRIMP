@@ -30,6 +30,7 @@ public class CameraHandler extends Handler {
     public static final int QUIT_THREAD = 7;
 
     private volatile HandlerThread mHandlerThread;
+    private boolean mIsReleased;
     private boolean mIsScanning;
 
     /**
@@ -59,6 +60,10 @@ public class CameraHandler extends Handler {
         mIsScanning = isScanning;
     }
 
+    public boolean cameraIsReleased(){
+        return mIsReleased;
+    }
+
     @Override
     public void handleMessage(Message msg){
         switch(msg.what){
@@ -66,6 +71,9 @@ public class CameraHandler extends Handler {
                 Timber.v("Received ACQUIRE_CAMERA: mCamera: %s", mCamera);
                 if(mCamera == null){
                     mCamera = acquireCamera();
+                    if(mCamera != null){
+                        mIsReleased = false;
+                    }
                 }
                 break;
 
@@ -131,7 +139,6 @@ public class CameraHandler extends Handler {
 
             case STOP_PREVIEW:
                 Timber.d("Received STOP_PREVIEW. mCamera: %s", mCamera);
-                mIsScanning = false;
                 if(mCamera != null){
                     mCamera.stopPreview();
                 }
@@ -141,17 +148,11 @@ public class CameraHandler extends Handler {
                 Timber.d("Received RELEASE_CAMERA. mCamera: %s", mCamera);
 
                 if(mCamera != null){
-                    while(mIsScanning){
-                        try {
-                            Timber.d("Waiting to release camera...");
-                            wait();
-                        } catch (InterruptedException e) {
-                            Timber.d("...interrupted while waiting to release camera");
-                        }
-                    }
+                    Timber.d("Camera releasing, mIsScanning: %b, mIsReleased: %b",
+                            mIsScanning, mIsReleased);
                     mCamera.release();
-                    Timber.d("Camera released, mIsScanning: %b", mIsScanning);
                     mCamera = null;
+                    mIsReleased = true;
                 }
                 break;
 

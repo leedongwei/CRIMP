@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,8 +48,8 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     private ViewStub mScoreModuleLayout;
     private View mInflatedScoreModule;
     private Button mSubmitButton;
-    private ProgressBar mScoreProgressBar;
     private ProgressBar mInfoProgressBar;
+    private ImageView mCloseButton;
 
     private UUID mGetScoreTxId;
     private ScoreFragmentInterface mParent;
@@ -90,8 +91,9 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
         mScoreModuleLayout = (ViewStub)rootView.findViewById(R.id.score_score_fragment);
         mSubmitButton = (Button)rootView.findViewById(R.id.score_submit_button);
         mInfoProgressBar = (ProgressBar)rootView.findViewById(R.id.score_info_progressbar);
-        mScoreProgressBar = (ProgressBar)rootView.findViewById(R.id.score_score_progressbar);
+        mCloseButton = (ImageView) rootView.findViewById(R.id.score_close_button);
 
+        mCloseButton.setOnClickListener(this);
         mSubmitButton.setOnClickListener(this);
 
         int categoryPosition = CrimpApplication.getAppState()
@@ -188,7 +190,6 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
         if(event.txId.equals(mGetScoreTxId)){
             mGetScoreTxId = null;
             mInfoProgressBar.setVisibility(View.GONE);
-            mScoreProgressBar.setVisibility(View.GONE);
             GetScoreJs response = (GetScoreJs) event.value;
 
             String markerId = CrimpApplication.getAppState()
@@ -219,7 +220,6 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
         if(event.txId.equals(mGetScoreTxId)){
             mGetScoreTxId = null;
             mInfoProgressBar.setVisibility(View.GONE);
-            mScoreProgressBar.setVisibility(View.GONE);
             //TODO handle fail
         }
     }
@@ -257,7 +257,6 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
 
             if(accumulatedScore == null){
                 mInfoProgressBar.setVisibility(View.VISIBLE);
-                mScoreProgressBar.setVisibility(View.VISIBLE);
                 mGetScoreTxId = ServiceHelper.getScore(getActivity(), mGetScoreTxId, null, null,
                         null, markerId, xUserId, xAuthToken);
             }
@@ -267,6 +266,18 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onClick(View v) {
         switch(v.getId()){
+            case R.id.score_close_button:
+                CrimpApplication.getAppState().edit()
+                        .remove(CrimpApplication.MARKER_ID)
+                        .remove(CrimpApplication.CLIMBER_NAME)
+                        .remove(CrimpApplication.SHOULD_SCAN)
+                        .remove(CrimpApplication.CURRENT_SCORE)
+                        .remove(CrimpApplication.ACCUMULATED_SCORE)
+                        .apply();
+                mScoreModule.notifyScore("");
+                mParent.goBackToScanTab();
+                break;
+
             case R.id.score_submit_button:
                 Toast toast = Toast.makeText(getActivity(), "STUB!", Toast.LENGTH_SHORT);
                 toast.show();
