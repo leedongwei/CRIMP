@@ -402,7 +402,7 @@ Api.addRoute('judge/score/:route_id/:marker_id', { authRequired: false }, {
 
 
       return {
-        statusCode: 501,
+        statusCode: 200,
         body: {
           climber_id: targetScore.climber_id,
           category_id: targetScore.category_id,
