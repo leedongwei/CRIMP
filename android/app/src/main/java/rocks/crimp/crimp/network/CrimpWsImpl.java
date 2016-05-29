@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 import retrofit2.http.Body;
@@ -33,6 +34,7 @@ import rocks.crimp.crimp.network.model.ReportJs;
 import rocks.crimp.crimp.network.model.RequestBean;
 import rocks.crimp.crimp.network.model.RequestBodyJs;
 import rocks.crimp.crimp.network.model.SetActiveJs;
+import timber.log.Timber;
 
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
@@ -76,7 +78,11 @@ public class CrimpWsImpl implements CrimpWS {
         Call<GetScoreJs> call = webService.getScore(query.getClimberId(), query.getCategoryId(),
                 query.getRouteId(), query.getMarkerId(), header.getxUserId(),
                 header.getxAuthToken());
-        return call.execute().body();
+        Response<GetScoreJs> response = call.execute();
+        if(!response.isSuccessful()){
+            Timber.e("Get score error response: %s", response.errorBody().string());
+        }
+        return response.body();
     }
 
     @Override
@@ -129,14 +135,19 @@ public class CrimpWsImpl implements CrimpWS {
     }
 
     @Override
-    public PostScoreJs postScore(RequestBean requestBean) throws IOException {
+    public Response<PostScoreJs> postScore(RequestBean requestBean) throws IOException {
         PathBean path = requestBean.getPathBean();
         HeaderBean header = requestBean.getHeaderBean();
         RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
 
         Call<PostScoreJs> call = webService.postScore(path.getRouteId(), path.getMarkerId(),
                 header.getxUserId(), header.getxAuthToken(), requestBodyJs.getScoreString());
-        return call.execute().body();
+        Response<PostScoreJs> response = call.execute();
+        if(!response.isSuccessful()){
+            Timber.e("Post score error response: %s", response.errorBody().string());
+        }
+
+        return response;
     }
 
     @Override

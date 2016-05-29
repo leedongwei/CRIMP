@@ -3,7 +3,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <LinearLayout android:id="@+id/scoring_best_result_row"
+    <LinearLayout android:id="@+id/scoring_points_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -13,11 +13,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Score: "
+            android:text="Points: "
             android:gravity="center"
             android:textSize="32sp" />
         <TextView
-            android:id="@+id/scoring_best_result_text"
+            android:id="@+id/scoring_points_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="-"
@@ -39,39 +39,12 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/scoring_b1_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginRight="4dp"
-            android:text="B1" />
-
-        <Button
-            android:id="@+id/scoring_b2_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginRight="4dp"
-            android:layout_marginLeft="4dp"
-            android:text="B2" />
-
-        <Button
             android:id="@+id/scoring_t_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginRight="4dp"
-            android:layout_marginLeft="4dp"
-            android:text="T" />
+            android:text="Top" />
 
-        <ImageButton
-            android:id="@+id/scoring_backspace_button"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:layout_marginLeft="4dp"
-            android:src="@drawable/ic_keyboard_backspace_black_24dp"
-            android:enabled="false" />
     </LinearLayout>
 
 </LinearLayout>

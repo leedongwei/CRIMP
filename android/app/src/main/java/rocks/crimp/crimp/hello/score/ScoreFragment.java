@@ -20,10 +20,12 @@ import java.util.UUID;
 
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
+import rocks.crimp.crimp.common.Action;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
 import rocks.crimp.crimp.common.event.SwipeTo;
 import rocks.crimp.crimp.hello.score.scoremodule.BonusTwoModule;
+import rocks.crimp.crimp.hello.score.scoremodule.PointsModule;
 import rocks.crimp.crimp.hello.score.scoremodule.ScoreModule;
 import rocks.crimp.crimp.hello.score.scoremodule.TopBonusModule;
 import rocks.crimp.crimp.network.model.CategoriesJs;
@@ -35,6 +37,9 @@ import timber.log.Timber;
 
 public class ScoreFragment extends Fragment implements View.OnClickListener,
         ScoreModule.ScoreModuleInterface{
+    public static final String RULES_IFSC_TOP_BONUS = "ifsc-top-bonus";
+    public static final String RULES_TOP_B1_B2 = "top-bonus1-bonus2";
+    public static final String RULES_POINTS = "points";
     public static final String ARGS_POSITION = "INT_POSITION";
     public static final String ARGS_TITLE = "STRING_TITLE";
     private static final String GET_SCORE_TXID = "get_score_txid";
@@ -170,11 +175,20 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                 break;
             case "points":
                 if(mScoreModuleLayout != null){
-                    mScoreModuleLayout.setLayoutResource(R.layout.fragment_top_bonus2_scoring);
+                    mScoreModuleLayout.setLayoutResource(R.layout.fragment_points_scoring);
                     mInflatedScoreModule = mScoreModuleLayout.inflate();
                     mScoreModuleLayout = null;
                 }
-                mScoreModule = new BonusTwoModule(mInflatedScoreModule, getActivity(), this);
+                mScoreModule = new PointsModule(mInflatedScoreModule, getActivity(), this,
+                        Integer.parseInt(type[1]));
+                break;
+            case "top-bonus1-bonus2":
+                if(mScoreModuleLayout != null){
+                    mScoreModuleLayout.setLayoutResource(R.layout.fragment_top_b1_b2_scoring);
+                    mInflatedScoreModule = mScoreModuleLayout.inflate();
+                    mScoreModuleLayout = null;
+                }
+                mScoreModule = new TopBonusModule(mInflatedScoreModule, getActivity(), this);
                 break;
             default:
                 throw new RuntimeException("unknown score type: "+scoreType);
@@ -183,14 +197,19 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
 
     @Subscribe
     public void requestSucceedReceived(RequestSucceed event) {
-        Timber.d("Received RequestSucceed %s", event.txId);
-
-        //TODO HANDLE POST SCORE
-
         if(event.txId.equals(mGetScoreTxId)){
+            Timber.d("Get score request successful. TxId: %s", event.txId);
             mGetScoreTxId = null;
             mInfoProgressBar.setVisibility(View.GONE);
             GetScoreJs response = (GetScoreJs) event.value;
+
+            // some assertion
+            if(response.getClimberScores().size() != 1){
+                throw new IllegalStateException("GetScore did not return score for 1 climber only");
+            }
+            if(response.getClimberScores().get(0).getScores().size() != 1){
+                throw new IllegalStateException("GetScore did not return score for 1 route only");
+            }
 
             String markerId = CrimpApplication.getAppState()
                     .getString(CrimpApplication.MARKER_ID, "");
@@ -213,11 +232,8 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
 
     @Subscribe
     public void requestFailedReceived(RequestFailed event){
-        Timber.d("Received RequestFailed %s", event.txId);
-
-        //TODO HANDLE POST SCORE
-
         if(event.txId.equals(mGetScoreTxId)){
+            Timber.e("Get score request fail. TxId: %s", event.txId);
             mGetScoreTxId = null;
             mInfoProgressBar.setVisibility(View.GONE);
             //TODO handle fail
@@ -257,8 +273,18 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
 
             if(accumulatedScore == null){
                 mInfoProgressBar.setVisibility(View.VISIBLE);
+
+                // find route id
+                int categoryPosition = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                int routePosition = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                CategoryJs chosenCategory =
+                        mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
+                String routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
+
                 mGetScoreTxId = ServiceHelper.getScore(getActivity(), mGetScoreTxId, null, null,
-                        null, markerId, xUserId, xAuthToken);
+                        routeId, markerId, xUserId, xAuthToken);
             }
         }
     }
@@ -267,51 +293,78 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.score_close_button:
-                CrimpApplication.getAppState().edit()
-                        .remove(CrimpApplication.MARKER_ID)
-                        .remove(CrimpApplication.CLIMBER_NAME)
-                        .remove(CrimpApplication.SHOULD_SCAN)
-                        .remove(CrimpApplication.CURRENT_SCORE)
-                        .remove(CrimpApplication.ACCUMULATED_SCORE)
-                        .apply();
-                mScoreModule.notifyScore("");
-                mParent.goBackToScanTab();
+                String currentScore = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.CURRENT_SCORE, null);
+                if(currentScore!=null && currentScore.length()>0){
+                    CloseDialog.create(getActivity(), new Action() {
+                        @Override
+                        public void act() {
+                            // close score tab
+                            CrimpApplication.getAppState().edit()
+                                    .remove(CrimpApplication.MARKER_ID)
+                                    .remove(CrimpApplication.CLIMBER_NAME)
+                                    .remove(CrimpApplication.SHOULD_SCAN)
+                                    .remove(CrimpApplication.CURRENT_SCORE)
+                                    .remove(CrimpApplication.ACCUMULATED_SCORE)
+                                    .apply();
+                            mScoreModule.notifyScore("");
+                            mParent.goBackToScanTab();
+                        }
+                    }, null).show();
+                }
                 break;
 
             case R.id.score_submit_button:
-                Toast toast = Toast.makeText(getActivity(), "STUB!", Toast.LENGTH_SHORT);
-                toast.show();
+                SubmitDialog.create(getActivity(), new Action() {
+                    @Override
+                    public void act() {
+                        // submit score
+                        int categoryPosition = CrimpApplication.getAppState()
+                                .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                        int routePosition = CrimpApplication.getAppState()
+                                .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                        CategoryJs chosenCategory =
+                                mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
+                        String chosenCategoryName = chosenCategory.getCategoryName();
+                        String routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
+                        String chosenRouteName = chosenCategory.getRoutes().get(routePosition - 1).getRouteName();
+                        String markerId = CrimpApplication.getAppState()
+                                .getString(CrimpApplication.MARKER_ID, null);
+                        String xUserId = CrimpApplication.getAppState()
+                                .getString(CrimpApplication.X_USER_ID, null);
+                        String xAuthToken = CrimpApplication.getAppState()
+                                .getString(CrimpApplication.X_AUTH_TOKEN, null);
+                        String currentScore = mCurrentText.getText().toString();
 
-                //TODO actually submit score
-                int categoryPosition = CrimpApplication.getAppState()
-                        .getInt(CrimpApplication.CATEGORY_POSITION, 0);
-                int routePosition = CrimpApplication.getAppState()
-                        .getInt(CrimpApplication.ROUTE_POSITION, 0);
-                CategoryJs chosenCategory =
-                        mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
-                String chosenCategoryName = chosenCategory.getCategoryName();
-                String routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
-                String chosenRouteName = chosenCategory.getRoutes().get(routePosition - 1).getRouteName();
-                String markerId = CrimpApplication.getAppState()
-                        .getString(CrimpApplication.MARKER_ID, null);
-                String xUserId = CrimpApplication.getAppState()
-                        .getString(CrimpApplication.X_USER_ID, null);
-                String xAuthToken = CrimpApplication.getAppState()
-                        .getString(CrimpApplication.X_AUTH_TOKEN, null);
-                String currentScore = mCurrentText.getText().toString();
+                        // some assertion
+                        if(currentScore.length() <= 0){
+                            throw new IllegalStateException("current score is null");
+                        }
+                        if(markerId == null){
+                            throw new IllegalStateException("marker id is null");
+                        }
+                        if(xUserId == null){
+                            throw new IllegalStateException("xUserId is null");
+                        }
+                        if(xAuthToken == null){
+                            throw new IllegalStateException("xAuthToken is null");
+                        }
 
-                ServiceHelper.postScore(getActivity(), null, routeId, markerId, xUserId, xAuthToken,
-                        currentScore, chosenCategoryName, chosenRouteName);
+                        ServiceHelper.postScore(getActivity(), null, routeId, markerId, xUserId, xAuthToken,
+                                currentScore, chosenCategoryName, chosenRouteName);
 
-                CrimpApplication.getAppState().edit()
-                        .remove(CrimpApplication.MARKER_ID)
-                        .remove(CrimpApplication.CLIMBER_NAME)
-                        .remove(CrimpApplication.SHOULD_SCAN)
-                        .remove(CrimpApplication.CURRENT_SCORE)
-                        .remove(CrimpApplication.ACCUMULATED_SCORE)
-                        .apply();
-                mScoreModule.notifyScore("");
-                mParent.goBackToScanTab();
+                        CrimpApplication.getAppState().edit()
+                                .remove(CrimpApplication.MARKER_ID)
+                                .remove(CrimpApplication.CLIMBER_NAME)
+                                .remove(CrimpApplication.SHOULD_SCAN)
+                                .remove(CrimpApplication.CURRENT_SCORE)
+                                .remove(CrimpApplication.ACCUMULATED_SCORE)
+                                .apply();
+                        mScoreModule.notifyScore("");
+                        mParent.goBackToScanTab();
+                    }
+                }, null).show();
+
                 break;
         }
     }

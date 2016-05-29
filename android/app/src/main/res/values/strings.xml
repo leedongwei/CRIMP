@@ -64,6 +64,12 @@
     <string name="score_fragment_accumulated_score">Accumulated Score</string>
     <string name="score_fragment_current_score">Current Score</string>
     <string name="score_fragment_submit">Submit</string>
+    <string name="score_fragment_submit_dialog_title">"Submit score?"</string>
+    <string name="score_fragment_submit_dialog_positive">Submit</string>
+    <string name="score_fragment_submit_dialog_negative">Cancel</string>
+    <string name="score_fragment_close_dialog_title">"Discard score?"</string>
+    <string name="score_fragment_close_dialog_positive">Discard</string>
+    <string name="score_fragment_close_dialog_negative">Cancel</string>
 
     <!-- TaskList Activity UI -->
     <string name="tasklist_activity_counter_zero">No pending upload. Good job!</string>
@@ -71,5 +77,8 @@
     <string name="tasklist_activity_category_route">%1$s, %2$s</string>
     <string name="tasklist_activity_climber">Climber: %1$s</string>
     <string name="tasklist_activity_score">Score: %1$s</string>
-    <string name="tasklist_activity_status">Status: %1$s</string>
+    <string name="tasklist_activity_status_idle">Status: Idle</string>
+    <string name="tasklist_activity_status_uploading">Status: Uploading…</string>
+    <string name="tasklist_activity_status_error_http">Status: %1$d %2$s</string>
+    <string name="tasklist_activity_status_error_exception">Status: %1$s</string>
 </resources>

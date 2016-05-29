@@ -16,6 +16,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -413,6 +417,19 @@ public class HelloActivity extends AppCompatActivity implements
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void animateBadge(){
+        TabLayout.Tab scoreTab = mTabLayout.getTabAt(HelloFragmentAdapter.SCORE_TAB_POSITION);
+        View customView = scoreTab!=null ? scoreTab.getCustomView() : null;
+        TabViewHolder holder = customView!=null ? (TabViewHolder)customView.getTag() : null;
+        ImageView badge = holder!=null ? holder.tabBadge : null;
+
+        Animation shakeAndJump = AnimationUtils.loadAnimation(this, R.anim.badge_animate);
+
+        if(badge != null){
+            badge.startAnimation(shakeAndJump);
         }
     }
 

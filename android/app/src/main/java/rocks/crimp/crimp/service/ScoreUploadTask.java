@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.UUID;
 
+import retrofit2.Response;
 import rocks.crimp.crimp.CrimpApplication;
+import rocks.crimp.crimp.network.model.PostScoreJs;
 import rocks.crimp.crimp.network.model.RequestBean;
 import timber.log.Timber;
 
@@ -34,21 +36,24 @@ public class ScoreUploadTask implements Task<ScoreUploadTask.Callback> {
 
     @Override
     public void execute(Callback callback) {
-        Serializable responseObject = null;
+        Response response = null;
         try {
-            responseObject = CrimpApplication.getCrimpWS().postScore(requestBean);
+            response = CrimpApplication.getCrimpWS().postScore(requestBean);
         } catch (IOException e) {
             Timber.e(e, "IOException trying to hit server");
+            callback.onScoreUploadFailure(txId, e);
+            return;
         }
 
-        if(responseObject != null){
+        if(response.isSuccessful()){
             // Great! We received stuff from server. Storing it in our local model
+            PostScoreJs responseObject = (PostScoreJs) response.body();
             CrimpApplication.getLocalModel().putData(txId.toString(), responseObject);
             callback.onScoreUploadSuccess(txId, responseObject);
         }
         else{
-            Timber.d("Failed to receive response from server");
-            callback.onScoreUploadFailure(txId);
+            Timber.e("Unsuccessful response from server");
+            callback.onScoreUploadFailure(txId, response.code(), response.message());
         }
     }
 
@@ -58,7 +63,8 @@ public class ScoreUploadTask implements Task<ScoreUploadTask.Callback> {
 
     public interface Callback {
         void onScoreUploadSuccess(UUID txId, Object response);
-        void onScoreUploadFailure(UUID txId);
+        void onScoreUploadFailure(UUID txId, Exception e);
+        void onScoreUploadFailure(UUID txId, int statusCode, String message);
     }
 }
 

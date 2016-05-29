@@ -324,12 +324,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                             // We set SHOULD_SCAN to true. Check if we should start scanning.
                             onStateChangeCheckScanning();
                         }
-                    }, new Action() {
-                        @Override
-                        public void act() {
-                            // Do nothing
-                        }
-                    }, markerId, climberName, routeName);
+                    }, null, markerId, climberName, routeName);
                 }
                 break;
             }
@@ -430,12 +425,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                             // We set SHOULD_SCAN to true. Check if we should start scanning.
                             onStateChangeCheckScanning();
                         }
-                    }, new Action() {
-                        @Override
-                        public void act() {
-                            // Do nothing
-                        }
-                    }, markerId, climberName, routeName).show();
+                    }, null, markerId, climberName, routeName).show();
                 }
                 break;
             }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
+import retrofit2.Response;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
 import rocks.crimp.crimp.network.model.ClearActiveJs;
@@ -257,7 +258,7 @@ public class StubWS implements CrimpWS {
     }
 
     @Override
-    public PostScoreJs postScore(RequestBean requestBean) throws IOException {
+    public Response<PostScoreJs> postScore(RequestBean requestBean) throws IOException {
         Timber.d("sending postScore request...");
         try {
             Thread.sleep(10000);

@@ -53,7 +53,11 @@ public class ClimberScoreJs implements Serializable{
 
     @JsonIgnore
     @Nullable
-    public ScoreJs getScoreByMarkerId(@NonNull String markerId){
+    public ScoreJs getScoreByMarkerId(@Nullable String markerId){
+        if(markerId == null){
+            return null;
+        }
+
         for(ScoreJs scoreJs:scores){
             if(markerId.equals(scoreJs.getMarkerId())){
                 return scoreJs;

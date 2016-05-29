@@ -12,40 +12,44 @@ import rocks.crimp.crimp.R;
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class TopBonusModule implements ScoreModule, View.OnClickListener{
-    private TextView mTopCounter;
-    private TextView mBonusCounter;
+public class TopB2B1Module implements ScoreModule, View.OnClickListener {
+    private TextView mBestResult;
     private Button mPlusOne;
-    private Button mBonus;
+    private Button mBonus1;
+    private Button mBonus2;
     private Button mTop;
     private ImageButton mBackspace;
 
     private Context mContext;
     private ScoreModuleInterface mParent;
 
-    public TopBonusModule(View rootView, Context context, ScoreModuleInterface scoreModuleInterface){
+    public TopB2B1Module(View rootView, Context context, ScoreModuleInterface scoreModuleInterface) {
         mParent = scoreModuleInterface;
         mContext = context;
-        mTopCounter = (TextView) rootView.findViewById(R.id.scoring_t_text);
-        mBonusCounter = (TextView) rootView.findViewById(R.id.scoring_b_text);
+        mBestResult = (TextView) rootView.findViewById(R.id.scoring_best_result_text);
         mPlusOne = (Button) rootView.findViewById(R.id.scoring_plus_one_button);
-        mBonus = (Button) rootView.findViewById(R.id.scoring_b_button);
+        mBonus1 = (Button) rootView.findViewById(R.id.scoring_b1_button);
+        mBonus2 = (Button) rootView.findViewById(R.id.scoring_b2_button);
         mTop = (Button) rootView.findViewById(R.id.scoring_t_button);
         mBackspace = (ImageButton) rootView.findViewById(R.id.scoring_backspace_button);
 
         mPlusOne.setOnClickListener(this);
-        mBonus.setOnClickListener(this);
+        mBonus1.setOnClickListener(this);
+        mBonus2.setOnClickListener(this);
         mTop.setOnClickListener(this);
         mBackspace.setOnClickListener(this);
     }
 
     @Override
-    public void onClick(View v){
-        switch(v.getId()){
+    public void onClick(View v) {
+        switch (v.getId()) {
             case R.id.scoring_plus_one_button:
                 mParent.append("1");
                 break;
-            case R.id.scoring_b_button:
+            case R.id.scoring_b1_button:
+                mParent.append("b");
+                break;
+            case R.id.scoring_b2_button:
                 mParent.append("B");
                 break;
             case R.id.scoring_t_button:
@@ -59,38 +63,35 @@ public class TopBonusModule implements ScoreModule, View.OnClickListener{
 
     @Override
     public void notifyScore(@Nullable String score) {
-        if(score == null){
-            mTopCounter.setText("-");
-            mBonusCounter.setText("-");
+        if (score == null) {
+            mBestResult.setText("-");
             return;
         }
 
         int firstTee = score.indexOf("T");
-        int firstBee = score.indexOf("B");
-
         if(firstTee != -1){
-            // plus one to make it one-based
-            mTopCounter.setText(String.valueOf(firstTee+1));
-
-            if(firstBee != -1 && firstBee<firstTee){
-                // plus one to make it one-based
-                mBonusCounter.setText(String.valueOf(firstBee+1));
+            if(firstTee == 0){
+                mBestResult.setText("Flash");
+                return;
             }
             else{
-                // plus one to make it one-based
-                mBonusCounter.setText(String.valueOf(firstTee+1));
+                mBestResult.setText("Top");
+                return;
             }
         }
-        else{
-            // plus one to make it one-based
-            mTopCounter.setText("-");
 
-            if(firstBee != -1){
-                mBonusCounter.setText(String.valueOf(firstBee+1));
-            }
-            else{
-                mBonusCounter.setText("-");
-            }
+        int firstBee2 = score.indexOf("B");
+        if(firstBee2 != -1){
+            mBestResult.setText("Bonus 2");
+            return;
         }
+
+        int firstBee1 = score.indexOf("b");
+        if(firstBee1 != -1){
+            mBestResult.setText("Bonus 1");
+            return;
+        }
+
+        mBestResult.setText("-");
     }
 }

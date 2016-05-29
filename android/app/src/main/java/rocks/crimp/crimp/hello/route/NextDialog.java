@@ -2,6 +2,8 @@ package rocks.crimp.crimp.hello.route;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 
 import rocks.crimp.crimp.R;
@@ -12,8 +14,9 @@ import timber.log.Timber;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class NextDialog {
-    public static AlertDialog create(Context context, final Action proceed, final Action cancel,
-                                     String markerId, String climberName, String routeName){
+    public static AlertDialog create(@NonNull Context context, @Nullable final Action proceed,
+                                     @Nullable final Action cancel, @NonNull String markerId,
+                                     @NonNull String climberName, @NonNull String routeName){
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
         String question = String.format(context.getString(R.string.route_fragment_next_dialog),
@@ -25,21 +28,27 @@ public class NextDialog {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Timber.d("Pressed on Positive button");
-                        proceed.act();
+                        if(proceed != null){
+                            proceed.act();
+                        }
                     }
                 })
                 .setNegativeButton(R.string.route_fragment_next_dialog_negative, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Timber.d("Pressed on Negative button");
-                        cancel.act();
+                        if(cancel != null){
+                            cancel.act();
+                        }
                     }
                 })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         Timber.d("Next dialog cancelled");
-                        cancel.act();
+                        if(cancel != null){
+                            cancel.act();
+                        }
                     }
                 });
 

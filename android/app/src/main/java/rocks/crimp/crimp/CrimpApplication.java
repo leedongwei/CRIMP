@@ -2,6 +2,7 @@ package rocks.crimp.crimp;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -14,6 +15,7 @@ import rocks.crimp.crimp.network.CrimpWsImpl;
 import rocks.crimp.crimp.network.StubWS;
 import rocks.crimp.crimp.persistence.LocalModel;
 import rocks.crimp.crimp.persistence.LocalModelImpl;
+import rocks.crimp.crimp.service.CrimpService;
 import rocks.crimp.crimp.service.RestHandler;
 import rocks.crimp.crimp.service.ScoreHandler;
 import timber.log.Timber;
@@ -72,6 +74,10 @@ public class CrimpApplication extends Application {
         mScoreHandlerThread.start();
         Looper scoreThreadLooper = mScoreHandlerThread.getLooper();
         mScoreHandler = new ScoreHandler(scoreThreadLooper, this);
+
+        Intent intent = new Intent(this, CrimpService.class);
+        intent.setAction(CrimpService.ACTION_BOOT_NO_INTENT);
+        startService(intent);
     }
 
     public static RestHandler getRestHandler(){

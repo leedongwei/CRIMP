@@ -32,7 +32,11 @@ public class GetScoreJs implements Serializable{
 
     @JsonIgnore
     @Nullable
-    public ClimberScoreJs getClimberScoreByMarkerId(String markerId){
+    public ClimberScoreJs getClimberScoreByMarkerId(@Nullable String markerId){
+        if(markerId == null){
+            return null;
+        }
+
         for(ClimberScoreJs climberScore:climberScores){
             ScoreJs score = climberScore.getScoreByMarkerId(markerId);
             if(score != null){

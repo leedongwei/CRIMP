@@ -8,6 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:layout_marginRight="4dp"
         android:textColor="@color/tab_text_color"
         style="@style/TextAppearance.Design.Tab"/>
 
@@ -15,7 +16,6 @@
         android:layout_toRightOf="@android:id/text1"
         android:layout_centerVertical="true"
         android:layout_width="wrap_content"
-        android:layout_marginLeft="4dp"
         android:layout_height="wrap_content"/>
 
 </RelativeLayout>

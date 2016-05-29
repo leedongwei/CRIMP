@@ -15,6 +15,8 @@ import com.squareup.otto.Subscribe;
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.event.CurrentUploadTask;
+import rocks.crimp.crimp.network.model.PostScoreJs;
+import rocks.crimp.crimp.service.ScoreHandler;
 
 public class TaskListActivity extends AppCompatActivity implements View.OnClickListener{
     private TextView mCounter;
@@ -74,7 +76,38 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
             String scoreText = String.format(getString(R.string.tasklist_activity_score),
                     event.currentTask.getRequestBodyJs().getScoreString());
             mScoreText.setText(scoreText);
-            mStatus.setText(event.status);
+
+            switch(event.status){
+                case CurrentUploadTask.IDLE:
+                    mStatus.setText(R.string.tasklist_activity_status_idle);
+                    mResumeButton.setVisibility(View.GONE);
+                    break;
+                case CurrentUploadTask.UPLOADING:
+                    mStatus.setText(R.string.tasklist_activity_status_uploading);
+                    mResumeButton.setVisibility(View.GONE);
+                    break;
+                case CurrentUploadTask.ERROR_HTTP_STATUS:
+                    String httpStatusMsg = String.format(
+                            getString(R.string.tasklist_activity_status_error_http),
+                            event.httpStatusCode, event.httpMessage);
+                    mStatus.setText(httpStatusMsg);
+                    mResumeButton.setVisibility(View.VISIBLE);
+                    break;
+                case CurrentUploadTask.ERROR_EXCEPTION:
+                    // some assertion
+                    if(event.exception == null){
+                        throw new IllegalStateException("exception is null");
+                    }
+                    String exceptionMsg = String.format(
+                            getString(R.string.tasklist_activity_status_error_exception),
+                            event.exception.getLocalizedMessage());
+                    mStatus.setText(exceptionMsg);
+                    mResumeButton.setVisibility(View.VISIBLE);
+                    break;
+                default:
+                    mStatus.setText(null);
+                    mResumeButton.setVisibility(View.GONE);
+            }
             mCardView.setVisibility(View.VISIBLE);
         }
     }
@@ -93,7 +126,9 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
                 toast.show();
                 break;
             case R.id.tasklist_fab:
-                toast.show();
+                CrimpApplication.getScoreHandler()
+                        .obtainMessage(ScoreHandler.RESUME_UPLOAD)
+                        .sendToTarget();
                 break;
             default:
         }

@@ -1,6 +1,7 @@
 package rocks.crimp.crimp.hello.score.scoremodule;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -11,7 +12,7 @@ import rocks.crimp.crimp.R;
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
-public class BonusTwoModule extends ScoreModule implements View.OnClickListener {
+public class BonusTwoModule implements ScoreModule, View.OnClickListener {
     private TextView mBestResult;
     private Button mBeeOne;
     private Button mBeeTwo;
@@ -56,7 +57,12 @@ public class BonusTwoModule extends ScoreModule implements View.OnClickListener 
     }
 
     @Override
-    public void notifyScore(String score) {
+    public void notifyScore(@Nullable String score) {
+        if(score == null){
+            mBestResult.setText("-");
+            return;
+        }
+
         if(score.contains("T ")){
             mBestResult.setText("Top");
         }

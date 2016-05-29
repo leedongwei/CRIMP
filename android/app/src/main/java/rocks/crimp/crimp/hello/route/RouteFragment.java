@@ -2,10 +2,13 @@ package rocks.crimp.crimp.hello.route;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -50,6 +53,8 @@ public class RouteFragment extends Fragment {
     private Spinner mCategorySpinner;
     private Spinner mRouteSpinner;
     private Button mRouteNextButton;
+    private View mCategorySpinnerOverlay;
+    private View mRouteSpinnerOverlay;
 
     private HintableArrayAdapter mCategoryAdapter;
     private HintableArrayAdapter mRouteAdapter;
@@ -103,6 +108,8 @@ public class RouteFragment extends Fragment {
         mCategorySpinner = (Spinner)view.findViewById(R.id.route_category_spinner);
         mRouteSpinner = (Spinner)view.findViewById(R.id.route_route_spinner);
         mRouteNextButton = (Button)view.findViewById(R.id.route_next_button);
+        mCategorySpinnerOverlay = view.findViewById(R.id.route_category_spinner_overlay);
+        mRouteSpinnerOverlay = view.findViewById(R.id.route_route_spinner_overlay);
 
         // Set properties for views
         mCategorySpinner.setEnabled(false);
@@ -161,6 +168,28 @@ public class RouteFragment extends Fragment {
         }, null);
         mCategorySpinner.setOnItemSelectedListener(categoryListener);
         mRouteSpinner.setOnItemSelectedListener(routeListener);
+
+        View.OnTouchListener spinnerOnTouchListener = new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                String currentScore = CrimpApplication.getAppState().getString(CrimpApplication.CURRENT_SCORE, null);
+                if(currentScore!=null && currentScore.length()>0){
+                    if(event.getAction() == MotionEvent.ACTION_UP){
+                        Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+                        vibrator.vibrate(100);
+                        mParent.animateBadge();
+                    }
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+        };
+
+        mCategorySpinnerOverlay.setOnTouchListener(spinnerOnTouchListener);
+        mRouteSpinnerOverlay.setOnTouchListener(spinnerOnTouchListener);
+
+
     }
 
     @Override
@@ -218,9 +247,8 @@ public class RouteFragment extends Fragment {
 
     @Subscribe
     public void requestSucceedReceived(RequestSucceed event) {
-        Timber.d("Received RequestSucceed %s", event.txId);
-
         if(event.txId.equals(mCategoriesTxId)){
+            Timber.d("Get categories request successful. TxId: %s", event.txId);
             mCategoriesTxId = null;
             CategoriesJs response = (CategoriesJs) event.value;
             mParent.setCategoriesJs(response);
@@ -242,6 +270,7 @@ public class RouteFragment extends Fragment {
             mSwipeLayout.setRefreshing(false);
         }
         else if(event.txId.equals(mReportTxId)){
+            Timber.d("Report request successful. TxId: %s", event.txId);
             mReportTxId = null;
             ReportJs reportJs = (ReportJs) event.value;
 
@@ -305,15 +334,15 @@ public class RouteFragment extends Fragment {
 
     @Subscribe
     public void requestFailedReceived(RequestFailed event){
-        Timber.d("Received RequestFailed %s", event.txId);
-
         if(event.txId.equals(mCategoriesTxId)){
+            Timber.e("Get categories request fail. TxId: %s", event.txId);
             mCategoriesTxId = null;
             mSwipeLayout.setRefreshing(false);
 
             // TODO handle fail
         }
         else if(event.txId.equals(mReportTxId)){
+            Timber.e("Report request fail. TxId: %s", event.txId);
             mReportTxId = null;
             mSwipeLayout.setEnabled(true);
             showHasCategories();
@@ -467,12 +496,7 @@ public class RouteFragment extends Fragment {
                     mParent.setCanDisplay(0b001);
                     doNextButton();
                 }
-            }, new Action() {
-                @Override
-                public void act() {
-                    // Do nothing
-                }
-            }, markerId, climberName, routeName).show();
+            }, null, markerId, climberName, routeName).show();
         }
         else{
             doNextButton();
@@ -597,5 +621,6 @@ public class RouteFragment extends Fragment {
         CategoriesJs getCategoriesJs();
         void goToScanTab();
         void setCanDisplay(int canDisplay);
+        void animateBadge();
     }
 }

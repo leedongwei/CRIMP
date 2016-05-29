@@ -72,7 +72,7 @@ public class RestRequestTask implements Task<RestRequestTask.Callback> {
             callback.onRestSuccess(txId, responseObject);
         }
         else{
-            Timber.d("Failed to receive response from server");
+            Timber.e("Failed to receive response from server");
             callback.onRestFailure(txId);
         }
     }

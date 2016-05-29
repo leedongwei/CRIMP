@@ -57,36 +57,35 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginRight="8dp"
-            android:text="+1"
-            android:onClick="scorePlusOne" />
+            android:layout_marginRight="4dp"
+            android:text="+1" />
 
         <Button
             android:id="@+id/scoring_b_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginRight="8dp"
-            android:text="B"
-            android:onClick="scoreBonus" />
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:text="B" />
 
         <Button
             android:id="@+id/scoring_t_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginRight="8dp"
-            android:text="T"
-            android:onClick="scoreTop" />
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:text="T" />
 
         <ImageButton
             android:id="@+id/scoring_backspace_button"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
+            android:layout_marginLeft="4dp"
             android:src="@drawable/ic_keyboard_backspace_black_24dp"
-            android:enabled="false"
-            android:onClick="scoreBackspace" />
+            android:enabled="false" />
     </LinearLayout>
 
 </LinearLayout>

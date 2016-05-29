@@ -2,6 +2,7 @@ package rocks.crimp.crimp.network;
 
 import java.io.IOException;
 
+import retrofit2.Response;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.ClearActiveJs;
 import rocks.crimp.crimp.network.model.GetScoreJs;
@@ -31,7 +32,7 @@ public interface CrimpWS {
 
     HelpMeJs requestHelp(RequestBean requestBean) throws IOException;
 
-    PostScoreJs postScore(RequestBean requestBean) throws IOException;
+    Response<PostScoreJs> postScore(RequestBean requestBean) throws IOException;
 
     LogoutJs logout(RequestBean requestBean) throws IOException;
 

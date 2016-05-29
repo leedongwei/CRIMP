@@ -14,8 +14,8 @@ import timber.log.Timber;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class RemoveDialog {
-    public static AlertDialog create(@NonNull Context context, @NonNull final Action remove,
-                                     @NonNull final Action cancel, @NonNull String markerId,
+    public static AlertDialog create(@NonNull Context context, @Nullable final Action remove,
+                                     @Nullable final Action cancel, @NonNull String markerId,
                                      @Nullable String climberName, @NonNull String routeName){
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -35,21 +35,27 @@ public class RemoveDialog {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Timber.d("Pressed on Positive button");
-                        remove.act();
+                        if(remove != null){
+                            remove.act();
+                        }
                     }
                 })
                 .setNegativeButton(R.string.scan_fragment_remove_dialog_negative, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Timber.d("Pressed on Negative button");
-                        cancel.act();
+                        if(cancel != null){
+                            cancel.act();
+                        }
                     }
                 })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         Timber.d("Remove dialog cancelled");
-                        cancel.act();
+                        if(cancel != null){
+                            cancel.act();
+                        }
                     }
                 });
 

@@ -3,7 +3,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <LinearLayout android:id="@+id/scoring_best_result_row"
+    <LinearLayout android:id="@+id/scoring_result_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -27,8 +27,8 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_marginTop="8dp"
         android:layout_height="1dp"
+        android:layout_marginTop="8dp"
         android:background="@color/black_12"/>
 
     <LinearLayout android:id="@+id/scoring_button_row"
@@ -39,10 +39,19 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/scoring_plus_one_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginRight="4dp"
+            android:text="+1" />
+
+        <Button
             android:id="@+id/scoring_b1_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
             android:text="B1" />
 
@@ -51,8 +60,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginRight="4dp"
             android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
             android:text="B2" />
 
         <Button
@@ -60,8 +69,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginRight="4dp"
             android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
             android:text="T" />
 
         <ImageButton

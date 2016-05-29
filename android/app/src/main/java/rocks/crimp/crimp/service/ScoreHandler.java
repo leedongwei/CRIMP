@@ -24,10 +24,18 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
     public static final int AWAIT = 1;
     public static final int DO_WORK = 2;
     public static final int NEW_UPLOAD = 3;
+    public static final int RESUME_UPLOAD = 4;
 
+    public static final int TOTAL_ATTEMPTS = 3;
+    public static final int BASE_BACKOFF = 2000;
+    public int currentBackoff = BASE_BACKOFF;
+
+
+    private int attemptsLeft = TOTAL_ATTEMPTS;
     private volatile ScoreUploadTaskQueue mScoreUploadTaskQueue;
     private boolean isExecutingTask;
     private Context mContext;
+    private CurrentUploadTask mCurrentTaskEvent;
 
     public ScoreHandler(Looper looper, Context context){
         super(looper);
@@ -38,12 +46,17 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
 
     @Produce
     public CurrentUploadTask produceCurrentUploadTask(){
-        int count = mScoreUploadTaskQueue.size();
-        RequestBean task = null;
-        if(count>0){
-            task = mScoreUploadTaskQueue.peek().getRequestBean();
+        if(mCurrentTaskEvent == null){
+            int count = mScoreUploadTaskQueue.size();
+            RequestBean task = null;
+            if(count>0){
+                task = mScoreUploadTaskQueue.peek().getRequestBean();
+            }
+            mCurrentTaskEvent = new CurrentUploadTask(mScoreUploadTaskQueue.size(), task,
+                    CurrentUploadTask.IDLE);
         }
-        return new CurrentUploadTask(mScoreUploadTaskQueue.size(), task, "nothing");
+
+        return mCurrentTaskEvent;
     }
 
     @Override
@@ -65,13 +78,29 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
                 this.sendMessage(newMsg);
                 break;
 
+            case RESUME_UPLOAD:
+                Timber.d("RESUME_UPLOAD message");
+
+                // some assertion
+                if(attemptsLeft != 0){
+                    throw new IllegalStateException("attemptsLeft != 0");
+                }
+                if(isExecutingTask){
+                    throw new IllegalStateException("isExecutingTask is true");
+                }
+
+                attemptsLeft = TOTAL_ATTEMPTS;
+                currentBackoff = BASE_BACKOFF;
+                executeTask();
+                break;
+
             default:
                 Timber.d("unknown message");
         }
     }
 
     private void executeTask(){
-        if(isExecutingTask){
+        if(isExecutingTask || attemptsLeft<=0){
             return;
         }
 
@@ -80,8 +109,9 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         if(queueSize != 0){
             ScoreUploadTask task = mScoreUploadTaskQueue.peek();
 
-            CrimpApplication.getBusInstance()
-                    .post(new CurrentUploadTask(queueSize, task.getRequestBean(), "nothing"));
+            mCurrentTaskEvent = new CurrentUploadTask(queueSize, task.getRequestBean(),
+                    CurrentUploadTask.UPLOADING);
+            CrimpApplication.getBusInstance().post(mCurrentTaskEvent);
 
             if (task != null) {
                 isExecutingTask = true;
@@ -92,8 +122,8 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
             }
         }
         else{
-            CrimpApplication.getBusInstance()
-                    .post(new CurrentUploadTask(queueSize, null, "nothing"));
+            mCurrentTaskEvent = new CurrentUploadTask(queueSize, null, CurrentUploadTask.IDLE);
+            CrimpApplication.getBusInstance().post(mCurrentTaskEvent);
             tryAndQuitService();
         }
     }
@@ -116,6 +146,8 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
 
     @Override
     public void onScoreUploadSuccess(UUID txId, Object response) {
+        attemptsLeft = TOTAL_ATTEMPTS;
+        currentBackoff = BASE_BACKOFF;
         isExecutingTask = false;
         mScoreUploadTaskQueue.remove();
         CrimpApplication.getBusInstance().post(new RequestSucceed(txId, response));
@@ -125,12 +157,54 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
     }
 
     @Override
-    public void onScoreUploadFailure(UUID txId) {
+    public void onScoreUploadFailure(UUID txId, Exception e) {
+        attemptsLeft--;
+        Timber.d("Score upload fail. Attempts left: %d", attemptsLeft);
         isExecutingTask = false;
-        mScoreUploadTaskQueue.remove();
         CrimpApplication.getBusInstance().post(new RequestFailed(txId));
 
-        Message msg = this.obtainMessage(DO_WORK);
-        this.sendMessage(msg);
+        if(attemptsLeft > 0) {
+            try {
+                Timber.d("Backing off for %dms", currentBackoff);
+                Thread.sleep(currentBackoff);
+            } catch (InterruptedException e1) {
+                // No-op
+            }
+            currentBackoff = currentBackoff * 2;
+
+            Message msg = this.obtainMessage(DO_WORK);
+            this.sendMessage(msg);
+        }
+        else{
+            mCurrentTaskEvent = new CurrentUploadTask(mScoreUploadTaskQueue.size(),
+                    mScoreUploadTaskQueue.peek().getRequestBean(), e);
+            CrimpApplication.getBusInstance().post(mCurrentTaskEvent);
+        }
+    }
+
+    @Override
+    public void onScoreUploadFailure(UUID txId, int statusCode, String message) {
+        attemptsLeft--;
+        Timber.d("Score upload fail. Attempts left: %d", attemptsLeft);
+        isExecutingTask = false;
+        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+
+        if(attemptsLeft > 0) {
+            try {
+                Timber.d("Backing off for %dms", currentBackoff);
+                Thread.sleep(currentBackoff);
+            } catch (InterruptedException e1) {
+                // No-op
+            }
+            currentBackoff = currentBackoff * 2;
+
+            Message msg = this.obtainMessage(DO_WORK);
+            this.sendMessage(msg);
+        }
+        else{
+            mCurrentTaskEvent = new CurrentUploadTask(mScoreUploadTaskQueue.size(),
+                    mScoreUploadTaskQueue.peek().getRequestBean(), statusCode, message);
+            CrimpApplication.getBusInstance().post(mCurrentTaskEvent);
+        }
     }
 }

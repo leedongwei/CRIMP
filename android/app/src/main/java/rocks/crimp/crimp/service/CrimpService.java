@@ -54,6 +54,8 @@ public class CrimpService extends Service {
         else{
             Timber.d("service started without making new request.");
             //TODO
+            CrimpApplication.getScoreHandler().obtainMessage(ScoreHandler.DO_WORK).sendToTarget();
+            CrimpApplication.getRestHandler().obtainMessage(RestHandler.DO_WORK).sendToTarget();
         }
 
         // If we get killed, after returning from here, restart
