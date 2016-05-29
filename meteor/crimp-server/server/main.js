@@ -15,20 +15,7 @@ import Scores from '../imports/data/scores';
 import HelpMe from '../imports/data/helpme';
 import ActiveTracker from '../imports/data/activetracker';
 
-
-Meteor.startup(() => {
-  // TODO: Delete this crazy publication
-  Meteor.publish('development', () => Meteor.users.find({}));
-  Meteor.publish('messages', () => Messages.find({}));
-  Meteor.publish('events', () => Events.find({}));
-  Meteor.publish('categories', () => Categories.find({}));
-  Meteor.publish('teams', () => Teams.find({}));
-  Meteor.publish('climbers', () => Climbers.find({}));
-  Meteor.publish('scores', () => Scores.find({}));
-  Meteor.publish('helpme', () => HelpMe.find({}));
-  Meteor.publish('activetracker', () => ActiveTracker.find({}));
-});
-
+import seedDatabase from '../imports/seedDatabase';
 
 const Api = new Restivus({
   defaultHeaders: { 'Content-Type': 'application/json' },
@@ -114,7 +101,7 @@ Api.addRoute('judge/login', { authRequired: false }, {
       // If it is a new user, set a default role
       if (userRoles.length < 1) {
         userRoles.push(CRIMP.ENVIRONMENT.DEMO_MODE ? 'admin' : 'pending');
-        Roles.addUsersToRoles(user._id, userRoles);
+        Roles.addUsersToRoles(user._id, userRoles, Roles.GLOBAL_GROUP);
       }
 
       // If this is the first user, give supreme privileges

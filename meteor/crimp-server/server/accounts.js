@@ -6,5 +6,7 @@ Accounts.onCreateUser((options, user) => {
   const newUser = user;
   newUser.services.resume = { loginTokensCount: 0 };
 
+  // TODO: Create user profile
+
   return newUser;
 });

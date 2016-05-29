@@ -21,14 +21,14 @@ import './main.html';
 
 // TODO: Delete this crazy publication
 Meteor.subscribe('development');
-Meteor.subscribe('messages');
-Meteor.subscribe('events');
-Meteor.subscribe('categories');
-Meteor.subscribe('teams');
-Meteor.subscribe('climbers');
-Meteor.subscribe('scores');
-Meteor.subscribe('helpme');
-Meteor.subscribe('activetracker');
+Meteor.subscribe('eventsToAll');
+Meteor.subscribe('categoriesToAll');
+Meteor.subscribe('teamsToAdmin');
+Meteor.subscribe('climbersToAdmin');
+Meteor.subscribe('scoresToAdmin');
+Meteor.subscribe('activetrackerToAll');
+Meteor.subscribe('helpmeToAdmin');
+Meteor.subscribe('messagesToAdmin');
 
 Meteor.startup(() => {
   msg = Messages;

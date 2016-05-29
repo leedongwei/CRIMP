@@ -66,7 +66,7 @@ Categories.schema = new SimpleSchema({
   climber_count: {
     type: Number,
     label: 'Count climbers added to category (will not decrease)',
-    // If you holding a sick event and you need more than 999 Climbers
+    // If you're holding a crazy event and you need more than 999 Climbers
     // in a Category, you can change the count.length to 4 at
     // 'Climbers.methods.addToCategory' inside 'import/data/climber.js'
   },

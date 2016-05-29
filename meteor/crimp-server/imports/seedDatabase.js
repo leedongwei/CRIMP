@@ -185,76 +185,19 @@ function seedDatabase() {
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
    *  Build 10 Climbers                                      *
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+  function insertClimbers() {
+    return Climbers.insert({
+      climber_name: faker.name.findName(),
+      identity: faker.phone.phoneNumberFormat(),
+      affliation: faker.name.jobType(),
+      categories: [],
+    });
+  }
+
   const climbers = [];
-  climbers.push(Climbers.insert({
-    climber_name: faker.name.findName(),
-    identity: faker.phone.phoneNumberFormat(),
-    affliation: faker.name.jobType(),
-    categories: [],
-  }));
-
-  climbers.push(Climbers.insert({
-    climber_name: faker.name.findName(),
-    identity: faker.phone.phoneNumberFormat(),
-    affliation: faker.name.jobType(),
-    categories: [],
-  }));
-
-  climbers.push(Climbers.insert({
-    climber_name: faker.name.findName(),
-    identity: faker.phone.phoneNumberFormat(),
-    affliation: faker.name.jobType(),
-    categories: [],
-  }));
-
-  climbers.push(Climbers.insert({
-    climber_name: faker.name.findName(),
-    identity: faker.phone.phoneNumberFormat(),
-    affliation: faker.name.jobType(),
-    categories: [],
-  }));
-
-  climbers.push(Climbers.insert({
-    climber_name: faker.name.findName(),
-    identity: faker.phone.phoneNumberFormat(),
-    affliation: faker.name.jobType(),
-    categories: [],
-  }));
-
-  climbers.push(Climbers.insert({
-    climber_name: faker.name.findName(),
-    identity: faker.phone.phoneNumberFormat(),
-    affliation: faker.name.jobType(),
-    categories: [],
-  }));
-
-  climbers.push(Climbers.insert({
-    climber_name: faker.name.findName(),
-    identity: faker.phone.phoneNumberFormat(),
-    affliation: faker.name.jobType(),
-    categories: [],
-  }));
-
-  climbers.push(Climbers.insert({
-    climber_name: faker.name.findName(),
-    identity: faker.phone.phoneNumberFormat(),
-    affliation: faker.name.jobType(),
-    categories: [],
-  }));
-
-  climbers.push(Climbers.insert({
-    climber_name: faker.name.findName(),
-    identity: faker.phone.phoneNumberFormat(),
-    affliation: faker.name.jobType(),
-    categories: [],
-  }));
-
-  climbers.push(Climbers.insert({
-    climber_name: faker.name.findName(),
-    identity: faker.phone.phoneNumberFormat(),
-    affliation: faker.name.jobType(),
-    categories: [],
-  }));
+  for (let i = 0; i < 10; i++) {
+    climbers.push(insertClimbers());
+  }
 
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
