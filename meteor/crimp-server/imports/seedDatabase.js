@@ -72,8 +72,8 @@ function seedDatabase() {
       score_rules: {},
     }],
     event: {
-      _id: eve1._id,
-      event_name_full: eve1.event_name_full,
+      _id: eve1,
+      event_name_full: 'eve1.event_name_full',
     },
   });
 
@@ -124,8 +124,8 @@ function seedDatabase() {
       },
     }],
     event: {
-      _id: eve1._id,
-      event_name_full: eve1.event_name_full,
+      _id: eve1,
+      event_name_full: 'eve1.event_name_full',
     },
   });
 
@@ -176,8 +176,8 @@ function seedDatabase() {
       },
     }],
     event: {
-      _id: eve1._id,
-      event_name_full: eve1.event_name_full,
+      _id: eve1,
+      event_name_full: 'eve1.event_name_full',
     },
   });
 
