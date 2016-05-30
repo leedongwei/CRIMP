@@ -13,13 +13,14 @@ import Teams from '../imports/data/teams';
 import Climbers from '../imports/data/climbers';
 import Scores from '../imports/data/scores';
 import HelpMe from '../imports/data/helpme';
-import { ActiveTracker, runActiveTracker } from '../imports/data/activetracker';
+import ActiveTracker from '../imports/data/activetracker';
 
+import scanActiveTracker from '../imports/scanActiveTracker';
 import seedDatabase from '../imports/seedDatabase';
 
 Meteor.startup(() => {
   // Update ActiveTracker at regular intervals
-  runActiveTracker();
+  scanActiveTracker();
 });
 
 
@@ -114,7 +115,7 @@ Api.addRoute('judge/login', { authRequired: false }, {
       if (Meteor.users.find().count() === 1 &&
           !_.contains(userRoles, 'hukkataival')) {
         userRoles.push('hukkataival');
-        Roles.addUsersToRoles(user._id, userRoles);
+        Roles.addUsersToRoles(user._id, userRoles, Roles.GLOBAL_GROUP);
       }
 
 
@@ -520,7 +521,9 @@ Api.addRoute('judge/setactive', { authRequired: true }, {
   put: function putSetActive() {
     try {
       const options = this.bodyParams;
-      const targetActive = ActiveTracker.findOne({ route_id: options.route_id });
+      const targetActive = ActiveTracker.findOne({
+        route_id: options.route_id,
+      });
       const targetScore = Scores.findOne({
         marker_id: options.marker_id,
         scores: { $elemMatch: { route_id: options.route_id } },
