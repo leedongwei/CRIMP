@@ -362,8 +362,12 @@ Api.addRoute('judge/score/:route_id/:marker_id', { authRequired: false }, {
       });
 
       if (targetScore.count() === 0) {
-        throw new Meteor.Error('RouteOrMarkerError');
-      } else if (targetScore.count() > 1) {
+        // throw new Meteor.Error('RouteOrMarkerError');
+
+        // TODO: Put into invalid requests into queue
+      }
+
+      if (targetScore.count() > 1) {
         throw new Meteor.Error('SelectedMultipleScoresForUpdate');
       }
 

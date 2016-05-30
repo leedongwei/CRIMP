@@ -194,9 +194,14 @@ function seedDatabase() {
     });
   }
 
-  const climbers = [];
+  const climbers1 = [];
   for (let i = 0; i < 10; i++) {
-    climbers.push(insertClimbers());
+    climbers1.push(insertClimbers());
+  }
+
+  const climbers2 = [];
+  for (let i = 0; i < 10; i++) {
+    climbers2.push(insertClimbers());
   }
 
 
@@ -204,17 +209,24 @@ function seedDatabase() {
    *  Add Climbers to cat1 and cat3                          *
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-  climbers.forEach((cmb) => {
+  climbers1.forEach((cmb) => {
     Categories.methods.addClimber.call({
       climberId: cmb,
       categoryId: cat1,
     });
   });
 
-  climbers.forEach((cmb) => {
+  climbers1.forEach((cmb) => {
     Categories.methods.addClimber.call({
       climberId: cmb,
       categoryId: cat3,
+    });
+  });
+
+  climbers2.forEach((cmb) => {
+    Categories.methods.addClimber.call({
+      climberId: cmb,
+      categoryId: cat2,
     });
   });
 
@@ -242,21 +254,21 @@ function seedDatabase() {
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
   for (let i = 0; i < 3; i++) {
     Teams.methods.addClimber.call({
-      climberId: climbers[i],
+      climberId: climbers1[i],
       teamId: tms1,
     });
   }
 
   for (let i = 3; i < 6; i++) {
     Teams.methods.addClimber.call({
-      climberId: climbers[i],
+      climberId: climbers1[i],
       teamId: tms2,
     });
   }
 
   for (let i = 6; i < 9; i++) {
     Teams.methods.addClimber.call({
-      climberId: climbers[i],
+      climberId: climbers1[i],
       teamId: tms3,
     });
   }
