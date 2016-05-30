@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import retrofit2.Response;
+import rocks.crimp.crimp.hello.scan.ScanFragment;
+import rocks.crimp.crimp.hello.score.ScoreFragment;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
 import rocks.crimp.crimp.network.model.ClearActiveJs;
@@ -28,7 +30,7 @@ public class StubWS implements CrimpWS {
     private static final int TIME_TO_RESPOND = 2000;
 
     @Override
-    public CategoriesJs getCategories() throws IOException {
+    public Response<CategoriesJs> getCategories() throws IOException {
         Timber.d("sending getCategories request...");
         try {
             Thread.sleep(TIME_TO_RESPOND);
@@ -38,71 +40,78 @@ public class StubWS implements CrimpWS {
         }
         Timber.d("getCategories request completed");
 
-        /*
-        // INJECTION
+        // Category A
         RouteJs routeA1 = new RouteJs();
-        routeA1.setRouteName("route A1");
-        routeA1.setRouteId(1);
-        routeA1.setScoreType("top_bonus");
-        routeA1.setScoreFinalized(false);
-        routeA1.setTimeStart(new Date());
-        routeA1.setTimeEnd(new Date());
-
+        routeA1.setRouteId("routeIdA1");
+        routeA1.setRouteName("routeA1");
+        routeA1.setScoreRules(ScoreFragment.RULES_IFSC_TOP_BONUS);
         RouteJs routeA2 = new RouteJs();
-        routeA2.setRouteName("route A2");
-        routeA2.setRouteId(2);
-        routeA2.setScoreType("top_bonus");
-        routeA2.setScoreFinalized(false);
-        routeA2.setTimeStart(new Date());
-        routeA2.setTimeEnd(new Date());
-
-        RouteJs routeB1 = new RouteJs();
-        routeB1.setRouteName("route B1");
-        routeB1.setRouteId(3);
-        routeB1.setScoreType("bonus_2");
-        routeB1.setScoreFinalized(false);
-        routeB1.setTimeStart(new Date());
-        routeB1.setTimeEnd(new Date());
-
-        RouteJs routeB2 = new RouteJs();
-        routeB2.setRouteName("route B2");
-        routeB2.setRouteId(4);
-        routeB2.setScoreType("bonus_2");
-        routeB2.setScoreFinalized(false);
-        routeB2.setTimeStart(new Date());
-        routeB2.setTimeEnd(new Date());
-
+        routeA2.setRouteId("routeIdA2");
+        routeA2.setRouteName("routeA2");
+        routeA2.setScoreRules(ScoreFragment.RULES_IFSC_TOP_BONUS);
+        ArrayList<RouteJs> routeListA = new ArrayList<>();
+        routeListA.add(routeA1);
+        routeListA.add(routeA2);
         CategoryJs categoryA = new CategoryJs();
-        categoryA.setCategoryName("Novice Man Qualifier");
-        categoryA.setCategoryId(1);
-        categoryA.setAcronym("NMQ");
-        ArrayList<RouteJs> cat1Route = new ArrayList<>();
-        cat1Route.add(routeA1);
-        cat1Route.add(routeA2);
-        categoryA.setRoutes(cat1Route);
+        categoryA.setCategoryId("categoryIdA");
+        categoryA.setCategoryName("categoryA");
+        categoryA.setAcronym("AAA");
+        categoryA.setTimeStart("timeStartA");
+        categoryA.setTimeEnd("timeEndA");
+        categoryA.setRoutes(routeListA);
 
+        // Category B
+        RouteJs routeB1 = new RouteJs();
+        routeB1.setRouteId("routeIdB1");
+        routeB1.setRouteName("routeB1");
+        routeB1.setScoreRules(ScoreFragment.RULES_TOP_B1_B2);
+        RouteJs routeB2 = new RouteJs();
+        routeB2.setRouteId("routeIdB2");
+        routeB2.setRouteName("routeB2");
+        routeB2.setScoreRules(ScoreFragment.RULES_TOP_B1_B2);
+        ArrayList<RouteJs> routeListB = new ArrayList<>();
+        routeListB.add(routeB1);
+        routeListB.add(routeB2);
         CategoryJs categoryB = new CategoryJs();
-        categoryB.setCategoryName("Inter Woman Final");
-        categoryB.setCategoryId(2);
-        categoryB.setAcronym("IWF");
-        ArrayList<RouteJs> cat2Route = new ArrayList<>();
-        cat2Route.add(routeB1);
-        cat2Route.add(routeB2);
-        categoryB.setRoutes(cat2Route);
+        categoryB.setCategoryId("categoryIdB");
+        categoryB.setCategoryName("categoryB");
+        categoryB.setAcronym("BBB");
+        categoryB.setTimeStart("timeStartB");
+        categoryB.setTimeEnd("timeEndB");
+        categoryB.setRoutes(routeListB);
+
+        // Category C
+        RouteJs routeC1 = new RouteJs();
+        routeC1.setRouteId("routeIdC1");
+        routeC1.setRouteName("routeC1");
+        routeC1.setScoreRules(ScoreFragment.RULES_POINTS+"__50");
+        RouteJs routeC2 = new RouteJs();
+        routeC2.setRouteId("routeIdC2");
+        routeC2.setRouteName("routeC2");
+        routeC2.setScoreRules(ScoreFragment.RULES_POINTS+"__100");
+        ArrayList<RouteJs> routeListC = new ArrayList<>();
+        routeListC.add(routeC1);
+        routeListC.add(routeC2);
+        CategoryJs categoryC = new CategoryJs();
+        categoryC.setCategoryId("categoryIdC");
+        categoryC.setCategoryName("categoryC");
+        categoryC.setAcronym("CCC");
+        categoryC.setTimeStart("timeStartC");
+        categoryC.setTimeEnd("timeEndC");
+        categoryC.setRoutes(routeListC);
 
         ArrayList<CategoryJs> categoryList = new ArrayList<>();
         categoryList.add(categoryA);
         categoryList.add(categoryB);
-        */
+        categoryList.add(categoryC);
+        CategoriesJs responseBody = new CategoriesJs();
+        responseBody.setCategories(categoryList);
 
-        CategoriesJs categoriesJs = new CategoriesJs();
-        //categoriesJs.setCategories(categoryList);
-
-        return categoriesJs;
+        return Response.success(responseBody);
     }
 
     @Override
-    public GetScoreJs getScore(RequestBean requestBean) throws IOException {
+    public Response<GetScoreJs> getScore(RequestBean requestBean) throws IOException {
         Timber.d("sending getScore request...");
         try {
             Thread.sleep(TIME_TO_RESPOND);
@@ -112,46 +121,29 @@ public class StubWS implements CrimpWS {
         }
         Timber.d("getScore request completed");
 
-        if(requestBean.getRequestBodyJs().getMarkerId().matches("NMQ.++")){
-            ScoreJs scoreJs = new ScoreJs();
-            scoreJs.setScore("11BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
-            scoreJs.setMarkerId(requestBean.getRequestBodyJs().getMarkerId());
-            ArrayList<ScoreJs> scoreList = new ArrayList<>();
-            scoreList.add(scoreJs);
-            ClimberScoreJs climberScoreJs = new ClimberScoreJs();
-            climberScoreJs.setScores(scoreList);
-            climberScoreJs.setClimberName("Lee Dong Dong");
-            ArrayList<ClimberScoreJs> climberScoreList = new ArrayList<>();
-            climberScoreList.add(climberScoreJs);
+        requestBean.getQueryBean().getMarkerId();
 
-            GetScoreJs result = new GetScoreJs();
-            result.setClimberScores(climberScoreList);
-            return result;
-        }
-        else if(requestBean.getRequestBodyJs().getMarkerId().matches("IWF.++")){
-            ScoreJs scoreJs = new ScoreJs();
-            scoreJs.setMarkerId(requestBean.getRequestBodyJs().getMarkerId());
-            scoreJs.setScore("B1");
-            ArrayList<ScoreJs> scoreList = new ArrayList<>();
-            scoreList.add(scoreJs);
-            ClimberScoreJs climberScoreJs = new ClimberScoreJs();
-            climberScoreJs.setScores(scoreList);
-            climberScoreJs.setClimberName("Tan Silly");
-            ArrayList<ClimberScoreJs> climberScoreList = new ArrayList<>();
-            climberScoreList.add(climberScoreJs);
+        ScoreJs scoreJs = new ScoreJs();
+        scoreJs.setMarkerId(requestBean.getQueryBean().getMarkerId());
+        scoreJs.setCategoryId("categoryId");
+        scoreJs.setRouteId(requestBean.getQueryBean().getRouteId());
+        scoreJs.setScore("11");
+        ClimberScoreJs climberScoreJs = new ClimberScoreJs();
+        climberScoreJs.setClimberId("climberId");
+        climberScoreJs.setClimberName("climberName");
+        ArrayList<ScoreJs> scores = new ArrayList<>();
+        scores.add(scoreJs);
+        climberScoreJs.setScores(scores);
+        GetScoreJs getScoreJs = new GetScoreJs();
+        ArrayList<ClimberScoreJs> climberScores = new ArrayList<>();
+        climberScores.add(climberScoreJs);
+        getScoreJs.setClimberScores(climberScores);
 
-            GetScoreJs result = new GetScoreJs();
-            result.setClimberScores(climberScoreList);
-            return result;
-        }
-        else{
-            // Make noise
-            throw new IllegalArgumentException("GetScore request with invalid marker id");
-        }
+        return Response.success(getScoreJs);
     }
 
     @Override
-    public SetActiveJs setActive(RequestBean requestBean) throws IOException {
+    public Response<SetActiveJs> setActive(RequestBean requestBean) throws IOException {
         Timber.d("sending setActive request...");
         try {
             Thread.sleep(TIME_TO_RESPOND);
@@ -160,11 +152,12 @@ public class StubWS implements CrimpWS {
             Thread.currentThread().interrupt();
         }
         Timber.d("setActive request completed");
-        return new SetActiveJs();
+
+        return Response.success(new SetActiveJs());
     }
 
     @Override
-    public ClearActiveJs clearActive(RequestBean requestBean) throws IOException {
+    public Response<ClearActiveJs> clearActive(RequestBean requestBean) throws IOException {
         Timber.d("sending clearActive request...");
         try {
             Thread.sleep(TIME_TO_RESPOND);
@@ -173,11 +166,12 @@ public class StubWS implements CrimpWS {
             Thread.currentThread().interrupt();
         }
         Timber.d("clearActive request completed");
-        return new ClearActiveJs();
+
+        return Response.success(new ClearActiveJs());
     }
 
     @Override
-    public LoginJs login(RequestBean requestBean) throws IOException {
+    public Response<LoginJs> login(RequestBean requestBean) throws IOException {
         Timber.d("sending login request...");
         try {
             Thread.sleep(TIME_TO_RESPOND);
@@ -187,32 +181,20 @@ public class StubWS implements CrimpWS {
         }
         Timber.d("login request completed");
 
-        LoginJs loginJs = null;
-        /*
-        boolean force = requestBean.getRequestBodyJs().isForceLogin();
-        if(force){
-            loginJs = new LoginJs();
-            loginJs.setFbUserId("fbUserId");
-            loginJs.setFbAccessToken("fbAccessToken");
-            loginJs.setUserName("userName");
-            loginJs.setRemindLogout(false);
-            loginJs.setSequentialToken(1);
-        }
-        else{
-            loginJs = new LoginJs();
-            loginJs.setFbUserId("fbUserId");
-            loginJs.setFbAccessToken("fbAccessToken");
-            loginJs.setUserName("userName");
-            loginJs.setRemindLogout(true);
-            loginJs.setSequentialToken(1);
-        }
-        */
+        LoginJs loginJs = new LoginJs();
+        loginJs.setxUserId("xUserId");
+        loginJs.setxAuthToken("xAuthToken");
+        ArrayList<String> roles = new ArrayList<>();
+        roles.add("admin");
+        loginJs.setRoles(roles);
+        loginJs.setError(null);
+        loginJs.setRemindLogout(false);
 
-        return loginJs;
+        return Response.success(loginJs);
     }
 
     @Override
-    public ReportJs reportIn(RequestBean requestBean) throws IOException {
+    public Response<ReportJs> reportIn(RequestBean requestBean) throws IOException {
         Timber.d("sending report request...");
         try {
             Thread.sleep(TIME_TO_RESPOND);
@@ -222,30 +204,17 @@ public class StubWS implements CrimpWS {
         }
         Timber.d("reportIn request completed");
 
-        ReportJs reportJs = null;
-        boolean force = requestBean.getRequestBodyJs().isForceReport();
-        /*
-        if(force){
-            reportJs = new ReportJs();
-            reportJs.setFbUserId(requestBean.getHeaderBean().getFbUserId());
-            reportJs.setUserName("userName");
-            reportJs.setCategoryId(requestBean.getRequestBodyJs().getCategoryId());
-            reportJs.setRouteId(requestBean.getRequestBodyJs().getRouteId());
-        }
-        else{
-            reportJs = new ReportJs();
-            reportJs.setFbUserId("someOtherUserId");
-            reportJs.setUserName("someOtherGuy");
-            reportJs.setCategoryId(requestBean.getRequestBodyJs().getCategoryId());
-            reportJs.setRouteId(requestBean.getRequestBodyJs().getRouteId());
-        }
-        */
+        ReportJs reportJs = new ReportJs();
+        reportJs.setxUserId("xUserId");
+        reportJs.setUserName("userName");
+        reportJs.setCategoryId("categoryId");
+        reportJs.setRouteId("routeId");
 
-        return reportJs;
+        return Response.success(reportJs);
     }
 
     @Override
-    public HelpMeJs requestHelp(RequestBean requestBean) throws IOException {
+    public Response<HelpMeJs> requestHelp(RequestBean requestBean) throws IOException {
         Timber.d("sending requestHelp request...");
         try {
             Thread.sleep(TIME_TO_RESPOND);
@@ -254,7 +223,8 @@ public class StubWS implements CrimpWS {
             Thread.currentThread().interrupt();
         }
         Timber.d("requestHelp request completed");
-        return null;
+
+        return Response.success(new HelpMeJs());
     }
 
     @Override
@@ -267,11 +237,19 @@ public class StubWS implements CrimpWS {
             Thread.currentThread().interrupt();
         }
         Timber.d("postScore request completed");
-        return null;
+
+        PostScoreJs postScoreJs = new PostScoreJs();
+        postScoreJs.setClimberId("climberId");
+        postScoreJs.setCategoryId("categoryId");
+        postScoreJs.setRouteId("routeId");
+        postScoreJs.setMarkerId("markerId");
+        postScoreJs.setScore("11");
+
+        return Response.success(postScoreJs);
     }
 
     @Override
-    public LogoutJs logout(RequestBean requestBean) throws IOException {
+    public Response<LogoutJs> logout(RequestBean requestBean) throws IOException {
         Timber.d("sending logout request...");
         try {
             Thread.sleep(TIME_TO_RESPOND);
@@ -280,6 +258,7 @@ public class StubWS implements CrimpWS {
             Thread.currentThread().interrupt();
         }
         Timber.d("logout request completed");
-        return null;
+
+        return Response.success(new LogoutJs());
     }
 }

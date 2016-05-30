@@ -62,6 +62,7 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
         if(event.taskCountLeft == 0){
             mCounter.setText(R.string.tasklist_activity_counter_zero);
             mCardView.setVisibility(View.GONE);
+            mResumeButton.setVisibility(View.GONE);
         }
         else{
             String counterText = String.format(getString(R.string.tasklist_activity_counter), event.taskCountLeft);
@@ -102,6 +103,10 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
                             getString(R.string.tasklist_activity_status_error_exception),
                             event.exception.getLocalizedMessage());
                     mStatus.setText(exceptionMsg);
+                    mResumeButton.setVisibility(View.VISIBLE);
+                    break;
+                case CurrentUploadTask.ERROR_NO_NETWORK:
+                    mStatus.setText(R.string.tasklist_activity_status_error_no_network);
                     mResumeButton.setVisibility(View.VISIBLE);
                     break;
                 default:

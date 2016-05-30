@@ -54,6 +54,7 @@ public class CrimpApplication extends Application {
     private static HandlerThread mScoreHandlerThread;
     private static ScoreHandler mScoreHandler;
     private static RestHandler mRestHandler;
+    private static NetworkChangeReceiver mNetworkChangeReceiver;
 
     @Override
     public void onCreate(){
@@ -78,6 +79,14 @@ public class CrimpApplication extends Application {
         Intent intent = new Intent(this, CrimpService.class);
         intent.setAction(CrimpService.ACTION_BOOT_NO_INTENT);
         startService(intent);
+    }
+
+    public static NetworkChangeReceiver getNetworkChangeReceiver(){
+        if(mNetworkChangeReceiver == null){
+            mNetworkChangeReceiver = new NetworkChangeReceiver();
+        }
+
+        return mNetworkChangeReceiver;
     }
 
     public static RestHandler getRestHandler(){

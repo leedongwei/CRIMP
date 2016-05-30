@@ -88,6 +88,7 @@
                         android:cursorVisible="false"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
+                        android:inputType="textNoSuggestions"
                         tools:text="NMQ003"/>
 
                 </android.support.design.widget.TextInputLayout>
@@ -111,7 +112,8 @@
                         android:clickable="false"
                         android:cursorVisible="false"
                         android:focusable="false"
-                        android:focusableInTouchMode="false" />
+                        android:focusableInTouchMode="false"
+                        android:inputType="textNoSuggestions"/>
 
                 </android.support.design.widget.TextInputLayout>
 
@@ -135,6 +137,7 @@
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:paddingRight="24dp"
+                        android:inputType="textNoSuggestions"
                         tools:text="1111B"/>
 
                 </android.support.design.widget.TextInputLayout>
@@ -157,6 +160,7 @@
                         android:clickable="false"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
+                        android:inputType="textNoSuggestions"
                         tools:text="11"/>
 
                 </android.support.design.widget.TextInputLayout>

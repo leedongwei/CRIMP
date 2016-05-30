@@ -483,17 +483,6 @@ public class RouteFragment extends Fragment {
             NextDialog.create(getActivity(), new Action() {
                 @Override
                 public void act() {
-                    // do proceed
-                    CrimpApplication.getAppState().edit()
-                            .remove(CrimpApplication.MARKER_ID)
-                            .remove(CrimpApplication.CLIMBER_NAME)
-                            .remove(CrimpApplication.SHOULD_SCAN)
-                            .remove(CrimpApplication.CURRENT_SCORE)
-                            .remove(CrimpApplication.ACCUMULATED_SCORE)
-                            .remove(CrimpApplication.COMMITTED_CATEGORY)
-                            .remove(CrimpApplication.COMMITTED_ROUTE)
-                            .apply();
-                    mParent.setCanDisplay(0b001);
                     doNextButton();
                 }
             }, null, markerId, climberName, routeName).show();
@@ -504,6 +493,16 @@ public class RouteFragment extends Fragment {
     }
 
     private void doNextButton(){
+        CrimpApplication.getAppState().edit()
+                .remove(CrimpApplication.MARKER_ID)
+                .remove(CrimpApplication.CLIMBER_NAME)
+                .remove(CrimpApplication.SHOULD_SCAN)
+                .remove(CrimpApplication.CURRENT_SCORE)
+                .remove(CrimpApplication.ACCUMULATED_SCORE)
+                .remove(CrimpApplication.COMMITTED_CATEGORY)
+                .remove(CrimpApplication.COMMITTED_ROUTE)
+                .apply();
+        mParent.setCanDisplay(0b001);
         mRouteNextButton.setEnabled(false);
         mSwipeLayout.setEnabled(false);
 

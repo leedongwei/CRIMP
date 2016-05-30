@@ -2,6 +2,9 @@ package rocks.crimp.crimp.service;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -115,7 +118,25 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
 
             if (task != null) {
                 isExecutingTask = true;
-                task.execute(this);
+
+                // Determine network connection. Execute task only if there is network.
+                // Set a BroadcastReceiver to listen for network state changes if we are not connected.
+                ConnectivityManager cm =
+                        (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                boolean isConnected = activeNetwork != null &&
+                        activeNetwork.isConnectedOrConnecting();
+
+                if(isConnected){
+                    task.execute(this);
+                }
+                else{
+                    IntentFilter filter = new IntentFilter();
+                    filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+                    mContext.registerReceiver(CrimpApplication.getNetworkChangeReceiver(), filter);
+                    isExecutingTask = false;
+                    onScoreUploadFailureNetwork(task.getTxId());
+                }
             }
             else{
                 throw new NullPointerException("We can't deserialize task");
@@ -157,7 +178,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
     }
 
     @Override
-    public void onScoreUploadFailure(UUID txId, Exception e) {
+    public void onScoreUploadFailureException(UUID txId, Exception e) {
         attemptsLeft--;
         Timber.d("Score upload fail. Attempts left: %d", attemptsLeft);
         isExecutingTask = false;
@@ -183,7 +204,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
     }
 
     @Override
-    public void onScoreUploadFailure(UUID txId, int statusCode, String message) {
+    public void onScoreUploadFailureHttp(UUID txId, int statusCode, String message) {
         attemptsLeft--;
         Timber.d("Score upload fail. Attempts left: %d", attemptsLeft);
         isExecutingTask = false;
@@ -204,6 +225,32 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         else{
             mCurrentTaskEvent = new CurrentUploadTask(mScoreUploadTaskQueue.size(),
                     mScoreUploadTaskQueue.peek().getRequestBean(), statusCode, message);
+            CrimpApplication.getBusInstance().post(mCurrentTaskEvent);
+        }
+    }
+
+    @Override
+    public void onScoreUploadFailureNetwork(UUID txId) {
+        attemptsLeft = 0;
+        Timber.d("Score upload fail due to no network. Ignore attempts left");
+        isExecutingTask = false;
+        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+
+        if(attemptsLeft > 0) {
+            try {
+                Timber.d("Backing off for %dms", currentBackoff);
+                Thread.sleep(currentBackoff);
+            } catch (InterruptedException e1) {
+                // No-op
+            }
+            currentBackoff = currentBackoff * 2;
+
+            Message msg = this.obtainMessage(DO_WORK);
+            this.sendMessage(msg);
+        }
+        else{
+            mCurrentTaskEvent = new CurrentUploadTask(mScoreUploadTaskQueue.size(),
+                    mScoreUploadTaskQueue.peek().getRequestBean(), CurrentUploadTask.ERROR_NO_NETWORK);
             CrimpApplication.getBusInstance().post(mCurrentTaskEvent);
         }
     }

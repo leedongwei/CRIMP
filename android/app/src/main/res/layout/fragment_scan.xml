@@ -38,6 +38,7 @@
                 android:cursorVisible="false"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
+                android:inputType="textNoSuggestions"
                 tools:text="NMQ"
                 tools:ignore="RtlHardcoded,TextFields" />
 
@@ -126,7 +127,7 @@
                 android:cursorVisible="false"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:inputType="textMultiLine|text" />
+                android:inputType="textMultiLine|text|textNoSuggestions" />
 
             <Button
                 android:id="@+id/scan_next_button"

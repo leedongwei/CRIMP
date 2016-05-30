@@ -18,23 +18,23 @@ import rocks.crimp.crimp.network.model.SetActiveJs;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public interface CrimpWS {
-    CategoriesJs getCategories() throws IOException;
+    Response<CategoriesJs> getCategories() throws IOException;
 
-    GetScoreJs getScore(RequestBean requestBean) throws IOException;
+    Response<GetScoreJs> getScore(RequestBean requestBean) throws IOException;
 
-    SetActiveJs setActive(RequestBean requestBean) throws IOException;
+    Response<SetActiveJs> setActive(RequestBean requestBean) throws IOException;
 
-    ClearActiveJs clearActive(RequestBean requestBean) throws IOException;
+    Response<ClearActiveJs> clearActive(RequestBean requestBean) throws IOException;
 
-    LoginJs login(RequestBean requestBean) throws IOException;
+    Response<LoginJs> login(RequestBean requestBean) throws IOException;
 
-    ReportJs reportIn(RequestBean requestBean) throws IOException;
+    Response<ReportJs> reportIn(RequestBean requestBean) throws IOException;
 
-    HelpMeJs requestHelp(RequestBean requestBean) throws IOException;
+    Response<HelpMeJs> requestHelp(RequestBean requestBean) throws IOException;
 
     Response<PostScoreJs> postScore(RequestBean requestBean) throws IOException;
 
-    LogoutJs logout(RequestBean requestBean) throws IOException;
+    Response<LogoutJs> logout(RequestBean requestBean) throws IOException;
 
     /*
     boolean getCategoriesAsync(Callback<CategoriesJs> callback);

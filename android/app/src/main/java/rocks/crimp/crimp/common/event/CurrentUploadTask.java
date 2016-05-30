@@ -10,6 +10,7 @@ public class CurrentUploadTask {
     public static final int UPLOADING = 2;
     public static final int ERROR_HTTP_STATUS = 3;
     public static final int ERROR_EXCEPTION = 4;
+    public static final int ERROR_NO_NETWORK = 5;
 
     public final int taskCountLeft;
     public final RequestBean currentTask;

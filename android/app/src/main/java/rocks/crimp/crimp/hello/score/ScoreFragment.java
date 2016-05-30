@@ -27,6 +27,7 @@ import rocks.crimp.crimp.common.event.SwipeTo;
 import rocks.crimp.crimp.hello.score.scoremodule.BonusTwoModule;
 import rocks.crimp.crimp.hello.score.scoremodule.PointsModule;
 import rocks.crimp.crimp.hello.score.scoremodule.ScoreModule;
+import rocks.crimp.crimp.hello.score.scoremodule.TopB2B1Module;
 import rocks.crimp.crimp.hello.score.scoremodule.TopBonusModule;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
@@ -188,11 +189,24 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                     mInflatedScoreModule = mScoreModuleLayout.inflate();
                     mScoreModuleLayout = null;
                 }
-                mScoreModule = new TopBonusModule(mInflatedScoreModule, getActivity(), this);
+                mScoreModule = new TopB2B1Module(mInflatedScoreModule, getActivity(), this);
                 break;
             default:
                 throw new RuntimeException("unknown score type: "+scoreType);
         }
+    }
+
+    private void doClose(){
+        // close score tab
+        CrimpApplication.getAppState().edit()
+                .remove(CrimpApplication.MARKER_ID)
+                .remove(CrimpApplication.CLIMBER_NAME)
+                .remove(CrimpApplication.SHOULD_SCAN)
+                .remove(CrimpApplication.CURRENT_SCORE)
+                .remove(CrimpApplication.ACCUMULATED_SCORE)
+                .apply();
+        mScoreModule.notifyScore("");
+        mParent.goBackToScanTab();
     }
 
     @Subscribe
@@ -205,10 +219,12 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
 
             // some assertion
             if(response.getClimberScores().size() != 1){
-                throw new IllegalStateException("GetScore did not return score for 1 climber only");
+                Timber.e("GetScore did not return score for 1 climber only");
+                return;
             }
             if(response.getClimberScores().get(0).getScores().size() != 1){
-                throw new IllegalStateException("GetScore did not return score for 1 route only");
+                Timber.e("GetScore did not return score for 1 route only");
+                return;
             }
 
             String markerId = CrimpApplication.getAppState()
@@ -300,17 +316,13 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                         @Override
                         public void act() {
                             // close score tab
-                            CrimpApplication.getAppState().edit()
-                                    .remove(CrimpApplication.MARKER_ID)
-                                    .remove(CrimpApplication.CLIMBER_NAME)
-                                    .remove(CrimpApplication.SHOULD_SCAN)
-                                    .remove(CrimpApplication.CURRENT_SCORE)
-                                    .remove(CrimpApplication.ACCUMULATED_SCORE)
-                                    .apply();
-                            mScoreModule.notifyScore("");
-                            mParent.goBackToScanTab();
+                            doClose();
                         }
                     }, null).show();
+                }
+                else{
+                    // close score tab
+                    doClose();
                 }
                 break;
 

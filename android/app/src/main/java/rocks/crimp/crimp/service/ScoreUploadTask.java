@@ -5,7 +5,6 @@ import android.content.Intent;
 import com.squareup.tape.Task;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.UUID;
 
 import retrofit2.Response;
@@ -41,7 +40,7 @@ public class ScoreUploadTask implements Task<ScoreUploadTask.Callback> {
             response = CrimpApplication.getCrimpWS().postScore(requestBean);
         } catch (IOException e) {
             Timber.e(e, "IOException trying to hit server");
-            callback.onScoreUploadFailure(txId, e);
+            callback.onScoreUploadFailureException(txId, e);
             return;
         }
 
@@ -53,8 +52,12 @@ public class ScoreUploadTask implements Task<ScoreUploadTask.Callback> {
         }
         else{
             Timber.e("Unsuccessful response from server");
-            callback.onScoreUploadFailure(txId, response.code(), response.message());
+            callback.onScoreUploadFailureHttp(txId, response.code(), response.message());
         }
+    }
+
+    public UUID getTxId(){
+        return txId;
     }
 
     public RequestBean getRequestBean(){
@@ -63,8 +66,9 @@ public class ScoreUploadTask implements Task<ScoreUploadTask.Callback> {
 
     public interface Callback {
         void onScoreUploadSuccess(UUID txId, Object response);
-        void onScoreUploadFailure(UUID txId, Exception e);
-        void onScoreUploadFailure(UUID txId, int statusCode, String message);
+        void onScoreUploadFailureException(UUID txId, Exception e);
+        void onScoreUploadFailureHttp(UUID txId, int statusCode, String message);
+        void onScoreUploadFailureNetwork(UUID txId);
     }
 }
 

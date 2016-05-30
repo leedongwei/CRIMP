@@ -12,11 +12,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import okhttp3.mockwebserver.MockWebServer;
+import retrofit2.Response;
 import rocks.crimp.crimp.network.CrimpWS;
 import rocks.crimp.crimp.network.CrimpWsImpl;
 import rocks.crimp.crimp.network.model.CategoriesJs;
@@ -89,11 +91,11 @@ public class WebServiceServerTest {
         requestBean.setRequestBodyJs(body);
 
         // Make request
-        LoginJs response1 = mCrimpWSImpl.login(requestBean);
+        Response<LoginJs> response1 = mCrimpWSImpl.login(requestBean);
 
         // Verify response
-        judgeXUserId = response1.getxUserId();
-        judgeXAuthToken = response1.getxAuthToken();
+        judgeXUserId = response1.body().getxUserId();
+        judgeXAuthToken = response1.body().getxAuthToken();
         if(judgeXUserId == null || judgeXAuthToken == null){
             throw new NullPointerException("Failed to get X-User-Id and/or X-Auth-Token");
         }
@@ -101,11 +103,21 @@ public class WebServiceServerTest {
         /*********************************************************************/
 
         // Make request
-        CategoriesJs response2 = mCrimpWSImpl.getCategories();
+        Response<CategoriesJs> response2 = mCrimpWSImpl.getCategories();
 
         // Verify response
-        categoryId = response2.getCategories().get(0).getCategoryId();
-        routeId = response2.getCategories().get(0).getRoutes().get(0).getRouteId();
+        List<CategoryJs> categoryJsList = response2.body().getCategories();
+        if(categoryJsList.size() == 0){
+            throw new RuntimeException("Get categories request return a list of 0 category");
+        }
+        for(CategoryJs categoryJs:categoryJsList){
+            if(categoryJs.getRoutes().size() == 0){
+                throw new RuntimeException("Category id: "+categoryJs.getCategoryId()+" has a list of 0 routes");
+            }
+        }
+
+        categoryId = response2.body().getCategories().get(0).getCategoryId();
+        routeId = response2.body().getCategories().get(0).getRoutes().get(0).getRouteId();
         if(categoryId == null || routeId == null){
             throw new NullPointerException("Failed to get categoryId and/or routeId");
         }
@@ -139,18 +151,18 @@ public class WebServiceServerTest {
         requestBean.setRequestBodyJs(body);
 
         // Make request
-        LoginJs response1 = mCrimpWSImpl.login(requestBean);
+        Response<LoginJs> response1 = mCrimpWSImpl.login(requestBean);
 
         // Verify response
-        judgeXUserId = response1.getxUserId();
-        judgeXAuthToken = response1.getxAuthToken();
-        assertThat(response1.getxUserId(), is(not(nullValue())));
-        assertThat(response1.getxAuthToken(), is(not(nullValue())));
-        assertThat(response1.getRemindLogout(), is(not(nullValue())));
-        assertThat(response1.getRoles(), is(not(nullValue())));
-        assertThat(response1.getError(), is(nullValue()));
+        judgeXUserId = response1.body().getxUserId();
+        judgeXAuthToken = response1.body().getxAuthToken();
+        assertThat(response1.body().getxUserId(), is(not(nullValue())));
+        assertThat(response1.body().getxAuthToken(), is(not(nullValue())));
+        assertThat(response1.body().getRemindLogout(), is(not(nullValue())));
+        assertThat(response1.body().getRoles(), is(not(nullValue())));
+        assertThat(response1.body().getError(), is(nullValue()));
 
-        List<String> roleList1 = response1.getRoles();
+        List<String> roleList1 = response1.body().getRoles();
         assertThat(roleList1.size(), is(greaterThan(0)));
         // Check that all roles in roleList is valid
         for(String s:roleList1){
@@ -182,16 +194,16 @@ public class WebServiceServerTest {
         requestBean.setRequestBodyJs(body);
 
         // Make request
-        LoginJs response2 = mCrimpWSImpl.login(requestBean);
+        Response<LoginJs> response2 = mCrimpWSImpl.login(requestBean);
 
         // Verify response
-        assertThat(response2.getxUserId(), is(not(nullValue())));
-        assertThat(response2.getxAuthToken(), is(not(nullValue())));
-        assertThat(response2.getRemindLogout(), is(false));
-        assertThat(response2.getRoles(), is(not(nullValue())));
-        assertThat(response2.getError(), is(nullValue()));
+        assertThat(response2.body().getxUserId(), is(not(nullValue())));
+        assertThat(response2.body().getxAuthToken(), is(not(nullValue())));
+        assertThat(response2.body().getRemindLogout(), is(false));
+        assertThat(response2.body().getRoles(), is(not(nullValue())));
+        assertThat(response2.body().getError(), is(nullValue()));
 
-        List<String> roleList2 = response2.getRoles();
+        List<String> roleList2 = response2.body().getRoles();
         assertThat(roleList2.size(), is(greaterThan(0)));
         // Check that all roles in roleList is valid
         for(String s:roleList2){
@@ -215,16 +227,16 @@ public class WebServiceServerTest {
         requestBean.setRequestBodyJs(body);
 
         // Make request
-        LoginJs response3 = mCrimpWSImpl.login(requestBean);
+        Response<LoginJs> response3 = mCrimpWSImpl.login(requestBean);
 
         // Verify response
-        assertThat(response3.getxUserId(), is(not(nullValue())));
-        assertThat(response3.getxAuthToken(), is(not(nullValue())));
-        assertThat(response3.getRemindLogout(), is(true));
-        assertThat(response3.getRoles(), is(not(nullValue())));
-        assertThat(response3.getError(), is(nullValue()));
+        assertThat(response3.body().getxUserId(), is(not(nullValue())));
+        assertThat(response3.body().getxAuthToken(), is(not(nullValue())));
+        assertThat(response3.body().getRemindLogout(), is(true));
+        assertThat(response3.body().getRoles(), is(not(nullValue())));
+        assertThat(response3.body().getError(), is(nullValue()));
 
-        List<String> roleList3 = response3.getRoles();
+        List<String> roleList3 = response3.body().getRoles();
         assertThat(roleList3.size(), is(greaterThan(0)));
         // Check that all roles in roleList is valid
         for(String s:roleList3){
@@ -263,12 +275,12 @@ public class WebServiceServerTest {
     @Test
     public void testGetCategories() throws IOException {
         // Make request
-        CategoriesJs response1 = mCrimpWSImpl.getCategories();
+        Response<CategoriesJs> response1 = mCrimpWSImpl.getCategories();
 
         // Verify response
         assertThat(response1, is(not(nullValue())));
-        assertThat(response1.getCategories(), is(not(nullValue())));
-        for(CategoryJs category:response1.getCategories()){
+        assertThat(response1.body().getCategories(), is(not(nullValue())));
+        for(CategoryJs category:response1.body().getCategories()){
             assertThat(category.getCategoryId(), is(not(nullValue())));
             assertThat(category.getCategoryName(), is(not(nullValue())));
             assertThat(category.getAcronym(), is(not(nullValue())));
@@ -303,13 +315,13 @@ public class WebServiceServerTest {
         requestBean.setHeaderBean(header);
 
         // Make request
-        ReportJs response1 = mCrimpWSImpl.reportIn(requestBean);
+        Response<ReportJs> response1 = mCrimpWSImpl.reportIn(requestBean);
 
         // Verify response
-        assertThat(response1.getxUserId(), is(not(nullValue())));
-        assertThat(response1.getUserName(), is(not(nullValue())));
-        assertThat(response1.getCategoryId(), is(categoryId));
-        assertThat(response1.getRouteId(), is(routeId));
+        assertThat(response1.body().getxUserId(), is(not(nullValue())));
+        assertThat(response1.body().getUserName(), is(not(nullValue())));
+        assertThat(response1.body().getCategoryId(), is(categoryId));
+        assertThat(response1.body().getRouteId(), is(routeId));
     }
 
     @Test
@@ -328,19 +340,19 @@ public class WebServiceServerTest {
         requestBean.setHeaderBean(header);
 
         // Make request
-        GetScoreJs response1 = mCrimpWSImpl.getScore(requestBean);
+        Response<GetScoreJs> response1 = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
         assertThat(response1, is(not(nullValue())));
-        assertThat(response1.getClimberScores(), is(not(nullValue())));
-        assertThat(response1.getClimberScores().size(), is(greaterThan(0)));
-        assertThat(response1.getClimberScores().get(0).getScores(), is(not(nullValue())));
-        assertThat(response1.getClimberScores().get(0).getScores().size(), is(greaterThan(0)));
-        assertThat(response1.getClimberScores().get(0).getScores().get(0).getRouteId(), is(not(nullValue())));
-        climberId = response1.getClimberScores().get(0).getClimberId();
-        markerId = response1.getClimberScores().get(0).getScores().get(0).getMarkerId();
+        assertThat(response1.body().getClimberScores(), is(not(nullValue())));
+        assertThat(response1.body().getClimberScores().size(), is(greaterThan(0)));
+        assertThat(response1.body().getClimberScores().get(0).getScores(), is(not(nullValue())));
+        assertThat(response1.body().getClimberScores().get(0).getScores().size(), is(greaterThan(0)));
+        assertThat(response1.body().getClimberScores().get(0).getScores().get(0).getRouteId(), is(not(nullValue())));
+        climberId = response1.body().getClimberScores().get(0).getClimberId();
+        markerId = response1.body().getClimberScores().get(0).getScores().get(0).getMarkerId();
 
-        for(ClimberScoreJs climber:response1.getClimberScores()){
+        for(ClimberScoreJs climber:response1.body().getClimberScores()){
             assertThat(climber.getClimberId(), is(not(nullValue())));
             assertThat(climber.getClimberName(), is(not(nullValue())));
             assertThat(climber.getScores(), is(not(nullValue())));
@@ -365,10 +377,10 @@ public class WebServiceServerTest {
         requestBean.setHeaderBean(header);
 
         // Make request
-        GetScoreJs response2 = mCrimpWSImpl.getScore(requestBean);
+        Response<GetScoreJs> response2 = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        for(ClimberScoreJs climber:response2.getClimberScores()){
+        for(ClimberScoreJs climber:response2.body().getClimberScores()){
             assertThat(climber.getClimberId(), is(climberId));
             assertThat(climber.getClimberName(), is(not(nullValue())));
             assertThat(climber.getScores(), is(not(nullValue())));
@@ -393,10 +405,10 @@ public class WebServiceServerTest {
         requestBean.setHeaderBean(header);
 
         // Make request
-        GetScoreJs response3 = mCrimpWSImpl.getScore(requestBean);
+        Response<GetScoreJs> response3 = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        for(ClimberScoreJs climber:response3.getClimberScores()){
+        for(ClimberScoreJs climber:response3.body().getClimberScores()){
             assertThat(climber.getClimberId(), is(not(nullValue())));
             assertThat(climber.getClimberName(), is(not(nullValue())));
             assertThat(climber.getScores(), is(not(nullValue())));
@@ -421,10 +433,10 @@ public class WebServiceServerTest {
         requestBean.setHeaderBean(header);
 
         // Make request
-        GetScoreJs response4 = mCrimpWSImpl.getScore(requestBean);
+        Response<GetScoreJs> response4 = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        for(ClimberScoreJs climber:response4.getClimberScores()){
+        for(ClimberScoreJs climber:response4.body().getClimberScores()){
             assertThat(climber.getClimberId(), is(not(nullValue())));
             assertThat(climber.getClimberName(), is(not(nullValue())));
             assertThat(climber.getScores(), is(not(nullValue())));

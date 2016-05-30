@@ -3,6 +3,8 @@
     <string name="app_name">CRIMP</string>
     <string name="facebook_app_id">1448790512098965</string>
 
+    <string name="toast_no_network">No network connection</string>
+
     <!-- Hello Activity menu -->
     <string name="action_helpme">Help me</string>
     <string name="action_logout">Logout</string>
@@ -79,6 +81,7 @@
     <string name="tasklist_activity_score">Score: %1$s</string>
     <string name="tasklist_activity_status_idle">Status: Idle</string>
     <string name="tasklist_activity_status_uploading">Status: Uploading…</string>
+    <string name="tasklist_activity_status_error_no_network">Status: No network connection</string>
     <string name="tasklist_activity_status_error_http">Status: %1$d %2$s</string>
     <string name="tasklist_activity_status_error_exception">Status: %1$s</string>
 </resources>

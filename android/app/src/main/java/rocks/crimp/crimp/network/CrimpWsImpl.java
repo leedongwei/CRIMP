@@ -65,13 +65,19 @@ public class CrimpWsImpl implements CrimpWS {
     }
 
     @Override
-    public CategoriesJs getCategories() throws IOException {
+    public Response<CategoriesJs> getCategories() throws IOException {
         Call<CategoriesJs> call = webService.getCategories();
-        return call.execute().body();
+        Response<CategoriesJs> response = call.execute();
+
+        if(!response.isSuccessful()){
+            Timber.e("Get categories error response: %s", response.errorBody().string());
+        }
+
+        return response;
     }
 
     @Override
-    public GetScoreJs getScore(RequestBean requestBean) throws IOException {
+    public Response<GetScoreJs> getScore(RequestBean requestBean) throws IOException {
         QueryBean query = requestBean.getQueryBean();
         HeaderBean header = requestBean.getHeaderBean();
 
@@ -79,59 +85,91 @@ public class CrimpWsImpl implements CrimpWS {
                 query.getRouteId(), query.getMarkerId(), header.getxUserId(),
                 header.getxAuthToken());
         Response<GetScoreJs> response = call.execute();
+
         if(!response.isSuccessful()){
             Timber.e("Get score error response: %s", response.errorBody().string());
         }
-        return response.body();
+
+        return response;
     }
 
     @Override
-    public SetActiveJs setActive(RequestBean requestBean) throws IOException {
+    public Response<SetActiveJs> setActive(RequestBean requestBean) throws IOException {
         HeaderBean header = requestBean.getHeaderBean();
         RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
 
         Call<SetActiveJs> call = webService.setActive(header.getxUserId(),
                 header.getxAuthToken(), requestBodyJs.getRouteId(), requestBodyJs.getMarkerId());
-        return call.execute().body();
+        Response<SetActiveJs> response = call.execute();
+
+        if(!response.isSuccessful()){
+            Timber.e("Set active error response: %s", response.errorBody().string());
+        }
+
+        return response;
     }
 
     @Override
-    public ClearActiveJs clearActive(RequestBean requestBean) throws IOException {
+    public Response<ClearActiveJs> clearActive(RequestBean requestBean) throws IOException {
         HeaderBean header = requestBean.getHeaderBean();
         RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
 
         Call<ClearActiveJs> call = webService.clearActive(header.getxUserId(),
                 header.getxAuthToken(), requestBodyJs.getRouteId());
-        return call.execute().body();
+        Response<ClearActiveJs> response = call.execute();
+
+        if(!response.isSuccessful()){
+            Timber.e("Clear active error response: %s", response.errorBody().string());
+        }
+
+        return response;
     }
 
     @Override
-    public LoginJs login(RequestBean requestBean) throws IOException {
+    public Response<LoginJs> login(RequestBean requestBean) throws IOException {
         RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
 
         Call<LoginJs> call = webService.login(requestBodyJs.getFbAccessToken());
-        return call.execute().body();
+        Response<LoginJs> response = call.execute();
+
+        if(!response.isSuccessful()){
+            Timber.e("Login error response: %s", response.errorBody().string());
+        }
+
+        return response;
     }
 
     @Override
-    public ReportJs reportIn(RequestBean requestBean) throws IOException {
+    public Response<ReportJs> reportIn(RequestBean requestBean) throws IOException {
         HeaderBean header = requestBean.getHeaderBean();
         RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
 
         Call<ReportJs> call = webService.reportIn(header.getxUserId(), header.getxAuthToken(),
                 requestBodyJs.getCategoryId(), requestBodyJs.getRouteId(),
                 requestBodyJs.isForceReport());
-        return call.execute().body();
+        Response<ReportJs> response = call.execute();
+
+        if(!response.isSuccessful()){
+            Timber.e("Report error response: %s", response.errorBody().string());
+        }
+
+        return response;
     }
 
     @Override
-    public HelpMeJs requestHelp(RequestBean requestBean) throws IOException {
+    public Response<HelpMeJs> requestHelp(RequestBean requestBean) throws IOException {
         HeaderBean header = requestBean.getHeaderBean();
         RequestBodyJs requestBodyJs = requestBean.getRequestBodyJs();
 
         Call<HelpMeJs> call = webService.requestHelp(header.getxUserId(),
                 header.getxAuthToken(), requestBodyJs.getRouteId());
-        return call.execute().body();
+        Response<HelpMeJs> response = call.execute();
+
+        if(!response.isSuccessful()){
+            Timber.e("Help me error response: %s", response.errorBody().string());
+        }
+
+        return response;
     }
 
     @Override
@@ -143,6 +181,7 @@ public class CrimpWsImpl implements CrimpWS {
         Call<PostScoreJs> call = webService.postScore(path.getRouteId(), path.getMarkerId(),
                 header.getxUserId(), header.getxAuthToken(), requestBodyJs.getScoreString());
         Response<PostScoreJs> response = call.execute();
+
         if(!response.isSuccessful()){
             Timber.e("Post score error response: %s", response.errorBody().string());
         }
@@ -151,12 +190,18 @@ public class CrimpWsImpl implements CrimpWS {
     }
 
     @Override
-    public LogoutJs logout(RequestBean requestBean) throws IOException {
+    public Response<LogoutJs> logout(RequestBean requestBean) throws IOException {
         HeaderBean header = requestBean.getHeaderBean();
 
         Call<LogoutJs> call = webService.logout(header.getxUserId(),
                 header.getxAuthToken());
-        return call.execute().body();
+        Response<LogoutJs> response = call.execute();
+
+        if(!response.isSuccessful()){
+            Timber.e("Logout error response: %s", response.errorBody().string());
+        }
+
+        return response;
     }
 
     /*

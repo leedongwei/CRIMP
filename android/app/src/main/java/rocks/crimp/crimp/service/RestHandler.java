@@ -2,13 +2,18 @@ package rocks.crimp.crimp.service;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.widget.Toast;
 
 import java.util.UUID;
 
 import rocks.crimp.crimp.CrimpApplication;
+import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
 import timber.log.Timber;
@@ -87,7 +92,25 @@ public class RestHandler extends Handler implements RestRequestTask.Callback{
             RestRequestTask task = mRestRequestTaskQueue.peek();
             if (task != null) {
                 isExecutingTask = true;
-                task.execute(this);
+
+                // Determine network connection. Execute task only if there is network.
+                ConnectivityManager cm =
+                        (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                boolean isConnected = activeNetwork != null &&
+                        activeNetwork.isConnectedOrConnecting();
+
+                if(isConnected){
+                    task.execute(this);
+                }
+                else{
+                    Toast toast = Toast.makeText(mContext,
+                            mContext.getString(R.string.toast_no_network), Toast.LENGTH_SHORT);
+                    toast.show();
+
+                    isExecutingTask = false;
+                    onRestFailure(task.getTxId());
+                }
             }
             else{
                 throw new NullPointerException("We can't deserialize task");

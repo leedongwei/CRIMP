@@ -32,6 +32,7 @@ import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import retrofit2.Response;
 import retrofit2.http.Body;
 import rocks.crimp.crimp.network.CrimpWS;
 import rocks.crimp.crimp.network.CrimpWsImpl;
@@ -209,17 +210,17 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         requestBean.setRequestBodyJs(body);
 
         // Make request
-        LoginJs response1 = mCrimpWSImpl.login(requestBean);
+        Response<LoginJs> response1 = mCrimpWSImpl.login(requestBean);
 
         // Verify response
-        assertThat(response1.getxUserId(), is("6Sw3aLjKMtaDRHMor"));
-        assertThat(response1.getxAuthToken(), is("VpQmdlKiikB-aauJaEi2wv-x-b0EZKOs7DC_nNIS2Kn"));
-        assertThat(response1.getRemindLogout(), is(true));
-        List<String> roleList = response1.getRoles();
+        assertThat(response1.body().getxUserId(), is("6Sw3aLjKMtaDRHMor"));
+        assertThat(response1.body().getxAuthToken(), is("VpQmdlKiikB-aauJaEi2wv-x-b0EZKOs7DC_nNIS2Kn"));
+        assertThat(response1.body().getRemindLogout(), is(true));
+        List<String> roleList = response1.body().getRoles();
         assertThat(roleList.size(), is(2));
         assertThat(roleList.contains("judge"), is(true));
         assertThat(roleList.contains("admin"), is(true));
-        assertThat(response1.getError(), is(nullValue()));
+        assertThat(response1.body().getError(), is(nullValue()));
 
         /*********************************************************************/
 
@@ -266,12 +267,12 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
     @Test
     public void testGetCategories() throws IOException {
         // Make request
-        CategoriesJs response1 = mCrimpWSImpl.getCategories();
+        Response<CategoriesJs> response1 = mCrimpWSImpl.getCategories();
 
         // Verify response
-        assertThat(response1.getCategories().size(), is(2));
+        assertThat(response1.body().getCategories().size(), is(2));
 
-        CategoryJs category0 = response1.getCategories().get(0);
+        CategoryJs category0 = response1.body().getCategories().get(0);
         assertThat(category0.getCategoryId(), is("iaA4T76ihpvmAhEtc"));
         assertThat(category0.getCategoryName(), is("Novice Men Qualifiers"));
         assertThat(category0.getAcronym(), is("NMQ"));
@@ -288,7 +289,7 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         assertThat(category0.getRoutes().get(2).getRouteName(), is("Route 3"));
         assertThat(category0.getRoutes().get(2).getScoreRules(), is("points__1800"));
 
-        CategoryJs category1 = response1.getCategories().get(1);
+        CategoryJs category1 = response1.body().getCategories().get(1);
         assertThat(category1.getCategoryId(), is("NNS2rzA5ayNJs9i94"));
         assertThat(category1.getCategoryName(), is("Novice Women Qualifiers"));
         assertThat(category1.getAcronym(), is("NWQ"));
@@ -325,13 +326,13 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         requestBean.setHeaderBean(header);
 
         // Make request
-        ReportJs response1 = mCrimpWSImpl.reportIn(requestBean);
+        Response<ReportJs> response1 = mCrimpWSImpl.reportIn(requestBean);
 
         // Verify response
-        assertThat(response1.getxUserId(), is("6Sw3aLjKMtaDRHMor"));
-        assertThat(response1.getUserName(), is("Weizhi"));
-        assertThat(response1.getCategoryId(), is("iaA4T76ihpvmAhEtc"));
-        assertThat(response1.getRouteId(), is("ZcakJrZnpuwg9fXoE"));
+        assertThat(response1.body().getxUserId(), is("6Sw3aLjKMtaDRHMor"));
+        assertThat(response1.body().getUserName(), is("Weizhi"));
+        assertThat(response1.body().getCategoryId(), is("iaA4T76ihpvmAhEtc"));
+        assertThat(response1.body().getRouteId(), is("ZcakJrZnpuwg9fXoE"));
     }
 
     @Test
@@ -347,10 +348,10 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         requestBean.setHeaderBean(header);
 
         // Make request
-        LogoutJs response1 = mCrimpWSImpl.logout(requestBean);
+        Response<LogoutJs> response1 = mCrimpWSImpl.logout(requestBean);
 
         // Verify response
-        assertThat(response1, is(not(nullValue())));
+        assertThat(response1.body(), is(not(nullValue())));
     }
 
     @Test
@@ -361,7 +362,7 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         ClimberScoreJs climber0;
         ClimberScoreJs climber1;
         ClimberScoreJs climber2;
-        GetScoreJs getScoreJs;
+        Response<GetScoreJs> getScoreJs;
 
         // Prepare request
         header = new HeaderBean();
@@ -376,9 +377,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(3));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(3));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId1"));
         assertThat(climber0.getClimberName(), is("Antonio Paul"));
         assertThat(climber0.getScores().size(), is(3));
@@ -395,7 +396,7 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         assertThat(climber0.getScores().get(2).getRouteId(), is("juoFyiJSfnmTWvsXC"));
         assertThat(climber0.getScores().get(2).getScore(), is(""));
 
-        climber1 = getScoreJs.getClimberScores().get(1);
+        climber1 = getScoreJs.body().getClimberScores().get(1);
         assertThat(climber1.getClimberId(), is("climberId2"));
         assertThat(climber1.getClimberName(), is("Romani"));
         assertThat(climber1.getScores().size(), is(3));
@@ -412,7 +413,7 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         assertThat(climber1.getScores().get(2).getRouteId(), is("YNPAJBHxrWvXJDTxc"));
         assertThat(climber1.getScores().get(2).getScore(), is("B11T"));
 
-        climber2 = getScoreJs.getClimberScores().get(2);
+        climber2 = getScoreJs.body().getClimberScores().get(2);
         assertThat(climber2.getClimberId(), is("climberId3"));
         assertThat(climber2.getClimberName(), is("Tranny"));
         assertThat(climber2.getScores().size(), is(6));
@@ -457,9 +458,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(1));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(1));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId3"));
         assertThat(climber0.getClimberName(), is("Tranny"));
         assertThat(climber0.getScores().size(), is(6));
@@ -504,9 +505,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(2));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(2));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId1"));
         assertThat(climber0.getClimberName(), is("Antonio Paul"));
         assertThat(climber0.getScores().size(), is(3));
@@ -523,7 +524,7 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         assertThat(climber0.getScores().get(2).getRouteId(), is("juoFyiJSfnmTWvsXC"));
         assertThat(climber0.getScores().get(2).getScore(), is(""));
 
-        climber1 = getScoreJs.getClimberScores().get(1);
+        climber1 = getScoreJs.body().getClimberScores().get(1);
         assertThat(climber1.getClimberId(), is("climberId3"));
         assertThat(climber1.getClimberName(), is("Tranny"));
         assertThat(climber1.getScores().size(), is(3));
@@ -556,9 +557,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(2));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(2));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId1"));
         assertThat(climber0.getClimberName(), is("Antonio Paul"));
         assertThat(climber0.getScores().size(), is(1));
@@ -567,7 +568,7 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         assertThat(climber0.getScores().get(0).getRouteId(), is("ZcakJrZnpuwg9fXoE"));
         assertThat(climber0.getScores().get(0).getScore(), is("1000"));
 
-        climber1 = getScoreJs.getClimberScores().get(1);
+        climber1 = getScoreJs.body().getClimberScores().get(1);
         assertThat(climber1.getClimberId(), is("climberId3"));
         assertThat(climber1.getClimberName(), is("Tranny"));
         assertThat(climber1.getScores().size(), is(1));
@@ -592,9 +593,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(1));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(1));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId3"));
         assertThat(climber0.getClimberName(), is("Tranny"));
         assertThat(climber0.getScores().size(), is(3));
@@ -628,9 +629,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(1));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(1));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId3"));
         assertThat(climber0.getClimberName(), is("Tranny"));
         assertThat(climber0.getScores().size(), is(3));
@@ -664,9 +665,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(1));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(1));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId3"));
         assertThat(climber0.getClimberName(), is("Tranny"));
         assertThat(climber0.getScores().size(), is(1));
@@ -692,9 +693,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(1));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(1));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId3"));
         assertThat(climber0.getClimberName(), is("Tranny"));
         assertThat(climber0.getScores().size(), is(3));
@@ -728,9 +729,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(2));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(2));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId1"));
         assertThat(climber0.getClimberName(), is("Antonio Paul"));
         assertThat(climber0.getScores().size(), is(1));
@@ -739,7 +740,7 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         assertThat(climber0.getScores().get(0).getRouteId(), is("ZcakJrZnpuwg9fXoE"));
         assertThat(climber0.getScores().get(0).getScore(), is("1000"));
 
-        climber1 = getScoreJs.getClimberScores().get(1);
+        climber1 = getScoreJs.body().getClimberScores().get(1);
         assertThat(climber1.getClimberId(), is("climberId3"));
         assertThat(climber1.getClimberName(), is("Tranny"));
         assertThat(climber1.getScores().size(), is(1));
@@ -765,9 +766,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(1));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(1));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId1"));
         assertThat(climber0.getClimberName(), is("Antonio Paul"));
         assertThat(climber0.getScores().size(), is(3));
@@ -801,9 +802,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(1));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(1));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId1"));
         assertThat(climber0.getClimberName(), is("Antonio Paul"));
         assertThat(climber0.getScores().size(), is(1));
@@ -830,9 +831,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(1));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(1));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId3"));
         assertThat(climber0.getClimberName(), is("Tranny"));
         assertThat(climber0.getScores().size(), is(1));
@@ -859,9 +860,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(1));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(1));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId3"));
         assertThat(climber0.getClimberName(), is("Tranny"));
         assertThat(climber0.getScores().size(), is(3));
@@ -896,9 +897,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(1));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(1));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId3"));
         assertThat(climber0.getClimberName(), is("Tranny"));
         assertThat(climber0.getScores().size(), is(1));
@@ -925,9 +926,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(1));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(1));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId1"));
         assertThat(climber0.getClimberName(), is("Antonio Paul"));
         assertThat(climber0.getScores().size(), is(1));
@@ -955,9 +956,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         getScoreJs = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(getScoreJs.getClimberScores().size(), is(1));
+        assertThat(getScoreJs.body().getClimberScores().size(), is(1));
 
-        climber0 = getScoreJs.getClimberScores().get(0);
+        climber0 = getScoreJs.body().getClimberScores().get(0);
         assertThat(climber0.getClimberId(), is("climberId3"));
         assertThat(climber0.getClimberName(), is("Tranny"));
         assertThat(climber0.getScores().size(), is(1));
@@ -989,14 +990,14 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         requestBean.setPathBean(path);
 
         // Make request
-        PostScoreJs response1 = mCrimpWSImpl.postScore(requestBean);
+        Response<PostScoreJs> response1 = mCrimpWSImpl.postScore(requestBean);
 
         // Verify response
-        assertThat(response1.getClimberId(), is("climberId1"));
-        assertThat(response1.getCategoryId(), is("iaA4T76ihpvmAhEtc"));
-        assertThat(response1.getRouteId(), is("ZcakJrZnpuwg9fXoE"));
-        assertThat(response1.getMarkerId(), is("NMF002"));
-        assertThat(response1.getScore(), is("11B11T"));
+        assertThat(response1.body().getClimberId(), is("climberId1"));
+        assertThat(response1.body().getCategoryId(), is("iaA4T76ihpvmAhEtc"));
+        assertThat(response1.body().getRouteId(), is("ZcakJrZnpuwg9fXoE"));
+        assertThat(response1.body().getMarkerId(), is("NMF002"));
+        assertThat(response1.body().getScore(), is("11B11T"));
     }
 
     @Test
@@ -1016,10 +1017,10 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         requestBean.setRequestBodyJs(body);
 
         // Make request
-        HelpMeJs response1 = mCrimpWSImpl.requestHelp(requestBean);
+        Response<HelpMeJs> response1 = mCrimpWSImpl.requestHelp(requestBean);
 
         // Verify response
-        assertThat(response1, is(not(nullValue())));
+        assertThat(response1.body(), is(not(nullValue())));
     }
 
     @Test
@@ -1040,13 +1041,13 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         requestBean.setRequestBodyJs(body);
 
         // Make request
-        SetActiveJs response1 = mCrimpWSImpl.setActive(requestBean);
+        Response<SetActiveJs> response1 = mCrimpWSImpl.setActive(requestBean);
 
         // Verify response
-        assertThat(response1.getRouteId(), is("ZcakJrZnpuwg9fXoE"));
-        assertThat(response1.getMarkerId(), is("NMQ004"));
-        assertThat(response1.getClimberId(), is("climberId1"));
-        assertThat(response1.getClimberName(), is("Antonio Paul"));
+        assertThat(response1.body().getRouteId(), is("ZcakJrZnpuwg9fXoE"));
+        assertThat(response1.body().getMarkerId(), is("NMQ004"));
+        assertThat(response1.body().getClimberId(), is("climberId1"));
+        assertThat(response1.body().getClimberName(), is("Antonio Paul"));
     }
 
     @Test
@@ -1066,9 +1067,9 @@ public class WebServiceLocalTest extends InstrumentationTestCase {
         requestBean.setRequestBodyJs(body);
 
         // Make request
-        ClearActiveJs response1 = mCrimpWSImpl.clearActive(requestBean);
+        Response<ClearActiveJs> response1 = mCrimpWSImpl.clearActive(requestBean);
 
         // Verify response
-        assertThat(response1, is(not(nullValue())));
+        assertThat(response1.body(), is(not(nullValue())));
     }
 }
