@@ -13,9 +13,15 @@ import Teams from '../imports/data/teams';
 import Climbers from '../imports/data/climbers';
 import Scores from '../imports/data/scores';
 import HelpMe from '../imports/data/helpme';
-import ActiveTracker from '../imports/data/activetracker';
+import { ActiveTracker, runActiveTracker } from '../imports/data/activetracker';
 
 import seedDatabase from '../imports/seedDatabase';
+
+Meteor.startup(() => {
+  // Update ActiveTracker at regular intervals
+  runActiveTracker();
+});
+
 
 const Api = new Restivus({
   defaultHeaders: { 'Content-Type': 'application/json' },

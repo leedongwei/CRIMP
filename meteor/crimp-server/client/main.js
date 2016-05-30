@@ -1,9 +1,7 @@
 import { Meteor } from 'meteor/meteor';
-import { Template } from 'meteor/templating';
-import { ReactiveVar } from 'meteor/reactive-var';
+import { Session } from 'meteor/session';
 
 import Messages from '../imports/data/messages';
-
 import Events from '../imports/data/events';
 import Categories from '../imports/data/categories';
 import Teams from '../imports/data/teams';
@@ -16,9 +14,6 @@ import ActiveTracker from '../imports/data/activetracker';
 import seedDatabase from '../imports/seedDatabase';
 
 
-import './main.html';
-
-
 // TODO: Delete this crazy publication
 Meteor.subscribe('development');
 Meteor.subscribe('eventsToAll');
@@ -29,7 +24,6 @@ Meteor.subscribe('scoresToAdmin');
 Meteor.subscribe('activetrackerToAll');
 Meteor.subscribe('helpmeToAdmin');
 Meteor.subscribe('messagesToAdmin');
-
 Meteor.startup(() => {
   msg = Messages;
   eve = Events;
@@ -41,13 +35,7 @@ Meteor.startup(() => {
   act = ActiveTracker;
 })
 
-Template.messages.onCreated(() => {
-  Events.remove({});
-});
 
-Template.messages.helpers({
-  msgs() {
-    return Messages.find({});
-  },
-});
+// const category = localStorage.getItem('currentCategory') || 'UMQ';
+// Session.setDefault('currentCategory', category);
 
