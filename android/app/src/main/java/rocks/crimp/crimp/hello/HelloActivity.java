@@ -30,6 +30,7 @@ import com.facebook.login.LoginManager;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
+import java.util.List;
 import java.util.UUID;
 
 import rocks.crimp.crimp.CrimpApplication;
@@ -44,6 +45,7 @@ import rocks.crimp.crimp.hello.score.ScoreFragment;
 import rocks.crimp.crimp.login.LoginActivity;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
+import rocks.crimp.crimp.network.model.RouteJs;
 import rocks.crimp.crimp.persistence.LocalModelImpl;
 import rocks.crimp.crimp.service.ServiceHelper;
 import rocks.crimp.crimp.tasklist.TaskListActivity;
@@ -354,13 +356,31 @@ public class HelloActivity extends AppCompatActivity implements
         // Handle presses on the action bar items
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
-            case R.id.action_helpme:
+            case R.id.action_helpme: {
                 Toast toast = Toast.makeText(this,
-                        "STUB! A ticket has been sent to the admins. Please wait for assistance.",
+                        "A ticket has been sent to the admins. Please wait for assistance.",
                         Toast.LENGTH_SHORT);
                 toast.show();
-                // TODO HELPME
+
+                String xUserId = CrimpApplication.getAppState().getString(CrimpApplication.X_USER_ID, null);
+                String xAuthToken = CrimpApplication.getAppState().getString(CrimpApplication.X_AUTH_TOKEN, null);
+                int categoryPosition = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                int routePosition = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                if (categoryPosition == 0 || routePosition == 0) {
+                    ServiceHelper.requestHelp(this, null, xUserId, xAuthToken, null);
+                } else {
+                    List<CategoryJs> categoryJsList = mCategories != null ? mCategories.getCategories() : null;
+                    CategoryJs chosenCategory = categoryJsList != null ? categoryJsList.get(categoryPosition - 1) : null;
+                    List<RouteJs> routeJsList = chosenCategory != null ? chosenCategory.getRoutes() : null;
+                    RouteJs chosenRoute = routeJsList != null ? routeJsList.get(routePosition - 1) : null;
+                    String routeId = chosenRoute != null ? chosenRoute.getRouteId() : null;
+
+                    ServiceHelper.requestHelp(this, null, xUserId, xAuthToken, routeId);
+                }
                 return true;
+            }
 
             case R.id.action_task_list:
                 Intent intent = new Intent(this, TaskListActivity.class);

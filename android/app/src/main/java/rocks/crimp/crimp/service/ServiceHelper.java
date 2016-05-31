@@ -175,7 +175,7 @@ public class ServiceHelper {
     @NonNull
     public static UUID requestHelp(@NonNull Context context, @Nullable UUID txId,
                                    @NonNull String xUserId, @NonNull String xAuthToken,
-                                   @NonNull String routeId){
+                                   @Nullable String routeId){
         if(txId == null){
             txId = UUID.randomUUID();
         }
