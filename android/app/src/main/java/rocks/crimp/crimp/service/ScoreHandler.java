@@ -14,6 +14,7 @@ import com.squareup.otto.Produce;
 import java.util.UUID;
 
 import rocks.crimp.crimp.CrimpApplication;
+import rocks.crimp.crimp.CrimpNotification;
 import rocks.crimp.crimp.common.event.CurrentUploadTask;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
@@ -33,7 +34,6 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
     public static final int BASE_BACKOFF = 2000;
     public int currentBackoff = BASE_BACKOFF;
 
-
     private int attemptsLeft = TOTAL_ATTEMPTS;
     private volatile ScoreUploadTaskQueue mScoreUploadTaskQueue;
     private boolean isExecutingTask;
@@ -44,6 +44,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         super(looper);
         mContext = context;
         mScoreUploadTaskQueue = ScoreUploadTaskQueue.create(context);
+        CrimpApplication.setUploadTaskCount(mScoreUploadTaskQueue.size());
         CrimpApplication.getBusInstance().register(this);
     }
 
@@ -55,8 +56,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
             if(count>0){
                 task = mScoreUploadTaskQueue.peek().getRequestBean();
             }
-            mCurrentTaskEvent = new CurrentUploadTask(mScoreUploadTaskQueue.size(), task,
-                    CurrentUploadTask.IDLE);
+            mCurrentTaskEvent = new CurrentUploadTask(task, CurrentUploadTask.IDLE);
         }
 
         return mCurrentTaskEvent;
@@ -112,9 +112,10 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         if(queueSize != 0){
             ScoreUploadTask task = mScoreUploadTaskQueue.peek();
 
-            mCurrentTaskEvent = new CurrentUploadTask(queueSize, task.getRequestBean(),
+            mCurrentTaskEvent = new CurrentUploadTask(task.getRequestBean(),
                     CurrentUploadTask.UPLOADING);
             CrimpApplication.getBusInstance().post(mCurrentTaskEvent);
+            CrimpNotification.createAndShowUploading(mContext, queueSize);
 
             if (task != null) {
                 isExecutingTask = true;
@@ -143,7 +144,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
             }
         }
         else{
-            mCurrentTaskEvent = new CurrentUploadTask(queueSize, null, CurrentUploadTask.IDLE);
+            mCurrentTaskEvent = new CurrentUploadTask(null, CurrentUploadTask.IDLE);
             CrimpApplication.getBusInstance().post(mCurrentTaskEvent);
             tryAndQuitService();
         }
@@ -170,7 +171,16 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         attemptsLeft = TOTAL_ATTEMPTS;
         currentBackoff = BASE_BACKOFF;
         isExecutingTask = false;
+        RequestBean bean = mScoreUploadTaskQueue.peek().getRequestBean();
         mScoreUploadTaskQueue.remove();
+        mCurrentTaskEvent = new CurrentUploadTask(bean, CurrentUploadTask.UPLOAD_SUCCEED);
+        CrimpApplication.getBusInstance().post(mCurrentTaskEvent);
+        if(mScoreUploadTaskQueue.size() == 0){
+            CrimpNotification.createAndShowCompleted(mContext);
+        }
+        else{
+            CrimpNotification.createAndShowUploading(mContext, mScoreUploadTaskQueue.size());
+        }
         CrimpApplication.getBusInstance().post(new RequestSucceed(txId, response));
 
         Message msg = this.obtainMessage(DO_WORK);
@@ -197,9 +207,9 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
             this.sendMessage(msg);
         }
         else{
-            mCurrentTaskEvent = new CurrentUploadTask(mScoreUploadTaskQueue.size(),
-                    mScoreUploadTaskQueue.peek().getRequestBean(), e);
+            mCurrentTaskEvent = new CurrentUploadTask(mScoreUploadTaskQueue.peek().getRequestBean(), e);
             CrimpApplication.getBusInstance().post(mCurrentTaskEvent);
+            CrimpNotification.createAndShowError(mContext, e.getLocalizedMessage());
         }
     }
 
@@ -223,9 +233,10 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
             this.sendMessage(msg);
         }
         else{
-            mCurrentTaskEvent = new CurrentUploadTask(mScoreUploadTaskQueue.size(),
-                    mScoreUploadTaskQueue.peek().getRequestBean(), statusCode, message);
+            mCurrentTaskEvent = new CurrentUploadTask(mScoreUploadTaskQueue.peek().getRequestBean(),
+                    statusCode, message);
             CrimpApplication.getBusInstance().post(mCurrentTaskEvent);
+            CrimpNotification.createAndShowError(mContext, statusCode+" "+message);
         }
     }
 
@@ -249,9 +260,10 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
             this.sendMessage(msg);
         }
         else{
-            mCurrentTaskEvent = new CurrentUploadTask(mScoreUploadTaskQueue.size(),
-                    mScoreUploadTaskQueue.peek().getRequestBean(), CurrentUploadTask.ERROR_NO_NETWORK);
+            mCurrentTaskEvent = new CurrentUploadTask(mScoreUploadTaskQueue.peek().getRequestBean(),
+                    CurrentUploadTask.ERROR_NO_NETWORK);
             CrimpApplication.getBusInstance().post(mCurrentTaskEvent);
+            CrimpNotification.createAndShowError(mContext, "No network");
         }
     }
 }

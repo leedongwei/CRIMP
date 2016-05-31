@@ -44,6 +44,7 @@ public class CrimpService extends Service {
                 Message msg = CrimpApplication.getScoreHandler()
                         .obtainMessage(ScoreHandler.NEW_UPLOAD, intent);
                 CrimpApplication.getScoreHandler().sendMessage(msg);
+                CrimpApplication.setUploadTaskCount(CrimpApplication.getUploadTaskCount()+1);
             }
             else{
                 Message msg = CrimpApplication.getRestHandler()

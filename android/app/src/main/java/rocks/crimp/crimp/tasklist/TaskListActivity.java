@@ -15,7 +15,6 @@ import com.squareup.otto.Subscribe;
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.event.CurrentUploadTask;
-import rocks.crimp.crimp.network.model.PostScoreJs;
 import rocks.crimp.crimp.service.ScoreHandler;
 
 public class TaskListActivity extends AppCompatActivity implements View.OnClickListener{
@@ -59,13 +58,14 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
 
     @Subscribe
     public void receivedCurrentUploadTask(CurrentUploadTask event){
-        if(event.taskCountLeft == 0){
+        if(CrimpApplication.getUploadTaskCount() == 0){
             mCounter.setText(R.string.tasklist_activity_counter_zero);
             mCardView.setVisibility(View.GONE);
             mResumeButton.setVisibility(View.GONE);
         }
         else{
-            String counterText = String.format(getString(R.string.tasklist_activity_counter), event.taskCountLeft);
+            String counterText = String.format(getString(R.string.tasklist_activity_counter),
+                    CrimpApplication.getUploadTaskCount());
             mCounter.setText(counterText);
             String categoryRouteText = String.format(getString(R.string.tasklist_activity_category_route),
                     event.currentTask.getMetaBean().getCategoryName(),

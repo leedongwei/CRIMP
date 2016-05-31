@@ -54,6 +54,7 @@ public class HelloActivity extends AppCompatActivity implements
         ScanFragment.ScanFragmentInterface,
         ScoreFragment.ScoreFragmentInterface{
     public static final String SAVE_IMAGE = "save_image";
+    public static final String SAVE_PAGER_SELECTED = "save_pager_selected";
     private static final String SAVE_LOGOUT_TXID = "save_logout_txid";
     private static final String SAVE_HELPME_TXID = "save_helpme_txid";
 
@@ -167,6 +168,15 @@ public class HelloActivity extends AppCompatActivity implements
         mFragmentAdapter.setCanDisplay(canDisplay);
         mPager.setAdapter(mFragmentAdapter);
         mPager.addOnPageChangeListener(new HelloPageChangeListener(mTabLayout));
+
+        if(savedInstanceState != null){
+            final int currentItem = savedInstanceState.getInt(SAVE_PAGER_SELECTED, 0);
+            if( ((1<<currentItem) & canDisplay) == 0 ){
+                throw new IllegalStateException("selectedTab "+currentItem+" cannot be displayed");
+            }
+
+            mPager.setCurrentItem(currentItem);
+        }
     }
 
     @Override
@@ -237,6 +247,8 @@ public class HelloActivity extends AppCompatActivity implements
     protected void onSaveInstanceState (Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putParcelable(SAVE_IMAGE, mImage);
+        outState.putInt(SAVE_PAGER_SELECTED, mPager.getCurrentItem());
+        Timber.d("onSaveInstanceState %d", mPager.getCurrentItem());
     }
 
     @Override

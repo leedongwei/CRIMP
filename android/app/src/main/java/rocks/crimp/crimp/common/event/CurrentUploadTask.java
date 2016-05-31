@@ -1,5 +1,6 @@
 package rocks.crimp.crimp.common.event;
 
+import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.network.model.RequestBean;
 
 /**
@@ -11,16 +12,17 @@ public class CurrentUploadTask {
     public static final int ERROR_HTTP_STATUS = 3;
     public static final int ERROR_EXCEPTION = 4;
     public static final int ERROR_NO_NETWORK = 5;
+    public static final int UPLOAD_SUCCEED = 6;
 
-    public final int taskCountLeft;
+    //public final int taskCountLeft;
     public final RequestBean currentTask;
     public final int status;
     public final int httpStatusCode;
     public final String httpMessage;
     public final Exception exception;
 
-    public CurrentUploadTask(int taskCountLeft, RequestBean currentTask, int status){
-        this.taskCountLeft = taskCountLeft;
+    public CurrentUploadTask(RequestBean currentTask, int status){
+        //this.taskCountLeft = taskCountLeft;
         this.currentTask = currentTask;
         this.status = status;
         this.httpStatusCode = 0;
@@ -28,9 +30,9 @@ public class CurrentUploadTask {
         this.exception = null;
     }
 
-    public CurrentUploadTask(int taskCountLeft, RequestBean currentTask, int httpStatusCode,
+    public CurrentUploadTask(RequestBean currentTask, int httpStatusCode,
                              String httpMessage){
-        this.taskCountLeft = taskCountLeft;
+        //this.taskCountLeft = taskCountLeft;
         this.currentTask = currentTask;
         this.status = ERROR_HTTP_STATUS;
         this.httpStatusCode = httpStatusCode;
@@ -38,8 +40,8 @@ public class CurrentUploadTask {
         this.exception = null;
     }
 
-    public CurrentUploadTask(int taskCountLeft, RequestBean currentTask, Exception exception){
-        this.taskCountLeft = taskCountLeft;
+    public CurrentUploadTask(RequestBean currentTask, Exception exception){
+        //this.taskCountLeft = taskCountLeft;
         this.currentTask = currentTask;
         this.status = ERROR_EXCEPTION;
         this.httpStatusCode = 0;

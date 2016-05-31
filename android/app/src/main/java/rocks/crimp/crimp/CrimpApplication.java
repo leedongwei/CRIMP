@@ -8,8 +8,10 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import rocks.crimp.crimp.common.MainThreadBus;
+import rocks.crimp.crimp.common.event.CurrentUploadTask;
 import rocks.crimp.crimp.network.CrimpWS;
 import rocks.crimp.crimp.network.CrimpWsImpl;
 import rocks.crimp.crimp.network.StubWS;
@@ -38,11 +40,8 @@ public class CrimpApplication extends Application {
     public static final String COMMITTED_ROUTE = "committed_route";         //erase when refresh categories
     public static final String CATEGORY_POSITION = "category_position";     //erase when refresh categories
     public static final String ROUTE_POSITION = "route_position";           //erase when refresh categories
-
-
     public static final String CURRENT_SCORE = "current_score";             //erase when refresh categories
     public static final String ACCUMULATED_SCORE = "accumulated_score";     //erase when refresh categories
-
     public static final String IMAGE_HEIGHT = "image_height";
 
     private static Context mContext;
@@ -55,6 +54,8 @@ public class CrimpApplication extends Application {
     private static ScoreHandler mScoreHandler;
     private static RestHandler mRestHandler;
     private static NetworkChangeReceiver mNetworkChangeReceiver;
+    private static int mUploadTaskCount;
+    private static boolean mShouldUpdateNotificationCount = true;
 
     @Override
     public void onCreate(){
@@ -63,6 +64,8 @@ public class CrimpApplication extends Application {
         if(BuildConfig.DEBUG){
             Timber.plant(new Timber.DebugTree());
         }
+
+        getBusInstance().register(this);
 
         Timber.d("mRestHandlerThread started");
         mRestHandlerThread = new HandlerThread("RestThread");
@@ -79,6 +82,47 @@ public class CrimpApplication extends Application {
         Intent intent = new Intent(this, CrimpService.class);
         intent.setAction(CrimpService.ACTION_BOOT_NO_INTENT);
         startService(intent);
+    }
+
+    @Subscribe
+    public void receivedCurrentUploadTask(CurrentUploadTask event){
+        switch(event.status){
+            case CurrentUploadTask.IDLE:
+                mShouldUpdateNotificationCount = true;
+                break;
+            case CurrentUploadTask.UPLOADING:
+                mShouldUpdateNotificationCount = true;
+                break;
+            case CurrentUploadTask.ERROR_HTTP_STATUS:
+                mShouldUpdateNotificationCount = false;
+                break;
+            case CurrentUploadTask.ERROR_EXCEPTION:
+                mShouldUpdateNotificationCount = false;
+                break;
+            case CurrentUploadTask.ERROR_NO_NETWORK:
+                mShouldUpdateNotificationCount = false;
+                break;
+            case CurrentUploadTask.UPLOAD_SUCCEED:
+                mUploadTaskCount--;
+                if(mUploadTaskCount > 0){
+                    CrimpNotification.createAndShowUploading(this, mUploadTaskCount);
+                    mShouldUpdateNotificationCount = true;
+                }
+                break;
+        }
+    }
+
+    public static void setUploadTaskCount(int uploadTaskCount){
+        mUploadTaskCount = uploadTaskCount;
+        if(mShouldUpdateNotificationCount){
+            if(mUploadTaskCount > 0){
+                CrimpNotification.createAndShowUploading(getContext(), mUploadTaskCount);
+            }
+        }
+    }
+
+    public static int getUploadTaskCount(){
+        return mUploadTaskCount;
     }
 
     public static NetworkChangeReceiver getNetworkChangeReceiver(){

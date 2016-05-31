@@ -23,10 +23,13 @@ import rocks.crimp.crimp.network.CrimpWS;
 import rocks.crimp.crimp.network.CrimpWsImpl;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
+import rocks.crimp.crimp.network.model.ClearActiveJs;
 import rocks.crimp.crimp.network.model.ClimberScoreJs;
 import rocks.crimp.crimp.network.model.GetScoreJs;
 import rocks.crimp.crimp.network.model.HeaderBean;
+import rocks.crimp.crimp.network.model.HelpMeJs;
 import rocks.crimp.crimp.network.model.LoginJs;
+import rocks.crimp.crimp.network.model.LogoutJs;
 import rocks.crimp.crimp.network.model.MetaBean;
 import rocks.crimp.crimp.network.model.PathBean;
 import rocks.crimp.crimp.network.model.QueryBean;
@@ -35,6 +38,7 @@ import rocks.crimp.crimp.network.model.RequestBean;
 import rocks.crimp.crimp.network.model.RequestBodyJs;
 import rocks.crimp.crimp.network.model.RouteJs;
 import rocks.crimp.crimp.network.model.ScoreJs;
+import rocks.crimp.crimp.network.model.SetActiveJs;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -50,18 +54,11 @@ import static org.hamcrest.core.IsNot.not;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class WebServiceServerTest {
-    private static final String BELOW_JUDGE_FB_TOKEN = "EAAUlqtPT3pUBAJOPLWqfvyIqZAaCWKRCFe7LpZCblwTqCAye3GJXcXNWt466eXLSfukuBg6H2hJ9ZB8ET0sGJRX2SMiaQpGArqruMPKhwNktT3MCqVXOkgovZAWWO16RM5BRlZCqwsKzsbhE5Ux0MXeBZAAJjYRRjovboZBMxo6ZA3fuWKVgEPpt";
+    private static final String BELOW_JUDGE_FB_TOKEN = "EAAUlqtPT3pUBABV2baFJiBndZAld2YpERIYLBspKtfNrVLe1B5oV5dQoNvS4IGFlp3DYubDZBHMe15ztSmyu5OQkZCl6YTux7bbO3sZC4mYZCZAZAh4AQfbZA2nZAHCUdJk4mTU3faaLfro4RfeWsehPOljaZAdl2KpprrMZB7J9pzAZBwZDZD";
     private static final String JUDGE_FB_TOKEN = "EAAUlqtPT3pUBAMbZABjwvtVOPigStWQYDsqizHpy5MOFyshUmX5NNRnAaew40M4rpGPAISOWpLTZAcHFi5aUI7Pb9fBz8b35xsyBNk7G0BhVgCnnAfaSzZCYnZAI3uCqv5LZCORZA1spxFSDcn1RvpDXGIWlgu65L6p3VsDH8ueAZDZD";
 
     private static Set<String> roleSet;
     private static CrimpWS mCrimpWSImpl;
-
-    private String judgeXUserId;
-    private String judgeXAuthToken;
-    private String categoryId;
-    private String routeId;
-    private String markerId;
-    private String climberId;
 
     @BeforeClass
     public static void initializeRoleSet(){
@@ -79,70 +76,13 @@ public class WebServiceServerTest {
         mCrimpWSImpl = new CrimpWsImpl(CrimpWsImpl.BASEURL);
     }
 
-    @Before
-    public void loginAndGetStuff() throws IOException {
-        RequestBodyJs body;
-        RequestBean requestBean;
-
-        // Craft request
-        body = new RequestBodyJs();
-        body.setFbAccessToken(JUDGE_FB_TOKEN);
-        requestBean = new RequestBean();
-        requestBean.setRequestBodyJs(body);
-
-        // Make request
-        Response<LoginJs> response1 = mCrimpWSImpl.login(requestBean);
-
-        // Verify response
-        judgeXUserId = response1.body().getxUserId();
-        judgeXAuthToken = response1.body().getxAuthToken();
-        if(judgeXUserId == null || judgeXAuthToken == null){
-            throw new NullPointerException("Failed to get X-User-Id and/or X-Auth-Token");
-        }
-
-        /*********************************************************************/
-
-        // Make request
-        Response<CategoriesJs> response2 = mCrimpWSImpl.getCategories();
-
-        // Verify response
-        List<CategoryJs> categoryJsList = response2.body().getCategories();
-        if(categoryJsList.size() == 0){
-            throw new RuntimeException("Get categories request return a list of 0 category");
-        }
-        for(CategoryJs categoryJs:categoryJsList){
-            if(categoryJs.getRoutes().size() == 0){
-                throw new RuntimeException("Category id: "+categoryJs.getCategoryId()+" has a list of 0 routes");
-            }
-        }
-
-        categoryId = response2.body().getCategories().get(0).getCategoryId();
-        routeId = response2.body().getCategories().get(0).getRoutes().get(0).getRouteId();
-        if(categoryId == null || routeId == null){
-            throw new NullPointerException("Failed to get categoryId and/or routeId");
-        }
-    }
-
-    @After
-    public void logoutAfterTest() throws IOException {
-        HeaderBean header;
-        RequestBodyJs body;
-        RequestBean requestBean;
-
-        // Logout
-        header = new HeaderBean();
-        header.setxUserId(judgeXUserId);
-        header.setxAuthToken(judgeXAuthToken);
-        requestBean = new RequestBean();
-        requestBean.setHeaderBean(header);
-        mCrimpWSImpl.logout(requestBean);
-    }
-
     @Test
     public void testPostLoginAndLogout() throws IOException {
         HeaderBean header;
         RequestBodyJs body;
         RequestBean requestBean;
+        String judgeXUserId;
+        String judgeXAuthToken;
 
         // Craft request
         body = new RequestBodyJs();
@@ -185,40 +125,10 @@ public class WebServiceServerTest {
         header.setxAuthToken(judgeXAuthToken);
         requestBean = new RequestBean();
         requestBean.setHeaderBean(header);
-        mCrimpWSImpl.logout(requestBean);
+        Response<LogoutJs> response2 = mCrimpWSImpl.logout(requestBean);
+        assertThat(response2.body(), is(not(nullValue())));
 
-        // Craft request
-        body = new RequestBodyJs();
-        body.setFbAccessToken(JUDGE_FB_TOKEN);
-        requestBean = new RequestBean();
-        requestBean.setRequestBodyJs(body);
-
-        // Make request
-        Response<LoginJs> response2 = mCrimpWSImpl.login(requestBean);
-
-        // Verify response
-        assertThat(response2.body().getxUserId(), is(not(nullValue())));
-        assertThat(response2.body().getxAuthToken(), is(not(nullValue())));
-        assertThat(response2.body().getRemindLogout(), is(false));
-        assertThat(response2.body().getRoles(), is(not(nullValue())));
-        assertThat(response2.body().getError(), is(nullValue()));
-
-        List<String> roleList2 = response2.body().getRoles();
-        assertThat(roleList2.size(), is(greaterThan(0)));
-        // Check that all roles in roleList is valid
-        for(String s:roleList2){
-            assertThat(roleSet.contains(s), is(true));
-        }
-        // Check for repeats in roleList
-        Set<String> roleListAsSet2 = new HashSet<>(roleList2);
-        assertThat(roleListAsSet2.size(), is(roleList2.size()));
-        // Check that roleList contain role of judge or above
-        roleListAsSet2.remove("denied");
-        roleListAsSet2.remove("pending");
-        roleListAsSet2.remove("partner");
-        assertThat(roleListAsSet2.size(), is(greaterThan(0)));
-
-
+        /*********************************************************************/
 
         // Craft request
         body = new RequestBodyJs();
@@ -232,7 +142,7 @@ public class WebServiceServerTest {
         // Verify response
         assertThat(response3.body().getxUserId(), is(not(nullValue())));
         assertThat(response3.body().getxAuthToken(), is(not(nullValue())));
-        assertThat(response3.body().getRemindLogout(), is(true));
+        assertThat(response3.body().getRemindLogout(), is(false));
         assertThat(response3.body().getRoles(), is(not(nullValue())));
         assertThat(response3.body().getError(), is(nullValue()));
 
@@ -253,6 +163,39 @@ public class WebServiceServerTest {
 
         /*********************************************************************/
 
+        // Craft request
+        body = new RequestBodyJs();
+        body.setFbAccessToken(JUDGE_FB_TOKEN);
+        requestBean = new RequestBean();
+        requestBean.setRequestBodyJs(body);
+
+        // Make request
+        Response<LoginJs> response4 = mCrimpWSImpl.login(requestBean);
+
+        // Verify response
+        assertThat(response4.body().getxUserId(), is(not(nullValue())));
+        assertThat(response4.body().getxAuthToken(), is(not(nullValue())));
+        assertThat(response4.body().getRemindLogout(), is(true));
+        assertThat(response4.body().getRoles(), is(not(nullValue())));
+        assertThat(response4.body().getError(), is(nullValue()));
+
+        List<String> roleList4 = response4.body().getRoles();
+        assertThat(roleList4.size(), is(greaterThan(0)));
+        // Check that all roles in roleList is valid
+        for(String s:roleList4){
+            assertThat(roleSet.contains(s), is(true));
+        }
+        // Check for repeats in roleList
+        Set<String> roleListAsSet4 = new HashSet<>(roleList4);
+        assertThat(roleListAsSet4.size(), is(roleList4.size()));
+        // Check that roleList contain role of judge or above
+        roleListAsSet4.remove("denied");
+        roleListAsSet4.remove("pending");
+        roleListAsSet4.remove("partner");
+        assertThat(roleListAsSet4.size(), is(greaterThan(0)));
+
+        /*********************************************************************/
+
         /*
         // Craft request
         body = new RequestBodyJs();
@@ -261,15 +204,25 @@ public class WebServiceServerTest {
         requestBean.setRequestBodyJs(body);
 
         // Make request
-        LoginJs response4 = mCrimpWSImpl.login(requestBean);
+        Response<LoginJs> response5 = mCrimpWSImpl.login(requestBean);
 
         // Verify response
-        assertThat(response4.getxUserId(), is(nullValue()));
-        assertThat(response4.getxAuthToken(), is(nullValue()));
-        assertThat(response4.getRemindLogout(), is(nullValue()));
-        assertThat(response4.getRoles(), is(nullValue()));
-        assertThat(response4.getError(), is(not(nullValue())));
+        assertThat(response5.body().getxUserId(), is(nullValue()));
+        assertThat(response5.body().getxAuthToken(), is(nullValue()));
+        assertThat(response5.body().getRemindLogout(), is(nullValue()));
+        assertThat(response5.body().getRoles(), is(nullValue()));
+        assertThat(response5.body().getError(), is(not(nullValue())));
         */
+
+        /*********************************************************************/
+
+        // Logout
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        requestBean = new RequestBean();
+        requestBean.setHeaderBean(header);
+        mCrimpWSImpl.logout(requestBean);
     }
 
     @Test
@@ -301,34 +254,128 @@ public class WebServiceServerTest {
         HeaderBean header;
         RequestBodyJs body;
         RequestBean requestBean;
+        String judgeXUserId;
+        String judgeXAuthToken;
 
-        // Craft request
+        // Login to get xUserId and xAuthToken
+        body = new RequestBodyJs();
+        body.setFbAccessToken(JUDGE_FB_TOKEN);
+        requestBean = new RequestBean();
+        requestBean.setRequestBodyJs(body);
+
+        // Make request
+        Response<LoginJs> response1 = mCrimpWSImpl.login(requestBean);
+
+        // Verify response
+        judgeXUserId = response1.body().getxUserId();
+        judgeXAuthToken = response1.body().getxAuthToken();
+        if(judgeXUserId == null || judgeXAuthToken == null){
+            throw new NullPointerException("Failed to get X-User-Id and/or X-Auth-Token");
+        }
+
+        /*********************************************************************/
+
+        // Get categories
+        Response<CategoriesJs> response2 = mCrimpWSImpl.getCategories();
+
+        // Verify response
+        List<CategoryJs> categoryJsList = response2.body().getCategories();
+        if(categoryJsList.size() == 0){
+            throw new RuntimeException("Get categories request return a list of 0 category");
+        }
+        for(CategoryJs categoryJs:categoryJsList){
+            if(categoryJs.getRoutes().size() == 0){
+                throw new RuntimeException("Category id: "+categoryJs.getCategoryId()+" has a list of 0 routes");
+            }
+        }
+
+        /*********************************************************************/
+
+        for(CategoryJs c:categoryJsList){
+            for(RouteJs r:c.getRoutes()){
+                // Craft request
+                header = new HeaderBean();
+                header.setxUserId(judgeXUserId);
+                header.setxAuthToken(judgeXAuthToken);
+                body = new RequestBodyJs();
+                body.setCategoryId(c.getCategoryId());
+                body.setRouteId(r.getRouteId());
+                body.setForceReport(false);
+                requestBean = new RequestBean();
+                requestBean.setRequestBodyJs(body);
+                requestBean.setHeaderBean(header);
+
+                // Make request
+                Response<ReportJs> response3 = mCrimpWSImpl.reportIn(requestBean);
+
+                // Verify response
+                assertThat(response3.body().getxUserId(), is(not(nullValue())));
+                assertThat(response3.body().getUserName(), is(not(nullValue())));
+                assertThat(response3.body().getCategoryId(), is(c.getCategoryId()));
+                assertThat(response3.body().getRouteId(), is(r.getRouteId()));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Logout
         header = new HeaderBean();
         header.setxUserId(judgeXUserId);
         header.setxAuthToken(judgeXAuthToken);
-        body = new RequestBodyJs();
-        body.setCategoryId(categoryId);
-        body.setRouteId(routeId);
-        body.setForceReport(false);
         requestBean = new RequestBean();
-        requestBean.setRequestBodyJs(body);
         requestBean.setHeaderBean(header);
-
-        // Make request
-        Response<ReportJs> response1 = mCrimpWSImpl.reportIn(requestBean);
-
-        // Verify response
-        assertThat(response1.body().getxUserId(), is(not(nullValue())));
-        assertThat(response1.body().getUserName(), is(not(nullValue())));
-        assertThat(response1.body().getCategoryId(), is(categoryId));
-        assertThat(response1.body().getRouteId(), is(routeId));
+        mCrimpWSImpl.logout(requestBean);
     }
 
     @Test
     public void testGetScore() throws IOException {
         HeaderBean header;
+        RequestBodyJs body;
         QueryBean query;
         RequestBean requestBean;
+        String judgeXUserId;
+        String judgeXAuthToken;
+        String categoryId;
+        String routeId;
+        String climberId;
+        String markerId;
+
+        // Login to get xUserId and xAuthToken
+        body = new RequestBodyJs();
+        body.setFbAccessToken(JUDGE_FB_TOKEN);
+        requestBean = new RequestBean();
+        requestBean.setRequestBodyJs(body);
+
+        // Make request
+        Response<LoginJs> response1 = mCrimpWSImpl.login(requestBean);
+
+        // Verify response
+        judgeXUserId = response1.body().getxUserId();
+        judgeXAuthToken = response1.body().getxAuthToken();
+        if(judgeXUserId == null || judgeXAuthToken == null){
+            throw new NullPointerException("Failed to get X-User-Id and/or X-Auth-Token");
+        }
+
+        /*********************************************************************/
+
+        // Get categories
+        Response<CategoriesJs> response2 = mCrimpWSImpl.getCategories();
+
+        // Verify response
+        List<CategoryJs> categoryJsList = response2.body().getCategories();
+        if(categoryJsList.size() == 0){
+            throw new RuntimeException("Get categories request return a list of 0 category");
+        }
+        for(CategoryJs categoryJs:categoryJsList){
+            if(categoryJs.getRoutes().size() == 0){
+                throw new RuntimeException("Category id: "+categoryJs.getCategoryId()+" has a list of 0 routes");
+            }
+        }
+
+        categoryId = response2.body().getCategories().get(0).getCategoryId();
+        routeId = response2.body().getCategories().get(0).getRoutes().get(0).getRouteId();
+
+        /*********************************************************************/
 
         // Craft request
         header = new HeaderBean();
@@ -340,19 +387,19 @@ public class WebServiceServerTest {
         requestBean.setHeaderBean(header);
 
         // Make request
-        Response<GetScoreJs> response1 = mCrimpWSImpl.getScore(requestBean);
+        Response<GetScoreJs> response3 = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        assertThat(response1, is(not(nullValue())));
-        assertThat(response1.body().getClimberScores(), is(not(nullValue())));
-        assertThat(response1.body().getClimberScores().size(), is(greaterThan(0)));
-        assertThat(response1.body().getClimberScores().get(0).getScores(), is(not(nullValue())));
-        assertThat(response1.body().getClimberScores().get(0).getScores().size(), is(greaterThan(0)));
-        assertThat(response1.body().getClimberScores().get(0).getScores().get(0).getRouteId(), is(not(nullValue())));
-        climberId = response1.body().getClimberScores().get(0).getClimberId();
-        markerId = response1.body().getClimberScores().get(0).getScores().get(0).getMarkerId();
+        assertThat(response3, is(not(nullValue())));
+        assertThat(response3.body().getClimberScores(), is(not(nullValue())));
+        assertThat(response3.body().getClimberScores().size(), is(greaterThan(0)));
+        assertThat(response3.body().getClimberScores().get(0).getScores(), is(not(nullValue())));
+        assertThat(response3.body().getClimberScores().get(0).getScores().size(), is(greaterThan(0)));
+        assertThat(response3.body().getClimberScores().get(0).getScores().get(0).getRouteId(), is(not(nullValue())));
+        climberId = response3.body().getClimberScores().get(0).getClimberId();
+        markerId = response3.body().getClimberScores().get(0).getScores().get(0).getMarkerId();
 
-        for(ClimberScoreJs climber:response1.body().getClimberScores()){
+        for(ClimberScoreJs climber:response3.body().getClimberScores()){
             assertThat(climber.getClimberId(), is(not(nullValue())));
             assertThat(climber.getClimberName(), is(not(nullValue())));
             assertThat(climber.getScores(), is(not(nullValue())));
@@ -377,10 +424,10 @@ public class WebServiceServerTest {
         requestBean.setHeaderBean(header);
 
         // Make request
-        Response<GetScoreJs> response2 = mCrimpWSImpl.getScore(requestBean);
+        Response<GetScoreJs> response4 = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        for(ClimberScoreJs climber:response2.body().getClimberScores()){
+        for(ClimberScoreJs climber:response4.body().getClimberScores()){
             assertThat(climber.getClimberId(), is(climberId));
             assertThat(climber.getClimberName(), is(not(nullValue())));
             assertThat(climber.getScores(), is(not(nullValue())));
@@ -405,10 +452,10 @@ public class WebServiceServerTest {
         requestBean.setHeaderBean(header);
 
         // Make request
-        Response<GetScoreJs> response3 = mCrimpWSImpl.getScore(requestBean);
+        Response<GetScoreJs> response5 = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        for(ClimberScoreJs climber:response3.body().getClimberScores()){
+        for(ClimberScoreJs climber:response5.body().getClimberScores()){
             assertThat(climber.getClimberId(), is(not(nullValue())));
             assertThat(climber.getClimberName(), is(not(nullValue())));
             assertThat(climber.getScores(), is(not(nullValue())));
@@ -433,10 +480,10 @@ public class WebServiceServerTest {
         requestBean.setHeaderBean(header);
 
         // Make request
-        Response<GetScoreJs> response4 = mCrimpWSImpl.getScore(requestBean);
+        Response<GetScoreJs> response6 = mCrimpWSImpl.getScore(requestBean);
 
         // Verify response
-        for(ClimberScoreJs climber:response4.body().getClimberScores()){
+        for(ClimberScoreJs climber:response6.body().getClimberScores()){
             assertThat(climber.getClimberId(), is(not(nullValue())));
             assertThat(climber.getClimberName(), is(not(nullValue())));
             assertThat(climber.getScores(), is(not(nullValue())));
@@ -447,5 +494,588 @@ public class WebServiceServerTest {
                 assertThat(score.getCategoryId(), is(not(nullValue())));
             }
         }
+
+        /*********************************************************************/
+
+        // Craft request
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        query = new QueryBean();
+        query.setMarkerId(markerId);
+        requestBean = new RequestBean();
+        requestBean.setQueryBean(query);
+        requestBean.setHeaderBean(header);
+
+        // Make request
+        Response<GetScoreJs> response7 = mCrimpWSImpl.getScore(requestBean);
+
+        // Verify response
+        for(ClimberScoreJs climber:response7.body().getClimberScores()){
+            assertThat(climber.getClimberId(), is(not(nullValue())));
+            assertThat(climber.getClimberName(), is(not(nullValue())));
+            assertThat(climber.getScores(), is(not(nullValue())));
+            for(ScoreJs score:climber.getScores()){
+                assertThat(score.getMarkerId(), is(markerId));
+                assertThat(score.getRouteId(), is(not(nullValue())));
+                assertThat(score.getScore(), is(not(nullValue())));
+                assertThat(score.getCategoryId(), is(not(nullValue())));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Craft request
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        query = new QueryBean();
+        query.setClimberId(climberId);
+        query.setCategoryId(categoryId);
+        requestBean = new RequestBean();
+        requestBean.setQueryBean(query);
+        requestBean.setHeaderBean(header);
+
+        // Make request
+        Response<GetScoreJs> response8 = mCrimpWSImpl.getScore(requestBean);
+
+        // Verify response
+        for(ClimberScoreJs climber:response8.body().getClimberScores()){
+            assertThat(climber.getClimberId(), is(climberId));
+            assertThat(climber.getClimberName(), is(not(nullValue())));
+            assertThat(climber.getScores(), is(not(nullValue())));
+            for(ScoreJs score:climber.getScores()){
+                assertThat(score.getMarkerId(), is(not(nullValue())));
+                assertThat(score.getRouteId(), is(not(nullValue())));
+                assertThat(score.getScore(), is(not(nullValue())));
+                assertThat(score.getCategoryId(), is(categoryId));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Craft request
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        query = new QueryBean();
+        query.setClimberId(climberId);
+        query.setRouteId(routeId);
+        requestBean = new RequestBean();
+        requestBean.setQueryBean(query);
+        requestBean.setHeaderBean(header);
+
+        // Make request
+        Response<GetScoreJs> response9 = mCrimpWSImpl.getScore(requestBean);
+
+        // Verify response
+        for(ClimberScoreJs climber:response9.body().getClimberScores()){
+            assertThat(climber.getClimberId(), is(climberId));
+            assertThat(climber.getClimberName(), is(not(nullValue())));
+            assertThat(climber.getScores(), is(not(nullValue())));
+            for(ScoreJs score:climber.getScores()){
+                assertThat(score.getMarkerId(), is(not(nullValue())));
+                assertThat(score.getRouteId(), is(routeId));
+                assertThat(score.getScore(), is(not(nullValue())));
+                assertThat(score.getCategoryId(), is(not(nullValue())));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Craft request
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        query = new QueryBean();
+        query.setClimberId(climberId);
+        query.setMarkerId(markerId);
+        requestBean = new RequestBean();
+        requestBean.setQueryBean(query);
+        requestBean.setHeaderBean(header);
+
+        // Make request
+        Response<GetScoreJs> response10 = mCrimpWSImpl.getScore(requestBean);
+
+        // Verify response
+        for(ClimberScoreJs climber:response10.body().getClimberScores()){
+            assertThat(climber.getClimberId(), is(climberId));
+            assertThat(climber.getClimberName(), is(not(nullValue())));
+            assertThat(climber.getScores(), is(not(nullValue())));
+            for(ScoreJs score:climber.getScores()){
+                assertThat(score.getMarkerId(), is(markerId));
+                assertThat(score.getRouteId(), is(not(nullValue())));
+                assertThat(score.getScore(), is(not(nullValue())));
+                assertThat(score.getCategoryId(), is(not(nullValue())));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Craft request
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        query = new QueryBean();
+        query.setCategoryId(categoryId);
+        query.setRouteId(routeId);
+        requestBean = new RequestBean();
+        requestBean.setQueryBean(query);
+        requestBean.setHeaderBean(header);
+
+        // Make request
+        Response<GetScoreJs> response11 = mCrimpWSImpl.getScore(requestBean);
+
+        // Verify response
+        for(ClimberScoreJs climber:response11.body().getClimberScores()){
+            assertThat(climber.getClimberId(), is(not(nullValue())));
+            assertThat(climber.getClimberName(), is(not(nullValue())));
+            assertThat(climber.getScores(), is(not(nullValue())));
+            for(ScoreJs score:climber.getScores()){
+                assertThat(score.getMarkerId(), is(not(nullValue())));
+                assertThat(score.getRouteId(), is(routeId));
+                assertThat(score.getScore(), is(not(nullValue())));
+                assertThat(score.getCategoryId(), is(categoryId));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Craft request
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        query = new QueryBean();
+        query.setCategoryId(categoryId);
+        query.setMarkerId(markerId);
+        requestBean = new RequestBean();
+        requestBean.setQueryBean(query);
+        requestBean.setHeaderBean(header);
+
+        // Make request
+        Response<GetScoreJs> response12 = mCrimpWSImpl.getScore(requestBean);
+
+        // Verify response
+        for(ClimberScoreJs climber:response12.body().getClimberScores()){
+            assertThat(climber.getClimberId(), is(not(nullValue())));
+            assertThat(climber.getClimberName(), is(not(nullValue())));
+            assertThat(climber.getScores(), is(not(nullValue())));
+            for(ScoreJs score:climber.getScores()){
+                assertThat(score.getMarkerId(), is(markerId));
+                assertThat(score.getRouteId(), is(not(nullValue())));
+                assertThat(score.getScore(), is(not(nullValue())));
+                assertThat(score.getCategoryId(), is(categoryId));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Craft request
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        query = new QueryBean();
+        query.setRouteId(routeId);
+        query.setMarkerId(markerId);
+        requestBean = new RequestBean();
+        requestBean.setQueryBean(query);
+        requestBean.setHeaderBean(header);
+
+        // Make request
+        Response<GetScoreJs> response13 = mCrimpWSImpl.getScore(requestBean);
+
+        // Verify response
+        for(ClimberScoreJs climber:response13.body().getClimberScores()){
+            assertThat(climber.getClimberId(), is(not(nullValue())));
+            assertThat(climber.getClimberName(), is(not(nullValue())));
+            assertThat(climber.getScores(), is(not(nullValue())));
+            for(ScoreJs score:climber.getScores()){
+                assertThat(score.getMarkerId(), is(markerId));
+                assertThat(score.getRouteId(), is(routeId));
+                assertThat(score.getScore(), is(not(nullValue())));
+                assertThat(score.getCategoryId(), is(not(nullValue())));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Craft request
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        query = new QueryBean();
+        query.setClimberId(climberId);
+        query.setCategoryId(categoryId);
+        query.setRouteId(routeId);
+        requestBean = new RequestBean();
+        requestBean.setQueryBean(query);
+        requestBean.setHeaderBean(header);
+
+        // Make request
+        Response<GetScoreJs> response14 = mCrimpWSImpl.getScore(requestBean);
+
+        // Verify response
+        for(ClimberScoreJs climber:response14.body().getClimberScores()){
+            assertThat(climber.getClimberId(), is(climberId));
+            assertThat(climber.getClimberName(), is(not(nullValue())));
+            assertThat(climber.getScores(), is(not(nullValue())));
+            for(ScoreJs score:climber.getScores()){
+                assertThat(score.getMarkerId(), is(not(nullValue())));
+                assertThat(score.getRouteId(), is(routeId));
+                assertThat(score.getScore(), is(not(nullValue())));
+                assertThat(score.getCategoryId(), is(categoryId));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Craft request
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        query = new QueryBean();
+        query.setClimberId(climberId);
+        query.setCategoryId(categoryId);
+        query.setMarkerId(markerId);
+        requestBean = new RequestBean();
+        requestBean.setQueryBean(query);
+        requestBean.setHeaderBean(header);
+
+        // Make request
+        Response<GetScoreJs> response15 = mCrimpWSImpl.getScore(requestBean);
+
+        // Verify response
+        for(ClimberScoreJs climber:response15.body().getClimberScores()){
+            assertThat(climber.getClimberId(), is(climberId));
+            assertThat(climber.getClimberName(), is(not(nullValue())));
+            assertThat(climber.getScores(), is(not(nullValue())));
+            for(ScoreJs score:climber.getScores()){
+                assertThat(score.getMarkerId(), is(markerId));
+                assertThat(score.getRouteId(), is(not(nullValue())));
+                assertThat(score.getScore(), is(not(nullValue())));
+                assertThat(score.getCategoryId(), is(categoryId));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Craft request
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        query = new QueryBean();
+        query.setClimberId(climberId);
+        query.setRouteId(routeId);
+        query.setMarkerId(markerId);
+        requestBean = new RequestBean();
+        requestBean.setQueryBean(query);
+        requestBean.setHeaderBean(header);
+
+        // Make request
+        Response<GetScoreJs> response16 = mCrimpWSImpl.getScore(requestBean);
+
+        // Verify response
+        for(ClimberScoreJs climber:response16.body().getClimberScores()){
+            assertThat(climber.getClimberId(), is(climberId));
+            assertThat(climber.getClimberName(), is(not(nullValue())));
+            assertThat(climber.getScores(), is(not(nullValue())));
+            for(ScoreJs score:climber.getScores()){
+                assertThat(score.getMarkerId(), is(markerId));
+                assertThat(score.getRouteId(), is(routeId));
+                assertThat(score.getScore(), is(not(nullValue())));
+                assertThat(score.getCategoryId(), is(not(nullValue())));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Craft request
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        query = new QueryBean();
+        query.setCategoryId(categoryId);
+        query.setRouteId(routeId);
+        query.setMarkerId(markerId);
+        requestBean = new RequestBean();
+        requestBean.setQueryBean(query);
+        requestBean.setHeaderBean(header);
+
+        // Make request
+        Response<GetScoreJs> response17 = mCrimpWSImpl.getScore(requestBean);
+
+        // Verify response
+        for(ClimberScoreJs climber:response17.body().getClimberScores()){
+            assertThat(climber.getClimberId(), is(not(nullValue())));
+            assertThat(climber.getClimberName(), is(not(nullValue())));
+            assertThat(climber.getScores(), is(not(nullValue())));
+            for(ScoreJs score:climber.getScores()){
+                assertThat(score.getMarkerId(), is(markerId));
+                assertThat(score.getRouteId(), is(routeId));
+                assertThat(score.getScore(), is(not(nullValue())));
+                assertThat(score.getCategoryId(), is(categoryId));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Craft request
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        query = new QueryBean();
+        query.setClimberId(climberId);
+        query.setCategoryId(categoryId);
+        query.setRouteId(routeId);
+        query.setMarkerId(markerId);
+        requestBean = new RequestBean();
+        requestBean.setQueryBean(query);
+        requestBean.setHeaderBean(header);
+
+        // Make request
+        Response<GetScoreJs> response18 = mCrimpWSImpl.getScore(requestBean);
+
+        // Verify response
+        for(ClimberScoreJs climber:response18.body().getClimberScores()){
+            assertThat(climber.getClimberId(), is(climberId));
+            assertThat(climber.getClimberName(), is(not(nullValue())));
+            assertThat(climber.getScores(), is(not(nullValue())));
+            for(ScoreJs score:climber.getScores()){
+                assertThat(score.getMarkerId(), is(markerId));
+                assertThat(score.getRouteId(), is(routeId));
+                assertThat(score.getScore(), is(not(nullValue())));
+                assertThat(score.getCategoryId(), is(categoryId));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Logout
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        requestBean = new RequestBean();
+        requestBean.setHeaderBean(header);
+        mCrimpWSImpl.logout(requestBean);
+    }
+
+    @Test
+    public void testSetActive() throws IOException {
+        HeaderBean header;
+        RequestBodyJs body;
+        QueryBean query;
+        RequestBean requestBean;
+        String judgeXUserId;
+        String judgeXAuthToken;
+
+        // Login to get xUserId and xAuthToken
+        body = new RequestBodyJs();
+        body.setFbAccessToken(JUDGE_FB_TOKEN);
+        requestBean = new RequestBean();
+        requestBean.setRequestBodyJs(body);
+
+        // Make request
+        Response<LoginJs> response1 = mCrimpWSImpl.login(requestBean);
+
+        // Verify response
+        judgeXUserId = response1.body().getxUserId();
+        judgeXAuthToken = response1.body().getxAuthToken();
+        if(judgeXUserId == null || judgeXAuthToken == null){
+            throw new NullPointerException("Failed to get X-User-Id and/or X-Auth-Token");
+        }
+
+        /*********************************************************************/
+
+        // Craft request
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        query = new QueryBean();
+        requestBean = new RequestBean();
+        requestBean.setQueryBean(query);
+        requestBean.setHeaderBean(header);
+
+        // Make request
+        Response<GetScoreJs> response2 = mCrimpWSImpl.getScore(requestBean);
+
+        for(ClimberScoreJs c:response2.body().getClimberScores()){
+            for(ScoreJs s:c.getScores()){
+                // Craft request
+                header = new HeaderBean();
+                header.setxUserId(judgeXUserId);
+                header.setxAuthToken(judgeXAuthToken);
+                body = new RequestBodyJs();
+                body.setMarkerId(s.getMarkerId());
+                body.setRouteId(s.getRouteId());
+                requestBean = new RequestBean();
+                requestBean.setRequestBodyJs(body);
+                requestBean.setHeaderBean(header);
+
+                // Make request
+                Response<SetActiveJs> response3 = mCrimpWSImpl.setActive(requestBean);
+
+                // Verify response
+                assertThat(response3.body().getMarkerId(), is(s.getMarkerId()));
+                assertThat(response3.body().getClimberId(), is(not(nullValue())));
+                assertThat(response3.body().getClimberName(), is(not(nullValue())));
+                assertThat(response3.body().getRouteId(), is(s.getRouteId()));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Logout
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        requestBean = new RequestBean();
+        requestBean.setHeaderBean(header);
+        mCrimpWSImpl.logout(requestBean);
+    }
+
+    @Test
+    public void testClearActive() throws IOException {
+        HeaderBean header;
+        RequestBodyJs body;
+        RequestBean requestBean;
+        String judgeXUserId;
+        String judgeXAuthToken;
+
+        // Login to get xUserId and xAuthToken
+        body = new RequestBodyJs();
+        body.setFbAccessToken(JUDGE_FB_TOKEN);
+        requestBean = new RequestBean();
+        requestBean.setRequestBodyJs(body);
+
+        // Make request
+        Response<LoginJs> response1 = mCrimpWSImpl.login(requestBean);
+
+        // Verify response
+        judgeXUserId = response1.body().getxUserId();
+        judgeXAuthToken = response1.body().getxAuthToken();
+        if(judgeXUserId == null || judgeXAuthToken == null){
+            throw new NullPointerException("Failed to get X-User-Id and/or X-Auth-Token");
+        }
+
+        /*********************************************************************/
+
+        // Get categories
+        Response<CategoriesJs> response2 = mCrimpWSImpl.getCategories();
+
+        // Verify response
+        List<CategoryJs> categoryJsList = response2.body().getCategories();
+        if(categoryJsList.size() == 0){
+            throw new RuntimeException("Get categories request return a list of 0 category");
+        }
+        for(CategoryJs categoryJs:categoryJsList){
+            if(categoryJs.getRoutes().size() == 0){
+                throw new RuntimeException("Category id: "+categoryJs.getCategoryId()+" has a list of 0 routes");
+            }
+        }
+
+        /*********************************************************************/
+
+        for(CategoryJs c:categoryJsList){
+            for(RouteJs r:c.getRoutes()){
+                // Craft request
+                header = new HeaderBean();
+                header.setxUserId(judgeXUserId);
+                header.setxAuthToken(judgeXAuthToken);
+                body = new RequestBodyJs();
+                body.setRouteId(r.getRouteId());
+                requestBean = new RequestBean();
+                requestBean.setRequestBodyJs(body);
+                requestBean.setHeaderBean(header);
+
+                // Make request
+                Response<ClearActiveJs> response3 = mCrimpWSImpl.clearActive(requestBean);
+
+                // Verify response
+                assertThat(response3.body(), is(not(nullValue())));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Logout
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        requestBean = new RequestBean();
+        requestBean.setHeaderBean(header);
+        mCrimpWSImpl.logout(requestBean);
+    }
+
+    @Test
+    public void testRequestHelp() throws IOException {
+        HeaderBean header;
+        RequestBodyJs body;
+        RequestBean requestBean;
+        String judgeXUserId;
+        String judgeXAuthToken;
+
+        // Login to get xUserId and xAuthToken
+        body = new RequestBodyJs();
+        body.setFbAccessToken(JUDGE_FB_TOKEN);
+        requestBean = new RequestBean();
+        requestBean.setRequestBodyJs(body);
+
+        // Make request
+        Response<LoginJs> response1 = mCrimpWSImpl.login(requestBean);
+
+        // Verify response
+        judgeXUserId = response1.body().getxUserId();
+        judgeXAuthToken = response1.body().getxAuthToken();
+        if(judgeXUserId == null || judgeXAuthToken == null){
+            throw new NullPointerException("Failed to get X-User-Id and/or X-Auth-Token");
+        }
+
+        /*********************************************************************/
+
+        // Get categories
+        Response<CategoriesJs> response2 = mCrimpWSImpl.getCategories();
+
+        // Verify response
+        List<CategoryJs> categoryJsList = response2.body().getCategories();
+        if(categoryJsList.size() == 0){
+            throw new RuntimeException("Get categories request return a list of 0 category");
+        }
+        for(CategoryJs categoryJs:categoryJsList){
+            if(categoryJs.getRoutes().size() == 0){
+                throw new RuntimeException("Category id: "+categoryJs.getCategoryId()+" has a list of 0 routes");
+            }
+        }
+
+        /*********************************************************************/
+
+        for(CategoryJs c:categoryJsList){
+            for(RouteJs r:c.getRoutes()){
+                // Craft request
+                header = new HeaderBean();
+                header.setxUserId(judgeXUserId);
+                header.setxAuthToken(judgeXAuthToken);
+                body = new RequestBodyJs();
+                body.setRouteId(r.getRouteId());
+                requestBean = new RequestBean();
+                requestBean.setRequestBodyJs(body);
+                requestBean.setHeaderBean(header);
+
+                // Make request
+                Response<HelpMeJs> response3 = mCrimpWSImpl.requestHelp(requestBean);
+
+                // Verify response
+                assertThat(response3.body(), is(not(nullValue())));
+            }
+        }
+
+        /*********************************************************************/
+
+        // Logout
+        header = new HeaderBean();
+        header.setxUserId(judgeXUserId);
+        header.setxAuthToken(judgeXAuthToken);
+        requestBean = new RequestBean();
+        requestBean.setHeaderBean(header);
+        mCrimpWSImpl.logout(requestBean);
     }
 }

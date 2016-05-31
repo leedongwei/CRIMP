@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
+import okhttp3.MediaType;
+import okhttp3.ResponseBody;
+import okio.BufferedSource;
 import retrofit2.Response;
 import rocks.crimp.crimp.hello.scan.ScanFragment;
 import rocks.crimp.crimp.hello.score.ScoreFragment;
@@ -27,7 +30,7 @@ import timber.log.Timber;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class StubWS implements CrimpWS {
-    private static final int TIME_TO_RESPOND = 2000;
+    private static final int TIME_TO_RESPOND = 10000;
 
     @Override
     public Response<CategoriesJs> getCategories() throws IOException {
@@ -245,6 +248,24 @@ public class StubWS implements CrimpWS {
         postScoreJs.setMarkerId("markerId");
         postScoreJs.setScore("11");
 
+        /*
+        return Response.error(500, new ResponseBody() {
+            @Override
+            public MediaType contentType() {
+                return null;
+            }
+
+            @Override
+            public long contentLength() {
+                return 0;
+            }
+
+            @Override
+            public BufferedSource source() {
+                return null;
+            }
+        });
+        */
         return Response.success(postScoreJs);
     }
 

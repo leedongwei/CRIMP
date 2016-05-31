@@ -198,6 +198,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
 
     private void doClose(){
         // close score tab
+        mGetScoreTxId = null;
         CrimpApplication.getAppState().edit()
                 .remove(CrimpApplication.MARKER_ID)
                 .remove(CrimpApplication.CLIMBER_NAME)
@@ -365,6 +366,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                         ServiceHelper.postScore(getActivity(), null, routeId, markerId, xUserId, xAuthToken,
                                 currentScore, chosenCategoryName, chosenRouteName);
 
+                        mGetScoreTxId = null;
                         CrimpApplication.getAppState().edit()
                                 .remove(CrimpApplication.MARKER_ID)
                                 .remove(CrimpApplication.CLIMBER_NAME)
