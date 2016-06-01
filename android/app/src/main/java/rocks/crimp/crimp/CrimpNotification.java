@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.NotificationCompat;
 
 import rocks.crimp.crimp.tasklist.TaskListActivity;
@@ -20,9 +21,14 @@ public class CrimpNotification {
                 new NotificationCompat.Builder(context);
 
         Intent intent = new Intent(context, TaskListActivity.class);
-        Intent[] intentArray = {intent};
-        PendingIntent pendingIntent = PendingIntent.getActivities(context, 0, intentArray,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        // Adds the back stack
+        stackBuilder.addParentStack(TaskListActivity.class);
+        // Adds the Intent to the top of the stack
+        stackBuilder.addNextIntent(intent);
+        // Gets a PendingIntent containing the entire back stack
+        PendingIntent pendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         mBuilder.setSmallIcon(R.drawable.notification)
                 .setContentTitle("Score upload completed!")
@@ -43,9 +49,14 @@ public class CrimpNotification {
                 new NotificationCompat.Builder(context);
 
         Intent intent = new Intent(context, TaskListActivity.class);
-        Intent[] intentArray = {intent};
-        PendingIntent pendingIntent = PendingIntent.getActivities(context, 0, intentArray,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        // Adds the back stack
+        stackBuilder.addParentStack(TaskListActivity.class);
+        // Adds the Intent to the top of the stack
+        stackBuilder.addNextIntent(intent);
+        // Gets a PendingIntent containing the entire back stack
+        PendingIntent pendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         mBuilder.setSmallIcon(R.drawable.notification)
                 .setContentTitle("Uploading scores")
@@ -66,9 +77,14 @@ public class CrimpNotification {
                 new NotificationCompat.Builder(context);
 
         Intent intent = new Intent(context, TaskListActivity.class);
-        Intent[] intentArray = {intent};
-        PendingIntent pendingIntent = PendingIntent.getActivities(context, 0, intentArray,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        // Adds the back stack
+        stackBuilder.addParentStack(TaskListActivity.class);
+        // Adds the Intent to the top of the stack
+        stackBuilder.addNextIntent(intent);
+        // Gets a PendingIntent containing the entire back stack
+        PendingIntent pendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         mBuilder.setSmallIcon(R.drawable.notification)
                 .setDefaults(Notification.DEFAULT_ALL)

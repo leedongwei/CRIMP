@@ -182,15 +182,15 @@ public class HelloActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onStart(){
-        super.onStart();
+    protected void onResume(){
+        super.onResume();
         CrimpApplication.getBusInstance().register(this);
     }
 
     @Override
-    protected void onStop(){
+    protected void onPause(){
         CrimpApplication.getBusInstance().unregister(this);
-        super.onStop();
+        super.onPause();
     }
 
     @Produce
