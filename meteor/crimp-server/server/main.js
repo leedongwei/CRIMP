@@ -113,7 +113,7 @@ Api.addRoute('judge/login', { authRequired: false }, {
 
       // If this is the first user, give supreme privileges
       if (Meteor.users.find().count() === 1 &&
-          !_.contains(userRoles, 'hukkataival')) {
+          !_.findIndex(userRoles, 'hukkataival')) {
         userRoles.push('hukkataival');
         Roles.addUsersToRoles(user._id, userRoles, Roles.GLOBAL_GROUP);
       }
@@ -423,22 +423,26 @@ Api.addRoute('judge/helpme', { authRequired: true }, {
   post: function postHelpMe() {
     try {
       const targetRouteId = this.bodyParams.route_id;
-      const targetCategory = Categories.findOne({
-        routes: { $elemMatch: {
-          _id: targetRouteId,
-        } },
-      });
-      const targetRoute = _.find(targetCategory.routes,
-                                 (route) => (route._id === targetRouteId));
-
-      // Build the document for HelpMe
       const helpMeDoc = {
         route_id: targetRouteId,
-        route_name: targetRoute.route_name,
-        category_name: targetCategory.category_name,
+        route_name: '',
+        category_name: '',
         user_id: this.userId,
         user_name: this.user.services.facebook.name,
       };
+
+      if (targetRouteId) {
+        const targetCategory = Categories.findOne({
+          routes: { $elemMatch: {
+            _id: targetRouteId,
+          } },
+        });
+        const targetRoute = _.find(targetCategory.routes,
+                                   (route) => (route._id === targetRouteId));
+
+        helpMeDoc.route_name = targetRoute.route_name;
+        helpMeDoc.category_name = targetCategory.category_name;
+      }
 
       // Add a dummy callback function so the op does not block
       HelpMe.insert(helpMeDoc, () => {});
