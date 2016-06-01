@@ -1,8 +1,10 @@
+import { Meteor } from 'meteor/meteor';
 import ActiveTracker from '../imports/data/activetracker';
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *  Interval-based functions                               *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+const SCAN_INTERVAL = 30 * 1000;
 
 /**
  *  Checks admin and climber values to see if they are expired and remove
@@ -49,7 +51,7 @@ function scanActiveTracker() {
 
     ActiveTracker.find({})
                  .forEach(removeExpiredActiveTracker);
-  }, 30 * 1000);
+  }, SCAN_INTERVAL);
 }
 
 export default scanActiveTracker;

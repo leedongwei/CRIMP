@@ -7,6 +7,9 @@ import CRIMP from '../settings';
 // import Categories from './categories';
 // import Climbers from './climbers';
 
+const EXPIRY_INTERVAL_JUDGE = 20 * 60 * 1000;
+const EXPIRY_INTERVAL_CLIMBER = 10 * 60 * 1000;
+
 const ActiveTracker = new Mongo.Collection('ActiveTracker');
 ActiveTracker.schema = new SimpleSchema({
   route_id: {
@@ -36,7 +39,7 @@ ActiveTracker.schema = new SimpleSchema({
     type: Date,
     label: 'Time to delete document',
     // expires in 20mins
-    autoValue: () => new Date(Date.now() + (20 * 60000)),
+    autoValue: () => new Date(Date.now() + EXPIRY_INTERVAL_JUDGE,
   },
   climber_id: {
     type: String,
@@ -55,8 +58,7 @@ ActiveTracker.schema = new SimpleSchema({
   climber_expiry: {
     label: 'Time to remove climber',
     type: Date,
-    // expires in 10mins
-    autoValue: () => new Date(Date.now() + (10 * 60000)),
+    autoValue: () => new Date(Date.now() + EXPIRY_INTERVAL_CLIMBER,
   },
 });
 ActiveTracker.attachSchema(ActiveTracker.schema);
