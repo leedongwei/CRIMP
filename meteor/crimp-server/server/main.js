@@ -25,9 +25,7 @@ Meteor.startup(() => {
 
 
 const Api = new Restivus({
-  defaultHeaders: { 'Content-Type': 'application/json' },
-  useDefaultAuth: true,
-  prettyJson: true,
+  apiPath: 'api/',
   auth: {
     token: 'services.resume.loginTokens.hashedToken',
     user: function authUser() {
@@ -37,6 +35,10 @@ const Api = new Restivus({
       };
     },
   },
+  defaultHeaders: { 'Content-Type': 'application/json' },
+  enableCors: true,
+  prettyJson: true,
+  useDefaultAuth: false,
 });
 
 
@@ -160,8 +162,13 @@ Api.addRoute('judge/logout', { authRequired: true }, {
 });
 
 
-Api.addRoute('judge/categories', { authRequired: false }, {
+Api.addRoute('judge/categories', {
+  authRequired: true,
+  // roleRequired: CRIMP.roles.judges,
+}, {
   get: function getCategories() {
+    CRIMP.checkRoles(CRIMP.roles.judges, this.user);
+
     try {
       const categoryDocs = Categories.find({}).fetch();
       const picked = [
@@ -220,8 +227,13 @@ Api.addRoute('judge/categories', { authRequired: false }, {
 });
 
 
-Api.addRoute('judge/score', { authRequired: true }, {
+Api.addRoute('judge/score', {
+  authRequired: true,
+  // roleRequired: CRIMP.roles.judges,
+}, {
   get: function getScore() {
+    CRIMP.checkRoles(CRIMP.roles.judges, this.user);
+
     try {
       const allowedOptions = ['event_id',
                               'category_id',
@@ -351,8 +363,13 @@ Api.addRoute('judge/score', { authRequired: true }, {
 });
 
 
-Api.addRoute('judge/score/:route_id/:marker_id', { authRequired: false }, {
+Api.addRoute('judge/score/:route_id/:marker_id', {
+  authRequired: true,
+  // roleRequired: CRIMP.roles.judges,
+}, {
   post: function postScore() {
+    CRIMP.checkRoles(CRIMP.roles.judges, this.user);
+
     try {
       const options = this.urlParams;
       const scoreString = this.bodyParams.score_string;
@@ -419,8 +436,13 @@ Api.addRoute('judge/score/:route_id/:marker_id', { authRequired: false }, {
 });
 
 
-Api.addRoute('judge/helpme', { authRequired: true }, {
+Api.addRoute('judge/helpme', {
+  authRequired: true,
+  // roleRequired: CRIMP.roles.judges,
+}, {
   post: function postHelpMe() {
+    CRIMP.checkRoles(CRIMP.roles.judges, this.user);
+
     try {
       const targetRouteId = this.bodyParams.route_id;
       const helpMeDoc = {
@@ -461,8 +483,13 @@ Api.addRoute('judge/helpme', { authRequired: true }, {
 });
 
 
-Api.addRoute('judge/report', { authRequired: true }, {
+Api.addRoute('judge/report', {
+  authRequired: true,
+  // roleRequired: CRIMP.roles.judges,
+}, {
   post: function postReport() {
+    CRIMP.checkRoles(CRIMP.roles.judges, this.user);
+
     try {
       const options = this.bodyParams;
       const targetActive = ActiveTracker.findOne({ route_id: options.route_id });
@@ -521,8 +548,13 @@ Api.addRoute('judge/report', { authRequired: true }, {
 });
 
 
-Api.addRoute('judge/setactive', { authRequired: true }, {
+Api.addRoute('judge/setactive', {
+  authRequired: true,
+  // roleRequired: CRIMP.roles.judges,
+}, {
   put: function putSetActive() {
+    CRIMP.checkRoles(CRIMP.roles.judges, this.user);
+
     try {
       const options = this.bodyParams;
       const targetActive = ActiveTracker.findOne({
@@ -586,8 +618,13 @@ Api.addRoute('judge/setactive', { authRequired: true }, {
 });
 
 
-Api.addRoute('judge/clearactive', { authRequired: true }, {
+Api.addRoute('judge/clearactive', {
+  authRequired: true,
+  // roleRequired: CRIMP.roles.judges,
+}, {
   put: function putClearActive() {
+    CRIMP.checkRoles(CRIMP.roles.judges, this.user);
+
     try {
       const options = this.bodyParams;
       const targetActive = ActiveTracker.findOne({ route_id: options.route_id });

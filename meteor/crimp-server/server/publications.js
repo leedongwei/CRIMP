@@ -16,7 +16,7 @@ import ActiveTracker from '../imports/data/activetracker';
  *  Admin-only subscriptions will simply publish everything.
  */
 
-// Delete this crazy publication
+// TODO: Delete this crazy publication and turn on permissions
 Meteor.publish('development', () =>
                Meteor.users.find({}));
 
@@ -69,7 +69,10 @@ Meteor.publish('teamsToPublic',
               });
 
 Meteor.publish('teamsToAdmin',
-              () => Teams.find({}));
+              () => {
+                // CRIMP.checkRoles(CRIMP.roles.admins);
+                return Teams.find({});
+              });
 
 Meteor.publish('climbersToPublic',
               (categoryId) => {
@@ -88,7 +91,10 @@ Meteor.publish('climbersToPublic',
               });
 
 Meteor.publish('climbersToAdmin',
-              () => Climbers.find({}));
+              () => {
+                // CRIMP.checkRoles(CRIMP.roles.admins);
+                return Climbers.find({});
+              });
 
 Meteor.publish('scoresToPublic',
               (categoryId) => {
@@ -107,7 +113,10 @@ Meteor.publish('scoresToPublic',
               });
 
 Meteor.publish('scoresToAdmin',
-              () => Scores.find({}));
+              () => {
+                // CRIMP.checkRoles(CRIMP.roles.admins);
+                return Scores.find({});
+              });
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
