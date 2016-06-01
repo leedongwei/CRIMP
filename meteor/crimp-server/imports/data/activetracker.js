@@ -39,7 +39,7 @@ ActiveTracker.schema = new SimpleSchema({
     type: Date,
     label: 'Time to delete document',
     // expires in 20mins
-    autoValue: () => new Date(Date.now() + EXPIRY_INTERVAL_JUDGE,
+    autoValue: () => new Date(Date.now() + EXPIRY_INTERVAL_JUDGE),
   },
   climber_id: {
     type: String,
@@ -58,7 +58,7 @@ ActiveTracker.schema = new SimpleSchema({
   climber_expiry: {
     label: 'Time to remove climber',
     type: Date,
-    autoValue: () => new Date(Date.now() + EXPIRY_INTERVAL_CLIMBER,
+    autoValue: () => new Date(Date.now() + EXPIRY_INTERVAL_CLIMBER),
   },
 });
 ActiveTracker.attachSchema(ActiveTracker.schema);

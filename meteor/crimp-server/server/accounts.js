@@ -4,7 +4,6 @@ import { Roles } from 'meteor/alanning:roles';
 
 import CRIMP from '../imports/settings';
 
-// TODO: Find a suitable home for this function
 Accounts.onCreateUser((options, user) => {
   const newUser = user;
 
