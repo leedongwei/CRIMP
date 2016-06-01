@@ -4,8 +4,6 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import CRIMP from '../settings';
-import Categories from './categories';
-import Teams from './teams';
 import Scores from './scores';
 
 class ClimbersCollection extends Mongo.Collection {

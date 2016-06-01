@@ -13,6 +13,14 @@ import HelpMe from '../imports/data/helpme';
 import ActiveTracker from '../imports/data/activetracker';
 
 
+/**
+ *  `roleRequired` is commented off at all endpoints because Restivus does
+ *  not work with groups in alanning:roles right now. A custom checkRoles
+ *  functions is added right at the start, and will throw a Meteor.Error if
+ *  the user does not have the permissions for that endpoint.
+ *
+ *  For documentation of the endpoints, see docs-API.md in the repo
+ */
 const Api = new Restivus({
   apiPath: 'api/',
   auth: {

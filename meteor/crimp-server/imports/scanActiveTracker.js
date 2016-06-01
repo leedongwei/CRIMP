@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+
 import ActiveTracker from '../imports/data/activetracker';
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
