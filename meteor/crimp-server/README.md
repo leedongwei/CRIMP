@@ -52,3 +52,7 @@ This is a draft document that I will brain-dump into as I work on the meteor app
 
 ## Run tests
 * `meteor test --driver-package=practicalmeteor:mocha --port=5000`
+
+## Extend FB Access Token for tests
+* Generate a Test-User at https://developers.facebook.com/apps/<appId>/roles/test-users/
+* Go to https://developers.facebook.com/tools/debug/accesstoken and extend it, it should be good for 2 months
