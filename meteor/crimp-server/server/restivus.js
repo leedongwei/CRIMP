@@ -160,11 +160,11 @@ Api.addRoute('judge/logout', { authRequired: true }, {
 
 
 Api.addRoute('judge/categories', {
-  authRequired: true,
+  authRequired: false,
   // roleRequired: CRIMP.roles.judges,
 }, {
   get: function getCategories() {
-    CRIMP.checkRoles(CRIMP.roles.judges, this.user);
+    // CRIMP.checkRoles(CRIMP.roles.judges, this.user);
 
     try {
       const categoryDocs = Categories.find({}).fetch();
