@@ -28,6 +28,7 @@ import rocks.crimp.crimp.common.Action;
 import rocks.crimp.crimp.common.Helper;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
+import rocks.crimp.crimp.common.event.SwipeTo;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
 import rocks.crimp.crimp.network.model.ReportJs;
@@ -45,6 +46,7 @@ public class RouteFragment extends Fragment {
     private static final String REPORT_TXID = "report_txid";
 
     private RouteFragmentInterface mParent;
+    private int mPosition;
 
     // View references
     private SwipeRefreshLayout mSwipeLayout;
@@ -87,6 +89,8 @@ public class RouteFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
+        mPosition = getArguments().getInt(ARGS_POSITION);
+
         if(savedInstanceState != null){
             mCategoriesTxId = (UUID) savedInstanceState.getSerializable(CATEGORIES_TXID);
             mReportTxId = (UUID) savedInstanceState.getSerializable(REPORT_TXID);
@@ -112,8 +116,6 @@ public class RouteFragment extends Fragment {
         mRouteSpinnerOverlay = view.findViewById(R.id.route_route_spinner_overlay);
 
         // Set properties for views
-        mCategorySpinner.setEnabled(false);
-        mRouteSpinner.setEnabled(false);
         mRouteNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,9 +153,12 @@ public class RouteFragment extends Fragment {
             public void act() {
                 Timber.d("categorySpinner selected %d", mCategorySpinner.getSelectedItemPosition());
                 int position = mCategorySpinner.getSelectedItemPosition();
+                onCategoryChosen(position);
+                /*
                 if(position != 0){
                     onCategoryChosen(position);
                 }
+                */
             }
         }, null);
         SpinnerListener routeListener = new SpinnerListener(new Action() {
@@ -213,14 +218,6 @@ public class RouteFragment extends Fragment {
             }
             mCategoryAdapter.clear();
             mCategoryAdapter.addAll(categoryNames);
-            String currentScore = CrimpApplication.getAppState().getString(CrimpApplication.CURRENT_SCORE, null);
-            if(currentScore!=null && currentScore.length()>0){
-                mCategorySpinner.setEnabled(false);
-            }
-            else{
-                mCategorySpinner.setEnabled(true);
-            }
-
 
             int categoryPosition = CrimpApplication.getAppState()
                     .getInt(CrimpApplication.CATEGORY_POSITION, 0);
@@ -246,6 +243,34 @@ public class RouteFragment extends Fragment {
     }
 
     @Subscribe
+    public void onReceivedSwipeTo(SwipeTo event){
+        Timber.d("onReceivedSwipeTo: %d", event.position);
+        if (event.position == mPosition) {
+            String currentScore = CrimpApplication.getAppState()
+                    .getString(CrimpApplication.CURRENT_SCORE, null);
+            if(currentScore!=null && currentScore.length()>0){
+                mCategorySpinner.setEnabled(false);
+                mRouteSpinner.setEnabled(false);
+            }
+            else{
+                int committedCategory = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
+                int committedRoute = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
+                mCategorySpinner.setEnabled(true);
+                if(committedCategory == 0){
+                    mRouteSpinner.setEnabled(false);
+                }
+                else{
+                    mRouteSpinner.setEnabled(true);
+                }
+                mCategorySpinner.setSelection(committedCategory);
+                mRouteSpinner.setSelection(committedRoute);
+            }
+        }
+    }
+
+    @Subscribe
     public void requestSucceedReceived(RequestSucceed event) {
         if(event.txId.equals(mCategoriesTxId)){
             Timber.d("Get categories request successful. TxId: %s", event.txId);
@@ -260,13 +285,6 @@ public class RouteFragment extends Fragment {
 
             mCategoryAdapter.clear();
             mCategoryAdapter.addAll(categoryNames);
-            String currentScore = CrimpApplication.getAppState().getString(CrimpApplication.CURRENT_SCORE, null);
-            if(currentScore!=null && currentScore.length()>0){
-                mCategorySpinner.setEnabled(false);
-            }
-            else{
-                mCategorySpinner.setEnabled(true);
-            }
             mSwipeLayout.setRefreshing(false);
         }
         else if(event.txId.equals(mReportTxId)){
@@ -355,10 +373,8 @@ public class RouteFragment extends Fragment {
         mLoadWheel.setVisibility(View.GONE);
         mHelloText.setVisibility(View.VISIBLE);
         mCategorySpinner.setVisibility(View.VISIBLE);
-        mCategorySpinner.setEnabled(false);
         mCategorySpinner.setSelection(0);
         mRouteSpinner.setVisibility(View.VISIBLE);
-        mRouteSpinner.setEnabled(false);
         mRouteSpinner.setSelection(0);
         mRouteNextButton.setVisibility(View.VISIBLE);
         mRouteNextButton.setEnabled(false);
@@ -371,13 +387,6 @@ public class RouteFragment extends Fragment {
         mLoadWheel.setVisibility(View.GONE);
         mHelloText.setVisibility(View.VISIBLE);
 
-        String currentScore = CrimpApplication.getAppState().getString(CrimpApplication.CURRENT_SCORE, null);
-        if(currentScore != null && currentScore.length()>0){
-            mCategorySpinner.setEnabled(false);
-        }
-        else{
-            mCategorySpinner.setEnabled(true);
-        }
         int categoryPosition = CrimpApplication.getAppState()
                 .getInt(CrimpApplication.CATEGORY_POSITION, 0);
         mCategorySpinner.setSelection(categoryPosition);
@@ -401,6 +410,11 @@ public class RouteFragment extends Fragment {
     private void onCategoryChosen(int position){
         Timber.d("onCategoryChosen(%d)", position);
 
+        if(position == 0){
+            mRouteSpinner.setEnabled(false);
+            return;
+        }
+
         // Retrieve a list of route name based on selected category
         // minus one to account for hint in adapter.
         CategoryJs categoryJs = mParent.getCategoriesJs().getCategories().get(position-1);
@@ -413,8 +427,10 @@ public class RouteFragment extends Fragment {
         // Populate route adapter
         mRouteAdapter.clear();
         mRouteAdapter.addAll(routeNameList);
-        String currentScore = CrimpApplication.getAppState().getString(CrimpApplication.CURRENT_SCORE, null);
-        if(currentScore != null && currentScore.length()>0){
+
+        String currentScore = CrimpApplication.getAppState()
+                .getString(CrimpApplication.CURRENT_SCORE, null);
+        if(currentScore!=null && currentScore.length()>0){
             mRouteSpinner.setEnabled(false);
         }
         else{
