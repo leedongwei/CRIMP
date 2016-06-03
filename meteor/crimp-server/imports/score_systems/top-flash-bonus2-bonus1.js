@@ -1,32 +1,34 @@
-import ScoreSystem from '../scoreSystem.js';
+import { ScoreSystem } from './score-system';
 
-export default class TFBb {
-  constructor(name) {
-    this.name = name;
+export default class TFBb extends ScoreSystem {
+  constructor() {
+    super({
+      name: 'top-flash-bonus2-bonus1',
+    });
   }
-  calculate(scoreObject) {
-    const rawScore = scoreObject.score_string;
+
+  calculate(scoreString) {
     const calculatedScore = {
       T: 0,
       F: 0,
       B: 0,
       b: 0,
       string: '-',
-    }
+    };
 
-    if (!rawScore.length) return calculatedScore;
+    if (!scoreString.length) return calculatedScore;
 
-    if (rawScore.indexOf('T') == 0) {
+    if (scoreString.indexOf('T') === 0) {
       calculatedScore.T = 1;
       calculatedScore.F = 1;
       calculatedScore.string = 'F';
-    } else if (rawScore.indexOf('T') >= 0) {
+    } else if (scoreString.indexOf('T') >= 0) {
       calculatedScore.T = 1;
       calculatedScore.string = 'T';
-    } else if (rawScore.indexOf('B') >= 0) {
+    } else if (scoreString.indexOf('B') >= 0) {
       calculatedScore.B = 1;
       calculatedScore.string = 'B';
-    } else if (rawScore.indexOf('b') >= 0) {
+    } else if (scoreString.indexOf('b') >= 0) {
       calculatedScore.b = 1;
       calculatedScore.string = 'b';
     }
@@ -40,7 +42,8 @@ export default class TFBb {
       F: 0,
       B: 0,
       b: 0,
-    }
+    };
+
     scoreArray.forEach((score) => {
       tabulatedScore.T += score.calculatedScore.T;
       tabulatedScore.F += score.calculatedScore.F;
@@ -49,16 +52,6 @@ export default class TFBb {
     });
 
     return tabulatedScore;
-  }
-
-  rankClimbers(climbersArray) {
-    climbersArray.sort(this.rankFunction);
-
-    climbersArray.forEach((c, i) => {
-      c.rank = i+1;
-    });
-
-    return climbersArray
   }
 
   rankFunction(climberA, climberB) {
@@ -85,8 +78,6 @@ export default class TFBb {
     //   return a.scores_tiebreak > b.scores_tiebreak ? -1 : 1;
     // }
 
-    return a.marker_id < b.marker_id ? -1 : 1;
+    return 0;
   }
 }
-
-

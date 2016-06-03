@@ -2,12 +2,13 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { scoreSystemsNames } from '../scoreSystem.js';
 
 import CRIMP from '../settings';
 import Teams from './teams';
 import Climbers from './climbers';
 import Scores from './scores';
+
+import { scoreSystemsNames } from '../score_systems/score-system';
 
 class CategoriesCollection extends Mongo.Collection {
   remove(selector, callback, isRecursive = false) {

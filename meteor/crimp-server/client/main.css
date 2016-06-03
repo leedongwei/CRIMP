@@ -1,1 +1,11 @@
-/* CSS declarations go here */
+.scoreboard-climbers {
+  padding: 0;
+  list-style: none;
+}
+
+.climber-scores td {
+  width: 2em;
+  font-size: 1em;
+  border: 1px solid #555;
+  text-align: center;
+}
