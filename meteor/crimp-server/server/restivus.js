@@ -41,7 +41,7 @@ const Api = new Restivus({
 
 Api.addRoute('judge/login', { authRequired: false }, {
   post: function postLogin() {
-    // try {
+    try {
       if (!('fb_access_token' in this.bodyParams)) {
         return {
           statusCode: 400,
@@ -127,19 +127,19 @@ Api.addRoute('judge/login', { authRequired: false }, {
           roles: userRoles,
         },
       };
-    // } catch (e) {
-    //   return {
-    //     statusCode: 500,
-    //     body: { error: e },
-    //   };
-    // }
+    } catch (e) {
+      return {
+        statusCode: 500,
+        body: { error: e },
+      };
+    }
   },
 });
 
 
 Api.addRoute('judge/logout', { authRequired: true }, {
   post: function postLogout() {
-    // try {
+    try {
       const loginToken = this.request.headers['x-auth-token'];
       const hashed = Accounts._hashLoginToken(loginToken);
 
@@ -149,12 +149,12 @@ Api.addRoute('judge/logout', { authRequired: true }, {
         statusCode: 200,
         body: {},
       };
-    // } catch (e) {
-    //   return {
-    //     statusCode: 500,
-    //     body: { error: e },
-    //   };
-    // }
+    } catch (e) {
+      return {
+        statusCode: 500,
+        body: { error: e },
+      };
+    }
   },
 });
 
@@ -166,7 +166,7 @@ Api.addRoute('judge/categories', {
   get: function getCategories() {
     CRIMP.checkRoles(CRIMP.roles.judges, this.user);
 
-    // try {
+    try {
       const categoryDocs = Categories.find({}).fetch();
       const picked = [
         '_id',
@@ -214,12 +214,12 @@ Api.addRoute('judge/categories', {
         statusCode: 200,
         body: { categories: categoryDocs },
       };
-    // } catch (e) {
-    //   return {
-    //     statusCode: 500,
-    //     body: { error: e },
-    //   };
-    // }
+    } catch (e) {
+      return {
+        statusCode: 500,
+        body: { error: e },
+      };
+    }
   },
 });
 
@@ -231,7 +231,7 @@ Api.addRoute('judge/score', {
   get: function getScore() {
     CRIMP.checkRoles(CRIMP.roles.judges, this.user);
 
-    // try {
+    try {
       const allowedOptions = ['event_id',
                               'category_id',
                               'route_id',
@@ -350,12 +350,12 @@ Api.addRoute('judge/score', {
         statusCode: 200,
         body: { climber_scores: scoreOutput },
       };
-    // } catch (e) {
-    //   return {
-    //     statusCode: 500,
-    //     body: { error: e },
-    //   };
-    // }
+    } catch (e) {
+      return {
+        statusCode: 500,
+        body: { error: e },
+      };
+    }
   },
 });
 
@@ -367,7 +367,7 @@ Api.addRoute('judge/score/:route_id/:marker_id', {
   post: function postScore() {
     CRIMP.checkRoles(CRIMP.roles.judges, this.user);
 
-    // try {
+    try {
       const options = this.urlParams;
       const scoreString = this.bodyParams.score_string;
 
@@ -423,12 +423,12 @@ Api.addRoute('judge/score/:route_id/:marker_id', {
           score: newScoreString,
         },
       };
-    // } catch (e) {
-    //   return {
-    //     statusCode: 500,
-    //     body: { error: e },
-    //   };
-    // }
+    } catch (e) {
+      return {
+        statusCode: 500,
+        body: { error: e },
+      };
+    }
   },
 });
 
@@ -440,7 +440,7 @@ Api.addRoute('judge/helpme', {
   post: function postHelpMe() {
     CRIMP.checkRoles(CRIMP.roles.judges, this.user);
 
-    // try {
+    try {
       const targetRouteId = this.bodyParams.route_id;
       const helpMeDoc = {
         route_id: targetRouteId,
@@ -470,12 +470,12 @@ Api.addRoute('judge/helpme', {
         statusCode: 200,
         body: {},
       };
-    // } catch (e) {
-    //   return {
-    //     statusCode: 500,
-    //     body: { error: e },
-    //   };
-    // }
+    } catch (e) {
+      return {
+        statusCode: 500,
+        body: { error: e },
+      };
+    }
   },
 });
 
@@ -487,7 +487,7 @@ Api.addRoute('judge/report', {
   post: function postReport() {
     CRIMP.checkRoles(CRIMP.roles.judges, this.user);
 
-    // try {
+    try {
       const options = this.bodyParams;
       const targetActive = ActiveTracker.findOne({ route_id: options.route_id });
 
@@ -535,12 +535,12 @@ Api.addRoute('judge/report', {
           route_id: options.route_id,
         },
       };
-    // } catch (e) {
-    //   return {
-    //     statusCode: 500,
-    //     body: { error: e },
-    //   };
-    // }
+    } catch (e) {
+      return {
+        statusCode: 500,
+        body: { error: e },
+      };
+    }
   },
 });
 
@@ -552,7 +552,7 @@ Api.addRoute('judge/setactive', {
   put: function putSetActive() {
     CRIMP.checkRoles(CRIMP.roles.judges, this.user);
 
-    // try {
+    try {
       const options = this.bodyParams;
       const targetActive = ActiveTracker.findOne({
         route_id: options.route_id,
@@ -605,12 +605,12 @@ Api.addRoute('judge/setactive', {
         statusCode: 200,
         body: {},
       };
-    // } catch (e) {
-    //   return {
-    //     statusCode: 500,
-    //     body: { error: e },
-    //   };
-    // }
+    } catch (e) {
+      return {
+        statusCode: 500,
+        body: { error: e },
+      };
+    }
   },
 });
 
@@ -622,7 +622,7 @@ Api.addRoute('judge/clearactive', {
   put: function putClearActive() {
     CRIMP.checkRoles(CRIMP.roles.judges, this.user);
 
-    // try {
+    try {
       const options = this.bodyParams;
       const targetActive = ActiveTracker.findOne({ route_id: options.route_id });
 
@@ -667,11 +667,24 @@ Api.addRoute('judge/clearactive', {
         statusCode: 200,
         body: {},
       };
-    // } catch (e) {
-    //   return {
-    //     statusCode: 500,
-    //     body: { error: e },
-    //   };
-    // }
+    } catch (e) {
+      return {
+        statusCode: 500,
+        body: { error: e },
+      };
+    }
+  },
+});
+
+
+// TODO: Remove latency endpoint
+Api.addRoute('test/latency', { authRequired: true }, {
+  get: () => {
+    // simulate latency
+    Meteor._sleepForMs(10000);
+    return {
+      statusCode: 200,
+      body: {},
+    };
   },
 });
