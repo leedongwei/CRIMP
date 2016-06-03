@@ -128,7 +128,7 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
         Toast toast = Toast.makeText(this, "STUB", Toast.LENGTH_SHORT);
         switch(v.getId()){
             case R.id.tasklist_card:
-                toast.show();
+                //toast.show();
                 break;
             case R.id.tasklist_fab:
                 CrimpApplication.getScoreHandler()

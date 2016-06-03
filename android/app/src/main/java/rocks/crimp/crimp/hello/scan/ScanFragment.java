@@ -296,13 +296,13 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                     // We set SHOULD_SCAN to true. Check if we should start scanning.
                     onStateChangeCheckScanning();
                 } else {
-                    // Prepare stuff to use in NextDialog creation.
+                    // Prepare stuff to use in RescanDialog creation.
                     String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
                     String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, null);
                     int categoryPosition = CrimpApplication.getAppState()
-                            .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                            .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
                     int routePosition = CrimpApplication.getAppState()
-                            .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                            .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
                     CategoryJs chosenCategory =
                             mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
                     String routeName = chosenCategory.getRoutes().get(routePosition - 1).getRouteName();
@@ -364,7 +364,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                         .commit();
 
                 int routePosition = CrimpApplication.getAppState()
-                        .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                        .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
                 String xUserId = CrimpApplication.getAppState()
                         .getString(CrimpApplication.X_USER_ID, null);
                 String xAuthToken = CrimpApplication.getAppState()
@@ -403,9 +403,9 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                     String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
                     String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, null);
                     int categoryPosition = CrimpApplication.getAppState()
-                            .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                            .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
                     int routePosition = CrimpApplication.getAppState()
-                            .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                            .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
                     CategoryJs chosenCategory =
                             mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
                     String routeName = chosenCategory.getRoutes().get(routePosition - 1).getRouteName();

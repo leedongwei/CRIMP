@@ -88,6 +88,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void launchHelloActivity(){
+        Crashlytics.setUserIdentifier(CrimpApplication.getAppState()
+                .getString(CrimpApplication.X_USER_ID, null));
         Helper.assertStuff(true, true, true, true, true);
 
         Timber.d("Launching HelloActivity");
@@ -138,6 +140,7 @@ public class LoginActivity extends AppCompatActivity {
                             // profile2 is the new profile
                             mFbUserName = profile2.getName();
                             mProfileTracker.stopTracking();
+                            Crashlytics.setUserName(mFbUserName);
 
                             CrimpApplication.getAppState().edit()
                                     .putString(CrimpApplication.FB_USER_NAME, mFbUserName)
@@ -150,6 +153,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 else {
                     mFbUserName = Profile.getCurrentProfile().getName();
+                    Crashlytics.setUserName(mFbUserName);
                     CrimpApplication.getAppState().edit()
                             .putString(CrimpApplication.FB_USER_NAME, mFbUserName)
                             .apply();
@@ -184,6 +188,8 @@ public class LoginActivity extends AppCompatActivity {
         mXAuthToken = CrimpApplication.getAppState().getString(CrimpApplication.X_AUTH_TOKEN, null);
         mRoles = CrimpApplication.getAppState()
                 .getStringSet(CrimpApplication.ROLES, null);
+
+        Crashlytics.setUserName(mFbUserName);
 
         // Check if we already log in
         if(mXUserId != null && mXAuthToken != null && Helper.isJudgeOrAbove(mRoles)){

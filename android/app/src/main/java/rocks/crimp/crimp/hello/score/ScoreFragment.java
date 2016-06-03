@@ -293,9 +293,9 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
 
                 // find route id
                 int categoryPosition = CrimpApplication.getAppState()
-                        .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                        .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
                 int routePosition = CrimpApplication.getAppState()
-                        .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                        .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
                 CategoryJs chosenCategory =
                         mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
                 String routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
@@ -333,9 +333,9 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                     public void act() {
                         // submit score
                         int categoryPosition = CrimpApplication.getAppState()
-                                .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                                .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
                         int routePosition = CrimpApplication.getAppState()
-                                .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                                .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
                         CategoryJs chosenCategory =
                                 mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
                         String chosenCategoryName = chosenCategory.getCategoryName();

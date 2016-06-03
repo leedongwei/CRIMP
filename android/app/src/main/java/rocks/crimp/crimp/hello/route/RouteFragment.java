@@ -558,9 +558,9 @@ public class RouteFragment extends Fragment {
             String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
             String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, null);
             int categoryPosition = CrimpApplication.getAppState()
-                    .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                    .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
             int routePosition = CrimpApplication.getAppState()
-                    .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                    .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
             CategoryJs chosenCategory =
                     mParent.getCategoriesJs().getCategories().get(categoryPosition-1);
             String routeName = chosenCategory.getRoutes().get(routePosition-1).getRouteName();

@@ -365,9 +365,9 @@ public class HelloActivity extends AppCompatActivity implements
                 String xUserId = CrimpApplication.getAppState().getString(CrimpApplication.X_USER_ID, null);
                 String xAuthToken = CrimpApplication.getAppState().getString(CrimpApplication.X_AUTH_TOKEN, null);
                 int categoryPosition = CrimpApplication.getAppState()
-                        .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                        .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
                 int routePosition = CrimpApplication.getAppState()
-                        .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                        .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
                 if (categoryPosition == 0 || routePosition == 0) {
                     ServiceHelper.requestHelp(this, null, xUserId, xAuthToken, null);
                 } else {
@@ -417,9 +417,9 @@ public class HelloActivity extends AppCompatActivity implements
                     String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
                     String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, "");
                     int categoryPosition = CrimpApplication.getAppState()
-                            .getInt(CrimpApplication.CATEGORY_POSITION, 0);
+                            .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
                     int routePosition = CrimpApplication.getAppState()
-                            .getInt(CrimpApplication.ROUTE_POSITION, 0);
+                            .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
                     CategoryJs chosenCategory =
                             mCategories.getCategories().get(categoryPosition - 1);
                     String routeName = chosenCategory.getRoutes().get(routePosition - 1).getRouteName();

@@ -39,8 +39,7 @@
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:inputType="textNoSuggestions"
-                tools:text="NMQ"
-                tools:ignore="RtlHardcoded,TextFields" />
+                tools:text="NMQ"/>
 
             <ImageButton
                 android:id="@+id/scan_flash_button"
@@ -53,16 +52,16 @@
                 android:layout_marginLeft="4dp"
                 android:src="@drawable/ic_flare_black_24dp"
                 android:contentDescription="@string/scan_fragment_description_flash"
-                tools:ignore="RtlHardcoded" />
+                android:visibility="gone"/>
 
             <Button
                 android:id="@+id/scan_rescan_button"
                 android:layout_alignParentTop="true"
-                android:layout_toLeftOf="@id/scan_flash_button"
+                android:layout_alignParentRight="true"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginRight="4dp"
+                android:layout_marginRight="16dp"
                 android:layout_marginLeft="4dp"
                 android:enabled="false"
                 android:text="@string/scan_fragment_rescan"
