@@ -5,6 +5,7 @@
 export const scoreSystemsNames = [
   'ifsc-top-bonus',
   'top-bonus-bonus',
+  'top-bonus1-bonus2',
   'top-flash-bonus2-bonus1',
   'points',
 ];
