@@ -46,26 +46,21 @@ Template.scoreboard_climbers.helpers({
   climbers: () => {
     const climbers = Climbers.find({}).fetch();
     const scoreSystem = new TFBb('test');
+    const jointDocArray = [];
 
     climbers.forEach((climber) => {
+      // FIXME: More than 1 scoring doc per climber
       const targetScore = Scores.findOne({
         climber_id: climber._id,
       });
 
       // Join Climber and Score documents for a category
-      climber.scores = targetScore.scores;
-      climber.marker_id = targetScore.marker_id;
+      const jointDoc = scoreSystem.join(climber, targetScore);
+      jointDoc.tabulatedScore = scoreSystem.tabulate(climber.scores);
 
-      // Process raw score_string
-      climber.scores.forEach((score) => {
-        score.calculatedScore = scoreSystem.calculate(score.score_string);
-      });
-
-      climber.tabulatedScore = scoreSystem.tabulate(climber.scores);
+      jointDocArray.push(jointDoc);
     });
 
-    const rankedClimbers = scoreSystem.rankClimbers(climbers);
-
-    return rankedClimbers;
+    return scoreSystem.rankClimbers(jointDocArray);
   },
 });

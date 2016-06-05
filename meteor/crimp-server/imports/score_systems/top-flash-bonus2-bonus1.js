@@ -13,7 +13,7 @@ export default class TFBb extends ScoreSystem {
       F: 0,
       B: 0,
       b: 0,
-      string: '-',
+      displayString: '-',
     };
 
     if (!scoreString.length) return calculatedScore;
@@ -21,16 +21,16 @@ export default class TFBb extends ScoreSystem {
     if (scoreString.indexOf('T') === 0) {
       calculatedScore.T = 1;
       calculatedScore.F = 1;
-      calculatedScore.string = 'F';
+      calculatedScore.displayString = 'F';
     } else if (scoreString.indexOf('T') >= 0) {
       calculatedScore.T = 1;
-      calculatedScore.string = 'T';
+      calculatedScore.displayString = 'T';
     } else if (scoreString.indexOf('B') >= 0) {
       calculatedScore.B = 1;
-      calculatedScore.string = 'B';
+      calculatedScore.displayString = 'B';
     } else if (scoreString.indexOf('b') >= 0) {
       calculatedScore.b = 1;
-      calculatedScore.string = 'b';
+      calculatedScore.displayString = 'b';
     }
 
     return calculatedScore;
@@ -45,10 +45,13 @@ export default class TFBb extends ScoreSystem {
     };
 
     scoreArray.forEach((score) => {
-      tabulatedScore.T += score.calculatedScore.T;
-      tabulatedScore.F += score.calculatedScore.F;
-      tabulatedScore.B += score.calculatedScore.B;
-      tabulatedScore.b += score.calculatedScore.b;
+      const calculatedScore = this.calculate(score.score_string);
+      score.calculatedScore = calculatedScore;
+
+      tabulatedScore.T += calculatedScore.T;
+      tabulatedScore.F += calculatedScore.F;
+      tabulatedScore.B += calculatedScore.B;
+      tabulatedScore.b += calculatedScore.b;
     });
 
     return tabulatedScore;
@@ -58,25 +61,17 @@ export default class TFBb extends ScoreSystem {
     const a = climberA.tabulatedScore;
     const b = climberB.tabulatedScore;
 
-    if (a.T !== b.T) {
-      return a.T > b.T ? -1 : 1;
-    }
+    if (a.T !== b.T) return a.T > b.T ? -1 : 1;
 
-    if (a.F !== b.F) {
-      return a.F > b.F ? -1 : 1;
-    }
+    if (a.F !== b.F) return a.F > b.F ? -1 : 1;
 
-    if (a.B !== b.B) {
-      return a.B > b.B ? -1 : 1;
-    }
+    if (a.B !== b.B) return a.B > b.B ? -1 : 1;
 
-    if (a.b !== b.b) {
-      return a.b > b.b ? -1 : 1;
-    }
+    if (a.b !== b.b) return a.b > b.b ? -1 : 1;
 
-    // if (a.scores_tiebreak !== b.scores_tiebreak) {
-    //   return a.scores_tiebreak > b.scores_tiebreak ? -1 : 1;
-    // }
+    if (climberA.score_tiebreak !== climberB.score_tiebreak) {
+      return climberA.score_tiebreak < climberB.score_tiebreak ? -1 : 1;
+    }
 
     return 0;
   }
