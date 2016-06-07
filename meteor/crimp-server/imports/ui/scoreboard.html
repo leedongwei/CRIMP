@@ -1,0 +1,46 @@
+<template name="scoreboard">
+  <!-- Title and dropdown selection for category -->
+  {{> scoreboard_header }}
+
+  <!-- Scores of Climbers in chosen category -->
+  {{> scoreboard_climbers }}
+</template>
+
+<template name="scoreboard_header">
+  scoreboard_header
+</template>
+
+<template name="scoreboard_climbers">
+  <ul class="scoreboard-climbers">
+    {{ #each climbers }}
+      <li>
+        <div class="climber-row clearfix">
+          <div class="climber-rank left">#{{ rank }} . . . <b>{{ climber_name }}</b> &mdash; {{ marker_id }}</div>
+
+
+          <div class="climber-scoretotal right">
+            Total:
+            {{ tabulatedScore.T }}T,
+            {{ tabulatedScore.F }}F,
+            {{ tabulatedScore.B }}B,
+            {{ tabulatedScore.b }}b
+          </div>
+        </div>
+
+        <div class="climber-row">
+          <table class="climber-scores">
+            <tr>
+              {{ #each scores }}
+                <td data-route="{{ route_id }}">
+                  {{ calculatedScore.displayString }}
+                </td>
+              {{ /each }}
+            </tr>
+          </table>
+        </div>
+
+      </li>
+      <br>
+    {{ /each }}
+  </ul>
+</template>

@@ -1,48 +1,21 @@
 <head>
-  <title>CRIMP Testing</title>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CHANGE: Title -->
+  <title>CRIMP: Comprehensive Real-time Index of MgCO3 Performance</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta name="author" content="CRIMP Development Team">
+
+  <!-- <meta property="og:title" content="CRIMP">
+  <meta property="og:image" content="">
+  <meta property="og:description" content="A real-time scoring system for climbing events. Ditch your Excel sheets and get instant event scores and rankings."> -->
+
+  <link rel="shortcut icon" href="" type="image/png">
 </head>
 
 <body>
-  <h1>BA Mock Comp</h1>
-
-  <!--{{ > loginButtons }}-->
-
-  {{ > scoreboard_climbers }}
+  <!-- './routes.js' will insert templates below here -->
 </body>
-
-
-<template name="scoreboard_climbers">
-  <ul class="scoreboard-climbers">
-    {{ #each climbers }}
-      <li>
-        <div class="climber-row clearfix">
-          <div class="climber-rank left">#{{ rank }} . . . <b>{{ climber_name }}</b> &mdash; {{ marker_id }}</div>
-
-
-          <div class="climber-scoretotal right">
-            Total:
-            {{ tabulatedScore.T }}T,
-            {{ tabulatedScore.F }}F,
-            {{ tabulatedScore.B }}B,
-            {{ tabulatedScore.b }}b
-          </div>
-        </div>
-
-        <div class="climber-row">
-          <table class="climber-scores">
-            <tr>
-              {{ #each scores }}
-                <td data-route="{{ route_id }}">
-                  {{ calculatedScore.displayString }}
-                </td>
-              {{ /each }}
-            </tr>
-          </table>
-        </div>
-
-      </li>
-      <br>
-    {{ /each }}
-  </ul>
-</template>

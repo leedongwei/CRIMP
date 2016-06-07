@@ -50,6 +50,8 @@ http@1.1.5
 id-map@1.0.7
 insecure@1.0.7
 jquery@1.11.8
+kadira:blaze-layout@2.3.0
+kadira:flow-router@2.12.1
 lai:collection-extensions@0.1.4
 launch-screen@1.0.11
 less@2.6.0

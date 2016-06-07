@@ -35,3 +35,5 @@ practicalmeteor:chai
 stevezhu:lodash
 autopublish
 insecure
+kadira:flow-router
+kadira:blaze-layout

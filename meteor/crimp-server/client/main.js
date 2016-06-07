@@ -15,7 +15,7 @@ import TFBb from '../imports/score_systems/top-flash-bonus2-bonus1';
 
 // TODO: REMOVE seedDatabase. DEV TESTING ONLY.
 import seedDatabase from '../imports/seedDatabase';
-
+import CRIMP from '../imports/settings';
 
 // TODO: Delete this crazy publication
 Meteor.subscribe('development');
@@ -41,26 +41,3 @@ Meteor.startup(() => {
 
 // const category = localStorage.getItem('currentCategory') || 'UMQ';
 // Session.setDefault('currentCategory', category);
-
-Template.scoreboard_climbers.helpers({
-  climbers: () => {
-    const climbers = Climbers.find({}).fetch();
-    const scoreSystem = new TFBb('test');
-    const jointDocArray = [];
-
-    climbers.forEach((climber) => {
-      // FIXME: More than 1 scoring doc per climber
-      const targetScore = Scores.findOne({
-        climber_id: climber._id,
-      });
-
-      // Join Climber and Score documents for a category
-      const jointDoc = scoreSystem.join(climber, targetScore);
-      jointDoc.tabulatedScore = scoreSystem.tabulate(climber.scores);
-
-      jointDocArray.push(jointDoc);
-    });
-
-    return scoreSystem.rankClimbers(jointDocArray);
-  },
-});
