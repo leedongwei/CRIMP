@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { Template } from 'meteor/templating';
+import { Foundation } from 'meteor/zurb:foundation-sites';
 
 import Messages from '../imports/data/messages';
 import Events from '../imports/data/events';
@@ -14,8 +15,8 @@ import ActiveTracker from '../imports/data/activetracker';
 import TFBb from '../imports/score_systems/top-flash-bonus2-bonus1';
 
 // TODO: REMOVE seedDatabase. DEV TESTING ONLY.
-import seedDatabase from '../imports/seedDatabase';
 import CRIMP from '../imports/settings';
+
 
 // TODO: Delete this crazy publication
 Meteor.subscribe('development');

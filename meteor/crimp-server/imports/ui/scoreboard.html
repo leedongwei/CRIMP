@@ -7,7 +7,14 @@
 </template>
 
 <template name="scoreboard_header">
-  scoreboard_header
+  <hr>
+  {{ #each categories }}
+    <li>
+      {{ acronym }}, {{ category_name }}<br>
+      {{ time_start }}, {{ time_end }}
+    </li>
+  {{/each}}
+  <hr>
 </template>
 
 <template name="scoreboard_climbers">

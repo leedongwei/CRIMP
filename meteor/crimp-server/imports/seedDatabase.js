@@ -308,7 +308,7 @@ function mockComp() {
     climber_count: 0,
     time_start: new Date(),
     time_end: new Date(),
-    score_system: 'top-bonus1-bonus2',
+    score_system: 'TFBb',
     routes: [{
       _id: Random.id(),
       route_name: 'Route 1',

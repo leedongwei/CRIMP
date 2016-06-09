@@ -1,4 +1,6 @@
 import { Template } from 'meteor/templating';
+import { $ } from 'meteor/jquery';
+import { _ } from 'meteor/stevezhu:lodash';
 
 import Categories from '../data/categories';
 import Climbers from '../data/climbers';
@@ -6,6 +8,20 @@ import Scores from '../data/scores';
 import TFBb from '../score_systems/top-flash-bonus2-bonus1';
 
 import './scoreboard.html';
+
+Template.scoreboard_header.helpers({
+  currentCategories: () => {
+    const currentCategories = [];
+    const categories = Categories.find({}).fetch();
+
+    _.forEach(categories, (c) => {
+      currentCategories.push(c);
+    });
+
+    return currentCategories;
+  },
+  categories: () => Categories.find({}).fetch(),
+});
 
 Template.scoreboard_climbers.helpers({
   climbers: () => {
@@ -28,4 +44,8 @@ Template.scoreboard_climbers.helpers({
 
     return scoreSystem.rankClimbers(jointDocArray);
   },
+});
+
+Template.crimp_spectator.onRendered(() => {
+  $('.top-bar').foundation();
 });

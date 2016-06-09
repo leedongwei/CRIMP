@@ -13,7 +13,18 @@ import { Meteor } from 'meteor/meteor';
 import scanActiveTracker from '../imports/scanActiveTracker';
 // import seedDatabase from '../imports/seedDatabase';
 
+import IFSC_TB from '../imports/score_systems/ifsc-top-bonus';
+
 Meteor.startup(() => {
   // Update ActiveTracker at regular intervals
   scanActiveTracker();
+
+  const a = new IFSC_TB();
+  console.log(a.calculate('111BBBTTT'));
+  console.log(a.calculate('11'));
+  console.log(a.calculate('T'));
+  console.log(a.calculate('1B'));
+  console.log(a.calculate('1TB'));
+  console.log(a.calculate(''));
+
 });
