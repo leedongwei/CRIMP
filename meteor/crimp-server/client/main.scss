@@ -1,3 +1,7 @@
+$dropdownmenu-arrows: false;
+/**
+ * Settings for Foundation should go above
+ */
 @import '{zurb:foundation-sites}/scss/foundation';
 
 @include foundation-global-styles;
@@ -36,6 +40,11 @@
 @include foundation-tooltip;
 @include foundation-top-bar;
 
+$bg-color: #EFECEA;
+$color-strong: #334854;
+$color-red: #E04462;
+$color-yellow: #F9C535;
+
 .scoreboard-climbers {
   padding: 0;
   list-style: none;
@@ -47,3 +56,6 @@
   border: 1px solid #555;
   text-align: center;
 }
+
+
+@import '../imports/ui/scoreboard.scss';

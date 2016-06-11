@@ -32,10 +32,9 @@ dburles:factory
 xolvio:cleaner
 practicalmeteor:chai
 stevezhu:lodash
-autopublish
-insecure
 kadira:flow-router
 kadira:blaze-layout
 seba:minifiers-autoprefixer
 fourseven:scss
 zurb:foundation-sites
+flyandi:reactive-countdown

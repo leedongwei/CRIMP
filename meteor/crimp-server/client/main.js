@@ -20,11 +20,11 @@ import CRIMP from '../imports/settings';
 
 // TODO: Delete this crazy publication
 Meteor.subscribe('development');
-Meteor.subscribe('eventsToAll');
-Meteor.subscribe('categoriesToAll');
-Meteor.subscribe('teamsToAdmin');
-Meteor.subscribe('climbersToAdmin');
-Meteor.subscribe('scoresToAdmin');
+// Meteor.subscribe('eventsToAll');
+// Meteor.subscribe('categoriesToAll');
+// Meteor.subscribe('teamsToAdmin');
+// Meteor.subscribe('climbersToAdmin');
+// Meteor.subscribe('scoresToAdmin');
 Meteor.subscribe('activetrackerToAll');
 Meteor.subscribe('helpmeToAdmin');
 Meteor.subscribe('messagesToAdmin');
@@ -39,6 +39,7 @@ Meteor.startup(() => {
   act = ActiveTracker;
 })
 
-
-// const category = localStorage.getItem('currentCategory') || 'UMQ';
-// Session.setDefault('currentCategory', category);
+Meteor.startup(() => {
+  // Session.setDefault('currentCategoryId', '');
+  // console.log(Session.get('currentCategoryId'));
+});

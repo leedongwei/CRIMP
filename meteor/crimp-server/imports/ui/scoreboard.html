@@ -1,53 +1,78 @@
 <template name="scoreboard">
   <!-- Title and dropdown selection for category -->
-  {{> scoreboard_header }}
+  {{> scoreboard_header}}
 
   <!-- Scores of Climbers in chosen category -->
-  {{> scoreboard_climbers }}
+  {{> scoreboard_climbers}}
 </template>
 
 <template name="scoreboard_header">
-  <hr>
-  {{ #each categories }}
-    <li>
-      {{ acronym }}, {{ category_name }}<br>
-      {{ time_start }}, {{ time_end }}
-    </li>
-  {{/each}}
-  <hr>
+  <div class="scoreboard-header column row">
+    <ul id="scoreboard-selectCategory" class="dropdown menu" data-dropdown-menu>
+      <li>
+        <a href="#"><i class="material-icons">arrow_drop_down</i>
+          {{viewCategory.category_name}}
+        </a>
+        <ul class="menu">
+          {{#each category in categories}}
+            <li data-timeStart="{{category.time_start}}"
+                data-timeEnd="{{category.time_end}}"
+                data-category="{{category._id}}">
+              <a href="#">
+                {{category.category_name}}
+                {{#if category.isOngoing}}
+                  <span class="scoreboard-categoryOngoing">
+                    <span class="dot"></span> Live now!
+                  </span>
+                {{/if}}
+              </a>
+            </li>
+          {{/each}}
+        </ul>
+      </li>
+    </ul>
+
+    <div class="scoreboard-categoryDetails">
+      {{#if isViewCategoryFinalized}}
+        is finalized
+      {{else}}
+        not finalized
+      {{/if}}
+    </div>
+  </div>
 </template>
 
 <template name="scoreboard_climbers">
   <ul class="scoreboard-climbers">
-    {{ #each climbers }}
+    {{#each climbers}}
       <li>
         <div class="climber-row clearfix">
-          <div class="climber-rank left">#{{ rank }} . . . <b>{{ climber_name }}</b> &mdash; {{ marker_id }}</div>
+          <div class="climber-rank left">#{{rank}} . . . <b>{{climber_name}}</b> &mdash; {{marker_id}}</div>
 
 
           <div class="climber-scoretotal right">
             Total:
-            {{ tabulatedScore.T }}T,
-            {{ tabulatedScore.F }}F,
-            {{ tabulatedScore.B }}B,
-            {{ tabulatedScore.b }}b
+            {{tabulatedScore.T}}T,
+            {{tabulatedScore.F}}F,
+            {{tabulatedScore.B}}B,
+            {{tabulatedScore.b}}b
           </div>
         </div>
 
         <div class="climber-row">
           <table class="climber-scores">
             <tr>
-              {{ #each scores }}
-                <td data-route="{{ route_id }}">
-                  {{ calculatedScore.displayString }}
+              {{#each scores}}
+                <td data-route="{{route_id}}">
+                  {{calculatedScore.displayString}}
                 </td>
-              {{ /each }}
+              {{/each}}
             </tr>
           </table>
         </div>
 
       </li>
       <br>
-    {{ /each }}
+    {{/each}}
   </ul>
 </template>
