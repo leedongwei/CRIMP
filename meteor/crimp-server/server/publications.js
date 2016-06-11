@@ -57,7 +57,7 @@ Meteor.publish('teamsToPublic',
               (categoryId) => {
                 check(categoryId, String);
                 return Teams.find({
-                  // category_id: categoryId
+                  category_id: categoryId
                 }, {
                   fields: {
                     team_name: 1,
@@ -78,9 +78,9 @@ Meteor.publish('climbersToPublic',
               (categoryId) => {
                 check(categoryId, String);
                 return Climbers.find({
-                  // categories: { $elemMatch: {
-                  //   _id: categoryId,
-                  // } },
+                  categories: { $elemMatch: {
+                    _id: categoryId,
+                  } },
                 }, { fields: {
                   climber_name: 1,
                   // identity: Hide for privacy issue
@@ -99,14 +99,14 @@ Meteor.publish('climbersToAdmin',
 Meteor.publish('scoresToPublic',
               (categoryId) => {
                 check(categoryId, String);
-                return Scores.find({}, {
+                return Scores.find({
+                  category_id: categoryId,
+                }, {
                   fields: {
                     category_id: 1,
                     climber_id: 1,
                     marker_id: 1,
                     scores: 1,
-                    'scores.$.route_id': 1,
-                    'scores.$.score_string': 1,
                     updated_at: 1,
                   },
                 });
