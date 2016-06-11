@@ -38,3 +38,4 @@ seba:minifiers-autoprefixer
 fourseven:scss
 zurb:foundation-sites
 flyandi:reactive-countdown
+momentjs:moment

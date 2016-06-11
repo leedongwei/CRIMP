@@ -15,5 +15,5 @@ import scanActiveTracker from '../imports/scanActiveTracker';
 
 Meteor.startup(() => {
   // Update ActiveTracker at regular intervals
-  // scanActiveTracker();
+  scanActiveTracker();
 });
