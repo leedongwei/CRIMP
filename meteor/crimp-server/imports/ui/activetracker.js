@@ -13,6 +13,10 @@ import ActiveTracker from '../data/activetracker';
 
 import './activetracker.html';
 
+
+Meteor.subscribe('activetrackerToAll');
+
+
 Template.activetracker.helpers({
   activetracker: () => ActiveTracker
                         .find({})
@@ -41,8 +45,4 @@ Template.activetracker.helpers({
 
     return categories;
   },
-});
-
-Template.activetracker.onCreated(() => {
-  Meteor.subscribe('activetrackerToAll');
 });

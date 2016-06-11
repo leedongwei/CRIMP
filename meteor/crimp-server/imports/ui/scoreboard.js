@@ -15,6 +15,14 @@ import TFBb from '../score_systems/top-flash-bonus2-bonus1';
 import './scoreboard.html';
 
 
+Meteor.subscribe('categoriesToAll');
+Tracker.autorun(() => {
+  Meteor.subscribe('teamsToPublic', Session.get('viewCategoryId'));
+  Meteor.subscribe('climbersToPublic', Session.get('viewCategoryId'));
+  Meteor.subscribe('scoresToPublic', Session.get('viewCategoryId'));
+});
+
+
 /**
  * Generic utility functions
  */
@@ -28,14 +36,6 @@ function changeViewCategory(categoryId) {
  *  Template functions for scoreboard
  */
 Template.scoreboard.onCreated(() => {
-  Meteor.subscribe('categoriesToAll');
-
-  Tracker.autorun(() => {
-    Meteor.subscribe('teamsToPublic', Session.get('viewCategoryId'));
-    Meteor.subscribe('climbersToPublic', Session.get('viewCategoryId'));
-    Meteor.subscribe('scoresToPublic', Session.get('viewCategoryId'));
-  });
-
   if (!localStorage.getItem('viewCategoryId')) {
     // TODO: Set to the upcoming event
     localStorage.setItem('viewCategoryId', Categories.findOne({})._id);
@@ -66,9 +66,6 @@ Template.scoreboard_header.helpers({
     return categories;
   },
   viewCategory: () => Categories.findOne(Session.get('viewCategoryId')),
-  isViewCategoryFinalized: () => Categories.findOne({
-    category_id: Session.get('viewCategoryId'),
-  }).is_score_finalized,
 });
 
 Template.scoreboard_header.events({

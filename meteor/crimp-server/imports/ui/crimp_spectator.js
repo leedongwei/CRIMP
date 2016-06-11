@@ -9,13 +9,11 @@ import './scoreboard.js';
 import './crimp_spectator.html';
 
 
-Template.crimp_spectator.helpers({
-  eventNameFull: () => Events.findOne({}).event_name_full,
-  eventNameShort: () => Events.findOne({}).event_name_short,
-});
+Meteor.subscribe('eventsToAll');
 
-Template.crimp_spectator.onCreated(() => {
-  Meteor.subscribe('eventsToAll');
+
+Template.crimp_spectator.helpers({
+  event: () => Events.findOne({}),
 });
 
 Template.crimp_spectator.onRendered(() => {
