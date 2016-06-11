@@ -144,6 +144,9 @@ Body: {
 * `acronym` consist of three alphabet in uppercase and is unique.
 * `route_id` uniquely identify a Route globally (not just within a Category). Cannot be negative.
 * `score_type` inform the client which scoring system this route is supposed to use.
+  * Accepted values: `IFSC Top-Bonus`, `TFBb`, `Points`
+  * See `meteor/crimp-server/imports/score_systems/` folder for more documentation
+]
 <br><br><br>
 
 
