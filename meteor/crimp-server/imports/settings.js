@@ -1,8 +1,6 @@
-/**
- * Do not 'use strict' on this file
- * It prevents global variables
- */
 import { Meteor } from 'meteor/meteor';
+
+import { roles, checkRoles } from './roles';
 
 const CRIMP = {
   ENVIRONMENT: {
@@ -21,24 +19,20 @@ const CRIMP = {
      *  Full name for desktop views
      *  Recommended length: less than sixty characters
      *                 |-----------------this is 50 chars-----------------| */
-    ORGANIZATION_NAME_FULL: 'CRIMP Development',
+    COMPANY_NAME_FULL: 'CRIMP Development',
 
     /**
      *  Shortened name to be displayed on mobile screens
      *  Recommended length: less than 20 characters
      *                  |--this is 20 chars--|    */
-    ORGANIZATION_NAME_SHORT: 'CRIMP-dev',
+    COMPANY_NAME_SHORT: 'CRIMP-dev',
   },
 
   /**
-   *  Groups for user roles for ease of use
+   *  Utility group and checking function for Roles
    */
-  ROLES: {
-    admins: ['admin', 'hukkataival'],
-    judges: ['judge', 'admin', 'hukkataival'],
-    partners: ['partner', 'judge', 'admin', 'hukkataival'],
-    strangers: ['denied', 'pending'],
-  },
+  roles,
+  checkRoles,
 };
 
 

@@ -69,6 +69,60 @@ Factory.define('category', Categories, {
   event: {},
 });
 
+Factory.define('category-ifsc', Categories, {
+  category_name: faker.commerce.productName(),
+  acronym: String(faker.random.uuid()).substr(0, 3),
+  is_team_category: false,
+  is_score_finalized: false,
+  climber_count: 0,
+  time_start: new Date(),
+  time_end: new Date(),
+  score_system: 'ifsc-top-bonus',
+  routes: [{
+    _id: Random.id(),
+    route_name: 'R1',
+    score_rules: {},
+  }, {
+    _id: Random.id(),
+    route_name: 'R2',
+    score_rules: {},
+  }, {
+    _id: Random.id(),
+    route_name: 'R3',
+    score_rules: {},
+  }, {
+    _id: Random.id(),
+    route_name: 'R4',
+    score_rules: {},
+  }, {
+    _id: Random.id(),
+    route_name: 'R5',
+    score_rules: {},
+  }, {
+    _id: Random.id(),
+    route_name: 'R6',
+    score_rules: {},
+  }],
+  event: {},
+});
+
+Factory.define('category-dummy', Categories, {
+  category_name: faker.commerce.productName(),
+  acronym: String(faker.random.uuid()).substr(0, 3),
+  is_team_category: false,
+  is_score_finalized: false,
+  climber_count: 0,
+  time_start: new Date(),
+  time_end: new Date(),
+  score_system: 'ifsc-top-bonus',
+  routes: [{
+    _id: Random.id(),
+    route_name: 'R1',
+    score_rules: {},
+  }],
+  event: {},
+});
+
 Factory.define('climber', Climbers, {
   climber_name: faker.name.findName(),
   identity: faker.phone.phoneNumberFormat(),

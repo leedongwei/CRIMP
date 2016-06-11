@@ -1,0 +1,29 @@
+<template name="activetracker">
+  <h2> Currently on the Wall</h2>
+
+  {{ #if activetracker }}
+
+    <table class="activeboard-climbers">
+      <tr class="activeboard-header">
+        <td class="activeboard-route">Route</td>
+        <td class="activeboard-id show-for-large-up">ID</td>
+        <td class="activeboard-name">Name</td>
+      </tr>
+
+      {{ #each route in activetracker }}
+        <tr>
+          <td class="activeboard-route">{{ route.route_name }}</td>
+          <td class="activeboard-id show-for-large-up">{{ route.marker_id }}</td>
+          <td class="activeboard-name">{{ route.climber_name }}</td>
+        </tr>
+      {{ /each }}
+    </table>
+
+  {{ else }}
+
+    <div class="activeboard-notice">
+      <p>Nobody is climbing :(<br>
+      Check <a href="http://boulderactive.nusclimb.com/schedule" target="_blank">the schedule</a> for the next round of climbing!</p>
+    </div>
+  {{ /if }}
+</template>

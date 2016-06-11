@@ -144,6 +144,9 @@ Body: {
 * `acronym` consist of three alphabet in uppercase and is unique.
 * `route_id` uniquely identify a Route globally (not just within a Category). Cannot be negative.
 * `score_type` inform the client which scoring system this route is supposed to use.
+  * Accepted values: `IFSC Top-Bonus`, `TFBb`, `Points`
+  * See `meteor/crimp-server/imports/score_systems/` folder for more documentation
+]
 <br><br><br>
 
 
@@ -156,8 +159,8 @@ Body: {
 * `event_id` get scores from a specific event
 * `category_id` get scores from a specific category
 * `route_id` get scores from a specfic route
-* `climber_id` get all the scores of a climber
-* `marker_id` get scores of a climber from a specific category
+* `climber_id` get all the scores of a specific climber
+* `marker_id` get scores of climbers with that marker_id
 
 ```json
 header: {

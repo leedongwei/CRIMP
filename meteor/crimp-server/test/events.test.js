@@ -176,27 +176,21 @@ describe('Events', function () {
         assert.isDefined(Events.findOne(targetEvent._id));
       });
 
-      /**
-       *  Need CategoriesCollection stub to isolate Events
-       */
       it('delete event with child because isRecursive is true', function () {
         const targetEvent = Events.findOne({});
 
-        // Set 3 child Categories under Event, and 1 orphan Category
+        // Set 2 child Categories under Event, and 1 orphan Category
         let newCategoryDoc;
         newCategoryDoc = Factory.build('category');
         newCategoryDoc.event = targetEvent;
         Categories.insert(newCategoryDoc);
-        newCategoryDoc = Factory.build('category');
+        newCategoryDoc = Factory.build('category-ifsc');
         newCategoryDoc.event = targetEvent;
         Categories.insert(newCategoryDoc);
-        newCategoryDoc = Factory.build('category');
-        newCategoryDoc.event = targetEvent;
-        Categories.insert(newCategoryDoc);
-        Factory.create('category');
+        Factory.create('category-dummy');
 
         // Ensure Categories are inserted correctly
-        assert.equal(Categories.find({}).count(), 4);
+        assert.equal(Categories.find({}).count(), 3);
 
         const removedEvents = Events.methods.remove.call({
           selector: targetEvent._id,

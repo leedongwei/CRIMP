@@ -181,39 +181,41 @@ describe('Teams', function () {
       });
     });
 
-    describe('remove Climber', function () {
-      it('delete link in Climber and Scores', function () {
-        const targetTeam = Teams.findOne({});
-        const targetClimber = Climbers.findOne({});
+    describe('Multi-collection functions', function () {
+      describe('remove Climber', function () {
+        it('delete link in Climber and Scores', function () {
+          const targetTeam = Teams.findOne({});
+          const targetClimber = Climbers.findOne({});
 
-        const removedClimbers = Teams.methods.removeClimber.call({
-          teamId: targetTeam._id,
-          climberId: targetClimber._id,
+          const removedClimbers = Teams.methods.removeClimber.call({
+            teamId: targetTeam._id,
+            climberId: targetClimber._id,
+          });
+
+          assert.equal(removedClimbers, 1);
         });
 
-        assert.equal(removedClimbers, 1);
-      });
+        it('no error if Climber does not exist', function () {
+          const targetTeam = Teams.findOne({});
 
-      it('no error if Climber does not exist', function () {
-        const targetTeam = Teams.findOne({});
+          const updatedTeams = Teams.methods.removeClimber.call({
+            teamId: targetTeam._id,
+            climberId: 'fake climber_id',
+          });
 
-        const updatedTeams = Teams.methods.removeClimber.call({
-          teamId: targetTeam._id,
-          climberId: 'fake climber_id',
+          assert.equal(updatedTeams, 1);
         });
 
-        assert.equal(updatedTeams, 1);
-      });
+        it('no error if Team does not exist', function () {
+          const targetClimber = Climbers.findOne({});
 
-      it('no error if Team does not exist', function () {
-        const targetClimber = Climbers.findOne({});
+          const updatedTeams = Teams.methods.removeClimber.call({
+            teamId: 'fake team_id',
+            climberId: targetClimber._id,
+          });
 
-        const updatedTeams = Teams.methods.removeClimber.call({
-          teamId: 'fake team_id',
-          climberId: targetClimber._id,
+          assert.equal(updatedTeams, 0);
         });
-
-        assert.equal(updatedTeams, 0);
       });
     });
   });

@@ -1,0 +1,21 @@
+<template name="crimp_spectator">
+  <div class="top-bar">
+    <div class="row column">
+      <div class="top-bar-left">
+        <ul class="dropdown menu" data-dropdown-menu>
+          <li class="menu-text">{{eventNameFull}}</li>
+          <li class="menu-text">{{eventNameShort}}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="small-12 medium-6 columns">
+      {{> activetracker}}
+    </div>
+    <div class="small-12 medium-6 columns">
+      {{> scoreboard}}
+    </div>
+  </div>
+</template>

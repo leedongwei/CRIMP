@@ -1,0 +1,25 @@
+.scoreboard-header {
+  // border: 1px solid #000;
+}
+
+#scoreboard-selectCategory {
+  width: 100%;
+
+  li, a {
+    display: block;
+    width: 100%;
+  }
+}
+
+.scoreboard-categoryOngoing {
+  font-size: 0.6em;
+  vertical-align: super;
+
+  .dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #5fba7d;
+  }
+}
