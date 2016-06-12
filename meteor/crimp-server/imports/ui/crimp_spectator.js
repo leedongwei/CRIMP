@@ -4,6 +4,7 @@ import { $ } from 'meteor/jquery';
 
 import Events from '../data/events';
 
+import './conn_status.js';
 import './activetracker.js';
 import './scoreboard.js';
 import './crimp_spectator.html';

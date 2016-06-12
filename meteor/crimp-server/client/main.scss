@@ -40,10 +40,26 @@ $dropdownmenu-arrows: false;
 @include foundation-tooltip;
 @include foundation-top-bar;
 
-$bg-color: #EFECEA;
-$color-strong: #334854;
-$color-red: #E04462;
-$color-yellow: #F9C535;
+// https://marvelapp.com/styleguide/design/color-scheme
+$grey_black: #1F2D3D;
+$grey_steel: #273444;
+$grey_slate: #3C4858;
+$grey_smoke: #E0E6ED;
+$grey_snow: #F9FAFC;
+
+$ui_blue: #1FB6FF;
+$ui_positive: #13CE66;
+$ui_negative: #FF4949;
+$ui_warning: #FFC82C;
+
+$marvel: #1FB6FF;
+$purple: #7E5BEF;
+$pink: #FF49DB;
+$orange: #FF7849;
+$green: #13CE66;
+$yellow: #FFC82C;
+$white: #FFFFFF;
+
 
 .scoreboard-climbers {
   padding: 0;
@@ -58,4 +74,10 @@ $color-yellow: #F9C535;
 }
 
 
+@import '../imports/ui/loader.scss';
+
+@import '../imports/ui/crimp_spectator.scss';
+@import '../imports/ui/conn_status.scss';
+@import '../imports/ui/activetracker.scss';
 @import '../imports/ui/scoreboard.scss';
+

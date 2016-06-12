@@ -1,14 +1,25 @@
 <template name="crimp_spectator">
-  <div class="top-bar">
-    <div class="row column">
-      <div class="top-bar-left">
-        <ul class="dropdown menu" data-dropdown-menu>
-          <li class="menu-text">{{event.event_name_full}}</li>
-          <li class="menu-text">{{event.event_name_short}}</li>
-        </ul>
+  <div data-sticky-container>
+    <div class="title-bar" data-sticky data-options="marginTop:0;">
+      <div class="row column">
+        <div class="title-bar-left">
+          <ul class="menu">
+            <li class="menu-text show-for-large">
+              {{event.event_name_full}}
+            </li>
+            <li class="menu-text hide-for-large">
+              {{event.event_name_short}}
+            </li>
+          </ul>
+        </div>
+        <div class="title-bar-right">
+          {{> conn_status}}
+        </div>
       </div>
     </div>
   </div>
+
+  {{> loader}}
 
   <div class="row">
     <div class="small-12 medium-6 columns">
@@ -18,4 +29,5 @@
       {{> scoreboard}}
     </div>
   </div>
+
 </template>

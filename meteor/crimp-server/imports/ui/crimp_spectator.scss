@@ -1,0 +1,11 @@
+.title-bar,
+.title-bar ul,
+.title-bar li {
+  width: 100%;
+  color: $marvel;
+  background-color: $white;
+}
+
+.title-bar {
+  border-bottom: 1px solid $grey_smoke;
+}
