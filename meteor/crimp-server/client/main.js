@@ -37,9 +37,9 @@ Meteor.startup(() => {
   scs = Scores;
   hlp = HelpMe;
   act = ActiveTracker;
-})
+});
+
 
 Meteor.startup(() => {
-  // Session.setDefault('currentCategoryId', '');
-  // console.log(Session.get('currentCategoryId'));
+
 });

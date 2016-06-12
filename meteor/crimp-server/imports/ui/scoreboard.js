@@ -26,25 +26,10 @@ Tracker.autorun(() => {
 /**
  * Generic utility functions
  */
-function changeViewCategory(categoryId) {
+function updateViewCategory(categoryId) {
   Session.set('viewCategoryId', categoryId);
   localStorage.setItem('viewCategoryId', categoryId);
 }
-
-
-/**
- *  Template functions for scoreboard
- */
-Template.scoreboard.onCreated(() => {
-  if (!localStorage.getItem('viewCategoryId')) {
-    // TODO: Set to the upcoming event
-    localStorage.setItem('viewCategoryId', Categories.findOne({})._id);
-  }
-
-  if (!Session.get('viewCategoryId')) {
-    changeViewCategory(localStorage.getItem('viewCategoryId'));
-  }
-});
 
 
 /**
@@ -65,13 +50,24 @@ Template.scoreboard_header.helpers({
 
     return categories;
   },
-  viewCategory: () => Categories.findOne(Session.get('viewCategoryId')),
+  viewCategory: () => {
+    if (!localStorage.getItem('viewCategoryId')) {
+      // TODO: Set to the upcoming event
+      localStorage.setItem('viewCategoryId', Categories.findOne({})._id);
+    }
+
+    if (!Session.get('viewCategoryId')) {
+      updateViewCategory(localStorage.getItem('viewCategoryId'));
+    }
+
+    return Categories.findOne(Session.get('viewCategoryId'));;
+  },
 });
 
 Template.scoreboard_header.events({
   'click #scoreboard-selectCategory ul.menu li'(event) {
     const dataAttr = event.currentTarget.dataset;
-    Session.set('viewCategoryId', dataAttr.category);
+    updateViewCategory(dataAttr.category);
   },
 });
 
