@@ -1,0 +1,24 @@
+.activetracker {
+  > h1 {
+    font-family: $font_head_main;
+  }
+}
+
+table.activetracker-table {
+  font-family: $font_body;
+  font-size: 0.8em;
+
+  @include breakpoint(large) {
+    font-size: 0.9em;
+  }
+
+  td:nth-child(1) {
+    width: 25%;
+    text-align: center;
+  }
+  td:nth-child(2) {
+    width: 75%;
+  }
+
+  .material-icons { vertical-align: middle; }
+}

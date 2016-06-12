@@ -1,23 +1,22 @@
 <template name="activetracker">
-
-
     {{#if activetracker}}
       <section class="activetracker">
-        <h1>Currently on the Wall</h1>
-        <table class="activeboard-climbers">
-          <tr class="activeboard-header">
-            <td class="activeboard-route">Route</td>
-            <td class="activeboard-id show-for-large-up">ID</td>
-            <td class="activeboard-name">Name</td>
-          </tr>
-
-          {{#each route in activetracker}}
+        <h1>Climbing</h1>
+        <table class="activetracker-table">
+          <thead>
             <tr>
-              <td class="activeboard-route">{{route.route_name}}</td>
-              <td class="activeboard-id show-for-large-up">{{route.marker_id}}</td>
-              <td class="activeboard-name">{{route.climber_name}}</td>
+              <td>Route</td>
+              <td>Climber</td>
             </tr>
-          {{/each}}
+          </thead>
+          <tbody>
+            {{#each route in activetracker}}
+              <tr>
+                <td >{{route.route_name}}</td>
+                <td>{{route.marker_id}} - {{route.climber_name}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
         </table>
       </section>
     {{else}}
