@@ -12,6 +12,11 @@
     .top-bar {
       padding-bottom: 4px;  // Hack to reduce space from clearfix
     }
+
+    .top-bar-custom-right {
+      position: absolute;
+      right: 15px;
+    }
   }
 }
 

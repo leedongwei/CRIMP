@@ -1,40 +1,26 @@
 <template name="activetracker">
-  <h2> Currently on the Wall</h2>
 
-  {{#if activetracker}}
 
-    <table class="activeboard-climbers">
-      <tr class="activeboard-header">
-        <td class="activeboard-route">Route</td>
-        <td class="activeboard-id show-for-large-up">ID</td>
-        <td class="activeboard-name">Name</td>
-      </tr>
-
-      {{#each route in activetracker}}
-        <tr>
-          <td class="activeboard-route">{{route.route_name}}</td>
-          <td class="activeboard-id show-for-large-up">{{route.marker_id}}</td>
-          <td class="activeboard-name">{{route.climber_name}}</td>
-        </tr>
-      {{/each}}
-    </table>
-
-  {{else}}
-    <div class="activeboard-schedule">
-      <table>
-        <tr>
-          <td>Category</td>
-          <td>Starting at</td>
-          <td>Ending at</td>
-        </tr>
-        {{#each category in categories}}
-          <tr>
-            <td>{{category.category_name}}</td>
-            <td>{{category.time_start}}</td>
-            <td>{{category.time_end}}</td>
+    {{#if activetracker}}
+      <section class="activetracker">
+        <h1>Currently on the Wall</h1>
+        <table class="activeboard-climbers">
+          <tr class="activeboard-header">
+            <td class="activeboard-route">Route</td>
+            <td class="activeboard-id show-for-large-up">ID</td>
+            <td class="activeboard-name">Name</td>
           </tr>
-        {{/each}}
-      </table>
-    </div>
-  {{/if}}
+
+          {{#each route in activetracker}}
+            <tr>
+              <td class="activeboard-route">{{route.route_name}}</td>
+              <td class="activeboard-id show-for-large-up">{{route.marker_id}}</td>
+              <td class="activeboard-name">{{route.climber_name}}</td>
+            </tr>
+          {{/each}}
+        </table>
+      </section>
+    {{else}}
+      {{> schedule}}
+    {{/if}}
 </template>

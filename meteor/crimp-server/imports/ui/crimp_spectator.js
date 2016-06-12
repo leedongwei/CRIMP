@@ -17,6 +17,6 @@ Template.crimp_spectator.helpers({
   event: () => Events.findOne({}),
 });
 
-Template.crimp_spectator.onRendered(() => {
-  $('.crimp_spectator').foundation();
-});
+// Template.crimp_spectator.onRendered(() => {
+//   $('.crimp_spectator').foundation();
+// });

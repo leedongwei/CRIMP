@@ -3,7 +3,7 @@
   <div class="crimp_spectator">
     <nav>
       <div class="top-bar">
-        <div class="row">
+        <div class="row column">
           <div class="top-bar-title show-for-large">
             {{event.event_name_full}}
           </div>
@@ -11,11 +11,8 @@
             {{event.event_name_short}}
           </div>
 
-          <div class="top-bar-right">
-
-            <ul class="menu">
-              <li>{{> conn_status}}</li>
-            </ul>
+          <div class="top-bar-custom-right">
+            {{> conn_status}}
           </div>
         </div>
       </div>

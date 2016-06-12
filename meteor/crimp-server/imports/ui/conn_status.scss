@@ -45,7 +45,7 @@
   position: relative;
   bottom: 1px;        // Pushes up the text for alignment
   font-size: 11px;    // Same height as dot if font is 'Open Sans Condensed'
-  font-family: $font_body;
+  font-family: $font_body_thin;
   font-weight: 700;
 
   &.status-connected {
@@ -85,7 +85,9 @@
 }
 
 @keyframes status-pulse {
-  66%   { background-color: $ui_positive; }
+  25%   { background-color: $ui_warning; }
+  50%   { background-color: $ui_positive; }
+  75%   { background-color: $ui_warning; }
 }
 
 @keyframes status-fade {

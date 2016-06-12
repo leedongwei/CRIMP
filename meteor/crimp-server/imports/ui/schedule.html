@@ -1,0 +1,23 @@
+<template name="schedule">
+  <section class="schedule">
+    <h1>Schedule</h1>
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <td>Category</td>
+          <td>Begin <i class="material-icons">access_time</i></td>
+          <td>End <i class="material-icons">access_time</i></td>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each category in categories}}
+          <tr class="{{category.start_in_hour}}">
+            <td>{{category.category_name}}</td>
+            <td>{{category.time_start}}</td>
+            <td>{{category.time_end}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </section>
+</template>

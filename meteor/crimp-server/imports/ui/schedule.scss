@@ -1,0 +1,32 @@
+.schedule {
+  > h1 {
+    font-family: $font_head_main;
+  }
+}
+
+table.schedule-table {
+  font-family: $font_body;
+  font-size: 0.8em;
+
+  @include breakpoint(large) {
+    font-size: 0.9em;
+  }
+
+  // same as $marvel
+  tr.highlight { background-color: rgba(31, 182, 255, 0.2); }
+  tr:nth-child(even).highlight {
+    background-color: rgba(31, 182, 255, 0.3);
+  }
+
+  td:nth-child(1) {
+    width: 40%;
+  }
+  td:nth-child(2),
+  td:nth-child(3) {
+    width: 30%;
+    text-align: center;
+  }
+
+  .material-icons { vertical-align: middle; }
+}
+
