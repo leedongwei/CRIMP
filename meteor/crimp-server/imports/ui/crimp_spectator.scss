@@ -1,11 +1,29 @@
-.title-bar,
-.title-bar ul,
-.title-bar li {
+.crimp_spectator {
+  padding-top: 45px;
+
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    z-index: 1000;
+
+    .top-bar {
+      padding-bottom: 4px;  // Hack to reduce space from clearfix
+    }
+  }
+}
+
+.top-bar,
+.top-bar ul,
+.top-bar li {
   width: 100%;
+  font-family: $font_head_main;
   color: $marvel;
   background-color: $white;
 }
 
-.title-bar {
+.top-bar {
   border-bottom: 1px solid $grey_smoke;
 }

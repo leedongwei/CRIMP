@@ -18,5 +18,5 @@ Template.crimp_spectator.helpers({
 });
 
 Template.crimp_spectator.onRendered(() => {
-  $('.top-bar').foundation();
+  $('.crimp_spectator').foundation();
 });
