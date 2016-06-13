@@ -12,6 +12,10 @@ table.schedule-table {
     font-size: 0.9em;
   }
 
+  thead {
+    font-size: 1.3em;
+  }
+
   // same as $marvel
   tr.highlight { background-color: rgba(31, 182, 255, 0.2); }
   tr:nth-child(even).highlight {
