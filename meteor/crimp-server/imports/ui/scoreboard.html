@@ -64,17 +64,19 @@
         </div>
 
         <div class="climber-row">
-          <table class="climber-scores">
-            <tr>
-              {{#each score in climber.scores}}
-                <td data-route="{{route_id}}">
-                  {{score.calculatedScore.displayString}}
-                </td>
-              {{/each}}
-            </tr>
-          </table>
+          <!-- TODO: Template to show only top 6 scoring-->
+          <div class="{{#if climber.needScrolling}}table-scroll{{/if}}">
+            <table class="climber-scores">
+              <tr>
+                {{#each score in climber.scores}}
+                  <td data-route="{{route_id}}">
+                    {{score.calculatedScore.displayString}}
+                  </td>
+                {{/each}}
+              </tr>
+            </table>
+          </div>
         </div>
-
       </li>
     {{/each}}
   </ul>

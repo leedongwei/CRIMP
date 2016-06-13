@@ -10,6 +10,9 @@ import { _ } from 'meteor/stevezhu:lodash';
 import Categories from '../data/categories';
 import Climbers from '../data/climbers';
 import Scores from '../data/scores';
+
+import { scoreSystemsNames } from '../score_systems/score-system.js';
+import IFSC_TB from '../score_systems/ifsc-top-bonus';
 import TFBb from '../score_systems/top-flash-bonus2-bonus1';
 
 import './scoreboard.html';
@@ -33,6 +36,24 @@ function updateViewCategory(categoryId) {
 function checkIfOngoing(category) {
   const timeNow = Date.now();
   return category.time_start < timeNow && timeNow < category.time_end;
+}
+function getScoreSystem(scoreSystem) {
+  let output;
+  switch (scoreSystem) {
+    case scoreSystemsNames[0]:
+      output = new IFSC_TB();
+      break;
+    case scoreSystemsNames[1]:
+      output = new TFBb();
+      break;
+    case scoreSystemsNames[2]:   // TODO: Set for points
+      output = new TFBb();
+      break;
+    default:
+      output = new IFSC_TB();
+  }
+
+  return output;
 }
 
 
@@ -93,7 +114,8 @@ Template.scoreboard_climbers.helpers({
         _id: Session.get('viewCategoryId'),
       } },
     }).fetch();
-    const scoreSystem = new TFBb('test');
+    const category = Categories.findOne(Session.get('viewCategoryId'));
+    const scoreSystem = getScoreSystem(category.score_system);
     const jointDocArray = [];
 
     climbers.forEach((climber) => {
@@ -105,6 +127,9 @@ Template.scoreboard_climbers.helpers({
       // Join Climber and Score documents for a category
       const jointDoc = scoreSystem.join(climber, targetScore);
       jointDoc.tabulatedScore = scoreSystem.tabulate(climber.scores);
+
+      // Set to scoreboard to scrolling if there are more 6 routes
+      jointDoc.needScrolling = targetScore.scores > 6;
 
       jointDocArray.push(jointDoc);
     });

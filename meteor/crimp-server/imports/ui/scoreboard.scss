@@ -105,9 +105,12 @@ ul.scoreboard-climbers {
   }
 
   td {
+    width: 16.666%;
     min-width: 48px;
+    padding: 3px 5px;
 
-    font-size: 1em;
+    font-size: 0.95em;
     text-align: center;
+    overflow: hidden;
   }
 }

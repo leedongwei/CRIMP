@@ -12,11 +12,12 @@ import Scores from '../imports/data/scores';
 import HelpMe from '../imports/data/helpme';
 import ActiveTracker from '../imports/data/activetracker';
 
+import IFSC_TB from '../imports/score_systems/ifsc-top-bonus.js';
 import TFBb from '../imports/score_systems/top-flash-bonus2-bonus1';
-
-// TODO: REMOVE seedDatabase. DEV TESTING ONLY.
 import CRIMP from '../imports/settings';
 
+// TODO: REMOVE seedDatabase. DEV TESTING ONLY.
+import seedDatabase from '../imports/seedDatabase';
 
 // Utility templates
 import '../imports/ui/loader.js';

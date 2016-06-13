@@ -46,7 +46,7 @@ function seedDatabase() {
     climber_count: 0,
     time_start: new Date(),
     time_end: new Date(),
-    score_system: 'ifsc-top-bonus',
+    score_system: 'IFSC Top-Bonus',
     routes: [{
       _id: Random.id(),
       route_name: 'R1',
@@ -70,6 +70,14 @@ function seedDatabase() {
     }, {
       _id: Random.id(),
       route_name: 'R6',
+      score_rules: {},
+    },{
+      _id: Random.id(),
+      route_name: 'R7',
+      score_rules: {},
+    },{
+      _id: Random.id(),
+      route_name: 'R8',
       score_rules: {},
     }],
     event: {
@@ -86,43 +94,31 @@ function seedDatabase() {
     climber_count: 0,
     time_start: new Date(),
     time_end: new Date(),
-    score_system: 'points',
+    score_system: 'TFBb',
     routes: [{
       _id: Random.id(),
       route_name: 'R1',
-      score_rules: {
-        points: 10,
-      },
+      score_rules: {},
     }, {
       _id: Random.id(),
       route_name: 'R2',
-      score_rules: {
-        points: 10,
-      },
+      score_rules: {},
     }, {
       _id: Random.id(),
       route_name: 'R3',
-      score_rules: {
-        points: 10,
-      },
+      score_rules: {},
     }, {
       _id: Random.id(),
       route_name: 'R4',
-      score_rules: {
-        points: 10,
-      },
+      score_rules: {},
     }, {
       _id: Random.id(),
       route_name: 'R5',
-      score_rules: {
-        points: 10,
-      },
+      score_rules: {},
     }, {
       _id: Random.id(),
       route_name: 'R6',
-      score_rules: {
-        points: 10,
-      },
+      score_rules: {},
     }],
     event: {
       _id: eve1,
@@ -138,7 +134,7 @@ function seedDatabase() {
     climber_count: 0,
     time_start: new Date(),
     time_end: new Date(),
-    score_system: 'points',
+    score_system: 'Points',
     routes: [{
       _id: Random.id(),
       route_name: 'TEAM R1',
