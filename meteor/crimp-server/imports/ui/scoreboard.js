@@ -129,7 +129,7 @@ Template.scoreboard_climbers.helpers({
       jointDoc.tabulatedScore = scoreSystem.tabulate(climber.scores);
 
       // Set to scoreboard to scrolling if there are more 6 routes
-      jointDoc.needScrolling = targetScore.scores > 6;
+      jointDoc.needScrolling = targetScore.scores.length > 6;
 
       jointDocArray.push(jointDoc);
     });
@@ -138,3 +138,25 @@ Template.scoreboard_climbers.helpers({
   },
 });
 
+Template.scoreboard_climbers.onRendered(() => {
+  // $('.table-scrollable').scroll(function hideScrollArrows() {
+  //   const $this = $(this);
+
+  //   if ($this.scrollLeft()
+  //       === ($this.children('table').width() - $this.width())) {
+  //     console.log('left hide');
+  //     $this.parent().children('.left-arrow').hide();
+  //   } else {
+  //     console.log('left show');
+  //     $this.parent().children('.left-arrow').show();
+  //   }
+
+  //   if ($this.scrollLeft() === 0) {
+  //     console.log('right hide');
+  //     $this.parent().children('.right-arrow').hide();
+  //   } else {
+  //     console.log('right show');
+  //     $this.parent().children('.right-arrow').show();
+  //   }
+  // });
+});

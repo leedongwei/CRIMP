@@ -1,4 +1,7 @@
 .scoreboard {
+  // Prevent scrollTop reset on mobile screens
+  min-height: 85vh;
+
   > h1 {
     font-family: $font_head_main;
   }
@@ -66,6 +69,25 @@ div.scoreboard-climbers {
   margin: 0;
   padding: 0;
   font-family: $font_body_thin;
+
+  .left-arrow {
+    position: absolute;
+    left: 0px;
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-right: 5px solid blue;
+  }
+  .right-arrow {
+    position: absolute;
+    right: 0px;
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid green;
+  }
 }
 
 .climber-details {
@@ -110,13 +132,20 @@ div.scoreboard-climbers {
   }
 }
 
-.climber-scores {
+// Replace Foundation 6 .table-scroll
+.table-scrollable {
+  position: relative;
+  overflow: scroll;
+}
+
+table.climber-scores {
+  margin-bottom: 6px;
+
   tr {
     min-width: 290px;
   }
 
   td {
-    width: 16.666%;
     min-width: 48px;
     padding: 3px 5px;
 
