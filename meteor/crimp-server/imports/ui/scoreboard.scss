@@ -72,21 +72,25 @@ div.scoreboard-climbers {
 
   .left-arrow {
     position: absolute;
-    left: 0px;
+    top: 0.65em;
+    left: -6px;
     width: 0;
     height: 0;
+    display: none;
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
-    border-right: 5px solid blue;
+    border-right: 5px solid $grey_slate;
   }
   .right-arrow {
     position: absolute;
-    right: 0px;
+    top: 0.65em;
+    right: -6px;
     width: 0;
     height: 0;
+    display: none;
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
-    border-left: 5px solid green;
+    border-left: 5px solid $grey_slate;
   }
 }
 
@@ -136,6 +140,7 @@ div.scoreboard-climbers {
 .table-scrollable {
   position: relative;
   overflow: scroll;
+  user-select: none;
 }
 
 table.climber-scores {

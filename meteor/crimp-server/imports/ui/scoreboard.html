@@ -9,6 +9,7 @@
   </section>
 </template>
 
+
 <template name="scoreboard_header">
   <div class="scoreboard-header column row">
     <ul id="scoreboard-selectCategory" class="dropdown menu" data-dropdown-menu>
@@ -44,43 +45,12 @@
   </div>
 </template>
 
+
 <template name="scoreboard_climbers">
   {{#if climbers}}
     <ul class="scoreboard-climbers">
       {{#each climber in climbers}}
-        <li class="climber" id="climber-{{climber.marker_id}}">
-          <div class="climber-row clearfix">
-            <div class="climber-details">
-              <span class="climber-rank"><b>#</b>{{climber.rank}}</span>
-              <span class="climber-name">
-                <b>{{climber.marker_id}}</b> {{climber.climber_name}}
-              </span>
-            </div>
-
-            <div class="climber-scoretotal">
-              {{> Template.dynamic
-                    template=climber.tabulatedScore.system
-                    data=climber.tabulatedScore}}
-            </div>
-          </div>
-
-          <div class="climber-row">
-            <!-- TODO: Template to show only top 6 scoring-->
-            <!-- <span class="left-arrow"></span> -->
-            <!-- <span class="right-arrow"></span> -->
-            <div class="{{#if climber.needScrolling}}table-scrollable{{/if}}">
-              <table class="climber-scores">
-                <tr>
-                  {{#each score in climber.scores}}
-                    <td data-route="{{route_id}}">
-                      {{score.calculatedScore.displayString}}
-                    </td>
-                  {{/each}}
-                </tr>
-              </table>
-            </div>
-          </div>
-        </li>
+        {{> scoreboard_climbers_item climber}}
       {{/each}}
     </ul>
   {{else}}
@@ -88,4 +58,41 @@
       {{> loader}}
     </div>
   {{/if}}
+</template>
+
+
+<template name="scoreboard_climbers_item">
+  <li class="climber" id="climber-{{this.marker_id}}">
+    <div class="climber-row clearfix">
+      <div class="climber-details">
+        <span class="climber-rank"><b>#</b>{{this.rank}}</span>
+        <span class="climber-name">
+          <b>{{this.marker_id}}</b> {{this.climber_name}}
+        </span>
+      </div>
+
+      <div class="climber-scoretotal">
+        {{> Template.dynamic
+              template=this.tabulatedScore.system
+              data=this.tabulatedScore}}
+      </div>
+    </div>
+
+    <div class="climber-row">
+      <!-- TODO: Template to show only top 6 scoring-->
+      <span class="left-arrow"></span>
+      <span class="right-arrow"></span>
+      <div class="{{#if this.needScrolling}}table-scrollable{{/if}}">
+        <table class="climber-scores">
+          <tr>
+            {{#each score in this.scores}}
+              <td data-route="{{route_id}}">
+                {{score.calculatedScore.displayString}}
+              </td>
+            {{/each}}
+          </tr>
+        </table>
+      </div>
+    </div>
+  </li>
 </template>

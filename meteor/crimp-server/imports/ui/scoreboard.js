@@ -138,25 +138,56 @@ Template.scoreboard_climbers.helpers({
   },
 });
 
-Template.scoreboard_climbers.onRendered(() => {
-  // $('.table-scrollable').scroll(function hideScrollArrows() {
-  //   const $this = $(this);
+Template.scoreboard_climbers_item.onRendered(() => {
 
-  //   if ($this.scrollLeft()
-  //       === ($this.children('table').width() - $this.width())) {
-  //     console.log('left hide');
-  //     $this.parent().children('.left-arrow').hide();
-  //   } else {
-  //     console.log('left show');
-  //     $this.parent().children('.left-arrow').show();
-  //   }
+});
 
-  //   if ($this.scrollLeft() === 0) {
-  //     console.log('right hide');
-  //     $this.parent().children('.right-arrow').hide();
-  //   } else {
-  //     console.log('right show');
-  //     $this.parent().children('.right-arrow').show();
-  //   }
-  // });
+
+/**
+ *  Template functions for scoreboard_climbers_item
+ */
+Template.scoreboard_climbers_item.onRendered(() => {
+  const $table = $('.table-scrollable');
+  if (!$table.length) {
+    $('.climber-row')
+      .children('.left-arrow')
+        .hide()
+      .children('.right-arrow')
+        .hide();
+
+    return;
+  }
+
+  $table.off('scroll');
+
+  if ($table.width() < $table.children('table').width()) {
+    $('.climber-row .right-arrow').show();
+
+    $table.css('cursor', '-webkit-grab')
+          .mouseup(() => {
+            $table.css('cursor', '-webkit-grab');
+          })
+          .mousedown(() => {
+            $table.css('cursor', '-webkit-grabbing');
+          });
+
+    $('.table-scrollable').scroll(function hideScrollArrows() {
+      const $this = $(this);
+
+      if ($this.scrollLeft()
+          === ($this.children('table').width() - $this.width())) {
+        $this.parent().children('.right-arrow').hide();
+      } else {
+        $this.parent().children('.right-arrow').show();
+      }
+
+      if ($this.scrollLeft() === 0) {
+        $this.parent().children('.left-arrow').hide();
+      } else {
+        $this.parent().children('.left-arrow').show();
+      }
+    });
+  }
+
+
 });
