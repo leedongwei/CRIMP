@@ -1,10 +1,6 @@
 .scoreboard {
   // Prevent scrollTop reset on mobile screens
   min-height: 85vh;
-
-  > h1 {
-    font-family: $font_head_main;
-  }
 }
 
 #scoreboard-selectCategory {

@@ -1,15 +1,12 @@
-.activetracker {
-  > h1 {
-    font-family: $font_head_main;
-  }
-}
-
 table.activetracker-table {
   font-family: $font_body;
   font-size: 0.8em;
 
   thead td {
+    color: $grey_steel;
     font-size: 1.3em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
   @include breakpoint(large) {
