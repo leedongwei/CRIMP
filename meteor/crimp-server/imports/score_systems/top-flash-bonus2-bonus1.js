@@ -38,6 +38,7 @@ export default class TFBb extends ScoreSystem {
 
   tabulate(scoreArray) {
     const tabulatedScore = {
+      system: 'TFBb',
       T: 0,
       F: 0,
       B: 0,

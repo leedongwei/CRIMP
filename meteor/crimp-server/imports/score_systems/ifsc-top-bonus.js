@@ -58,6 +58,7 @@ export default class IFSC_TB extends ScoreSystem {
 
   tabulate(scoreArray) {
     const tabulatedScore = {
+      system: 'IFSC_TB',
       T: 0,
       T_attempts: 0,
       B: 0,

@@ -43,6 +43,7 @@ export class ScoreSystem {
    */
   tabulate(scoreArray) {
     const tabulatedScore = {
+      system: 'ScoreSystem',  // same as Class name
       A: 0,
       B: 0,
     };
