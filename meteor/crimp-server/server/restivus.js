@@ -204,7 +204,7 @@ Api.addRoute('judge/categories', {
             scoreRules += `__${route.score_rules.points}`;
           }
 
-          route.score_rules = scoreRules;
+          route.score_rules = _.lowerCase(scoreRules);
         });
 
         array[index] = mappedDoc;

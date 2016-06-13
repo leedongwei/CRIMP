@@ -5,7 +5,7 @@ import { _ } from 'meteor/stevezhu:lodash';
  *  class
  */
 export const scoreSystemsNames = [
-  'IFSC Top-Bonus',
+  'IFSC-Top-Bonus',
   'TFBb',   // top-flash-bonus1-bonus2
   'Points',
 ];

@@ -46,7 +46,7 @@ function seedDatabase() {
     climber_count: 0,
     time_start: new Date(),
     time_end: new Date(),
-    score_system: 'IFSC Top-Bonus',
+    score_system: 'IFSC-Top-Bonus',
     routes: [{
       _id: Random.id(),
       route_name: 'R1',

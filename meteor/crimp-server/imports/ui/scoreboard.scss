@@ -41,6 +41,17 @@ ul.scoreboard-climbers {
   list-style: none;
 }
 
+div.scoreboard-climbers {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100px;
+
+  @include breakpoint(medium) {
+    height: calc(100vh - 170px);
+  }
+}
+
 .climber {
   margin: 15px 0;
 }

@@ -6,7 +6,7 @@ import { ScoreSystem } from './score-system';
 export default class IFSC_TB extends ScoreSystem {
   constructor() {
     super({
-      name: 'IFSC Top-Bonus',
+      name: 'IFSC-Top-Bonus',
     });
   }
 

@@ -45,39 +45,45 @@
 </template>
 
 <template name="scoreboard_climbers">
-  <ul class="scoreboard-climbers">
-    {{#each climber in climbers}}
-      <li class="climber" id="climber-{{climber.marker_id}}">
-        <div class="climber-row clearfix">
-          <div class="climber-details">
-            <span class="climber-rank"><b>#</b>{{climber.rank}}</span>
-            <span class="climber-name">
-              <b>{{climber.marker_id}}</b> {{climber.climber_name}}
-            </span>
+  {{#if climbers}}
+    <ul class="scoreboard-climbers">
+      {{#each climber in climbers}}
+        <li class="climber" id="climber-{{climber.marker_id}}">
+          <div class="climber-row clearfix">
+            <div class="climber-details">
+              <span class="climber-rank"><b>#</b>{{climber.rank}}</span>
+              <span class="climber-name">
+                <b>{{climber.marker_id}}</b> {{climber.climber_name}}
+              </span>
+            </div>
+
+            <div class="climber-scoretotal">
+              {{> Template.dynamic
+                    template=climber.tabulatedScore.system
+                    data=climber.tabulatedScore}}
+            </div>
           </div>
 
-          <div class="climber-scoretotal">
-            {{> Template.dynamic
-                  template=climber.tabulatedScore.system
-                  data=climber.tabulatedScore}}
+          <div class="climber-row">
+            <!-- TODO: Template to show only top 6 scoring-->
+            <div class="{{#if climber.needScrolling}}table-scroll{{/if}}">
+              <table class="climber-scores">
+                <tr>
+                  {{#each score in climber.scores}}
+                    <td data-route="{{route_id}}">
+                      {{score.calculatedScore.displayString}}
+                    </td>
+                  {{/each}}
+                </tr>
+              </table>
+            </div>
           </div>
-        </div>
-
-        <div class="climber-row">
-          <!-- TODO: Template to show only top 6 scoring-->
-          <div class="{{#if climber.needScrolling}}table-scroll{{/if}}">
-            <table class="climber-scores">
-              <tr>
-                {{#each score in climber.scores}}
-                  <td data-route="{{route_id}}">
-                    {{score.calculatedScore.displayString}}
-                  </td>
-                {{/each}}
-              </tr>
-            </table>
-          </div>
-        </div>
-      </li>
-    {{/each}}
-  </ul>
+        </li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <div class="scoreboard-climbers">
+      {{> loader}}
+    </div>
+  {{/if}}
 </template>
