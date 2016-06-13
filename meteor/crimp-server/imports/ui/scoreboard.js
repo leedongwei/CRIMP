@@ -6,6 +6,7 @@ import { $ } from 'meteor/jquery';
 import { _ } from 'meteor/stevezhu:lodash';
 // import { Foundation } from 'meteor/zurb:foundation-sites';
 // import { ReactiveCountdown } from 'meteor/flyandi:reactive-countdown';
+import '../lib/jquery.kinetic.min.js';
 
 import Categories from '../data/categories';
 import Climbers from '../data/climbers';
@@ -154,15 +155,20 @@ Template.scoreboard_climbers_item.onRendered(() => {
         .hide()
       .children('.right-arrow')
         .hide();
-
     return;
   }
 
+  // Resets all scroll watchers
   $table.off('scroll');
 
+  // If there is a large table in the div
   if ($table.width() < $table.children('table').width()) {
     $('.climber-row .right-arrow').show();
 
+    // jQuery Kinetic to allow drag-scrolling
+    $table.kinetic({});
+
+    // Change icon depending on mouseup/down
     $table.css('cursor', '-webkit-grab')
           .mouseup(() => {
             $table.css('cursor', '-webkit-grab');
@@ -171,7 +177,8 @@ Template.scoreboard_climbers_item.onRendered(() => {
             $table.css('cursor', '-webkit-grabbing');
           });
 
-    $('.table-scrollable').scroll(function hideScrollArrows() {
+    // Show arrows depending on the position of the scrolling
+    $table.scroll(function scrollingFunction() {
       const $this = $(this);
 
       if ($this.scrollLeft()
@@ -187,6 +194,7 @@ Template.scoreboard_climbers_item.onRendered(() => {
         $this.parent().children('.left-arrow').show();
       }
     });
+
   }
 
 
