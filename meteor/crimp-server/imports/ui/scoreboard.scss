@@ -1,25 +1,113 @@
-.scoreboard-header {
-  // border: 1px solid #000;
+.scoreboard {
+  > h1 {
+    font-family: $font_head_main;
+  }
 }
 
 #scoreboard-selectCategory {
   width: 100%;
+  font-family: $font_body;
+  font-size: 1.15em;
 
   li, a {
     display: block;
     width: 100%;
   }
+
+  .scoreboard-selectCategory-display {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
 }
 
 .scoreboard-categoryOngoing {
   font-size: 0.6em;
-  vertical-align: super;
+  vertical-align: super !important;
+}
 
-  .dot {
-    display: inline-block;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background-color: #5fba7d;
+.scoreboard-categoryDetails {
+  position: relative;
+  top: -15px;
+  right: -28px;
+  font-family: $font_body_thin;
+  font-size: 0.9em;
+}
+
+
+
+ul.scoreboard-climbers {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.climber {
+  margin: 15px 0;
+}
+
+.climber-row {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 1.5em;
+  min-width: 290px;
+
+  margin: 0;
+  padding: 0;
+  font-family: $font_body_thin;
+}
+
+.climber-details {
+  width: calc(100% - 90px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  .climber-rank {
+    font-family: $font_head_main;
+    font-size: 1.1em;
+    margin-right: 0.1em;
+
+    b {
+      font-family: $font_body_thin;
+      font-size: 0.75em;
+    }
+  }
+
+  .climber-name {
+    font-family: $font_body_thin;
+    font-size: 1em;
+  }
+}
+
+
+.climber-scoretotal {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: block;
+  width: 90px;
+
+  font-family: $font_body_thin;
+  font-size: 1em;
+  font-weight: 700;
+  text-align: right;
+
+  .label {
+    color: $grey_steel;
+    background-color: $grey_smoke;
+  }
+}
+
+.climber-scores {
+  tr {
+    min-width: 290px;
+  }
+
+  td {
+    min-width: 48px;
+
+    font-size: 1em;
+    text-align: center;
   }
 }

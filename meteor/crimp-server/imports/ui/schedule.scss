@@ -12,7 +12,7 @@ table.schedule-table {
     font-size: 0.9em;
   }
 
-  thead {
+  thead td {
     font-size: 1.3em;
   }
 
@@ -31,6 +31,6 @@ table.schedule-table {
     text-align: center;
   }
 
-  .material-icons { vertical-align: middle; }
+  .material-icons { vertical-align: text-bottom; }
 }
 

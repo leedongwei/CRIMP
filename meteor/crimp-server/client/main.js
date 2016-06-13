@@ -17,8 +17,13 @@ import TFBb from '../imports/score_systems/top-flash-bonus2-bonus1';
 // TODO: REMOVE seedDatabase. DEV TESTING ONLY.
 import CRIMP from '../imports/settings';
 
+
 // Utility templates
 import '../imports/ui/loader.js';
+
+// ScoreSystem templates
+import '../imports/score_systems/score-system-html-templates.js';
+
 
 // TODO: Delete this crazy publication
 Meteor.subscribe('development');

@@ -30,6 +30,10 @@ function updateViewCategory(categoryId) {
   Session.set('viewCategoryId', categoryId);
   localStorage.setItem('viewCategoryId', categoryId);
 }
+function checkIfOngoing(category) {
+  const timeNow = Date.now();
+  return category.time_start < timeNow && timeNow < category.time_end;
+}
 
 
 /**
@@ -45,7 +49,7 @@ Template.scoreboard_header.helpers({
                         });
 
     _.forEach(categories, (c) => {
-      c.isOngoing = (c.time_start < timeNow && timeNow < c.time_end);
+      c.isOngoing = checkIfOngoing(c);
     });
 
     return categories;
@@ -60,7 +64,10 @@ Template.scoreboard_header.helpers({
       updateViewCategory(localStorage.getItem('viewCategoryId'));
     }
 
-    return Categories.findOne(Session.get('viewCategoryId'));;
+    const category = Categories.findOne(Session.get('viewCategoryId'));
+    category.isOngoing = checkIfOngoing(category);
+
+    return category;
   },
 });
 
@@ -105,3 +112,4 @@ Template.scoreboard_climbers.helpers({
     return scoreSystem.rankClimbers(jointDocArray);
   },
 });
+

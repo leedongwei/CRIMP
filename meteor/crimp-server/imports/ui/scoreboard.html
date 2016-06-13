@@ -1,17 +1,23 @@
 <template name="scoreboard">
-  <!-- Title and dropdown selection for category -->
-  {{> scoreboard_header}}
+  <section class="scoreboard">
+    <h1>Live Scores</h1>
+    <!-- Title and dropdown selection for category -->
+    {{> scoreboard_header}}
 
-  <!-- Scores of Climbers in chosen category -->
-  {{> scoreboard_climbers}}
+    <!-- Scores of Climbers in chosen category -->
+    {{> scoreboard_climbers}}
+  </section>
 </template>
 
 <template name="scoreboard_header">
   <div class="scoreboard-header column row">
     <ul id="scoreboard-selectCategory" class="dropdown menu" data-dropdown-menu>
       <li>
-        <a href="#"><i class="material-icons">arrow_drop_down</i>
-          {{viewCategory.category_name}}
+        <a href="#" class="scoreboard-selectCategory-display">
+          <i class="material-icons">arrow_drop_down_circle</i>{{viewCategory.category_name}}
+          {{#if viewCategory.isOngoing}}
+            <span class="scoreboard-categoryOngoing">Live now!</span>
+          {{/if}}
         </a>
         <ul class="menu">
           {{#each category in categories}}
@@ -21,9 +27,7 @@
               <a href="#">
                 {{category.category_name}}
                 {{#if category.isOngoing}}
-                  <span class="scoreboard-categoryOngoing">
-                    <span class="dot"></span> Live now!
-                  </span>
+                  <span class="scoreboard-categoryOngoing">Live now!</span>
                 {{/if}}
               </a>
             </li>
@@ -34,9 +38,7 @@
 
     <div class="scoreboard-categoryDetails">
       {{#if viewCategory.is_score_finalized}}
-        is finalized
-      {{else}}
-        not finalized
+        Scores for this category are finalized
       {{/if}}
     </div>
   </div>
@@ -44,27 +46,29 @@
 
 <template name="scoreboard_climbers">
   <ul class="scoreboard-climbers">
-    {{#each climbers}}
-      <li>
+    {{#each climber in climbers}}
+      <li class="climber" id="climber-{{climber.marker_id}}">
         <div class="climber-row clearfix">
-          <div class="climber-rank left">#{{rank}} . . . <b>{{climber_name}}</b> &mdash; {{marker_id}}</div>
+          <div class="climber-details">
+            <span class="climber-rank"><b>#</b>{{climber.rank}}</span>
+            <span class="climber-name">
+              <b>{{climber.marker_id}}</b> {{climber.climber_name}}
+            </span>
+          </div>
 
-
-          <div class="climber-scoretotal right">
-            Total:
-            {{tabulatedScore.T}}T,
-            {{tabulatedScore.F}}F,
-            {{tabulatedScore.B}}B,
-            {{tabulatedScore.b}}b
+          <div class="climber-scoretotal">
+            {{> Template.dynamic
+                  template=climber.tabulatedScore.system
+                  data=climber.tabulatedScore}}
           </div>
         </div>
 
         <div class="climber-row">
           <table class="climber-scores">
             <tr>
-              {{#each scores}}
+              {{#each score in climber.scores}}
                 <td data-route="{{route_id}}">
-                  {{calculatedScore.displayString}}
+                  {{score.calculatedScore.displayString}}
                 </td>
               {{/each}}
             </tr>
@@ -72,7 +76,6 @@
         </div>
 
       </li>
-      <br>
     {{/each}}
   </ul>
 </template>

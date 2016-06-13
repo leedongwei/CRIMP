@@ -61,7 +61,7 @@ $yellow: #FFC82C;
 $white: #FFFFFF;
 
 $font_head_main: 'League Spartan', sans-serif;
-$font_body: 'Open Sans', sans-serif;
+$font_body: 'Oswald', sans-serif;
 $font_body_thin: 'Open Sans Condensed', sans-serif;
 
 @font-face {
@@ -74,19 +74,6 @@ $font_body_thin: 'Open Sans Condensed', sans-serif;
        url('/fonts/leaguespartan-bold.svg#league_spartanbold') format('svg');
   font-weight: bold;
   font-style: normal;
-}
-
-
-.scoreboard-climbers {
-  padding: 0;
-  list-style: none;
-}
-
-.climber-scores td {
-  width: 2em;
-  font-size: 1em;
-  border: 1px solid #555;
-  text-align: center;
 }
 
 

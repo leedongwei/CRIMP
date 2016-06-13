@@ -8,6 +8,10 @@ table.activetracker-table {
   font-family: $font_body;
   font-size: 0.8em;
 
+  thead td {
+    font-size: 1.3em;
+  }
+
   @include breakpoint(large) {
     font-size: 0.9em;
   }
@@ -20,5 +24,5 @@ table.activetracker-table {
     width: 70%;
   }
 
-  .material-icons { vertical-align: middle; }
+  .material-icons { vertical-align: text-bottom; }
 }
