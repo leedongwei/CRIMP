@@ -5,7 +5,7 @@
     {{> scoreboard_header}}
 
     <!-- Scores of Climbers in chosen category -->
-    {{> scoreboard_climbers}}
+    {{> scoreboard_scores}}
   </section>
 </template>
 
@@ -46,6 +46,30 @@
 </template>
 
 
+<template name="scoreboard_scores">
+  {{#if isTeamCategory}}
+    {{> scoreboard_teams}}
+  {{else}}
+    {{> scoreboard_climbers}}
+  {{/if}}
+</template>
+
+
+<template name="scoreboard_teams">
+  {{#if teams}}
+    <ul class="scoreboard-climbers scoreboard-teams">
+      {{#each team in teams}}
+        {{> scoreboard_teams_item team}}
+      {{/each}}
+    </ul>
+  {{else}}
+    <div class="scoreboard-climbers">
+      {{> loader}}
+    </div>
+  {{/if}}
+</template>
+
+
 <template name="scoreboard_climbers">
   {{#if climbers}}
     <ul class="scoreboard-climbers">
@@ -61,13 +85,45 @@
 </template>
 
 
-<template name="scoreboard_climbers_item">
-  <li class="climber" id="climber-{{this.marker_id}}">
+<template name="scoreboard_teams_item">
+  <li class="climber" id="climber-{{this.team_name}}">
     <div class="climber-row clearfix">
       <div class="climber-details">
         <span class="climber-rank"><b>#</b>{{this.rank}}</span>
+        <span class="climber-name team-name">
+          {{this.team_name}}
+        </span>
+      </div>
+
+      <div class="climber-scoretotal">
+        {{> Template.dynamic
+              template=this.tabulatedScore.system
+              data=this.tabulatedScore}}
+      </div>
+    </div>
+
+    <div class="scoreboard-team">
+      <ul class="scoreboard-climbers">
+        {{#each climber in this.climbers}}
+          {{> scoreboard_climbers_item climber}}
+        {{/each}}
+      </ul>
+    </div>
+  </li>
+</template>
+
+
+<template name="scoreboard_climbers_item">
+  <li class="climber" id="climber-{{this.marker_id}}">
+    <div class="climber-row">
+      <div class="climber-details">
+        {{#if this.rank}}
+          <span class="climber-rank"><b>#</b>{{this.rank}}</span>
+        {{/if}}
         <span class="climber-name">
-          <b>{{this.marker_id}}</b> {{this.climber_name}}
+          <b>{{this.marker_id}}</b>
+          <span class="climber-gender {{this.gender}}"></span>
+          {{this.climber_name}}
         </span>
       </div>
 

@@ -9,6 +9,7 @@ import { _ } from 'meteor/stevezhu:lodash';
 import '../lib/jquery.kinetic.min.js';
 
 import Categories from '../data/categories';
+import Teams from '../data/teams';
 import Climbers from '../data/climbers';
 import Scores from '../data/scores';
 
@@ -63,7 +64,6 @@ function getScoreSystem(scoreSystem) {
  */
 Template.scoreboard_header.helpers({
   categories: () => {
-    const timeNow = Date.now();
     const categories = Categories.find({})
                         .fetch()
                         .sort((a, b) => {
@@ -108,20 +108,78 @@ Template.scoreboard_header.onRendered(() => {
 /**
  *  Template functions for scoreboard_climbers
  */
+Template.scoreboard_scores.helpers({
+  isTeamCategory: () => {
+    const category = Categories.findOne(Session.get('viewCategoryId'));
+    return category.is_team_category;
+  },
+});
+
+
+/**
+ *  Template functions for scoreboard_teams
+ */
+Template.scoreboard_teams.helpers({
+  teams: () => {
+    const category = Categories.findOne(Session.get('viewCategoryId'));
+    if (!category.is_team_category) return [];
+
+    const scoreSystem = getScoreSystem(category.score_system);
+    const teams = Teams.find({
+      category_id: Session.get('viewCategoryId'),
+    }).fetch();
+
+
+    // Build Team object by joining it with its child Climbers
+    _.forEach(teams, (team) => {
+      const climbers = [];
+
+      // Tabulate scores for each individual climbers
+      _.forEach(team.climbers, (climberId) => {
+        const targetClimber = Climbers.findOne(climberId);
+        const targetScore = Scores.findOne({
+          climber_id: climberId,
+          category_id: Session.get('viewCategoryId'),
+        });
+
+        const jointDoc = scoreSystem.join(targetClimber, targetScore);
+        jointDoc.tabulatedScore = scoreSystem.tabulate(targetClimber.scores);
+
+        climbers.push(jointDoc);
+      });
+
+      team.climbers = climbers;
+      team.tabulatedScore = scoreSystem.tabulateTeam(team.climbers);
+    });
+
+
+
+    console.log(scoreSystem.rankClimbers(teams));
+    return scoreSystem.rankClimbers(teams);
+  },
+});
+
+
+/**
+ *  Template functions for scoreboard_climbers
+ */
 Template.scoreboard_climbers.helpers({
   climbers: () => {
+    const category = Categories.findOne(Session.get('viewCategoryId'));
+    if (category.is_team_category) return [];
+
     const climbers = Climbers.find({
       categories: { $elemMatch: {
         _id: Session.get('viewCategoryId'),
       } },
     }).fetch();
-    const category = Categories.findOne(Session.get('viewCategoryId'));
     const scoreSystem = getScoreSystem(category.score_system);
     const jointDocArray = [];
 
-    climbers.forEach((climber) => {
-      // FIXME: More than 1 scoring doc per climber
+
+    _.forEach(climbers, (climber) => {
       const targetScore = Scores.findOne({
+        category_id: Session.get('viewCategoryId'),
         climber_id: climber._id,
       });
 
@@ -139,9 +197,6 @@ Template.scoreboard_climbers.helpers({
   },
 });
 
-Template.scoreboard_climbers_item.onRendered(() => {
-
-});
 
 
 /**
@@ -194,8 +249,5 @@ Template.scoreboard_climbers_item.onRendered(() => {
         $this.parent().children('.left-arrow').show();
       }
     });
-
   }
-
-
 });

@@ -155,3 +155,36 @@ table.climber-scores {
     overflow: hidden;
   }
 }
+
+.scoreboard-teams {
+  .team-name {
+    font-weight: 700;
+  }
+}
+
+.scoreboard-team {
+  display: block;
+  padding-bottom: 10px;
+
+  span.label {
+    background-color: $grey_snow;
+  }
+
+  span.climber-gender {
+    position: relative;
+    top: -0.2em;
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: $grey_slate;
+
+    &.M {
+      background-color: $light_marvel;
+    }
+
+    &.F {
+      background-color: $light_pink;
+    }
+  }
+}
