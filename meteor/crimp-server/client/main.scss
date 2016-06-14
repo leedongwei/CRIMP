@@ -1,61 +1,109 @@
-$dropdownmenu-arrows: false;
-/**
- * Settings for Foundation should go above
- */
-@import '{zurb:foundation-sites}/scss/foundation';
+@font-face {
+  font-family: 'League Spartan';
+  src: url('/fonts/leaguespartan-bold.eot');
+  src: url('/fonts/leaguespartan-bold.eot?#iefix') format('embedded-opentype'),
+       url('/fonts/leaguespartan-bold.woff2') format('woff2'),
+       url('/fonts/leaguespartan-bold.woff') format('woff'),
+       url('/fonts/leaguespartan-bold.ttf') format('truetype'),
+       url('/fonts/leaguespartan-bold.svg#league_spartanbold') format('svg');
+  font-weight: bold;
+  font-style: normal;
+}
 
+
+/**
+ * Settings for Foundation should go before @include
+ */
+$dropdownmenu-arrows: false;
+
+@import '{zurb:foundation-sites}/scss/foundation';
 @include foundation-global-styles;
 @include foundation-grid;
 @include foundation-typography;
 @include foundation-button;
 @include foundation-forms;
 @include foundation-visibility-classes;
-@include foundation-float-classes;
-@include foundation-accordion;
-@include foundation-accordion-menu;
-@include foundation-badge;
-@include foundation-breadcrumbs;
-@include foundation-button-group;
+// @include foundation-float-classes;
+// @include foundation-accordion;
+// @include foundation-accordion-menu;
+// @include foundation-badge;
+// @include foundation-breadcrumbs;
+// @include foundation-button-group;
 @include foundation-callout;
 @include foundation-close-button;
-@include foundation-drilldown-menu;
+// @include foundation-drilldown-menu;
 @include foundation-dropdown;
 @include foundation-dropdown-menu;
-@include foundation-flex-video;
+// @include foundation-flex-video;
 @include foundation-label;
-@include foundation-media-object;
+// @include foundation-media-object;
 @include foundation-menu;
-@include foundation-off-canvas;
-@include foundation-orbit;
-@include foundation-pagination;
-@include foundation-progress-bar;
-@include foundation-slider;
-@include foundation-sticky;
+// @include foundation-off-canvas;
+// @include foundation-orbit;
+// @include foundation-pagination;
+// @include foundation-progress-bar;
+// @include foundation-slider;
+// @include foundation-sticky;
 @include foundation-reveal;
-@include foundation-switch;
+// @include foundation-switch;
 @include foundation-table;
-@include foundation-tabs;
-@include foundation-thumbnail;
-@include foundation-title-bar;
-@include foundation-tooltip;
+// @include foundation-tabs;
+// @include foundation-thumbnail;
+// @include foundation-title-bar;
+// @include foundation-tooltip;
 @include foundation-top-bar;
 
-$bg-color: #EFECEA;
-$color-strong: #334854;
-$color-red: #E04462;
-$color-yellow: #F9C535;
+// https://marvelapp.com/styleguide/design/color-scheme
+$grey_black: #1F2D3D;
+$grey_steel: #273444;
+$grey_slate: #3C4858;
+$grey_smoke: #E0E6ED;
+$grey_snow: #F9FAFC;
 
-.scoreboard-climbers {
-  padding: 0;
-  list-style: none;
-}
+$ui_blue: #1FB6FF;
+$ui_positive: #13CE66;
+$ui_negative: #FF4949;
+$ui_warning: #FFC82C;
+$ui_positive_hover: #10b159;
+$ui_negative_hover: #cc0000;
+$ui_warning_hover: #f5b400;
 
-.climber-scores td {
-  width: 2em;
-  font-size: 1em;
-  border: 1px solid #555;
-  text-align: center;
-}
+$light_marvel: #85D7FF;
+$marvel: #1FB6FF;
+$purple: #7E5BEF;
+$light_pink: #FF7CE5;
+$pink: #FF49DB;
+$orange: #FF7849;
+$green: #13CE66;
+$yellow: #FFC82C;
+$white: #FFFFFF;
+
+$font_head_main: 'League Spartan', sans-serif;
+$font_body: 'Oswald', sans-serif;
+$font_body_thin: 'Open Sans Condensed', sans-serif;
 
 
+@import '../imports/ui/loader.scss';
+
+@import '../imports/ui/crimp_spectator.scss';
+@import '../imports/ui/conn_status.scss';
+@import '../imports/ui/activetracker.scss';
 @import '../imports/ui/scoreboard.scss';
+@import '../imports/ui/schedule.scss';
+
+@import '../imports/ui/crimp_admin.scss';
+@import '../imports/ui/admin_dashboard.scss';
+@import '../imports/ui/admin_activetracker.scss';
+
+@import '../imports/ui/helpme.scss';
+@import '../imports/ui/admin_recentscores.scss';
+
+// Overwrite Foundation 6 presets
+h1 {
+  color: $grey_slate;
+  font-family: $font_head_main;
+}
+
+body {
+  color: $grey_steel;
+}

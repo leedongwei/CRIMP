@@ -1,0 +1,14 @@
+.admin-dashboard-container {
+  display: block;
+  width: 100%;
+  height: calc(100vh - 50px);
+
+  padding: 0 5px;
+  border: 1px solid $grey_smoke;
+  overflow-y: scroll;
+
+  section {
+    margin-bottom: 30px;
+  }
+}
+

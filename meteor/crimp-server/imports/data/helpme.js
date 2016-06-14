@@ -1,4 +1,5 @@
 import { Mongo } from 'meteor/mongo';
+import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import CRIMP from '../settings';
@@ -39,5 +40,18 @@ if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
   });
 }
 
+
+HelpMe.methods = {};
+HelpMe.methods.remove = new ValidatedMethod({
+  name: 'HelpMe.methods.remove',
+  validate: new SimpleSchema({
+    helpmeId: { type: String },
+    userId: { type: String },
+  }).validator(),
+  run({ helpmeId, userId }) {
+    CRIMP.checkRoles(CRIMP.roles.admins, userId);
+    HelpMe.remove(helpmeId);
+  },
+});
 
 export default HelpMe;

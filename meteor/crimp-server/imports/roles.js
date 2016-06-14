@@ -20,13 +20,23 @@ export const roles = {
  *  @return {boolean}
  */
 export function checkRoles(crimpRoles,
-                           userObject = Meteor.user(),
+                           user = this.userId || Meteor.user(),
                            eventId = Roles.GLOBAL_GROUP) {
-  if (!userObject) {
+  if (!user) {
     throw new Meteor.Error(401, 'User has no login (CRIMP.checkRoles)');
   }
 
-  if (!Roles.userIsInRole(userObject, crimpRoles, eventId)) {
+  if (!Roles.userIsInRole(user, crimpRoles, eventId)) {
     throw new Meteor.Error(403, 'User has no permissions (CRIMP.checkRoles)');
   }
 }
+
+Meteor.methods({
+  changeRole: (data) => {
+    const targetUserId = data.userId;
+    const newRole = data.newRole;
+
+    checkRoles(roles.admins);
+    Roles.setUserRoles(targetUserId, [newRole]);
+  },
+});

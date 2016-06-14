@@ -106,16 +106,20 @@ ActiveTracker.methods = {};
 //   },
 // });
 
-// ActiveTracker.methods.removeJudge = new ValidatedMethod({
-//   name: 'ActiveTracker.methods.removeJudge',
-//   validate: new SimpleSchema({
-//     routeId: { type: String },
-//     userId: { type: String },
-//   }).validator(),
-//   run({ routeId, userId }) {
+ActiveTracker.methods.removeJudge = new ValidatedMethod({
+  name: 'ActiveTracker.methods.removeJudge',
+  validate: new SimpleSchema({
+    routeId: { type: String },
+    userId: { type: String },
+  }).validator(),
+  run({ routeId, userId }) {
+    CRIMP.checkRoles(CRIMP.roles.admins, userId);
 
-//   },
-// });
+    ActiveTracker.remove({
+      route_id: routeId,
+    });
+  },
+});
 
 
 export default ActiveTracker;

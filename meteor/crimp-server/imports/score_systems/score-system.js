@@ -5,7 +5,7 @@ import { _ } from 'meteor/stevezhu:lodash';
  *  class
  */
 export const scoreSystemsNames = [
-  'IFSC Top-Bonus',
+  'IFSC-Top-Bonus',
   'TFBb',   // top-flash-bonus1-bonus2
   'Points',
 ];
@@ -43,16 +43,36 @@ export class ScoreSystem {
    */
   tabulate(scoreArray) {
     const tabulatedScore = {
+      system: 'ScoreSystem',  // same as Class name
       A: 0,
       B: 0,
     };
 
-    scoreArray.forEach((score) => {
+    _.forEach(scoreArray, (score) => {
       const calculatedScore = this.calculate(score.score_string);
       score.calculatedScore = calculatedScore;
 
       tabulatedScore.A += calculatedScore.A;
       tabulatedScore.B += calculatedScore.B;
+    });
+
+    return tabulatedScore;
+  }
+
+  /**
+   *  Write comments after Boulderactive
+   *  'imports/ui/See scoreboard.js' to join Teams, Climbers and Scores
+   */
+  tabulateTeam(climberArray) {
+    const tabulatedScore = {
+      system: 'ScoreSystem',  // same as Class name
+      A: 0,
+      B: 0,
+    };
+
+    _.forEach(climberArray, (climber) => {
+      tabulatedScore.A += climber.tabulatedScore.A;
+      tabulatedScore.B += climber.tabulatedScore.B;
     });
 
     return tabulatedScore;
@@ -113,7 +133,7 @@ export class ScoreSystem {
     lastEqual.rank = 1;
 
     // Assign the same rank for climbers with equal scores
-    sortedClimberArray.forEach((climber, index) => {
+    _.forEach(sortedClimberArray, (climber, index) => {
       if (this.rankFunction(climber, lastEqual)) {
         climber.rank = index + 1;
         lastEqual = climber;

@@ -11,7 +11,7 @@ import Climbers from '../imports/data/climbers';
 import Scores from '../imports/data/scores';
 import HelpMe from '../imports/data/helpme';
 import ActiveTracker from '../imports/data/activetracker';
-
+import RecentScores from '../imports/data/recentscores';
 
 /**
  *  `roleRequired` is commented off at all endpoints because Restivus does
@@ -204,7 +204,7 @@ Api.addRoute('judge/categories', {
             scoreRules += `__${route.score_rules.points}`;
           }
 
-          route.score_rules = scoreRules;
+          route.score_rules = _.toLower(scoreRules);
         });
 
         array[index] = mappedDoc;
@@ -383,9 +383,7 @@ Api.addRoute('judge/score/:route_id/:marker_id', {
       });
 
       if (targetScore.count() === 0) {
-        // throw new Meteor.Error('RouteOrMarkerError');
-
-        // TODO: Put into invalid requests into queue
+        // TODO: Do nothing for invalid
       }
 
       if (targetScore.count() > 1) {
@@ -411,6 +409,26 @@ Api.addRoute('judge/score/:route_id/:marker_id', {
           'scores.$.score_string': newScoreString,
         },
       });
+
+      // Non-critical collection used to monitor Score updates
+      // Added callback so it doesn't cause an error or delay
+      const targetCategory = Categories.findOne({
+        routes: { $elemMatch: {
+          _id: options.route_id,
+        } },
+      });
+      const targetRoute = _.find(targetCategory.routes,
+                                 (route) => (route._id === options.route_id));
+      console.log(targetRoute)
+
+      RecentScores.insert({
+        route_id: options.route_id,
+        route_name: targetRoute.route_name,
+        user_id: this.userId,
+        user_name: this.user.profile.name,
+        marker_id: options.marker_id,
+        score_string: newScoreString,
+      }, () => {});
 
 
       return {

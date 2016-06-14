@@ -12,22 +12,31 @@ import Scores from '../imports/data/scores';
 import HelpMe from '../imports/data/helpme';
 import ActiveTracker from '../imports/data/activetracker';
 
+import IFSC_TB from '../imports/score_systems/ifsc-top-bonus.js';
 import TFBb from '../imports/score_systems/top-flash-bonus2-bonus1';
-
-// TODO: REMOVE seedDatabase. DEV TESTING ONLY.
 import CRIMP from '../imports/settings';
 
+// TODO: REMOVE seedDatabase. DEV TESTING ONLY.
+import seedDatabase from '../imports/seedDatabase';
 
-// TODO: Delete this crazy publication
-Meteor.subscribe('development');
+// Utility templates
+import '../imports/ui/loader.js';
+
+// ScoreSystem templates
+import '../imports/score_systems/score-system-html-templates.js';
+
+// Main templates
+import '../imports/ui/crimp_spectator.js';
+import '../imports/ui/crimp_admin.js';
+
+
 // Meteor.subscribe('eventsToAll');
 // Meteor.subscribe('categoriesToAll');
 // Meteor.subscribe('teamsToAdmin');
 // Meteor.subscribe('climbersToAdmin');
 // Meteor.subscribe('scoresToAdmin');
-Meteor.subscribe('activetrackerToAll');
-Meteor.subscribe('helpmeToAdmin');
-Meteor.subscribe('messagesToAdmin');
+// Meteor.subscribe('activetrackerToAll');
+// Meteor.subscribe('messagesToAdmin');
 Meteor.startup(() => {
   msg = Messages;
   eve = Events;
@@ -37,9 +46,9 @@ Meteor.startup(() => {
   scs = Scores;
   hlp = HelpMe;
   act = ActiveTracker;
-})
+});
+
 
 Meteor.startup(() => {
-  // Session.setDefault('currentCategoryId', '');
-  // console.log(Session.get('currentCategoryId'));
+
 });

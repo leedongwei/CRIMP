@@ -1,25 +1,190 @@
-.scoreboard-header {
-  // border: 1px solid #000;
+.scoreboard {
+  // Prevent scrollTop reset on mobile screens
+  min-height: 85vh;
 }
 
 #scoreboard-selectCategory {
   width: 100%;
+  font-family: $font_body;
+  font-size: 1.15em;
 
   li, a {
     display: block;
     width: 100%;
   }
+
+  .scoreboard-selectCategory-display {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
 }
 
 .scoreboard-categoryOngoing {
   font-size: 0.6em;
-  vertical-align: super;
+  vertical-align: super !important;
+}
 
-  .dot {
+.scoreboard-categoryDetails {
+  position: relative;
+  top: -15px;
+  right: -28px;
+  font-family: $font_body_thin;
+  font-size: 0.9em;
+}
+
+
+
+ul.scoreboard-climbers {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+div.scoreboard-climbers {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 50vh;   //.scoreboard min-height is 85vh
+
+  @include breakpoint(medium) {
+    height: calc(100vh - 170px);
+  }
+}
+
+.climber {
+  margin: 15px 0;
+}
+
+.climber-row {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 1.5em;
+  min-width: 290px;
+
+  margin: 0;
+  padding: 0;
+  font-family: $font_body_thin;
+
+  .left-arrow {
+    position: absolute;
+    top: 0.65em;
+    left: -6px;
+    width: 0;
+    height: 0;
+    display: none;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-right: 5px solid $grey_slate;
+  }
+  .right-arrow {
+    position: absolute;
+    top: 0.65em;
+    right: -6px;
+    width: 0;
+    height: 0;
+    display: none;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid $grey_slate;
+  }
+}
+
+.climber-details {
+  width: calc(100% - 90px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  .climber-rank {
+    font-family: $font_head_main;
+    font-size: 1.1em;
+    margin-right: 0.1em;
+
+    b {
+      font-family: $font_body_thin;
+      font-size: 0.75em;
+    }
+  }
+
+  .climber-name {
+    font-family: $font_body_thin;
+    font-size: 1em;
+  }
+}
+
+
+.climber-scoretotal {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: block;
+  width: 90px;
+
+  font-family: $font_body_thin;
+  font-size: 1em;
+  font-weight: 700;
+  text-align: right;
+
+  .label {
+    color: $grey_steel;
+    background-color: $grey_smoke;
+  }
+}
+
+// Replace Foundation 6 .table-scroll
+.table-scrollable {
+  position: relative;
+  overflow: scroll;
+  user-select: none;
+}
+
+table.climber-scores {
+  margin-bottom: 6px;
+
+  tr {
+    min-width: 290px;
+  }
+
+  td {
+    min-width: 48px;
+    padding: 3px 5px;
+
+    font-size: 0.95em;
+    text-align: center;
+    overflow: hidden;
+  }
+}
+
+.scoreboard-teams {
+  .team-name {
+    font-weight: 700;
+  }
+}
+
+.scoreboard-team {
+  display: block;
+  padding-bottom: 10px;
+
+  span.label {
+    background-color: $grey_snow;
+  }
+
+  span.climber-gender {
+    position: relative;
+    top: -0.2em;
     display: inline-block;
-    width: 7px;
-    height: 7px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
-    background-color: #5fba7d;
+    background-color: $grey_slate;
+
+    &.M {
+      background-color: $light_marvel;
+    }
+
+    &.F {
+      background-color: $light_pink;
+    }
   }
 }

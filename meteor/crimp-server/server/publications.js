@@ -1,3 +1,7 @@
+/*  eslint-disable
+      func-names,
+      prefer-arrow-callback,
+*/
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
@@ -10,15 +14,12 @@ import Climbers from '../imports/data/climbers';
 import Scores from '../imports/data/scores';
 import HelpMe from '../imports/data/helpme';
 import ActiveTracker from '../imports/data/activetracker';
-
+import RecentScores from '../imports/data/recentscores';
 /**
  *  White-list fields to expose for public subscriptions.
  *  Admin-only subscriptions will simply publish everything.
  */
 
-// TODO: Delete this crazy publication and turn on permissions
-Meteor.publish('development', () =>
-               Meteor.users.find({}));
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *  Publications for core collections                      *
@@ -69,8 +70,8 @@ Meteor.publish('teamsToPublic',
               });
 
 Meteor.publish('teamsToAdmin',
-              () => {
-                // CRIMP.checkRoles(CRIMP.roles.admins);
+              function () {
+                CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
                 return Teams.find({});
               });
 
@@ -83,6 +84,7 @@ Meteor.publish('climbersToPublic',
                   } },
                 }, { fields: {
                   climber_name: 1,
+                  gender: 1,
                   // identity: Hide for privacy issue
                   affliation: 1,
                   categories: 1,
@@ -91,8 +93,8 @@ Meteor.publish('climbersToPublic',
               });
 
 Meteor.publish('climbersToAdmin',
-              () => {
-                // CRIMP.checkRoles(CRIMP.roles.admins);
+              function () {
+                CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
                 return Climbers.find({});
               });
 
@@ -113,8 +115,8 @@ Meteor.publish('scoresToPublic',
               });
 
 Meteor.publish('scoresToAdmin',
-              () => {
-                // CRIMP.checkRoles(CRIMP.roles.admins);
+              function () {
+                CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
                 return Scores.find({});
               });
 
@@ -122,11 +124,26 @@ Meteor.publish('scoresToAdmin',
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *  Publications for support collections                   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+// Meteor.publish('messagesToAdmin',
+//               () => Messages.find({}));
+
 Meteor.publish('activetrackerToAll',
               () => ActiveTracker.find({}));
 
 Meteor.publish('helpmeToAdmin',
-              () => HelpMe.find({}));
+              function () {
+                CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
+                return HelpMe.find({});
+              });
 
-Meteor.publish('messagesToAdmin',
-              () => Messages.find({}));
+Meteor.publish('recentscoresToAdmin',
+              function () {
+                CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
+                return RecentScores.find({});
+              });
+
+Meteor.publish('allUsersToAdmin',
+              function () {
+                CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
+                return Meteor.users.find({});
+              });

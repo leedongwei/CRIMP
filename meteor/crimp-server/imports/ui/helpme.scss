@@ -1,0 +1,14 @@
+.s-alert-warning {
+  color: $grey_steel;
+  font-family: $font_body_thin;
+
+  .header {
+    display: block;
+    font-family: $font_head_main;
+  }
+
+  .name,
+  .route {
+    font-weight: 700;
+  }
+}
