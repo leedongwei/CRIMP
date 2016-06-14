@@ -1,3 +1,7 @@
+/*  eslint-disable
+      func-names,
+      prefer-arrow-callback,
+*/
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
@@ -16,9 +20,6 @@ import ActiveTracker from '../imports/data/activetracker';
  *  Admin-only subscriptions will simply publish everything.
  */
 
-// TODO: Delete this crazy publication and turn on permissions
-Meteor.publish('development', () =>
-               Meteor.users.find({}));
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *  Publications for core collections                      *
@@ -69,8 +70,8 @@ Meteor.publish('teamsToPublic',
               });
 
 Meteor.publish('teamsToAdmin',
-              () => {
-                // CRIMP.checkRoles(CRIMP.roles.admins);
+              function () {
+                CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
                 return Teams.find({});
               });
 
@@ -92,8 +93,8 @@ Meteor.publish('climbersToPublic',
               });
 
 Meteor.publish('climbersToAdmin',
-              () => {
-                // CRIMP.checkRoles(CRIMP.roles.admins);
+              function () {
+                CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
                 return Climbers.find({});
               });
 
@@ -114,8 +115,8 @@ Meteor.publish('scoresToPublic',
               });
 
 Meteor.publish('scoresToAdmin',
-              () => {
-                // CRIMP.checkRoles(CRIMP.roles.admins);
+              function () {
+                CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
                 return Scores.find({});
               });
 
@@ -127,7 +128,16 @@ Meteor.publish('activetrackerToAll',
               () => ActiveTracker.find({}));
 
 Meteor.publish('helpmeToAdmin',
-              () => HelpMe.find({}));
+              function () {
+                CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
+                return HelpMe.find({});
+              });
 
-Meteor.publish('messagesToAdmin',
-              () => Messages.find({}));
+// Meteor.publish('messagesToAdmin',
+//               () => Messages.find({}));
+
+Meteor.publish('allUsersToAdmin',
+              function () {
+                CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
+                return Meteor.users.find({});
+              });
