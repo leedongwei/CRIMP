@@ -65,7 +65,7 @@ export default class IFSC_TB extends ScoreSystem {
       B_attempts: 0,
     };
 
-    scoreArray.forEach((score) => {
+    _.forEach(scoreArray, (score) => {
       const calculatedScore = this.calculate(score.score_string);
       score.calculatedScore = calculatedScore;
 
@@ -73,6 +73,32 @@ export default class IFSC_TB extends ScoreSystem {
       tabulatedScore.T_attempts += calculatedScore.T_attempts;
       tabulatedScore.B += calculatedScore.B;
       tabulatedScore.B_attempts += calculatedScore.B_attempts;
+    });
+
+    return tabulatedScore;
+  }
+
+  tabulateTeam(climberArray) {
+    const tabulatedScore = {
+      system: 'IFSC_TB',
+      T: 0,
+      T_attempts: 0,
+      B: 0,
+      B_attempts: 0,
+    };
+
+    _.forEach(climberArray, (climber) => {
+      tabulatedScore.T += climber.tabulatedScore.T;
+      tabulatedScore.T_attempts += climber.tabulatedScore.T_attempts;
+      tabulatedScore.B += climber.tabulatedScore.B;
+      tabulatedScore.B_attempts += climber.tabulatedScore.B_attempts;
+
+      // TODO: Delete this after Boulderactive
+      // For Boulderactive, x2 scores for female climbers
+      if (climber.gender === 'F') {
+        tabulatedScore.T += climber.tabulatedScore.T;
+        tabulatedScore.B += climber.tabulatedScore.B;
+      }
     });
 
     return tabulatedScore;

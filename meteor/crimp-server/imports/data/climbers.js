@@ -40,6 +40,10 @@ Climbers.schema = new SimpleSchema({
     label: 'NRIC or driver license number',
     optional: true,
   },
+  gender: {
+    type: String,
+    label: 'M or F or anything in between',
+  },
   affliation: {
     label: 'Affliations of the climber (school, gym etc)',
     type: String,
@@ -101,6 +105,7 @@ Climbers.methods.update = new ValidatedMethod({
     climberDoc: { type: Object },
     'climberDoc.climber_name': { type: String, optional: true },
     'climberDoc.identity': { type: String, optional: true },
+    'climberDoc.gender': { type: String, optional: true },
     'climberDoc.affliation': { type: String, optional: true },
     'climberDoc.categories.$._id': { type: String, optional: true },
     'climberDoc.categories.$.score_tiebreak': { type: String, optional: true },

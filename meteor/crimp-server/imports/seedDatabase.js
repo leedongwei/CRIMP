@@ -134,7 +134,8 @@ function seedDatabase() {
     climber_count: 0,
     time_start: new Date(),
     time_end: new Date(),
-    score_system: 'Points',
+    // score_system: 'Points',
+    score_system: 'IFSC-Top-Bonus',
     routes: [{
       _id: Random.id(),
       route_name: 'TEAM R1',
@@ -187,6 +188,7 @@ function seedDatabase() {
       climber_name: faker.name.findName(),
       identity: faker.phone.phoneNumberFormat(),
       affliation: faker.name.jobType(),
+      gender: faker.random.boolean() ? 'M' : 'F',
       categories: [],
     });
   }

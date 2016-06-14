@@ -83,6 +83,7 @@ Meteor.publish('climbersToPublic',
                   } },
                 }, { fields: {
                   climber_name: 1,
+                  gender: 1,
                   // identity: Hide for privacy issue
                   affliation: 1,
                   categories: 1,

@@ -1,3 +1,5 @@
+import { _ } from 'meteor/stevezhu:lodash';
+
 import { ScoreSystem } from './score-system';
 
 export default class TFBb extends ScoreSystem {
@@ -45,7 +47,7 @@ export default class TFBb extends ScoreSystem {
       b: 0,
     };
 
-    scoreArray.forEach((score) => {
+    _.forEach(scoreArray, (score) => {
       const calculatedScore = this.calculate(score.score_string);
       score.calculatedScore = calculatedScore;
 
@@ -53,6 +55,25 @@ export default class TFBb extends ScoreSystem {
       tabulatedScore.F += calculatedScore.F;
       tabulatedScore.B += calculatedScore.B;
       tabulatedScore.b += calculatedScore.b;
+    });
+
+    return tabulatedScore;
+  }
+
+  tabulateTeam(climberArray) {
+    const tabulatedScore = {
+      system: 'TFBb',
+      T: 0,
+      F: 0,
+      B: 0,
+      b: 0,
+    };
+
+    _.forEach(climberArray, (climber) => {
+      tabulatedScore.T += climber.tabulatedScore.T;
+      tabulatedScore.F += climber.tabulatedScore.F;
+      tabulatedScore.B += climber.tabulatedScore.B;
+      tabulatedScore.b += climber.tabulatedScore.b;
     });
 
     return tabulatedScore;
