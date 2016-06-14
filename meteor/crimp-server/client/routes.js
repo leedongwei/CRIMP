@@ -19,6 +19,6 @@ FlowRouter.route('/admin', {
 FlowRouter.notFound = {
   action() {
     // TODO: Replace with an error page
-    BlazeLayout.render('scoreboard');
+    BlazeLayout.render('crimp_spectator');
   },
 };

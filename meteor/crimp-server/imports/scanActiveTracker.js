@@ -47,9 +47,6 @@ function removeExpiredActiveTracker(trackerDoc) {
  */
 function scanActiveTracker() {
   Meteor.setInterval(() => {
-    // TODO: Remove console.log
-    console.log(`AT:  ${new Date(Date.now())}`);
-
     ActiveTracker.find({})
                  .forEach(removeExpiredActiveTracker);
   }, SCAN_INTERVAL);

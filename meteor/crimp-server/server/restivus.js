@@ -703,16 +703,3 @@ Api.addRoute('judge/clearactive', {
     }
   },
 });
-
-
-// TODO: Remove latency endpoint
-Api.addRoute('test/latency', { authRequired: true }, {
-  get: () => {
-    // simulate latency
-    Meteor._sleepForMs(10000);
-    return {
-      statusCode: 200,
-      body: {},
-    };
-  },
-});

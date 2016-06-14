@@ -16,8 +16,6 @@ import IFSC_TB from '../imports/score_systems/ifsc-top-bonus.js';
 import TFBb from '../imports/score_systems/top-flash-bonus2-bonus1';
 import CRIMP from '../imports/settings';
 
-// TODO: REMOVE seedDatabase. DEV TESTING ONLY.
-import seedDatabase from '../imports/seedDatabase';
 
 // Utility templates
 import '../imports/ui/loader.js';
@@ -28,27 +26,3 @@ import '../imports/score_systems/score-system-html-templates.js';
 // Main templates
 import '../imports/ui/crimp_spectator.js';
 import '../imports/ui/crimp_admin.js';
-
-
-// Meteor.subscribe('eventsToAll');
-// Meteor.subscribe('categoriesToAll');
-// Meteor.subscribe('teamsToAdmin');
-// Meteor.subscribe('climbersToAdmin');
-// Meteor.subscribe('scoresToAdmin');
-// Meteor.subscribe('activetrackerToAll');
-// Meteor.subscribe('messagesToAdmin');
-Meteor.startup(() => {
-  msg = Messages;
-  eve = Events;
-  cat = Categories;
-  tms = Teams;
-  cmb = Climbers;
-  scs = Scores;
-  hlp = HelpMe;
-  act = ActiveTracker;
-});
-
-
-Meteor.startup(() => {
-
-});

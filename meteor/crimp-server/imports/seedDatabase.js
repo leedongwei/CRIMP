@@ -9,7 +9,7 @@ import Teams from './data/teams';
 import Climbers from './data/climbers';
 import Scores from './data/scores';
 
-// TODO: DISABLE FOR PRODUCTION
+
 function seedDatabase() {
   // Do not allow this to run on production!
   if (CRIMP.ENVIRONMENT.NODE_ENV === 'production'
@@ -420,6 +420,8 @@ Meteor.methods({
 
   // TODO: Remove after mock comp
   deleteAll: () => {
+    CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
+
     Scores.remove({});
     Climbers.remove({});
     Teams.remove({});

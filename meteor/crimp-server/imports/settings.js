@@ -8,7 +8,7 @@ const CRIMP = {
      *  Expected values: ['production', 'development']
      *  TODO: Remember to change when pushing to production
      */
-    NODE_ENV: 'development',
+    NODE_ENV: 'production',
 
     /**
      *  Demo mode will automatically set all new users as admins
@@ -41,10 +41,8 @@ const CRIMP = {
  *  isServer because client-side would die from process.env
  *  being undefined
  */
-// TODO: REMOVED FOR QUICK WORK ON STAGING SERVER
-// DONGWEI REMOVE BEFORE PRODUCTION!!!!!
-// if (Meteor.isServer && process.env.NODE_ENV) {
-//   CRIMP.ENVIRONMENT.NODE_ENV = process.env.NODE_ENV;
-// }
+if (Meteor.isServer && process.env.NODE_ENV) {
+  CRIMP.ENVIRONMENT.NODE_ENV = process.env.NODE_ENV;
+}
 
 export default CRIMP;
