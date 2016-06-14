@@ -14,7 +14,7 @@ import Climbers from '../imports/data/climbers';
 import Scores from '../imports/data/scores';
 import HelpMe from '../imports/data/helpme';
 import ActiveTracker from '../imports/data/activetracker';
-
+import RecentScores from '../imports/data/recentscores';
 /**
  *  White-list fields to expose for public subscriptions.
  *  Admin-only subscriptions will simply publish everything.
@@ -124,6 +124,9 @@ Meteor.publish('scoresToAdmin',
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *  Publications for support collections                   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+// Meteor.publish('messagesToAdmin',
+//               () => Messages.find({}));
+
 Meteor.publish('activetrackerToAll',
               () => ActiveTracker.find({}));
 
@@ -133,8 +136,11 @@ Meteor.publish('helpmeToAdmin',
                 return HelpMe.find({});
               });
 
-// Meteor.publish('messagesToAdmin',
-//               () => Messages.find({}));
+Meteor.publish('recentscoresToAdmin',
+              function () {
+                CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
+                return RecentScores.find({});
+              });
 
 Meteor.publish('allUsersToAdmin',
               function () {

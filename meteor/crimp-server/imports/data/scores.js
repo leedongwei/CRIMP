@@ -29,6 +29,7 @@ Scores.schema = new SimpleSchema({
   'scores.$.score_string': {
     type: String,
     defaultValue: '',
+    trim: false,
   },
   updated_at: {
     type: Date,

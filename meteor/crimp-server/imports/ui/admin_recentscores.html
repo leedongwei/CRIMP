@@ -1,0 +1,28 @@
+<template name="admin_recentscores">
+  <section class="admin_recentscores">
+    <table>
+      <thead>
+        <tr>
+          <td>Route</td>
+          <td>Admin + New Score</td>
+          <td><i class="material-icons">schedule</i></td>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each score in recentscores}}
+          <tr>
+            <td>
+              {{score.route_name}}<br>
+              {{score.marker_id}}
+            </td>
+            <td>
+              {{score.user_name}}<br>
+              {{score.score_string}}
+            </td>
+            <td>{{score.updated_at}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </section>
+</template>

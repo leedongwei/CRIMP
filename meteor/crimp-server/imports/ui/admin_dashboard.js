@@ -7,4 +7,5 @@ import ActiveTracker from '../data/activetracker';
 import CRIMP from '../settings';
 
 import './admin_activetracker.js';
+import './admin_recentscores.js';
 import './admin_dashboard.html';
