@@ -21,11 +21,20 @@ Template.admin_recentscores.helpers({
 
                       return timeA <= timeB ? -1 : 1;
                     });
+
+    const scoreArray = [];
     _.forEach(scores, (score) => {
       score.updated_at = moment(score.updated_at)
                           .fromNow();
+
+      if (scoreArray.length < 15) {
+        scoreArray.push(score);
+      } else {
+        // Break for _.forEach
+        return false;
+      }
     });
 
-    return scores;
+    return scoreArray;
   },
 });
