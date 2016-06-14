@@ -2,4 +2,5 @@
  * Code that are needed in both server and client
  */
 
-import seedDatabase from '../imports/seedDatabase';
+// TODO: REMOVE seedDatabase. DEV TESTING ONLY.
+// import seedDatabase from '../imports/seedDatabase';

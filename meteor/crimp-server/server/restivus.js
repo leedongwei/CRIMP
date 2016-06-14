@@ -563,6 +563,16 @@ Api.addRoute('judge/report', {
 });
 
 
+Api.addRoute('judge/active', {
+  authRequired: false,
+  // roleRequired: CRIMP.roles.judges,
+}, {
+  get: function getActive() {
+    return ActiveTracker.find({}).fetch();
+  },
+});
+
+
 Api.addRoute('judge/setactive', {
   authRequired: true,
   // roleRequired: CRIMP.roles.judges,
@@ -691,18 +701,5 @@ Api.addRoute('judge/clearactive', {
         body: { error: e },
       };
     }
-  },
-});
-
-
-// TODO: Remove latency endpoint
-Api.addRoute('test/latency', { authRequired: true }, {
-  get: () => {
-    // simulate latency
-    Meteor._sleepForMs(10000);
-    return {
-      statusCode: 200,
-      body: {},
-    };
   },
 });

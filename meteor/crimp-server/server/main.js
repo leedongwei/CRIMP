@@ -11,9 +11,9 @@ import { Meteor } from 'meteor/meteor';
 // import ActiveTracker from '../imports/data/activetracker';
 
 import scanActiveTracker from '../imports/scanActiveTracker';
-import seedDatabase from '../imports/seedDatabase';
 
 Meteor.startup(() => {
   // Update ActiveTracker at regular intervals
+  // TODO: Boulderactive
   // scanActiveTracker();
 });

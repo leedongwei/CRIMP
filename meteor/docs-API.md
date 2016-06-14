@@ -14,6 +14,7 @@
 * [POST '/api/judge/score/:route_id/:climber_id'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgescoreroute_idmarker_id)
 * [POST '/api/judge/helpme'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgehelpme)
 * [POST '/api/judge/report'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgereport)
+* [GET '/api/judge/active'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#get-apijudgeactive)
 * [PUT '/api/judge/setactive'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#put-apijudgesetactive)
 * [PUT '/api/judge/clearactive'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#put-apijudgeclearactive)
 <br><br><br>
@@ -364,6 +365,49 @@ Body: {
 }
 ```
 * `fb_user_id` and `user_name` refers to the active judge as seen by server.
+<br><br><br>
+
+
+
+## GET '/api/judge/active'
+* Get the ActiveTracker collection
+
+#### Request
+```json
+header: {
+
+}
+body: {
+
+}
+```
+
+#### Response
+```json
+Body: [
+  {
+    "route_name": "TEAM R2",
+    "category_id": "n4FtQ4C5BSvdCJNiF",
+    "category_name": "Generic Cotton Hat",
+    "marker_id": "IWF001",
+    "climber_name": "Carolyn Farrell",
+
+
+    "_id": "zQQX6...",
+    "route_id": "5th9q...",
+    "category_id": "n4FtQ...",
+    "user_id": "5jwv...",
+    "user_name": "Will Alabakabdada Okelolasky",
+    "climber_id": "8RQeY...",
+    "user_expiry": "2016-06-14T11:12:24.247Z",
+    "climber_expiry": "2016-06-14T11:02:24.247Z"
+  },
+  {
+    ...
+  },
+  ...
+]
+```
 <br><br><br>
 
 
