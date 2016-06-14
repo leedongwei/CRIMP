@@ -1,0 +1,38 @@
+<template name="crimp_admin">
+  <div class="crimp_admin">
+    <nav>
+      <div class="top-bar">
+        <div class="row column">
+          <div class="top-bar-title">
+            CRIMP Dashboard for {{event.event_name_short}}
+          </div>
+
+          <div class="top-bar-custom-right">
+            {{> conn_status}}
+
+            {{ #if isVerified }}
+              {{> loginButtons}}
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </nav>
+
+
+    {{ #if currentUser }}
+      {{ #if isVerified }}
+        {{> UI.dynamic template=currentAdminPage}}
+      {{ else }}
+        <div class="crimp-admin-denied">
+          <p>You do not have sufficient permissions.</p>
+          <p>Please contact admin for access.</p>
+        </div>
+      {{ /if }}
+    {{ else }}
+      <div class="crimp-admin-denied">
+        <p>CRIMP admin dashboard for<br>{{event.event_name_full}}</p>
+        {{ > loginButtons }}
+      </div>
+    {{ /if }}
+  </div>
+</template>

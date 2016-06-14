@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
-import { Tracker } from 'meteor/tracker'
+import { Tracker } from 'meteor/tracker';
 import { Template } from 'meteor/templating';
 import { $ } from 'meteor/jquery';
 import { _ } from 'meteor/stevezhu:lodash';
@@ -152,9 +152,6 @@ Template.scoreboard_teams.helpers({
       team.tabulatedScore = scoreSystem.tabulateTeam(team.climbers);
     });
 
-
-
-    console.log(scoreSystem.rankClimbers(teams));
     return scoreSystem.rankClimbers(teams);
   },
 });
@@ -196,7 +193,6 @@ Template.scoreboard_climbers.helpers({
     return scoreSystem.rankClimbers(jointDocArray);
   },
 });
-
 
 
 /**

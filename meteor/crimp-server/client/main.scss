@@ -64,6 +64,9 @@ $ui_blue: #1FB6FF;
 $ui_positive: #13CE66;
 $ui_negative: #FF4949;
 $ui_warning: #FFC82C;
+$ui_positive_hover: #10b159;
+$ui_negative_hover: #cc0000;
+$ui_warning_hover: #f5b400;
 
 $light_marvel: #85D7FF;
 $marvel: #1FB6FF;
@@ -88,6 +91,9 @@ $font_body_thin: 'Open Sans Condensed', sans-serif;
 @import '../imports/ui/scoreboard.scss';
 @import '../imports/ui/schedule.scss';
 
+@import '../imports/ui/crimp_admin.scss';
+@import '../imports/ui/admin_dashboard.scss';
+@import '../imports/ui/admin_activetracker.scss';
 
 // Overwrite Foundation 6 presets
 h1 {

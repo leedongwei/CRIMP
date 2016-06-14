@@ -25,9 +25,11 @@ import '../imports/ui/loader.js';
 // ScoreSystem templates
 import '../imports/score_systems/score-system-html-templates.js';
 
+// Main templates
+import '../imports/ui/crimp_spectator.js';
+import '../imports/ui/crimp_admin.js';
 
-// TODO: Delete this crazy publication
-Meteor.subscribe('development');
+
 // Meteor.subscribe('eventsToAll');
 // Meteor.subscribe('categoriesToAll');
 // Meteor.subscribe('teamsToAdmin');

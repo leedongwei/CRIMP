@@ -23,10 +23,22 @@ export function checkRoles(crimpRoles,
                            user = this.userId || Meteor.user(),
                            eventId = Roles.GLOBAL_GROUP) {
   if (!user) {
+    alert('You need to login');
     throw new Meteor.Error(401, 'User has no login (CRIMP.checkRoles)');
   }
 
   if (!Roles.userIsInRole(user, crimpRoles, eventId)) {
+    alert('You do not have permission :(');
     throw new Meteor.Error(403, 'User has no permissions (CRIMP.checkRoles)');
   }
 }
+
+Meteor.methods({
+  changeRole: (data) => {
+    const targetUserId = data.userId;
+    const newRole = data.newRole;
+
+    checkRoles(roles.admins);
+    Roles.setUserRoles(targetUserId, [newRole]);
+  },
+});

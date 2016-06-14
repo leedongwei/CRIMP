@@ -1,0 +1,71 @@
+<template name="admin_activetracker">
+  <section class="admin-activetracker">
+    <h1>On The Wall</h1>
+    <table class="activetracker-table">
+      <thead>
+        <tr>
+          <td>Route</td>
+          <td>Judge &amp; Climber</td>
+          <td></td>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each route in activetracker}}
+          <tr>
+            <td>{{route.route_name}}</td>
+            <td>
+              <b>{{route.user_name}}</b><br>
+
+              {{#if route.climber_name}}
+                {{route.marker_id}} - {{route.climber_name}}
+              {{else}}
+                No Climber on Route
+              {{/if}}
+            </td>
+            <td>
+              <a class="admin-activeboard-remove alert label" data-routeId="{{route.route_id}}">Delete</a>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </section>
+</template>
+
+
+<template name="admin_permissions">
+  <section class="admin-permissions">
+    {{#if adminPendingPermissions}}
+      <h1>Pending Permissions</h1>
+      <table class="admin-permissions-table">
+        <thead>
+          <tr>
+            <td>Name (Link to <img src='./img/FB-f-Logo__blue_29.png'>)</td>
+            <td>New Role</td>
+            <td></td>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each admin in adminPendingPermissions}}
+            <tr>
+              <td><a href="{{admin.profile.link}}" target="_blank">
+                {{admin.profile.name}}
+              </a></td>
+              <td>
+                <select class="admin-permissions-select" id="admin-permissions-{{admin._id}}">
+                  <option value="judge" selected="true">judge</option>
+                  <option value="denied">denied</option>
+                  <option value="partner">partner</option>
+                  <option value="admin">admin</option>
+                </select>
+              </td>
+              <td>
+                <a class="admin-permissions-approve success label" data-userId="{{admin._id}}"><i class="material-icons">check</i></a>
+              </td>
+            </tr>
+          {{ /each }}
+        </tbody>
+      </table>
+    {{/if}}
+  </section>
+</template>
