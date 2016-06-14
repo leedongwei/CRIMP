@@ -563,6 +563,16 @@ Api.addRoute('judge/report', {
 });
 
 
+Api.addRoute('judge/active', {
+  authRequired: false,
+  // roleRequired: CRIMP.roles.judges,
+}, {
+  get: function getActive() {
+    return ActiveTracker.find({}).fetch();
+  },
+});
+
+
 Api.addRoute('judge/setactive', {
   authRequired: true,
   // roleRequired: CRIMP.roles.judges,
