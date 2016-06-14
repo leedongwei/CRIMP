@@ -44,7 +44,7 @@ $dropdownmenu-arrows: false;
 // @include foundation-progress-bar;
 // @include foundation-slider;
 // @include foundation-sticky;
-// @include foundation-reveal;
+@include foundation-reveal;
 // @include foundation-switch;
 @include foundation-table;
 // @include foundation-tabs;
@@ -94,6 +94,8 @@ $font_body_thin: 'Open Sans Condensed', sans-serif;
 @import '../imports/ui/crimp_admin.scss';
 @import '../imports/ui/admin_dashboard.scss';
 @import '../imports/ui/admin_activetracker.scss';
+
+@import '../imports/ui/helpme.scss';
 
 // Overwrite Foundation 6 presets
 h1 {

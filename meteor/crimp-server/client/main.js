@@ -35,9 +35,8 @@ import '../imports/ui/crimp_admin.js';
 // Meteor.subscribe('teamsToAdmin');
 // Meteor.subscribe('climbersToAdmin');
 // Meteor.subscribe('scoresToAdmin');
-Meteor.subscribe('activetrackerToAll');
-Meteor.subscribe('helpmeToAdmin');
-Meteor.subscribe('messagesToAdmin');
+// Meteor.subscribe('activetrackerToAll');
+// Meteor.subscribe('messagesToAdmin');
 Meteor.startup(() => {
   msg = Messages;
   eve = Events;
