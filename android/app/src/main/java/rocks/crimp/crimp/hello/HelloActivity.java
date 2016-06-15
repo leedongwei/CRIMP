@@ -45,6 +45,7 @@ import rocks.crimp.crimp.hello.score.ScoreFragment;
 import rocks.crimp.crimp.login.LoginActivity;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
+import rocks.crimp.crimp.network.model.ErrorJs;
 import rocks.crimp.crimp.network.model.RouteJs;
 import rocks.crimp.crimp.persistence.LocalModelImpl;
 import rocks.crimp.crimp.service.ServiceHelper;
@@ -242,6 +243,15 @@ public class HelloActivity extends AppCompatActivity implements
             mHelpMeTxId = null;
 
             //TODO handle received helpme response
+            // TODO handle fail
+            if(event.errorJs != null && event.errorJs.getMessage().equals(ErrorJs.NOT_LOGIN)){
+                String xUserId = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_USER_ID, null);
+                String xAuthToken = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_AUTH_TOKEN, null);
+                doLogout(xUserId, xAuthToken);
+                Toast.makeText(this, "Login expired. Please login again", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -465,7 +475,7 @@ public class HelloActivity extends AppCompatActivity implements
         }
     }
 
-    private void doLogout(@NonNull String xUserId, @NonNull String mXAuthToken){
+    public void doLogout(@NonNull String xUserId, @NonNull String mXAuthToken){
         mLogoutTxId = ServiceHelper.logout(this, mLogoutTxId, xUserId, mXAuthToken);
     }
 

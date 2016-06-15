@@ -16,6 +16,7 @@ import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
+import rocks.crimp.crimp.network.model.ErrorJs;
 import timber.log.Timber;
 
 /**
@@ -109,7 +110,7 @@ public class RestHandler extends Handler implements RestRequestTask.Callback{
                     toast.show();
 
                     isExecutingTask = false;
-                    onRestFailure(task.getTxId());
+                    onRestFailure(task.getTxId(), null);
                 }
             }
             else{
@@ -132,10 +133,10 @@ public class RestHandler extends Handler implements RestRequestTask.Callback{
     }
 
     @Override
-    public void onRestFailure(UUID txId) {
+    public void onRestFailure(UUID txId, ErrorJs errorJs) {
         isExecutingTask = false;
         mRestRequestTaskQueue.remove();
-        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+        CrimpApplication.getBusInstance().post(new RequestFailed(txId, errorJs));
 
         Message msg = this.obtainMessage(DO_WORK);
         this.sendMessage(msg);

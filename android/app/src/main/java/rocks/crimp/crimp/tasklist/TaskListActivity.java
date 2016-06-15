@@ -125,7 +125,6 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
-        Toast toast = Toast.makeText(this, "STUB", Toast.LENGTH_SHORT);
         switch(v.getId()){
             case R.id.tasklist_card:
                 //toast.show();

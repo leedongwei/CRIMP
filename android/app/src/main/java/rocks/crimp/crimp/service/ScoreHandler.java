@@ -192,7 +192,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         attemptsLeft--;
         Timber.d("Score upload fail. Attempts left: %d", attemptsLeft);
         isExecutingTask = false;
-        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+        CrimpApplication.getBusInstance().post(new RequestFailed(txId, null));
 
         if(attemptsLeft > 0) {
             try {
@@ -218,7 +218,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         attemptsLeft--;
         Timber.d("Score upload fail. Attempts left: %d", attemptsLeft);
         isExecutingTask = false;
-        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+        CrimpApplication.getBusInstance().post(new RequestFailed(txId, null));
 
         if(attemptsLeft > 0) {
             try {
@@ -245,7 +245,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         attemptsLeft = 0;
         Timber.d("Score upload fail due to no network. Ignore attempts left");
         isExecutingTask = false;
-        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+        CrimpApplication.getBusInstance().post(new RequestFailed(txId, null));
 
         if(attemptsLeft > 0) {
             try {
