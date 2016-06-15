@@ -351,485 +351,302 @@ function baInit() {
     },
   });
 
-  // const q = Categories.insert({
-  //   category_name: '',
-  //   acronym: '',
-  //   is_team_category: false,
-  //   is_score_finalized: false,
-  //   climber_count: 0,
-  //   time_start: new Date(),
-  //   time_end: new Date(),
-  //   score_system: 'IFSC-Top-Bonus',
-  //   routes: [{
-  //     _id: Random.id(),
-  //     route_name: '1',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '2',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '3',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '4',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '5',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '6',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '7',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '8',
-  //     score_rules: {},
-  //   }],
-  //   event: {
-  //     _id: eve,
-  //     event_name_full: 'NUS - Black Diamond Boulderactive 2016',
-  //   },
-  // });
+  const oms = Categories.insert({
+    category_name: 'Open Men Semi-Final',
+    acronym: 'OMS',
+    is_team_category: false,
+    is_score_finalized: false,
+    climber_count: 0,
+    time_start: new Date(2016, 5, 19, 9, 30),
+    time_end: new Date(2016, 5, 19, 11, 15),
+    score_system: 'IFSC-Top-Bonus',
+    routes: [{
+      _id: Random.id(),
+      route_name: 'OMS1',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'OMS2',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'OMS3',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'OMS4',
+      score_rules: {},
+    }],
+    event: {
+      _id: eve,
+      event_name_full: 'NUS - Black Diamond Boulderactive 2016',
+    },
+  });
 
-  // const q = Categories.insert({
-  //   category_name: '',
-  //   acronym: '',
-  //   is_team_category: false,
-  //   is_score_finalized: false,
-  //   climber_count: 0,
-  //   time_start: new Date(),
-  //   time_end: new Date(),
-  //   score_system: 'IFSC-Top-Bonus',
-  //   routes: [{
-  //     _id: Random.id(),
-  //     route_name: '1',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '2',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '3',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '4',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '5',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '6',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '7',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '8',
-  //     score_rules: {},
-  //   }],
-  //   event: {
-  //     _id: eve,
-  //     event_name_full: 'NUS - Black Diamond Boulderactive 2016',
-  //   },
-  // });
+  const ows = Categories.insert({
+    category_name: 'Open Women Semi-Final',
+    acronym: 'OWS',
+    is_team_category: false,
+    is_score_finalized: false,
+    climber_count: 0,
+    time_start: new Date(2016, 5, 19, 9, 30),
+    time_end: new Date(2016, 5, 19, 11, 15),
+    score_system: 'IFSC-Top-Bonus',
+    routes: [{
+      _id: Random.id(),
+      route_name: 'OWS1',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'OWS2',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'OWS3',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'OWS4',
+      score_rules: {},
+    }],
+    event: {
+      _id: eve,
+      event_name_full: 'NUS - Black Diamond Boulderactive 2016',
+    },
+  });
 
-  // const q = Categories.insert({
-  //   category_name: '',
-  //   acronym: '',
-  //   is_team_category: false,
-  //   is_score_finalized: false,
-  //   climber_count: 0,
-  //   time_start: new Date(),
-  //   time_end: new Date(),
-  //   score_system: 'IFSC-Top-Bonus',
-  //   routes: [{
-  //     _id: Random.id(),
-  //     route_name: '1',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '2',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '3',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '4',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '5',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '6',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '7',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '8',
-  //     score_rules: {},
-  //   }],
-  //   event: {
-  //     _id: eve,
-  //     event_name_full: 'NUS - Black Diamond Boulderactive 2016',
-  //   },
-  // });
+  const umf = Categories.insert({
+    category_name: 'U-17 Men Final',
+    acronym: 'UMF',
+    is_team_category: false,
+    is_score_finalized: false,
+    climber_count: 0,
+    time_start: new Date(2016, 5, 19, 11, 45),
+    time_end: new Date(2016, 5, 19, 14, 00),
+    score_system: 'IFSC-Top-Bonus',
+    routes: [{
+      _id: Random.id(),
+      route_name: 'UMF1',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'UMF2',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'UMF3',
+      score_rules: {},
+    }],
+    event: {
+      _id: eve,
+      event_name_full: 'NUS - Black Diamond Boulderactive 2016',
+    },
+  });
 
-  // const q = Categories.insert({
-  //   category_name: '',
-  //   acronym: '',
-  //   is_team_category: false,
-  //   is_score_finalized: false,
-  //   climber_count: 0,
-  //   time_start: new Date(),
-  //   time_end: new Date(),
-  //   score_system: 'IFSC-Top-Bonus',
-  //   routes: [{
-  //     _id: Random.id(),
-  //     route_name: '1',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '2',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '3',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '4',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '5',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '6',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '7',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '8',
-  //     score_rules: {},
-  //   }],
-  //   event: {
-  //     _id: eve,
-  //     event_name_full: 'NUS - Black Diamond Boulderactive 2016',
-  //   },
-  // });
+  const uwf = Categories.insert({
+    category_name: 'U-17 Women Final',
+    acronym: 'UWF',
+    is_team_category: false,
+    is_score_finalized: false,
+    climber_count: 0,
+    time_start: new Date(2016, 5, 19, 11, 45),
+    time_end: new Date(2016, 5, 19, 14, 00),
+    score_system: 'IFSC-Top-Bonus',
+    routes: [{
+      _id: Random.id(),
+      route_name: 'UWF1',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'UWF2',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'UWF3',
+      score_rules: {},
+    }],
+    event: {
+      _id: eve,
+      event_name_full: 'NUS - Black Diamond Boulderactive 2016',
+    },
+  });
 
-  // const q = Categories.insert({
-  //   category_name: '',
-  //   acronym: '',
-  //   is_team_category: false,
-  //   is_score_finalized: false,
-  //   climber_count: 0,
-  //   time_start: new Date(),
-  //   time_end: new Date(),
-  //   score_system: 'IFSC-Top-Bonus',
-  //   routes: [{
-  //     _id: Random.id(),
-  //     route_name: '1',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '2',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '3',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '4',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '5',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '6',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '7',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '8',
-  //     score_rules: {},
-  //   }],
-  //   event: {
-  //     _id: eve,
-  //     event_name_full: 'NUS - Black Diamond Boulderactive 2016',
-  //   },
-  // });
+  const nmf = Categories.insert({
+    category_name: 'Novice Men Final',
+    acronym: 'NMF',
+    is_team_category: false,
+    is_score_finalized: false,
+    climber_count: 0,
+    time_start: new Date(2016, 5, 19, 11, 45),
+    time_end: new Date(2016, 5, 19, 14, 00),
+    score_system: 'IFSC-Top-Bonus',
+    routes: [{
+      _id: Random.id(),
+      route_name: 'NMF1',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'NMF2',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'NMF3',
+      score_rules: {},
+    }],
+    event: {
+      _id: eve,
+      event_name_full: 'NUS - Black Diamond Boulderactive 2016',
+    },
+  });
 
-  // const q = Categories.insert({
-  //   category_name: '',
-  //   acronym: '',
-  //   is_team_category: false,
-  //   is_score_finalized: false,
-  //   climber_count: 0,
-  //   time_start: new Date(),
-  //   time_end: new Date(),
-  //   score_system: 'IFSC-Top-Bonus',
-  //   routes: [{
-  //     _id: Random.id(),
-  //     route_name: '1',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '2',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '3',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '4',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '5',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '6',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '7',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '8',
-  //     score_rules: {},
-  //   }],
-  //   event: {
-  //     _id: eve,
-  //     event_name_full: 'NUS - Black Diamond Boulderactive 2016',
-  //   },
-  // });
+  const nwf = Categories.insert({
+    category_name: 'Novice Women Final',
+    acronym: 'NWF',
+    is_team_category: false,
+    is_score_finalized: false,
+    climber_count: 0,
+    time_start: new Date(2016, 5, 19, 11, 45),
+    time_end: new Date(2016, 5, 19, 14, 00),
+    score_system: 'IFSC-Top-Bonus',
+    routes: [{
+      _id: Random.id(),
+      route_name: 'NWF1',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'NWF2',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'NWF3',
+      score_rules: {},
+    }],
+    event: {
+      _id: eve,
+      event_name_full: 'NUS - Black Diamond Boulderactive 2016',
+    },
+  });
 
-  // const q = Categories.insert({
-  //   category_name: '',
-  //   acronym: '',
-  //   is_team_category: false,
-  //   is_score_finalized: false,
-  //   climber_count: 0,
-  //   time_start: new Date(),
-  //   time_end: new Date(),
-  //   score_system: 'IFSC-Top-Bonus',
-  //   routes: [{
-  //     _id: Random.id(),
-  //     route_name: '1',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '2',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '3',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '4',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '5',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '6',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '7',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '8',
-  //     score_rules: {},
-  //   }],
-  //   event: {
-  //     _id: eve,
-  //     event_name_full: 'NUS - Black Diamond Boulderactive 2016',
-  //   },
-  // });
+  const imf = Categories.insert({
+    category_name: 'Intermediate Men Final',
+    acronym: 'IMF',
+    is_team_category: false,
+    is_score_finalized: false,
+    climber_count: 0,
+    time_start: new Date(2016, 5, 19, 14, 30),
+    time_end: new Date(2016, 5, 19, 16),
+    score_system: 'IFSC-Top-Bonus',
+    routes: [{
+      _id: Random.id(),
+      route_name: 'IMF1',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'IMF2',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'IMF3',
+      score_rules: {},
+    }],
+    event: {
+      _id: eve,
+      event_name_full: 'NUS - Black Diamond Boulderactive 2016',
+    },
+  });
 
-  // const q = Categories.insert({
-  //   category_name: '',
-  //   acronym: '',
-  //   is_team_category: false,
-  //   is_score_finalized: false,
-  //   climber_count: 0,
-  //   time_start: new Date(),
-  //   time_end: new Date(),
-  //   score_system: 'IFSC-Top-Bonus',
-  //   routes: [{
-  //     _id: Random.id(),
-  //     route_name: '1',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '2',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '3',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '4',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '5',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '6',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '7',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '8',
-  //     score_rules: {},
-  //   }],
-  //   event: {
-  //     _id: eve,
-  //     event_name_full: 'NUS - Black Diamond Boulderactive 2016',
-  //   },
-  // });
+  const iwf = Categories.insert({
+    category_name: 'Intermediate Women Final',
+    acronym: 'IWF',
+    is_team_category: false,
+    is_score_finalized: false,
+    climber_count: 0,
+    time_start: new Date(2016, 5, 19, 14, 30),
+    time_end: new Date(2016, 5, 19, 16),
+    score_system: 'IFSC-Top-Bonus',
+    routes: [{
+      _id: Random.id(),
+      route_name: 'IWF1',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'IWF2',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'IWF3',
+      score_rules: {},
+    }],
+    event: {
+      _id: eve,
+      event_name_full: 'NUS - Black Diamond Boulderactive 2016',
+    },
+  });
 
-  // const q = Categories.insert({
-  //   category_name: '',
-  //   acronym: '',
-  //   is_team_category: false,
-  //   is_score_finalized: false,
-  //   climber_count: 0,
-  //   time_start: new Date(),
-  //   time_end: new Date(),
-  //   score_system: 'IFSC-Top-Bonus',
-  //   routes: [{
-  //     _id: Random.id(),
-  //     route_name: '1',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '2',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '3',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '4',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '5',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '6',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '7',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '8',
-  //     score_rules: {},
-  //   }],
-  //   event: {
-  //     _id: eve,
-  //     event_name_full: 'NUS - Black Diamond Boulderactive 2016',
-  //   },
-  // });
+  const omf = Categories.insert({
+    category_name: 'Open Men Final',
+    acronym: 'OMF',
+    is_team_category: false,
+    is_score_finalized: false,
+    climber_count: 0,
+    time_start: new Date(2016, 5, 19, 19),
+    time_end: new Date(2016, 5, 19, 21),
+    score_system: 'IFSC-Top-Bonus',
+    routes: [{
+      _id: Random.id(),
+      route_name: 'OMF1',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'OMF2',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'OMF3',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'OMF4',
+      score_rules: {},
+    }],
+    event: {
+      _id: eve,
+      event_name_full: 'NUS - Black Diamond Boulderactive 2016',
+    },
+  });
 
-  // const q = Categories.insert({
-  //   category_name: '',
-  //   acronym: '',
-  //   is_team_category: false,
-  //   is_score_finalized: false,
-  //   climber_count: 0,
-  //   time_start: new Date(),
-  //   time_end: new Date(),
-  //   score_system: 'IFSC-Top-Bonus',
-  //   routes: [{
-  //     _id: Random.id(),
-  //     route_name: '1',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '2',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '3',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '4',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '5',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '6',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '7',
-  //     score_rules: {},
-  //   }, {
-  //     _id: Random.id(),
-  //     route_name: '8',
-  //     score_rules: {},
-  //   }],
-  //   event: {
-  //     _id: eve,
-  //     event_name_full: 'NUS - Black Diamond Boulderactive 2016',
-  //   },
-  // });
+  const owf = Categories.insert({
+    category_name: 'Open Women Final',
+    acronym: 'OWF',
+    is_team_category: false,
+    is_score_finalized: false,
+    climber_count: 0,
+    time_start: new Date(2016, 5, 19, 19),
+    time_end: new Date(2016, 5, 19, 21),
+    score_system: 'IFSC-Top-Bonus',
+    routes: [{
+      _id: Random.id(),
+      route_name: 'OWF1',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'OWF2',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'OWF3',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'OWF4',
+      score_rules: {},
+    }],
+    event: {
+      _id: eve,
+      event_name_full: 'NUS - Black Diamond Boulderactive 2016',
+    },
+  });
+
 
   function addClimber(array, gender, catId) {
     _.forEach(array, (c) => {
