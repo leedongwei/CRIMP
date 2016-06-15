@@ -13,6 +13,31 @@ import HelpMe from '../imports/data/helpme';
 import ActiveTracker from '../imports/data/activetracker';
 import RecentScores from '../imports/data/recentscores';
 
+
+// TODO: For Richard's live stream
+import { scoreSystemsNames } from '../imports/score_systems/score-system.js';
+import IFSC_TB from '../imports/score_systems/ifsc-top-bonus';
+import TFBb from '../imports/score_systems/top-flash-bonus2-bonus1';
+function getScoreSystem(scoreSystem) {
+  let output;
+  switch (scoreSystem) {
+    case scoreSystemsNames[0]:
+      output = new IFSC_TB();
+      break;
+    case scoreSystemsNames[1]:
+      output = new TFBb();
+      break;
+    case scoreSystemsNames[2]:   // TODO: Set for points
+      output = new TFBb();
+      break;
+    default:
+      output = new IFSC_TB();
+  }
+
+  return output;
+}
+
+
 /**
  *  `roleRequired` is commented off at all endpoints because Restivus does
  *  not work with groups in alanning:roles right now. A custom checkRoles
@@ -331,6 +356,16 @@ Api.addRoute('judge/score', {
                 singleScore.score = scoreDoc.scores[j].score_string;
 
 
+                // TODO: For Richard's live stream. Review later.
+                const c = Categories.findOne(scoreDoc.category_id);
+                const scoreSystem = getScoreSystem(c.score_system);
+
+                singleScore.displayString = scoreSystem
+                                              .calculate(scoreDoc.scores[j]
+                                                                 .score_string)
+                                              .displayString;
+
+
                 if (options.route_id) {
                   if (options.route_id === singleScore.route_id) {
                     allScores.push(singleScore);
@@ -419,7 +454,6 @@ Api.addRoute('judge/score/:route_id/:marker_id', {
       });
       const targetRoute = _.find(targetCategory.routes,
                                  (route) => (route._id === options.route_id));
-      console.log(targetRoute)
 
       RecentScores.insert({
         route_id: options.route_id,
@@ -445,21 +479,7 @@ Api.addRoute('judge/score/:route_id/:marker_id', {
       return {
         statusCode: 500,
         body: { error: e },
-      };
-
-      // TODO: Return per normal to prevent blocked queue
-      // Check with Weizhi if it is fixed
-      // return {
-      //   statusCode: 200,
-      //   body: {
-      //     climber_id: 'FAIL',
-      //     category_id: 'FAIL',
-      //     route_id: 'FAIL',
-      //     marker_id: 'FAIL',
-      //     score: 'FAIL',
-      //   },
-      // };
-    }
+      };    }
   },
 });
 
