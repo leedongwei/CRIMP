@@ -9,6 +9,26 @@ import Categories from './data/categories';
 import Teams from './data/teams';
 import Climbers from './data/climbers';
 import Scores from './data/scores';
+import RecentScores from './data/recentscores';
+import HelpMe from './data/helpme';
+import ActiveTracker from './data/activetracker';
+
+
+Meteor.methods({
+  // TODO: Remove after mock comp
+  deleteAll: () => {
+    CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
+
+    Scores.remove({});
+    Climbers.remove({});
+    Teams.remove({});
+    Categories.remove({}, null, true);
+    Events.remove({}, null, true);
+    RecentScores.remove({});
+    ActiveTracker.remove({});
+    HelpMe.remove({});
+  },
+});
 
 
 function seedDatabase() {
@@ -273,185 +293,5 @@ function seedDatabase() {
     });
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-function mockComp() {
-  /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-   *  Build 1 Events                                         *
-   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-  const eve1 = Events.insert({
-    event_name_full: 'Boulderactive',
-    event_name_short: 'Event 1',
-    time_start: new Date(),
-    time_end: new Date(),
-  });
-
-  /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-   *  Build 1 Categories                                     *
-   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-  const cat1 = Categories.insert({
-    category_name: 'Mock Comp',
-    acronym: 'MOC',
-    is_team_category: false,
-    is_score_finalized: false,
-    climber_count: 0,
-    time_start: new Date(),
-    time_end: new Date(),
-    score_system: 'TFBb',
-    routes: [{
-      _id: Random.id(),
-      route_name: 'Route 1',
-      score_rules: {},
-    }, {
-      _id: Random.id(),
-      route_name: 'Route 2',
-      score_rules: {},
-    }, {
-      _id: Random.id(),
-      route_name: 'Route 3',
-      score_rules: {},
-    }, {
-      _id: Random.id(),
-      route_name: 'Route 4',
-      score_rules: {},
-    }, {
-      _id: Random.id(),
-      route_name: 'Route 5',
-      score_rules: {},
-    }, {
-      _id: Random.id(),
-      route_name: 'Route 6',
-      score_rules: {},
-    }, {
-      _id: Random.id(),
-      route_name: 'Route 7',
-      score_rules: {},
-    }, {
-      _id: Random.id(),
-      route_name: 'Route 8',
-      score_rules: {},
-    }],
-    event: {
-      _id: eve1,
-      event_name_full: 'eve1.event_name_full',
-    },
-  });
-
-
-  /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-   *  Build Climbers                                      *
-   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-  function insertClimbers(name) {
-    return Climbers.insert({
-      climber_name: name,
-      identity: faker.phone.phoneNumberFormat(),
-      affliation: 'NUS Climbing',
-      categories: [],
-    });
-  }
-
-  const names = [
-    'Pat',
-    'Day',
-    'Alichow',
-    'Ange',
-    'Jas',
-    'Lim',
-    'Fern',
-    'Gwen',
-    'Jovin',
-    'Sab',
-    'Juan',
-    'Dave',
-    'Josh Tan',
-    'Leon',
-    'Jon',
-    'Josh Ko',
-    'Yukai',
-    'ZwJ',
-    'Jingyang',
-    'Jem Moi',
-    'Saw Jhen Jin',
-    'Ong Wei Yang',
-    'Theodor Gunawan',
-    'Chinab',
-    'Tricia Yau',
-    'Nalleong Huikkataivalyu',
-    'Ryofred',
-    'Zhimin',
-    'Azli',
-  ];
-
-  const climbers1 = [];
-  names.forEach((n) => {
-    climbers1.push(insertClimbers(n));
-  });
-
-
-  /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-   *  Add Climbers to cat1 and cat3                          *
-   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-  climbers1.forEach((cmb) => {
-    Categories.methods.addClimber.call({
-      climberId: cmb,
-      categoryId: cat1,
-    });
-  });
-}
-
-
-Meteor.methods({
-  seedDB: () => {
-    seedDatabase();
-  },
-
-  mockComp: () => {
-    mockComp();
-  },
-
-  // TODO: Remove after mock comp
-  deleteAll: () => {
-    CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
-
-    Scores.remove({});
-    Climbers.remove({});
-    Teams.remove({});
-    Categories.remove({}, null, true);
-    Events.remove({}, null, true);
-  },
-
-  insertClimbers: ({climberArray, categoryId, gender}) => {
-    _.forEach(climberArray, (c) => {
-      const climberDoc = {
-        gender,
-        climber_name: c,
-        identity: '',
-        affliation: '',
-        categories: [],
-      };
-
-      Climbers.insert(climberDoc);
-    });
-  },
-
-  insertCategory: (categoryDoc) => {
-    return Categories.insert(categoryDoc);
-  },
-
-  insertEvent: (eventDoc) => {
-    return Events.insert(eventDoc);
-  },
-});
-
 
 export default seedDatabase;
