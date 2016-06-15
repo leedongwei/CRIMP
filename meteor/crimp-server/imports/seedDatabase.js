@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { faker } from 'meteor/practicalmeteor:faker';
+import { _ } from 'meteor/stevezhu:lodash';
 
 import CRIMP from './settings';
 import Events from './data/events';
@@ -289,7 +290,7 @@ function mockComp() {
    *  Build 1 Events                                         *
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
   const eve1 = Events.insert({
-    event_name_full: 'Boulderactive Mock Comp',
+    event_name_full: 'Boulderactive',
     event_name_short: 'Event 1',
     time_start: new Date(),
     time_end: new Date(),
@@ -427,6 +428,28 @@ Meteor.methods({
     Teams.remove({});
     Categories.remove({}, null, true);
     Events.remove({}, null, true);
+  },
+
+  insertClimbers: ({climberArray, categoryId, gender}) => {
+    _.forEach(climberArray, (c) => {
+      const climberDoc = {
+        gender,
+        climber_name: c,
+        identity: '',
+        affliation: '',
+        categories: [],
+      };
+
+      Climbers.insert(climberDoc);
+    });
+  },
+
+  insertCategory: (categoryDoc) => {
+    return Categories.insert(categoryDoc);
+  },
+
+  insertEvent: (eventDoc) => {
+    return Events.insert(eventDoc);
   },
 });
 
