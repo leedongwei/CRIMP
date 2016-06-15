@@ -417,13 +417,12 @@ Api.addRoute('judge/score/:route_id/:marker_id', {
         } },
       });
 
-      // If 0 targetScore is found, it is an invalid request
-      // we assume that route_id is always correct, because it is handle
+      // If 0 targetScore is found, it is an invalid request.
+      // We assume that route_id is always correct, because it is handle
       // by the app. Hence, the issue is a wrong marker_id caused human
       // error when it was key into the app.
       // We'll try to capture this error score, by attaching it to a dummy
       // Climber and creating the Scores, so that it can be reviewed later
-
       if (targetScore.count() === 0) {
         const categoryId = Categories.findOne({
           routes: { $elemMatch: {
