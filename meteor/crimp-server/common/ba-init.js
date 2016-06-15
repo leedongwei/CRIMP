@@ -1,3 +1,4 @@
+/*
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { faker } from 'meteor/practicalmeteor:faker';
@@ -1370,3 +1371,4 @@ Meteor.methods({
     baInit();
   },
 });
+*/
