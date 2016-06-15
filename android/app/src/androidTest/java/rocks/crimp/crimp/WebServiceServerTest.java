@@ -2,22 +2,16 @@ package rocks.crimp.crimp;
 
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
-import android.test.suitebuilder.annotation.MediumTest;
 
-import org.hamcrest.core.IsNull;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Response;
 import rocks.crimp.crimp.network.CrimpWS;
 import rocks.crimp.crimp.network.CrimpWsImpl;
@@ -30,8 +24,6 @@ import rocks.crimp.crimp.network.model.HeaderBean;
 import rocks.crimp.crimp.network.model.HelpMeJs;
 import rocks.crimp.crimp.network.model.LoginJs;
 import rocks.crimp.crimp.network.model.LogoutJs;
-import rocks.crimp.crimp.network.model.MetaBean;
-import rocks.crimp.crimp.network.model.PathBean;
 import rocks.crimp.crimp.network.model.QueryBean;
 import rocks.crimp.crimp.network.model.ReportJs;
 import rocks.crimp.crimp.network.model.RequestBean;
@@ -41,10 +33,8 @@ import rocks.crimp.crimp.network.model.ScoreJs;
 import rocks.crimp.crimp.network.model.SetActiveJs;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.IsNot.not;
 
@@ -73,7 +63,7 @@ public class WebServiceServerTest {
 
     @BeforeClass
     public static void createCrimpWS() {
-        mCrimpWSImpl = new CrimpWsImpl(CrimpWsImpl.BASEURL);
+        mCrimpWSImpl = new CrimpWsImpl(CrimpWsImpl.BASE_URL);
     }
 
     @Test

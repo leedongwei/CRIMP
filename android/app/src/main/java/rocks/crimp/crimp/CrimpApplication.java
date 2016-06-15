@@ -14,7 +14,6 @@ import rocks.crimp.crimp.common.MainThreadBus;
 import rocks.crimp.crimp.common.event.CurrentUploadTask;
 import rocks.crimp.crimp.network.CrimpWS;
 import rocks.crimp.crimp.network.CrimpWsImpl;
-import rocks.crimp.crimp.network.StubWS;
 import rocks.crimp.crimp.persistence.LocalModel;
 import rocks.crimp.crimp.persistence.LocalModelImpl;
 import rocks.crimp.crimp.service.CrimpService;
@@ -173,7 +172,7 @@ public class CrimpApplication extends Application {
     public static CrimpWS getCrimpWS(){
         if(mCrimpWs == null){
             //mCrimpWs = new StubWS();
-            mCrimpWs = new CrimpWsImpl(CrimpWsImpl.BASEURL);
+            mCrimpWs = new CrimpWsImpl(CrimpWsImpl.BASE_URL);
         }
 
         return mCrimpWs;

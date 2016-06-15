@@ -40,7 +40,12 @@ import timber.log.Timber;
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class CrimpWsImpl implements CrimpWS {
-    public static final String BASEURL = "http://dev.crimp.rocks/";
+    public static final String PRODUCTION_IP = "http://54.169.6.15/";
+    public static final String PRODUCTION_NAME = "http://ba.crimp.rocks/";
+    public static final String DEVELOPMENT_IP = "http://54.251.191.230/";
+    public static final String DEVELOPMENT_NAME = "http://dev.crimp.rocks/";
+
+    public static final String BASE_URL = PRODUCTION_IP;
     private final RetrofitWs webService;
 
     public CrimpWsImpl(String baseUrl){

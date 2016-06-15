@@ -183,7 +183,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
                 mScoreModule = new PointsModule(mInflatedScoreModule, getActivity(), this,
                         Integer.parseInt(type[1]));
                 break;
-            case "top-bonus1-bonus2":
+            case "tfbb":
                 if(mScoreModuleLayout != null){
                     mScoreModuleLayout.setLayoutResource(R.layout.fragment_top_b1_b2_scoring);
                     mInflatedScoreModule = mScoreModuleLayout.inflate();
