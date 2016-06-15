@@ -63,13 +63,13 @@ ActiveTracker.schema = new SimpleSchema({
 });
 ActiveTracker.attachSchema(ActiveTracker.schema);
 
-if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
-  ActiveTracker.deny({
-    insert() { return true; },
-    update() { return true; },
-    remove() { return true; },
-  });
-}
+// if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
+//   ActiveTracker.deny({
+//     insert() { return true; },
+//     update() { return true; },
+//     remove() { return true; },
+//   });
+// }
 
 
 ActiveTracker.methods = {};

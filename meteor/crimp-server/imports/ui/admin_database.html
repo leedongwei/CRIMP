@@ -22,7 +22,7 @@
 
 
 <template name="admin_database_blank">
-  <section></section>
+  <section> </section>
 </template>
 
 
@@ -86,7 +86,7 @@
             </td>
             <td>
               <a class="label admin-db-categories-edit"
-                 data-categoryId="{{category.category_id}}">
+                 data-categoryId="{{category._id}}">
                 Select
               </a>
             </td>
@@ -99,9 +99,14 @@
 
 
 <template name="admin_db_categories_form">
-  <section>
-    <h2>Editing [name]</h2>
-
+  <section class="admin-db-categories-form">
+    <h2>Category</h2>
+    {{> quickForm
+        collection=formCollection
+        doc=category
+        id="updateBookForm"
+        type="update"
+        fields="category_name,acronym,is_score_finalized,time_start,time_end,routes,routes.$.route_name"}}
   </section>
 </template>
 

@@ -20,13 +20,13 @@ Messages.schema = new SimpleSchema({
 });
 Messages.attachSchema(Messages.schema);
 
-if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
-  Messages.deny({
-    insert() { return true; },
-    update() { return true; },
-    remove() { return true; },
-  });
-}
+// if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
+//   Messages.deny({
+//     insert() { return true; },
+//     update() { return true; },
+//     remove() { return true; },
+//   });
+// }
 
 
 Messages.methods = {};

@@ -39,13 +39,13 @@ Scores.schema = new SimpleSchema({
 });
 Scores.attachSchema(Scores.schema);
 
-if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
-  Scores.deny({
-    insert() { return true; },
-    update() { return true; },
-    remove() { return true; },
-  });
-}
+// if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
+//   Scores.deny({
+//     insert() { return true; },
+//     update() { return true; },
+//     remove() { return true; },
+//   });
+// }
 
 
 Scores.methods = {};

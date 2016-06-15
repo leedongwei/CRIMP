@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import { Roles } from 'meteor/alanning:roles';
 
 import CRIMP from '../settings';
 import Teams from './teams';
@@ -53,7 +54,7 @@ Categories.schema = new SimpleSchema({
   },
   acronym: {
     type: String,
-    label: '3 char acronym of category',
+    label: '3 character acronym of category',
     min: 3,
     max: 3,
   },
@@ -62,7 +63,7 @@ Categories.schema = new SimpleSchema({
   },
   is_score_finalized: {
     type: Boolean,
-    label: 'Confirm scores for category',
+    label: 'Scores are confirmed',
   },
   climber_count: {
     type: Number,
@@ -90,7 +91,6 @@ Categories.schema = new SimpleSchema({
    */
   routes: {
     type: [Object],
-    label: 'List of all the routes in category',
   },
   'routes.$._id': {
     type: String,
@@ -127,13 +127,13 @@ Categories.schema = new SimpleSchema({
 });
 Categories.attachSchema(Categories.schema);
 
-if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
-  Categories.deny({
-    insert() { return true; },
-    update() { return true; },
-    remove() { return true; },
-  });
-}
+// if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
+//   Categories.deny({
+//     insert() { return true; },
+//     update() { return true; },
+//     remove() { return true; },
+//   });
+// }
 
 
 Categories.methods = {};

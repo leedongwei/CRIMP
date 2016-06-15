@@ -10,13 +10,13 @@ import Scores from '../data/scores';
 
 import './admin_database.html';
 
+
+Session.setDefault('admin_db_middle', 'admin_database_blank');
+Session.setDefault('admin_db_right', 'admin_database_blank');
+
 Template.admin_database.helpers({
-  admin_db_middle: () => (Session.get('admin_db_middle')
-                          ? Session.get('admin_db_middle')
-                          : 'admin_database_blank'),
-  admin_db_right: () => (Session.set('admin_db_right')
-                          ? Session.get('admin_db_right')
-                          : 'admin_database_blank'),
+  admin_db_middle: () => Session.get('admin_db_middle'),
+  admin_db_right: () => Session.get('admin_db_right'),
 });
 
 Template.admin_db_menu.events({
@@ -32,6 +32,22 @@ Meteor.subscribe('categoriesToAll');
 
 Template.admin_db_categories.helpers({
   categories: () => Categories.find({}).fetch(),
+});
+
+Template.admin_db_categories.events({
+  'click a.admin-db-categories-edit'(event) {
+    const dataAttr = event.currentTarget.dataset;
+    Session.set('admin_db_categories_form', dataAttr.categoryid);
+    Session.set('admin_db_right', 'admin_db_categories_form');
+  },
+});
+
+Template.admin_db_categories_form.helpers({
+  formCollection: () => Categories,
+  category: () => {
+    const categoryId = Session.get('admin_db_categories_form');
+    return Categories.findOne(categoryId);
+  },
 });
 
 
@@ -90,7 +106,7 @@ Template.admin_db_users.helpers({
 Template.admin_db_users.events({
   'click a.admin-db-users-edit'(event) {
     const dataAttr = event.currentTarget.dataset;
-    console.log(dataAttr.userId);
+    console.log(dataAttr.userid);
     // Session.set('admin_db_middle', );
   },
 });
