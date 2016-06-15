@@ -215,8 +215,9 @@ Categories.methods.addClimber = new ValidatedMethod({
   validate: new SimpleSchema({
     climberId: { type: String },
     categoryId: { type: String },
+    markerId: { type: String, optional: true },
   }).validator(),
-  run({ categoryId, climberId }) {
+  run({ categoryId, climberId, markerId = '' }) {
     const targetClimber = Climbers.findOne(climberId);
     const targetCategory = Categories.findOne(categoryId);
     const climberCategoryDoc = {
@@ -234,6 +235,7 @@ Categories.methods.addClimber = new ValidatedMethod({
     let count = String(targetCategory.climber_count + 1);
     while (count.length < 3) count = `0${count}`;
     scoreDoc.marker_id += count;
+    scoreDoc.marker_id = markerId || scoreDoc.marker_id;
 
     // Ensure marker_id is unique for Category
     // Ensure no Score doc for Climber in Category

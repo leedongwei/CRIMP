@@ -364,7 +364,7 @@ Api.addRoute('judge/score', {
                                               .calculate(scoreDoc.scores[j]
                                                                  .score_string)
                                               .displayString;
-
+                // End of for Richard's live stream. Review later.
 
                 if (options.route_id) {
                   if (options.route_id === singleScore.route_id) {
@@ -417,8 +417,39 @@ Api.addRoute('judge/score/:route_id/:marker_id', {
         } },
       });
 
+      // If 0 targetScore is found, it is an invalid request
+      // we assume that route_id is always correct, because it is handle
+      // by the app. Hence, the issue is a wrong marker_id caused human
+      // error when it was key into the app.
+      // We'll try to capture this error score, by attaching it to a dummy
+      // Climber and creating the Scores, so that it can be reviewed later
+
       if (targetScore.count() === 0) {
-        // TODO: Do nothing for invalid
+        const categoryId = Categories.findOne({
+          routes: { $elemMatch: {
+            _id: options.route_id,
+          } },
+        })._id;
+        const climberId = Climbers.insert({
+          climber_name: 'WARNING: ISSUE WITH CLIMBER/JUDGE',
+          identity: '',
+          affliation: '',
+          gender: '-',
+          categories: [],
+        });
+
+        Categories.methods.addClimber.call({
+          climberId,
+          categoryId,
+          markerId: options.marker_id,
+        });
+
+        targetScore = Scores.find({
+          marker_id: options.marker_id,
+          scores: { $elemMatch: {
+            route_id: options.route_id,
+          } },
+        });
       }
 
       if (targetScore.count() > 1) {
@@ -479,7 +510,8 @@ Api.addRoute('judge/score/:route_id/:marker_id', {
       return {
         statusCode: 500,
         body: { error: e },
-      };    }
+      };
+    }
   },
 });
 
