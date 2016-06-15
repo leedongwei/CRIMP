@@ -30,12 +30,29 @@
   <section class="admin-db-menu">
     <h2>Databases</h2>
 
-    <p>You can edit the scores and other details here. You can click all the blue buttons here. It will not change data unless the button says 'Submit'</p>
+    <b>
+      <p>
+        You can edit the scores and other details here.
+      </p>
+      <p>
+        You can safely click all the blue buttons here. Blue buttons will not cause any changes in data.
+      </p>
+      <p>Be careful of red buttons. Red buttons will edit the database</p>
+    </b>
 
     <ul>
-      <li><a class="admin-db-menu" data-template="admin_db_categories">Categories</a></li>
-      <li><a class="admin-db-menu" data-template="admin_db_climbers">Climbers &amp; Scores</a></li>
-      <li><a class="admin-db-menu" data-template="admin_db_users">Admins</a></li>
+      <li><a class="admin-db-menu button"
+             data-template="admin_db_categories">
+         Edit Categories
+      </a></li>
+      <li><a class="admin-db-menu button"
+             data-template="admin_db_climbers">
+        Edit Climbers &amp; Scores
+      </a></li>
+      <li><a class="admin-db-menu button"
+             data-template="admin_db_users">
+        Edit Admins
+      </a></li>
     </ul>
 
   </section>
@@ -46,6 +63,45 @@
 <template name="admin_db_categories">
   <section>
     <h2>Edit Categories</h2>
+    <table class="admin-db-table">
+      <thead>
+        <tr>
+          <td> </td>
+          <td>Category Name</td>
+          <td>Finalized<br>Scores?</td>
+          <td> </td>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each category in categories}}
+          <tr>
+            <td>{{category.acronym}}</td>
+            <td>{{category.category_name}}</td>
+            <td>
+              {{#if category.is_scores_finalized}}
+                Yes
+              {{else}}
+                No
+              {{/if}}
+            </td>
+            <td>
+              <a class="label admin-db-categories-edit"
+                 data-categoryId="{{category.category_id}}">
+                Select
+              </a>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </section>
+</template>
+
+
+<template name="admin_db_categories_form">
+  <section>
+    <h2>Editing [name]</h2>
+
   </section>
 </template>
 
@@ -54,6 +110,52 @@
 <template name="admin_db_climbers">
   <section>
     <h2>Edit Climbers</h2>
+
+    <b>Category</b>
+    <select class="admin-db-climbers-categories">
+      {{#each category in categories}}
+        <option value="{{category._id}}">
+          {{category.category_name}}
+        </option>
+      {{/each}}
+    </select>
+
+    <table class="admin-db-table">
+      <thead>
+        <tr>
+          <td>ID</td>
+          <td>Name</td>
+          <td> </td>
+          <td> </td>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each climber in climbers}}
+          <tr>
+            <td>{{climber.marker_id}}</td>
+            <td>{{climber.climber_name}}</td>
+            <td>
+
+            </td>
+            <td>
+              <a class="label admin-db-categories-edit"
+                 data-climberId="{{climber._id}}">
+                Select
+              </a>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+  </section>
+</template>
+
+
+<template name="admin_db_climbers_form">
+  <section>
+    <h2>Editing [name]</h2>
+
   </section>
 </template>
 
@@ -87,7 +189,10 @@
             <td>{{#each role in user.roles.__global_roles__}}
               {{role}}<br>
             {{/each}}</td>
-            <td><a class="label admin-db-users-edit" data-userId="{{user._id}}">Edit</a> </td>
+            <td><a class="label admin-db-users-edit"
+                   data-userId="{{user._id}}">
+              Select
+            </a></td>
           </tr>
         {{/each}}
       </tbody>

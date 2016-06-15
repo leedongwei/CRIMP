@@ -7,19 +7,19 @@
             CRIMP Dashboard for {{event.event_name_short}}
           </div>
 
-          <a class="currentAdminPage" data-pageName="admin_dashboard">
-            dashboard
-          </a>
-          <a class="currentAdminPage" data-pageName="admin_database">
-            database
-          </a>
-
           <div class="top-bar-custom-right">
-            {{> conn_status}}
+            <a class="currentAdminPage" data-pageName="admin_dashboard">
+              dashboard
+            </a>
+            <a class="currentAdminPage" data-pageName="admin_database">
+              database
+            </a>
 
             {{ #if isVerified }}
               {{> loginButtons}}
             {{/if}}
+
+            {{> conn_status}}
           </div>
         </div>
       </div>
