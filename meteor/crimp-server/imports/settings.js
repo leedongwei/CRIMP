@@ -1,8 +1,6 @@
-/**
- * Do not 'use strict' on this file
- * It prevents global variables
- */
 import { Meteor } from 'meteor/meteor';
+
+import { roles, checkRoles } from './roles';
 
 const CRIMP = {
   ENVIRONMENT: {
@@ -10,35 +8,31 @@ const CRIMP = {
      *  Expected values: ['production', 'development']
      *  TODO: Remember to change when pushing to production
      */
-    NODE_ENV: 'development',
+    NODE_ENV: 'production',
 
     /**
      *  Demo mode will automatically set all new users as admins
      */
-    DEMO_MODE: true,
+    DEMO_MODE: false,
 
     /**
      *  Full name for desktop views
      *  Recommended length: less than sixty characters
      *                 |-----------------this is 50 chars-----------------| */
-    ORGANIZATION_NAME_FULL: 'CRIMP Development',
+    COMPANY_NAME_FULL: 'CRIMP Development',
 
     /**
      *  Shortened name to be displayed on mobile screens
      *  Recommended length: less than 20 characters
      *                  |--this is 20 chars--|    */
-    ORGANIZATION_NAME_SHORT: 'CRIMP-dev',
+    COMPANY_NAME_SHORT: 'CRIMP-dev',
   },
 
   /**
-   *  Groups for user roles for ease of use
+   *  Utility group and checking function for Roles
    */
-  ROLES: {
-    admins: ['admin', 'hukkataival'],
-    judges: ['judge', 'admin', 'hukkataival'],
-    partners: ['partner', 'judge', 'admin', 'hukkataival'],
-    strangers: ['denied', 'pending'],
-  },
+  roles,
+  checkRoles,
 };
 
 
@@ -47,10 +41,8 @@ const CRIMP = {
  *  isServer because client-side would die from process.env
  *  being undefined
  */
-// TODO: REMOVED FOR QUICK WORK ON STAGING SERVER
-// DONGWEI REMOVE BEFORE PRODUCTION!!!!!
-// if (Meteor.isServer && process.env.NODE_ENV) {
-//   CRIMP.ENVIRONMENT.NODE_ENV = process.env.NODE_ENV;
-// }
+if (Meteor.isServer && process.env.NODE_ENV) {
+  CRIMP.ENVIRONMENT.NODE_ENV = process.env.NODE_ENV;
+}
 
 export default CRIMP;

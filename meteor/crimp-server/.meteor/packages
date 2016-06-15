@@ -12,12 +12,10 @@ reactive-var            # Reactive variable for tracker
 jquery                  # Helpful client-side library
 tracker                 # Meteor's client-side reactive programming library
 
-standard-minifier-css   # CSS minifier run for production mode
 standard-minifier-js    # JS minifier run for production mode
 es5-shim                # ECMAScript 5 compatibility for older browsers.
 ecmascript              # Enable ECMAScript2015+ syntax in app code
 
-insecure                # Allow all DB writes from clients (for prototyping)
 aldeed:simple-schema
 nimble:restivus
 aldeed:collection2
@@ -26,7 +24,6 @@ msavin:mongol
 accounts-ui
 accounts-facebook
 accounts-base
-underscore
 alanning:roles
 random
 practicalmeteor:mocha
@@ -34,3 +31,13 @@ practicalmeteor:faker
 dburles:factory
 xolvio:cleaner
 practicalmeteor:chai
+stevezhu:lodash
+kadira:flow-router
+kadira:blaze-layout
+seba:minifiers-autoprefixer
+fourseven:scss
+zurb:foundation-sites
+flyandi:reactive-countdown
+momentjs:moment
+juliancwirko:s-alert
+juliancwirko:s-alert-slide

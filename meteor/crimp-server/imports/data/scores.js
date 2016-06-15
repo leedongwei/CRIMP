@@ -18,7 +18,7 @@ Scores.schema = new SimpleSchema({
     type: String,
     label: 'Category-specific ID given to a climber',
     // unique within a category, but not unique in the entire system
-    // enforced by
+    // enforced by Scores.methods.isMarkerIdUnique before insert
   },
   scores: {
     type: [Object],
@@ -29,6 +29,7 @@ Scores.schema = new SimpleSchema({
   'scores.$.score_string': {
     type: String,
     defaultValue: '',
+    trim: false,
   },
   updated_at: {
     type: Date,

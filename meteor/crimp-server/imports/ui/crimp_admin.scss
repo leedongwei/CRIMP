@@ -1,0 +1,42 @@
+.crimp_admin {
+  @extend .crimp_spectator;
+
+  h1 { font-size: 2rem !important; }
+}
+
+#login-buttons {
+  @extend .button;
+
+  a {
+    color: $white;
+    text-decoration: none;
+  }
+}
+
+.top-bar {
+  #login-buttons {
+    @extend .tiny;
+    margin: 0;
+    padding: 0.5em;
+
+    a {
+      color: $white;
+      text-decoration: none;
+    }
+  }
+}
+
+
+.crimp-admin-denied {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  height: 100px;
+  width: 290px;
+
+  margin-top: -50px;
+  margin-left: -145px;
+  text-align: center;
+  font-family: $font_body;
+}

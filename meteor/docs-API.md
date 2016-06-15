@@ -14,6 +14,7 @@
 * [POST '/api/judge/score/:route_id/:climber_id'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgescoreroute_idmarker_id)
 * [POST '/api/judge/helpme'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgehelpme)
 * [POST '/api/judge/report'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgereport)
+* [GET '/api/judge/active'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#get-apijudgeactive)
 * [PUT '/api/judge/setactive'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#put-apijudgesetactive)
 * [PUT '/api/judge/clearactive'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#put-apijudgeclearactive)
 <br><br><br>
@@ -144,6 +145,9 @@ Body: {
 * `acronym` consist of three alphabet in uppercase and is unique.
 * `route_id` uniquely identify a Route globally (not just within a Category). Cannot be negative.
 * `score_type` inform the client which scoring system this route is supposed to use.
+  * Accepted values: `ifsc-top-Bonus`, `tfbb`, `points`, standardize to be all lowercase characters
+  * See `meteor/crimp-server/imports/score_systems/` folder for more documentation
+]
 <br><br><br>
 
 
@@ -156,8 +160,8 @@ Body: {
 * `event_id` get scores from a specific event
 * `category_id` get scores from a specific category
 * `route_id` get scores from a specfic route
-* `climber_id` get all the scores of a climber
-* `marker_id` get scores of a climber from a specific category
+* `climber_id` get all the scores of a specific climber
+* `marker_id` get scores of climbers with that marker_id
 
 ```json
 header: {
@@ -361,6 +365,49 @@ Body: {
 }
 ```
 * `fb_user_id` and `user_name` refers to the active judge as seen by server.
+<br><br><br>
+
+
+
+## GET '/api/judge/active'
+* Get the ActiveTracker collection
+
+#### Request
+```json
+header: {
+
+}
+body: {
+
+}
+```
+
+#### Response
+```json
+Body: [
+  {
+    "route_name": "TEAM R2",
+    "category_id": "n4FtQ4C5BSvdCJNiF",
+    "category_name": "Generic Cotton Hat",
+    "marker_id": "IWF001",
+    "climber_name": "Carolyn Farrell",
+
+
+    "_id": "zQQX6...",
+    "route_id": "5th9q...",
+    "category_id": "n4FtQ...",
+    "user_id": "5jwv...",
+    "user_name": "Will Alabakabdada Okelolasky",
+    "climber_id": "8RQeY...",
+    "user_expiry": "2016-06-14T11:12:24.247Z",
+    "climber_expiry": "2016-06-14T11:02:24.247Z"
+  },
+  {
+    ...
+  },
+  ...
+]
+```
 <br><br><br>
 
 
