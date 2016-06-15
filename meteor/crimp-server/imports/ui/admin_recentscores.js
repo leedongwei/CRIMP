@@ -19,7 +19,7 @@ Template.admin_recentscores.helpers({
                       const timeA = Date.parse(a.updated_at);
                       const timeB = Date.parse(b.updated_at);
 
-                      return timeA <= timeB ? -1 : 1;
+                      return timeA >= timeB ? -1 : 1;
                     });
 
     const scoreArray = [];

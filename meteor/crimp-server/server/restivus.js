@@ -446,6 +446,19 @@ Api.addRoute('judge/score/:route_id/:marker_id', {
         statusCode: 500,
         body: { error: e },
       };
+
+      // TODO: Return per normal to prevent blocked queue
+      // Check with Weizhi if it is fixed
+      // return {
+      //   statusCode: 200,
+      //   body: {
+      //     climber_id: 'FAIL',
+      //     category_id: 'FAIL',
+      //     route_id: 'FAIL',
+      //     marker_id: 'FAIL',
+      //     score: 'FAIL',
+      //   },
+      // };
     }
   },
 });
