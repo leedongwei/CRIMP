@@ -17,12 +17,12 @@ import TFBb from '../imports/score_systems/top-flash-bonus2-bonus1';
 import CRIMP from '../imports/settings';
 
 
-// window.Events = Events;
-// window.Categories = Categories;
-// window.Teams = Teams;
-// window.Climbers = Climbers;
-// window.Scores = Scores;
-// window.CRIMP = CRIMP;
+window.Events = Events;
+window.Categories = Categories;
+window.Teams = Teams;
+window.Climbers = Climbers;
+window.Scores = Scores;
+window.CRIMP = CRIMP;
 
 
 // Utility templates
