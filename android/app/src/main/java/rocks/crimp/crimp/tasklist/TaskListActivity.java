@@ -1,6 +1,8 @@
 package rocks.crimp.crimp.tasklist;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -14,10 +16,12 @@ import com.squareup.otto.Subscribe;
 
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
+import rocks.crimp.crimp.common.Action;
 import rocks.crimp.crimp.common.event.CurrentUploadTask;
 import rocks.crimp.crimp.service.ScoreHandler;
 
-public class TaskListActivity extends AppCompatActivity implements View.OnClickListener{
+public class TaskListActivity extends AppCompatActivity implements View.OnClickListener,
+        View.OnLongClickListener{
     private TextView mCounter;
     private CardView mCardView;
     private TextView mCategoryRoute;
@@ -25,6 +29,7 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
     private TextView mScoreText;
     private TextView mStatus;
     private FloatingActionButton mResumeButton;
+    private boolean mHasError = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +51,7 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
         mStatus = (TextView) findViewById(R.id.tasklist_status);
         mResumeButton = (FloatingActionButton) findViewById(R.id.tasklist_fab);
 
-        mCardView.setOnClickListener(this);
+        mCardView.setOnLongClickListener(this);
         mResumeButton.setOnClickListener(this);
     }
 
@@ -58,10 +63,15 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
 
     @Subscribe
     public void receivedCurrentUploadTask(CurrentUploadTask event){
+        if(event.status == CurrentUploadTask.DROP_TASK){
+            return;
+        }
+
         if(CrimpApplication.getUploadTaskCount() == 0){
             mCounter.setText(R.string.tasklist_activity_counter_zero);
             mCardView.setVisibility(View.GONE);
             mResumeButton.setVisibility(View.GONE);
+            mHasError = false;
         }
         else{
             String counterText = String.format(getString(R.string.tasklist_activity_counter),
@@ -82,10 +92,12 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
                 case CurrentUploadTask.IDLE:
                     mStatus.setText(R.string.tasklist_activity_status_idle);
                     mResumeButton.setVisibility(View.GONE);
+                    mHasError = false;
                     break;
                 case CurrentUploadTask.UPLOADING:
                     mStatus.setText(R.string.tasklist_activity_status_uploading);
                     mResumeButton.setVisibility(View.GONE);
+                    mHasError = false;
                     break;
                 case CurrentUploadTask.ERROR_HTTP_STATUS:
                     String httpStatusMsg = String.format(
@@ -93,6 +105,7 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
                             event.httpStatusCode, event.httpMessage);
                     mStatus.setText(httpStatusMsg);
                     mResumeButton.setVisibility(View.VISIBLE);
+                    mHasError = true;
                     break;
                 case CurrentUploadTask.ERROR_EXCEPTION:
                     // some assertion
@@ -104,14 +117,19 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
                             event.exception.getLocalizedMessage());
                     mStatus.setText(exceptionMsg);
                     mResumeButton.setVisibility(View.VISIBLE);
+                    mHasError = true;
                     break;
                 case CurrentUploadTask.ERROR_NO_NETWORK:
                     mStatus.setText(R.string.tasklist_activity_status_error_no_network);
                     mResumeButton.setVisibility(View.VISIBLE);
+                    mHasError = true;
+                    break;
+                case CurrentUploadTask.DROP_TASK:
                     break;
                 default:
                     mStatus.setText(null);
                     mResumeButton.setVisibility(View.GONE);
+                    mHasError = false;
             }
             mCardView.setVisibility(View.VISIBLE);
         }
@@ -126,9 +144,6 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         switch(v.getId()){
-            case R.id.tasklist_card:
-                //toast.show();
-                break;
             case R.id.tasklist_fab:
                 CrimpApplication.getScoreHandler()
                         .obtainMessage(ScoreHandler.RESUME_UPLOAD)
@@ -136,5 +151,34 @@ public class TaskListActivity extends AppCompatActivity implements View.OnClickL
                 break;
             default:
         }
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        switch(v.getId()){
+            case R.id.tasklist_card:
+                if(mHasError) {
+                    Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    vibrator.vibrate(100);
+
+                    DeleteTaskDialog.create(this, new Action() {
+                        @Override
+                        public void act() {
+                            CrimpApplication.getScoreHandler()
+                                    .obtainMessage(ScoreHandler.DROP_TASK)
+                                    .sendToTarget();
+                        }
+                    }, new Action() {
+                        @Override
+                        public void act() {
+                            // No-op
+                        }
+                    }).show();
+                }
+                return true;
+
+            default:
+        }
+        return false;
     }
 }
