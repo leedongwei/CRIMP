@@ -348,6 +348,11 @@ Api.addRoute('judge/score', {
             if (scoreDoc.climber_id === targetClimbers[i].climber_id) {
               const allScores = [];
 
+              // TODO: For Richard's live stream. Review later.
+              const c = Categories.findOne(scoreDoc.category_id);
+              const scoreSystem = getScoreSystem(c.score_system);
+              // End
+
               for (let j = scoreDoc.scores.length - 1; j >= 0; j--) {
                 const singleScore = {};
                 singleScore.marker_id = scoreDoc.marker_id;
@@ -357,14 +362,11 @@ Api.addRoute('judge/score', {
 
 
                 // TODO: For Richard's live stream. Review later.
-                const c = Categories.findOne(scoreDoc.category_id);
-                const scoreSystem = getScoreSystem(c.score_system);
-
                 singleScore.displayString = scoreSystem
                                               .calculate(scoreDoc.scores[j]
                                                                  .score_string)
                                               .displayString;
-                // End of for Richard's live stream. Review later.
+                // End
 
                 if (options.route_id) {
                   if (options.route_id === singleScore.route_id) {
@@ -376,6 +378,21 @@ Api.addRoute('judge/score', {
               }
 
               targetClimbers[i].scores = allScores;
+
+              // TODO: For Richard's live stream.
+              const ts = scoreSystem.tabulate(scoreDoc.scores);
+              let displayString;
+              if (c.score_system === scoreSystemsNames[0]) {
+                displayString = `${ts.T}T${ts.T_attempts} `
+                              + `${ts.B}B${ts.B_attempts}`;
+              } else if (c.score_system === scoreSystemsNames[1]) {
+                displayString = `${ts.T}T ${ts.F}F ${ts.B}B ${ts.b}b`;
+              } else {
+                displayString = '';
+              }
+              targetClimbers[i].totalScore = displayString;
+
+
               scoreOutput.push(targetClimbers[i]);
             }
           }
@@ -430,7 +447,7 @@ Api.addRoute('judge/score/:route_id/:marker_id', {
           } },
         })._id;
         const climberId = Climbers.insert({
-          climber_name: 'WARNING: ISSUE WITH CLIMBER/JUDGE',
+          climber_name: 'NEW CLIMBER (?)',
           identity: '',
           affliation: '',
           gender: '-',
