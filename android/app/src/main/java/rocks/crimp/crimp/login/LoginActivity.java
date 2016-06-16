@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.AccessToken;
@@ -292,7 +293,10 @@ public class LoginActivity extends AppCompatActivity {
             if(error == null){
                 // Some assertion
                 if(!Helper.isJudgeOrAbove(mRoles)){
-                    throw new IllegalStateException("Roles is not judge or above");
+                    Toast.makeText(this, "Ask admin to approve then try login again", Toast.LENGTH_LONG).show();
+                    doLogout(mXUserId, mXAuthToken);
+                    showDefaultUI();
+                    return;
                 }
 
                 CrimpApplication.getAppState().edit()
