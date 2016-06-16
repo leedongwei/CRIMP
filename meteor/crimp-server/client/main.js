@@ -10,6 +10,7 @@ import Teams from '../imports/data/teams';
 import Climbers from '../imports/data/climbers';
 import Scores from '../imports/data/scores';
 import HelpMe from '../imports/data/helpme';
+import RecentScores from '../imports/data/recentscores';
 import ActiveTracker from '../imports/data/activetracker';
 
 import IFSC_TB from '../imports/score_systems/ifsc-top-bonus.js';
@@ -28,6 +29,7 @@ makeGlobal('Climbers', Climbers);
 makeGlobal('Scores', Scores);
 makeGlobal('HelpMe', HelpMe);
 makeGlobal('ActiveTracker', ActiveTracker);
+makeGlobal('RecentScores', RecentScores);
 makeGlobal('CRIMP', CRIMP);
 
 

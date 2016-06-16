@@ -13,26 +13,17 @@ Meteor.subscribe('recentscoresToAdmin');
 
 Template.admin_recentscores.helpers({
   recentscores: () => {
-    const scores = RecentScores.find({})
-                    .fetch()
-                    .sort((a, b) => {
-                      const timeA = Date.parse(a.updated_at);
-                      const timeB = Date.parse(b.updated_at);
-
-                      return timeA >= timeB ? -1 : 1;
-                    });
+    const scores = RecentScores.find({}, {
+      sort: { updated_at: -1 },
+      limit: 2,
+    }).fetch();
 
     const scoreArray = [];
     _.forEach(scores, (score) => {
       score.updated_at = moment(score.updated_at)
                           .fromNow();
 
-      if (scoreArray.length < 15) {
-        scoreArray.push(score);
-      } else {
-        // Break for _.forEach
-        return false;
-      }
+      scoreArray.push(score);
     });
 
     return scoreArray;
