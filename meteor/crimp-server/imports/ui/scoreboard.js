@@ -37,7 +37,8 @@ function updateViewCategory(categoryId) {
 }
 function checkIfOngoing(category) {
   const timeNow = Date.now();
-  return category.time_start < timeNow && timeNow < category.time_end;
+  return Date.parse(category.time_start) < timeNow
+      && timeNow < Date.parse(category.time_end);
 }
 function getScoreSystem(scoreSystem) {
   let output;
