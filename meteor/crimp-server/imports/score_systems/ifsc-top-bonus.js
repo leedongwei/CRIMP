@@ -110,11 +110,11 @@ export default class IFSC_TB extends ScoreSystem {
 
     if (a.T !== b.T) return a.T > b.T ? -1 : 1;
 
-    if (a.T_attempts !== b.T_attempts) return a.F < b.F ? -1 : 1;
+    if (a.T_attempts !== b.T_attempts) return a.T_attempts < b.T_attempts ? -1 : 1;
 
     if (a.B !== b.B) return a.B > b.B ? -1 : 1;
 
-    if (a.B_attempts !== b.B_attempts) return a.b < b.b ? -1 : 1;
+    if (a.B_attempts !== b.B_attempts) return a.B_attempts < b.B_attempts ? -1 : 1;
 
     if (climberA.score_tiebreak !== climberB.score_tiebreak) {
       return climberA.score_tiebreak < climberB.score_tiebreak ? -1 : 1;
