@@ -219,6 +219,8 @@ public class LoginActivity extends AppCompatActivity {
         }
         else{
             // some assertion
+            // I am not sure if this line is correct. Disabling it for now since it has been crashing
+            // app.
             Helper.assertStuff(false, false, false, false, false);
 
             showDefaultUI();
