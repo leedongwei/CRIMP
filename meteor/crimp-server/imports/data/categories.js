@@ -78,7 +78,7 @@ Categories.schema = new SimpleSchema({
   },
   time_end: {
     type: Date,
-    label: 'Starting time of category',
+    label: 'Ending time of category',
   },
   score_system: {
     type: String,
@@ -161,12 +161,12 @@ Categories.methods.update = new ValidatedMethod({
   validate: new SimpleSchema({
     selector: { type: String },
     modifier: { type: String },
-    categoryDoc: { type: Object },
+    // categoryDoc: { type: Object },
     'categoryDoc.category_name': { type: String, optional: true },
     'categoryDoc.acronym': { type: String, optional: true },
     'categoryDoc.is_team_category': { type: Boolean, optional: true },
     'categoryDoc.is_score_finalized': { type: Boolean, optional: true },
-    'categoryDoc.time_Start': { type: Date, optional: true },
+    'categoryDoc.time_start': { type: Date, optional: true },
     'categoryDoc.time_end': { type: Date, optional: true },
     'categoryDoc.score_system': { type: String, optional: true },
     'categoryDoc.routes': { type: Object, optional: true },

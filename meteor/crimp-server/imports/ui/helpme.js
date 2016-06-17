@@ -30,7 +30,7 @@ Template.helpme.helpers({
                       + 'needs help at '
                       + `<span class="route">${help.route_name}</span><br>`
                       + `Reported at <span class="time">${time}</span>`;
-        const alertId = sAlert.warning(display);
+        const alertId = sAlert.warning(display, { timeout: 0 });
 
         CRIMP.helpme[alertId] = help._id;
       }

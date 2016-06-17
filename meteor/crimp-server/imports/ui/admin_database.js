@@ -8,6 +8,7 @@ import Categories from '../data/categories';
 import Climbers from '../data/climbers';
 import Scores from '../data/scores';
 
+import './admin_db_forms.js';
 import './admin_database.html';
 
 
@@ -37,16 +38,8 @@ Template.admin_db_categories.helpers({
 Template.admin_db_categories.events({
   'click a.admin-db-categories-edit'(event) {
     const dataAttr = event.currentTarget.dataset;
-    Session.set('admin_db_categories_form', dataAttr.categoryid);
     Session.set('admin_db_right', 'admin_db_categories_form');
-  },
-});
-
-Template.admin_db_categories_form.helpers({
-  formCollection: () => Categories,
-  category: () => {
-    const categoryId = Session.get('admin_db_categories_form');
-    return Categories.findOne(categoryId);
+    Session.set('admin_db_categories_form', dataAttr.categoryid);
   },
 });
 
@@ -62,6 +55,13 @@ Template.admin_db_climbers.helpers({
                                   ? -1
                                   : 1)),
   climbers: () => {
+    if (!Session.get('admin_db_climbers_category')) {
+      return Climbers.find({})
+                     .fetch()
+                     .sort((a, b) => (a.climber_name <= b.climber_name
+                                      ? -1
+                                      : 1));
+    }
     const scores = Scores.find({
       category_id: Session.get('admin_db_climbers_category'),
     }).fetch();
@@ -84,16 +84,11 @@ Template.admin_db_climbers.events({
     const categoryId = event.target.value;
     Session.set('admin_db_climbers_category', categoryId);
   },
-  // 'click .admin-climbers-edit': function(event, template) {
-  //   var climber = event.target.getAttribute('data-climberId');
-  //   Session.set('templateRightColumn', 'admin_db_climbers_form');
-  //   Session.set('adminClimberForm', climber);
-  // },
-  // 'click .admin-scores-edit': function(event, template) {
-  //   var score = event.target.getAttribute('data-scoreId');
-  //   Session.set('templateRightColumn', 'admin_db_scores_form');
-  //   Session.set('adminScoreForm', score);
-  // },
+  'click a.admin-db-climbers-edit'(event) {
+    const dataAttr = event.currentTarget.dataset;
+    Session.set('admin_db_right', 'admin_db_climbers_form');
+    Session.set('admin_db_climbers_form', dataAttr.climberid);
+  },
 });
 
 

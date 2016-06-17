@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="columns small-12 medium-4">
-        <div class="admin-dashboard-container">
+        <div class="admin-dashboard-container admin-db-forms">
           {{> UI.dynamic template=admin_db_right}}
         </div>
       </div>
@@ -78,7 +78,7 @@
             <td>{{category.acronym}}</td>
             <td>{{category.category_name}}</td>
             <td>
-              {{#if category.is_scores_finalized}}
+              {{#if category.is_score_finalized}}
                 Yes
               {{else}}
                 No
@@ -98,26 +98,14 @@
 </template>
 
 
-<template name="admin_db_categories_form">
-  <section class="admin-db-categories-form">
-    <h2>Category</h2>
-    {{> quickForm
-        collection=formCollection
-        doc=category
-        id="categoryUpdate"
-        type="update"
-        fields="category_name,acronym,is_score_finalized,time_start,time_end,routes,routes.$.route_name"}}
-  </section>
-</template>
-
-
 
 <template name="admin_db_climbers">
   <section>
     <h2>Edit Climbers</h2>
 
     <b>Category</b>
-    <select class="admin-db-climbers-categories">
+    <select class="admin-db-climbers-categories" label=" ">
+      <option disabled selected value>Select Category</option>
       {{#each category in categories}}
         <option value="{{category._id}}">
           {{category.category_name}}
@@ -131,7 +119,6 @@
           <td>ID</td>
           <td>Name</td>
           <td> </td>
-          <td> </td>
         </tr>
       </thead>
       <tbody>
@@ -140,10 +127,7 @@
             <td>{{climber.marker_id}}</td>
             <td>{{climber.climber_name}}</td>
             <td>
-
-            </td>
-            <td>
-              <a class="label admin-db-categories-edit"
+              <a class="label admin-db-climbers-edit"
                  data-climberId="{{climber._id}}">
                 Select
               </a>
@@ -155,15 +139,6 @@
 
   </section>
 </template>
-
-
-<template name="admin_db_climbers_form">
-  <section>
-    <h2>Editing [name]</h2>
-
-  </section>
-</template>
-
 
 
 <template name="admin_db_users">
@@ -202,12 +177,5 @@
         {{/each}}
       </tbody>
     </table>
-  </section>
-</template>
-
-<template name="admin_db_users_form">
-  <section>
-    <h2>Editing [name]</h2>
-
   </section>
 </template>

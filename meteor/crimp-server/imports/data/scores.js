@@ -54,12 +54,11 @@ Scores.methods.update = new ValidatedMethod({
   validate: new SimpleSchema({
     selector: { type: String },
     modifier: { type: String },
-    scoreDoc: { type: Object },
-    'scoreDoc.category_name': { type: Object },
-    'scoreDoc.score_string': { type: String },
+    'scoreDoc.marker_id': { type: String },
+    'scoreDoc.scores': { type: Object },
   }).validator(),
-  run({ selector, modifier, categoryDoc }) {
-    return Scores.update(selector, { [`${modifier}`]: categoryDoc });
+  run({ selector, modifier, scoreDoc }) {
+    return Scores.update(selector, { [`${modifier}`]: scoreDoc });
   },
 });
 

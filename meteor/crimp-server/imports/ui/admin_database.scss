@@ -27,20 +27,3 @@ table.admin-db-table {
   }
 }
 
-.admin-db-categories-form {
-  form { position: relative; }
-  form ul {
-    list-style-type: none;
-  }
-
-  button.autoform-remove-item ,
-  button.autoform-add-item{
-    display: none;
-  }
-
-  button {
-    @extend .button;
-    @extend .alert;
-    width: 100%;
-  }
-}
