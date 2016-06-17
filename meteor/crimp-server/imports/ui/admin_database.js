@@ -24,6 +24,7 @@ Template.admin_db_menu.events({
   'click a.admin-db-menu'(event) {
     const dataAttr = event.currentTarget.dataset;
     Session.set('admin_db_middle', dataAttr.template);
+    Session.set('admin_db_right', 'admin_database_blank');
   },
 });
 

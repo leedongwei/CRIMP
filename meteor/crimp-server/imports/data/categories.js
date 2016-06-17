@@ -92,6 +92,16 @@ Categories.schema = new SimpleSchema({
   routes: {
     type: [Object],
   },
+  'routes.$': {
+    type: Object,
+    autoform: {
+      afFieldInput: {
+        options: () => {
+
+        },
+      },
+    },
+  },
   'routes.$._id': {
     type: String,
     unique: true,
@@ -101,8 +111,12 @@ Categories.schema = new SimpleSchema({
   },
   'routes.$.score_rules': {
     type: Object,
-    label: 'Score rules specific to a route',
-    blackbox: true,
+    label: 'Score rules specific to the route',
+  },
+  'routes.$.score_rules.points': {
+    type: Number,
+    label: 'Points for Route (For ScoreSystems with Points)',
+    optional: true,
   },
 
   /**
@@ -161,7 +175,7 @@ Categories.methods.update = new ValidatedMethod({
   validate: new SimpleSchema({
     selector: { type: String },
     modifier: { type: String },
-    // categoryDoc: { type: Object },
+    categoryDoc: { type: Object },
     'categoryDoc.category_name': { type: String, optional: true },
     'categoryDoc.acronym': { type: String, optional: true },
     'categoryDoc.is_team_category': { type: Boolean, optional: true },
@@ -176,11 +190,11 @@ Categories.methods.update = new ValidatedMethod({
                                           optional: true,
                                           blackbox: true },
   }).validator(),
-  run({ selector, modifier, categoryDoc }) {
+  run({ selector, categoryDoc }) {
     /**
      *  Updating of parent Event is not allowed
      */
-    return Categories.update(selector, { [`${modifier}`]: categoryDoc });
+    return Categories.update(selector, categoryDoc);
   },
 });
 

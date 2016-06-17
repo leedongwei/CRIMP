@@ -21,10 +21,14 @@ Scores.schema = new SimpleSchema({
     // enforced by Scores.methods.isMarkerIdUnique before insert
   },
   scores: {
-    type: [Object],
+    type: Array,
+  },
+  'scores.$': {
+    type: Object,
   },
   'scores.$.route_id': {
     type: String,
+    label: 'DO NOT EDIT: Reference to Route in a Category.',
   },
   'scores.$.score_string': {
     type: String,

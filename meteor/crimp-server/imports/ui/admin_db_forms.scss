@@ -4,9 +4,27 @@
     list-style-type: none;
   }
 
-  button.autoform-remove-item ,
-  button.autoform-add-item{
-    display: none;
+  button.autoform-remove-item,
+  button.autoform-add-item {
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .autoform-remove-item-wrap { margin-right: 5px; }
+  button.autoform-remove-item {
+    background-color: $ui_warning
+
+    &::before {
+      content: 'X';
+    }
+  }
+
+  button.autoform-add-item {
+    background-color: $ui_warning;
+
+    &::before {
+      content: 'Add';
+    }
   }
 
   button {

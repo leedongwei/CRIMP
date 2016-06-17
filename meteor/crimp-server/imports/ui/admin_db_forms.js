@@ -21,7 +21,7 @@ Template.admin_db_categories_form.helpers({
 });
 
 Template.admin_db_categories_form.events({
-  'click button'(event) {
+  'click button'() {
     const formValues = AutoForm.getFormValues('updateCategory');
     let categoryDoc = formValues.updateDoc.$set;
 
@@ -31,6 +31,7 @@ Template.admin_db_categories_form.events({
       'is_score_finalized',
       'time_start',
       'time_end',
+      'score_system',
     ]);
 
     Categories.methods.update.call({
@@ -47,6 +48,7 @@ Template.admin_db_climbers_form.helpers({
   formClimber: () => Climbers,
   formScore: () => Scores,
   targetClimber: () => Climbers.findOne(Session.get('admin_db_climbers_form')),
+  targetCategory: () => Categories.findOne(Session.get('admin_db_climbers_category')),
   targetScore: () => {
     if (Session.get('admin_db_climbers_category')) {
       return Scores.findOne({
@@ -57,6 +59,12 @@ Template.admin_db_climbers_form.helpers({
 
     return null;
   },
+  targetRouteName: () => Session.get('admin_db_routename'),
+  targetRouteArraySelector: () => {
+    return 'scores.'
+        + Session.get('admin_db_routeindex')
+        + '.score_string';
+  },
   categories: () => Categories.find({})
                               .fetch()
                               .sort((a, b) => (a.acronym >= b.acronym
@@ -65,39 +73,61 @@ Template.admin_db_climbers_form.helpers({
 });
 
 Template.admin_db_climbers_form.events({
-  // 'click .admin-db-climbers-form button'(event) {
-  //   const formValues = AutoForm.getFormValues('updateClimber');
-  //   let climberDoc = formValues.updateDoc.$set;
+  'click .admin-db-climbers-form button'() {
+    const formValues = AutoForm.getFormValues('updateClimber');
+    let climberDoc = formValues.updateDoc.$set;
 
-  //   categoryDoc = _.pick(climberDoc, [
-  //     'climber_name',
-  //     'identity',
-  //     'gender',
-  //     'affliation',
-  //   ]);
-
-  //   Climbers.methods.update.call({
-  //     selector: Session.get('admin_db_climbers_form'),
-  //     modifier: '$set',
-  //     climberDoc,
-  //   });
-  // },
-
-  'click .admin-db-scores-form button'(event) {
-    const formValues = AutoForm.getFormValues('updateScore');
-    let scoreDoc = formValues.updateDoc.$set;
-
-    scoreDoc = _.pick(scoreDoc, [
-      'marker_id',
-      'scores',
-      'scores.$.route_id',
-      'scores.$.score_string',
+    climberDoc = _.pick(climberDoc, [
+      'climber_name',
+      'identity',
+      'gender',
+      'affliation',
     ]);
 
-    // TODO: Use Validated Method
-    Scores.update(Session.get('admin_db_climbers_form'), {
-                    $set: scoreDoc,
-                  });
+    let hasAdded = false;
+    try {
+      hasAdded = Climbers.methods.update.call({
+        selector: Session.get('admin_db_climbers_form'),
+        modifier: '$set',
+        climberDoc,
+      });
+    } catch (e) {
+      const display = `Error: ${e.message}`;
+      sAlert.error(display, { timeout: 4500 });
+    }
+
+    if (hasAdded) {
+      const display = `Edited <b>${climberDoc.climber_name}</b>!`;
+      sAlert.success(display, { timeout: 4500 });
+    }
+  },
+
+  'click a.admin-db-scoreRoutes-select'(event) {
+    const dataAttr = event.currentTarget.dataset;
+    Session.set('admin_db_routename', dataAttr.routename);
+    Session.set('admin_db_routeindex', dataAttr.routeindex);
+  },
+
+  'click .admin-db-scores-form button'() {
+    const formValues = AutoForm.getFormValues('updateScore');
+    const oldScoreDoc = AutoForm.getCurrentDataForForm('updateScore').doc;
+    const scoreDoc = formValues.updateDoc.$set;
+
+    let hasAdded = false;
+    try {
+      hasAdded = Scores.update(oldScoreDoc._id, {
+        $set: scoreDoc,
+      });
+    } catch (e) {
+      const display = `Error: ${e.message}`;
+      sAlert.error(display, { timeout: 4500 });
+    }
+
+    if (hasAdded) {
+      const display = `Edited score of <b>${oldScoreDoc.marker_id}</b><br>`
+                    + `Route: ${Session.get('admin_db_routename')}</b>`;
+      sAlert.success(display, { timeout: 4500 });
+    }
   },
 
   'click .admin-db-climberToCategory-form button'(event) {
@@ -115,14 +145,14 @@ Template.admin_db_climbers_form.events({
       });
     } catch (e) {
       const display = `Error: ${e.message}`;
-      sAlert.error(display, { timeout: 4500 });
+      sAlert.error(display, { timeout: 5000 });
     }
 
     if (hasAdded) {
       const scoreDoc = Scores.findOne(hasAdded);
       const display = `Added to <br><b>${categoryText}<b><br>`
-                    + `as <b>${scoreDoc.marker_id}</b>`;
-      sAlert.success(display, { timeout: 4500 });
+                    + `ID: <b>${scoreDoc.marker_id}</b>`;
+      sAlert.success(display, { timeout: 5000 });
     }
   },
 });
