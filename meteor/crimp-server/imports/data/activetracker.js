@@ -7,8 +7,8 @@ import CRIMP from '../settings';
 // import Categories from './categories';
 // import Climbers from './climbers';
 
-const EXPIRY_INTERVAL_JUDGE = 10 * 60 * 1000;
-const EXPIRY_INTERVAL_CLIMBER = 5 * 60 * 1000;
+const EXPIRY_INTERVAL_JUDGE = 15 * 60 * 1000;
+const EXPIRY_INTERVAL_CLIMBER = 8 * 60 * 1000;
 
 const ActiveTracker = new Mongo.Collection('ActiveTracker');
 ActiveTracker.schema = new SimpleSchema({
