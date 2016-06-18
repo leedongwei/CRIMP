@@ -122,18 +122,27 @@
         </tr>
       </thead>
       <tbody>
-        {{#each climber in climbers}}
-          <tr>
-            <td>{{climber.marker_id}}</td>
-            <td>{{climber.climber_name}}</td>
-            <td>
-              <a class="label admin-db-climbers-edit"
-                 data-climberId="{{climber._id}}">
-                Select
-              </a>
-            </td>
-          </tr>
-        {{/each}}
+
+        {{#if climbers}}
+
+          {{#each climber in climbers}}
+            <tr>
+              <td>{{climber.marker_id}}</td>
+              <td>{{climber.climber_name}}</td>
+              <td>
+                <a class="label admin-db-climbers-edit"
+                   data-climberId="{{climber._id}}">
+                  Select
+                </a>
+              </td>
+            </tr>
+          {{/each}}
+
+        {{else}}
+          <div class="scoreboard-climbers">
+            {{> loader}}
+          </div>
+        {{/if}}
       </tbody>
     </table>
 
