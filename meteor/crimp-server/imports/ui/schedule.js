@@ -26,9 +26,10 @@ Template.schedule.helpers({
 
     _.forEach(categories, (c) => {
       const timeStart = Date.parse(c.time_start);
+      const timeEnd = Date.parse(c.time_end);
       const timeNow = Date.now();
       c.start_in_hour = (timeNow - 60 * 60 * 1000 <= timeStart)
-                        && (timeStart <= timeNow) ? 'highlight' : '';
+                        && (timeNow <= timeEnd) ? 'highlight' : '';
 
       c.time_start = moment(c.time_start).format('D MMM YY, H.mma');
       c.time_end = moment(c.time_end).format('D MMM YY, H.mma');

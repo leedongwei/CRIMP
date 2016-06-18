@@ -26,8 +26,7 @@ Template.crimp_admin.helpers({
 
   currentAdminPage: () => (Session.get('currentAdminPage')
                       ? Session.get('currentAdminPage')
-                      : 'admin_database'),
-                      // : 'admin_dashboard'),
+                      : 'admin_dashboard'),
 });
 
 Template.crimp_admin.events({
