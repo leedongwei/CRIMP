@@ -190,11 +190,8 @@ Categories.methods.update = new ValidatedMethod({
                                           optional: true,
                                           blackbox: true },
   }).validator(),
-  run({ selector, categoryDoc }) {
-    /**
-     *  Updating of parent Event is not allowed
-     */
-    return Categories.update(selector, categoryDoc);
+  run({ selector, modifier, categoryDoc }) {
+    return Categories.update(selector, { [`${modifier}`]: categoryDoc });
   },
 });
 

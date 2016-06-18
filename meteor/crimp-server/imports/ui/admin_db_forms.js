@@ -34,11 +34,24 @@ Template.admin_db_categories_form.events({
       'score_system',
     ]);
 
-    Categories.methods.update.call({
-      selector: Session.get('admin_db_categories_form'),
-      modifier: '$set',
-      categoryDoc,
-    });
+
+    let hasAdded = false;
+    try {
+      hasAdded = Categories.methods.update.call({
+        selector: Session.get('admin_db_categories_form'),
+        modifier: '$set',
+        categoryDoc,
+      });
+
+      if (hasAdded) {
+        const display = `Edited <b>${categoryDoc.category_name}</b>!`;
+        sAlert.success(display, { timeout: 4500 });
+      }
+    } catch (e) {
+      const display = `Error: ${e.message}`;
+      sAlert.error(display, { timeout: 4500 });
+    }
+
   },
 });
 
