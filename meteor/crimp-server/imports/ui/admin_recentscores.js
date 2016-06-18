@@ -15,7 +15,7 @@ Template.admin_recentscores.helpers({
   recentscores: () => {
     const scores = RecentScores.find({}, {
       sort: { updated_at: -1 },
-      limit: 2,
+      limit: 15,
     }).fetch();
 
     const scoreArray = [];
