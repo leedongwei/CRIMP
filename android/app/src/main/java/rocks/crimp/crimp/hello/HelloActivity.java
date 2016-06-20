@@ -197,17 +197,20 @@ public class HelloActivity extends AppCompatActivity implements
          * because we might be calling onStop due to logout and hence might not have the required
          * info.
          */
-        if(CrimpApplication.getAppState().contains(CrimpApplication.X_USER_ID)){
-            String xUserId = CrimpApplication.getAppState()
-                    .getString(CrimpApplication.X_USER_ID, null);
-            String xAuthToken = CrimpApplication.getAppState()
-                    .getString(CrimpApplication.X_AUTH_TOKEN, null);
+        String xUserId = CrimpApplication.getAppState()
+                .getString(CrimpApplication.X_USER_ID, null);
+        String xAuthToken = CrimpApplication.getAppState()
+                .getString(CrimpApplication.X_AUTH_TOKEN, null);
 
+        int categoryPosition = CrimpApplication.getAppState()
+                .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
+        int routePosition = CrimpApplication.getAppState()
+                .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
+
+        if(xUserId != null && categoryPosition!=0 && routePosition!=0 && getCategoriesJs()!=null
+                && getCategoriesJs().getCategories()!=null
+                && getCategoriesJs().getCategories().size()!=0){
             // find route id
-            int categoryPosition = CrimpApplication.getAppState()
-                    .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
-            int routePosition = CrimpApplication.getAppState()
-                    .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
             CategoryJs chosenCategory = getCategoriesJs().getCategories().get(categoryPosition - 1);
             String routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
 
