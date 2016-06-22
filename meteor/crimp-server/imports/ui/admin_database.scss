@@ -1,0 +1,28 @@
+.admin_database {
+  font-family: $font_body_thin;
+
+  h2 {
+    font-family: $font_head_main;
+  }
+}
+
+.admin-db-menu {
+  ul li {
+    list-style-type: none;
+  }
+}
+
+a.admin-db-menu {
+  font-family: $font_body;
+
+}
+
+.admin-dashboard-container {
+  a.label:hover,
+  a.label:active {
+    color: $grey_steel;
+    background-color: $light_marvel;
+    cursor: pointer;
+  }
+}
+

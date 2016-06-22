@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import { Roles } from 'meteor/alanning:roles';
 
 import CRIMP from '../settings';
 import Teams from './teams';
@@ -53,7 +54,7 @@ Categories.schema = new SimpleSchema({
   },
   acronym: {
     type: String,
-    label: '3 char acronym of category',
+    label: '3 character acronym of category',
     min: 3,
     max: 3,
   },
@@ -62,7 +63,7 @@ Categories.schema = new SimpleSchema({
   },
   is_score_finalized: {
     type: Boolean,
-    label: 'Confirm scores for category',
+    label: 'Scores are confirmed',
   },
   climber_count: {
     type: Number,
@@ -77,7 +78,7 @@ Categories.schema = new SimpleSchema({
   },
   time_end: {
     type: Date,
-    label: 'Starting time of category',
+    label: 'Ending time of category',
   },
   score_system: {
     type: String,
@@ -90,7 +91,16 @@ Categories.schema = new SimpleSchema({
    */
   routes: {
     type: [Object],
-    label: 'List of all the routes in category',
+  },
+  'routes.$': {
+    type: Object,
+    autoform: {
+      afFieldInput: {
+        options: () => {
+
+        },
+      },
+    },
   },
   'routes.$._id': {
     type: String,
@@ -101,8 +111,12 @@ Categories.schema = new SimpleSchema({
   },
   'routes.$.score_rules': {
     type: Object,
-    label: 'Score rules specific to a route',
-    blackbox: true,
+    label: 'Score rules specific to the route',
+  },
+  'routes.$.score_rules.points': {
+    type: Number,
+    label: 'Points for Route (For ScoreSystems with Points)',
+    optional: true,
   },
 
   /**
@@ -127,13 +141,13 @@ Categories.schema = new SimpleSchema({
 });
 Categories.attachSchema(Categories.schema);
 
-if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
-  Categories.deny({
-    insert() { return true; },
-    update() { return true; },
-    remove() { return true; },
-  });
-}
+// if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
+//   Categories.deny({
+//     insert() { return true; },
+//     update() { return true; },
+//     remove() { return true; },
+//   });
+// }
 
 
 Categories.methods = {};
@@ -166,7 +180,7 @@ Categories.methods.update = new ValidatedMethod({
     'categoryDoc.acronym': { type: String, optional: true },
     'categoryDoc.is_team_category': { type: Boolean, optional: true },
     'categoryDoc.is_score_finalized': { type: Boolean, optional: true },
-    'categoryDoc.time_Start': { type: Date, optional: true },
+    'categoryDoc.time_start': { type: Date, optional: true },
     'categoryDoc.time_end': { type: Date, optional: true },
     'categoryDoc.score_system': { type: String, optional: true },
     'categoryDoc.routes': { type: Object, optional: true },
@@ -177,9 +191,6 @@ Categories.methods.update = new ValidatedMethod({
                                           blackbox: true },
   }).validator(),
   run({ selector, modifier, categoryDoc }) {
-    /**
-     *  Updating of parent Event is not allowed
-     */
     return Categories.update(selector, { [`${modifier}`]: categoryDoc });
   },
 });
@@ -215,8 +226,9 @@ Categories.methods.addClimber = new ValidatedMethod({
   validate: new SimpleSchema({
     climberId: { type: String },
     categoryId: { type: String },
+    markerId: { type: String, optional: true },
   }).validator(),
-  run({ categoryId, climberId }) {
+  run({ categoryId, climberId, markerId = '' }) {
     const targetClimber = Climbers.findOne(climberId);
     const targetCategory = Categories.findOne(categoryId);
     const climberCategoryDoc = {
@@ -234,6 +246,7 @@ Categories.methods.addClimber = new ValidatedMethod({
     let count = String(targetCategory.climber_count + 1);
     while (count.length < 3) count = `0${count}`;
     scoreDoc.marker_id += count;
+    scoreDoc.marker_id = markerId || scoreDoc.marker_id;
 
     // Ensure marker_id is unique for Category
     // Ensure no Score doc for Climber in Category

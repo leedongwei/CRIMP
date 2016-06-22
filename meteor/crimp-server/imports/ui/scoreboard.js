@@ -37,7 +37,8 @@ function updateViewCategory(categoryId) {
 }
 function checkIfOngoing(category) {
   const timeNow = Date.now();
-  return category.time_start < timeNow && timeNow < category.time_end;
+  return Date.parse(category.time_start) < timeNow
+      && timeNow < Date.parse(category.time_end);
 }
 function getScoreSystem(scoreSystem) {
   let output;
@@ -66,9 +67,7 @@ Template.scoreboard_header.helpers({
   categories: () => {
     const categories = Categories.find({})
                         .fetch()
-                        .sort((a, b) => {
-                          return a.category_name <= b.category_name ? -1 : 1;
-                        });
+                        .sort((a, b) => (a.acronym >= b.acronym ? -1 : 1));
 
     _.forEach(categories, (c) => {
       c.isOngoing = checkIfOngoing(c);

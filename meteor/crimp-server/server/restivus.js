@@ -13,6 +13,31 @@ import HelpMe from '../imports/data/helpme';
 import ActiveTracker from '../imports/data/activetracker';
 import RecentScores from '../imports/data/recentscores';
 
+
+// TODO: For Richard's live stream
+import { scoreSystemsNames } from '../imports/score_systems/score-system.js';
+import IFSC_TB from '../imports/score_systems/ifsc-top-bonus';
+import TFBb from '../imports/score_systems/top-flash-bonus2-bonus1';
+function getScoreSystem(scoreSystem) {
+  let output;
+  switch (scoreSystem) {
+    case scoreSystemsNames[0]:
+      output = new IFSC_TB();
+      break;
+    case scoreSystemsNames[1]:
+      output = new TFBb();
+      break;
+    case scoreSystemsNames[2]:   // TODO: Set for points
+      output = new TFBb();
+      break;
+    default:
+      output = new IFSC_TB();
+  }
+
+  return output;
+}
+
+
 /**
  *  `roleRequired` is commented off at all endpoints because Restivus does
  *  not work with groups in alanning:roles right now. A custom checkRoles
@@ -323,6 +348,11 @@ Api.addRoute('judge/score', {
             if (scoreDoc.climber_id === targetClimbers[i].climber_id) {
               const allScores = [];
 
+              // TODO: For Richard's live stream. Review later.
+              const c = Categories.findOne(scoreDoc.category_id);
+              const scoreSystem = getScoreSystem(c.score_system);
+              // End
+
               for (let j = scoreDoc.scores.length - 1; j >= 0; j--) {
                 const singleScore = {};
                 singleScore.marker_id = scoreDoc.marker_id;
@@ -330,6 +360,13 @@ Api.addRoute('judge/score', {
                 singleScore.route_id = scoreDoc.scores[j].route_id;
                 singleScore.score = scoreDoc.scores[j].score_string;
 
+
+                // TODO: For Richard's live stream. Review later.
+                singleScore.displayString = scoreSystem
+                                              .calculate(scoreDoc.scores[j]
+                                                                 .score_string)
+                                              .displayString;
+                // End
 
                 if (options.route_id) {
                   if (options.route_id === singleScore.route_id) {
@@ -341,6 +378,21 @@ Api.addRoute('judge/score', {
               }
 
               targetClimbers[i].scores = allScores;
+
+              // TODO: For Richard's live stream.
+              const ts = scoreSystem.tabulate(scoreDoc.scores);
+              let displayString;
+              if (c.score_system === scoreSystemsNames[0]) {
+                displayString = `${ts.T}T${ts.T_attempts} `
+                              + `${ts.B}B${ts.B_attempts}`;
+              } else if (c.score_system === scoreSystemsNames[1]) {
+                displayString = `${ts.T}T ${ts.F}F ${ts.B}B ${ts.b}b`;
+              } else {
+                displayString = '';
+              }
+              targetClimbers[i].totalScore = displayString;
+
+
               scoreOutput.push(targetClimbers[i]);
             }
           }
@@ -382,8 +434,38 @@ Api.addRoute('judge/score/:route_id/:marker_id', {
         } },
       });
 
+      // If 0 targetScore is found, it is an invalid request.
+      // We assume that route_id is always correct, because it is handle
+      // by the app. Hence, the issue is a wrong marker_id caused human
+      // error when it was key into the app.
+      // We'll try to capture this error score, by attaching it to a dummy
+      // Climber and creating the Scores, so that it can be reviewed later
       if (targetScore.count() === 0) {
-        // TODO: Do nothing for invalid
+        const categoryId = Categories.findOne({
+          routes: { $elemMatch: {
+            _id: options.route_id,
+          } },
+        })._id;
+        const climberId = Climbers.insert({
+          climber_name: 'NEW CLIMBER (?)',
+          identity: '',
+          affliation: '',
+          gender: '-',
+          categories: [],
+        });
+
+        Categories.methods.addClimber.call({
+          climberId,
+          categoryId,
+          markerId: options.marker_id,
+        });
+
+        targetScore = Scores.find({
+          marker_id: options.marker_id,
+          scores: { $elemMatch: {
+            route_id: options.route_id,
+          } },
+        });
       }
 
       if (targetScore.count() > 1) {
@@ -419,7 +501,6 @@ Api.addRoute('judge/score/:route_id/:marker_id', {
       });
       const targetRoute = _.find(targetCategory.routes,
                                  (route) => (route._id === options.route_id));
-      console.log(targetRoute)
 
       RecentScores.insert({
         route_id: options.route_id,

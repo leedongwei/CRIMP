@@ -37,6 +37,6 @@ Meteor.methods({
     const newRole = data.newRole;
 
     checkRoles(roles.admins);
-    Roles.setUserRoles(targetUserId, [newRole]);
+    Roles.setUserRoles(targetUserId, [newRole], Roles.GLOBAL_GROUP);
   },
 });

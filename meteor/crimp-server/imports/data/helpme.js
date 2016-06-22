@@ -32,13 +32,13 @@ HelpMe.schema = new SimpleSchema({
 });
 HelpMe.attachSchema(HelpMe.schema);
 
-if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
-  HelpMe.deny({
-    insert() { return true; },
-    update() { return true; },
-    remove() { return true; },
-  });
-}
+// if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
+//   HelpMe.deny({
+//     insert() { return true; },
+//     update() { return true; },
+//     remove() { return true; },
+//   });
+// }
 
 
 HelpMe.methods = {};

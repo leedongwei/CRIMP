@@ -10,8 +10,9 @@ import HelpMe from '../data/helpme.js';
 import CRIMP from '../settings';
 
 import './conn_status.js';
-import './admin_dashboard.js';
 import './helpme.js';
+import './admin_dashboard.js';
+import './admin_database.js';
 import './crimp_admin.html';
 
 Template.crimp_admin.helpers({
@@ -26,6 +27,13 @@ Template.crimp_admin.helpers({
   currentAdminPage: () => (Session.get('currentAdminPage')
                       ? Session.get('currentAdminPage')
                       : 'admin_dashboard'),
+});
+
+Template.crimp_admin.events({
+  'click .currentAdminPage'(event) {
+    const dataAttr = event.currentTarget.dataset;
+    Session.set('currentAdminPage', dataAttr.pagename);
+  },
 });
 
 Meteor.startup(() => {

@@ -38,12 +38,12 @@ RecentScores.schema = new SimpleSchema({
 });
 RecentScores.attachSchema(RecentScores.schema);
 
-if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
-  RecentScores.deny({
-    insert() { return true; },
-    update() { return true; },
-    remove() { return true; },
-  });
-}
+// if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
+//   RecentScores.deny({
+//     insert() { return true; },
+//     update() { return true; },
+//     remove() { return true; },
+//   });
+// }
 
 export default RecentScores;

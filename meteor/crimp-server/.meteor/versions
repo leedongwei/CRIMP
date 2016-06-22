@@ -5,6 +5,7 @@ accounts-password@1.1.8
 accounts-ui@1.1.9
 accounts-ui-unstyled@1.1.12
 alanning:roles@1.2.15
+aldeed:autoform@5.8.1
 aldeed:collection2@2.9.1
 aldeed:collection2-core@1.1.1
 aldeed:schema-deny@1.0.1
@@ -64,6 +65,8 @@ mdg:validated-method@1.1.0
 mdg:validation-error@0.2.0
 meteor@1.1.14
 meteor-base@1.0.4
+meteorhacks:kadira@2.28.7
+meteorhacks:meteorx@1.4.1
 meteortoys:toykit@2.2.1
 minifier-css@1.1.11
 minifier-js@1.1.11
@@ -75,6 +78,7 @@ modules-runtime@0.6.3
 momentjs:moment@2.13.1
 mongo@1.1.7
 mongo-id@1.0.4
+mongo-livedata@1.0.12
 msavin:mongol@1.6.2
 nimble:restivus@0.8.10
 npm-bcrypt@0.8.5
@@ -82,6 +86,7 @@ npm-mongo@1.4.43
 oauth@1.1.10
 oauth2@1.1.9
 observe-sequence@1.0.11
+ongoworks:security@2.0.1
 ordered-dict@1.0.7
 practicalmeteor:chai@2.1.0_1
 practicalmeteor:faker@3.0.1_1

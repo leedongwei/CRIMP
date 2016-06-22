@@ -21,10 +21,14 @@ Scores.schema = new SimpleSchema({
     // enforced by Scores.methods.isMarkerIdUnique before insert
   },
   scores: {
-    type: [Object],
+    type: Array,
+  },
+  'scores.$': {
+    type: Object,
   },
   'scores.$.route_id': {
     type: String,
+    label: 'DO NOT EDIT: Reference to Route in a Category.',
   },
   'scores.$.score_string': {
     type: String,
@@ -39,13 +43,13 @@ Scores.schema = new SimpleSchema({
 });
 Scores.attachSchema(Scores.schema);
 
-if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
-  Scores.deny({
-    insert() { return true; },
-    update() { return true; },
-    remove() { return true; },
-  });
-}
+// if (CRIMP.ENVIRONMENT.NODE_ENV === 'production') {
+//   Scores.deny({
+//     insert() { return true; },
+//     update() { return true; },
+//     remove() { return true; },
+//   });
+// }
 
 
 Scores.methods = {};
@@ -54,12 +58,11 @@ Scores.methods.update = new ValidatedMethod({
   validate: new SimpleSchema({
     selector: { type: String },
     modifier: { type: String },
-    scoreDoc: { type: Object },
-    'scoreDoc.category_name': { type: Object },
-    'scoreDoc.score_string': { type: String },
+    'scoreDoc.marker_id': { type: String },
+    'scoreDoc.scores': { type: Object },
   }).validator(),
-  run({ selector, modifier, categoryDoc }) {
-    return Scores.update(selector, { [`${modifier}`]: categoryDoc });
+  run({ selector, modifier, scoreDoc }) {
+    return Scores.update(selector, { [`${modifier}`]: scoreDoc });
   },
 });
 
