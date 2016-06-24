@@ -26,6 +26,7 @@ import timber.log.Timber;
  */
 public class CrimpApplication extends Application {
     private static final String APP_SHARED_PREF = "crimp_state";
+    private static final String PERMISSION_SHARED_PREF = "permission_shared_pref";
     public static final String FB_ACCESS_TOKEN = "fb_access_token";
     public static final String FB_USER_NAME = "fb_user_name";
     public static final String X_USER_ID = "x_user_id";
@@ -48,6 +49,7 @@ public class CrimpApplication extends Application {
     private static CrimpWS mCrimpWs;
     private static LocalModel mLocalModel;
     private static SharedPreferences mAppState;
+    private static SharedPreferences mPermissionPreferences;
     private static HandlerThread mRestHandlerThread;
     private static HandlerThread mScoreHandlerThread;
     private static ScoreHandler mScoreHandler;
@@ -160,6 +162,15 @@ public class CrimpApplication extends Application {
         }
 
         return mAppState;
+    }
+
+    public static SharedPreferences getPermissionPreferences(){
+        if(mPermissionPreferences == null){
+            mPermissionPreferences =
+                    mContext.getSharedPreferences(PERMISSION_SHARED_PREF, Context.MODE_PRIVATE);
+        }
+
+        return mPermissionPreferences;
     }
 
     public static Context getContext(){
