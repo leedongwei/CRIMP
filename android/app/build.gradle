@@ -26,7 +26,7 @@ android {
         applicationId "rocks.crimp.crimp"
         minSdkVersion 15
         //noinspection OldTargetApi
-        targetSdkVersion 22
+        targetSdkVersion 23
         versionCode 7
         versionName "1.0.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

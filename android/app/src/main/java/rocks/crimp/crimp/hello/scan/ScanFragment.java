@@ -1,5 +1,6 @@
 package rocks.crimp.crimp.hello.scan;
 
+import android.Manifest;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
@@ -25,16 +27,21 @@ import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.Action;
+import rocks.crimp.crimp.common.PermissionHelper;
 import rocks.crimp.crimp.common.event.CameraAcquired;
+import rocks.crimp.crimp.common.event.CameraPermissionGranted;
 import rocks.crimp.crimp.common.event.DecodeFail;
 import rocks.crimp.crimp.common.event.DecodeSucceed;
 import rocks.crimp.crimp.common.event.SwipeTo;
+import rocks.crimp.crimp.hello.HelloActivity;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
-import rocks.crimp.crimp.service.ServiceHelper;
 import timber.log.Timber;
 
 /**
@@ -577,6 +584,11 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         mPreviewFrame.setLayoutParams(params);
     }
 
+    @Subscribe
+    public void onReceivedCameraPermissionGranted(CameraPermissionGranted event){
+        onStateChangeCheckScanning();
+    }
+
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         Timber.d("Surface created");
@@ -634,9 +646,18 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 Timber.v("Going to scan. mPreviewFrame width: %d, mPreviewFrame height: %d",
                         mPreviewFrame.getLayoutParams().width, mPreviewFrame.getLayoutParams().height);
             }
-            mCameraManager.acquireCamera(mTargetWidth, mAspectRatio, mDisplayRotation);
-            mCameraManager.startPreview(mPreviewFrame);
-            mCameraManager.startScan(mDecodeThread);
+
+            if(hasCameraPermission()){
+                mCameraManager.acquireCamera(mTargetWidth, mAspectRatio, mDisplayRotation);
+                mCameraManager.startPreview(mPreviewFrame);
+                mCameraManager.startScan(mDecodeThread);
+            }
+            else{
+                if(!mParent.hasAlreadyAskedPermissions()){
+                    mParent.setAlreadyAskedPermission(true);
+                    tryToRequestCameraPermission(HelloActivity.CAMERA_PERMISSION_REQUEST_CODE);
+                }
+            }
         }
         else{
             if(mPreviewFrame.getLayoutParams().height <= 0){
@@ -652,6 +673,68 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         }
     }
 
+
+    /**
+     * Check if camera permission is already granted.
+     * @return true if Camera permission already granted. False otherwise.
+     */
+    private boolean hasCameraPermission(){
+        String[] permissionsLack = PermissionHelper.checkPermissionsLack(getActivity(),
+                new String[]{Manifest.permission.CAMERA});
+        return permissionsLack.length == 0;
+    }
+
+    /**
+     * This method will find out if there is a need to request for camera permission and request it
+     * if necessary. Camera permission will not be requested if user has selected never ask again
+     * option.
+     * In the event that camera permission is not requested, show rationale UI instead.
+     *
+     * @param requestCode Application specific request code to match with a result
+     *    reported to {@link android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback#onRequestPermissionsResult(
+     *    int, String[], int[])}.
+     */
+    private void tryToRequestCameraPermission(int requestCode){
+        final String[] permissionsLack = {Manifest.permission.CAMERA};
+
+        // Find out info about permissions so we can determine whether to request permission or to
+        // show rationale UI.
+        boolean[] shouldShowRationaleArray = PermissionHelper.checkShouldShowRationaleList(
+                getActivity(), permissionsLack);
+        boolean[] askedBeforeArray = PermissionHelper
+                .checkPermissionAskedBefore(CrimpApplication.getPermissionPreferences(),
+                        permissionsLack);
+
+        // Base on information gathered, determine a list of permissions to request.
+        List<String> permissionToAsk = new ArrayList<>();
+        for(int i=0; i<permissionsLack.length; i++){
+            if(shouldShowRationaleArray[i] ||
+                    (!shouldShowRationaleArray[i] && !askedBeforeArray[i])){
+                permissionToAsk.add(permissionsLack[i]);
+            }
+        }
+
+        // Actual requesting of permissions
+        if(permissionToAsk.size() > 0) {
+            PermissionHelper.requestPermissions(CrimpApplication.getPermissionPreferences(),
+                    getActivity(), permissionToAsk.toArray(new String[permissionToAsk.size()]), requestCode);
+        }
+
+        // Base on information gathered, determine a list of permission to show rationale UI.
+        List<String> rationaleList = new ArrayList<>();
+        for(int i=0; i<askedBeforeArray.length; i++){
+            if(askedBeforeArray[i] && !shouldShowRationaleArray[i]){
+                rationaleList.add(permissionsLack[i]);
+            }
+        }
+
+        // Actual showing of rationale UI
+        if(rationaleList.size()>0){
+            AlertDialog dialog = CameraPermissionDialog.create(getActivity());
+            dialog.show();
+        }
+    }
+
     public interface ScanFragmentInterface{
         void setDecodedImage(Bitmap image);
         Bitmap getDecodedImage();
@@ -660,5 +743,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         void setCanDisplay(int canDisplay);
         void setAppBarExpanded(boolean expanded);
         void clearActive(String xUserId, String xAuthToken, String routeId);
+        boolean hasAlreadyAskedPermissions();
+        void setAlreadyAskedPermission(boolean alreadyAsked);
     }
 }

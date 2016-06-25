@@ -2,14 +2,22 @@ package rocks.crimp.crimp.common;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import rocks.crimp.crimp.R;
+import timber.log.Timber;
 
 /**
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
@@ -58,7 +66,7 @@ public class PermissionHelper {
      * Return an array of boolean indicating whether we should show rationale for requesting
      * permissions in {@code permissionList}. A value of false will happen in two scenario:
      * 1) This permission has not been asked before
-     * 2) This permission was asked for at least times and user check the "Don't ask again"
+     * 2) This permission was asked for at least two times and user check the "Don't ask again"
      * checkbox.
      * @param activity the target activity
      * @param permissions list of permissions to check
@@ -90,6 +98,10 @@ public class PermissionHelper {
     public static void requestPermissions(@NonNull SharedPreferences sharedPreferences,
                                           @NonNull Activity activity, @NonNull String[] permissions,
                                           int requestCode){
+        if(permissions == null || permissions.length == 0){
+            return;
+        }
+
         SharedPreferences.Editor editor = sharedPreferences.edit();
         for(String permission:permissions){
             editor.putBoolean(permission, true);
