@@ -56,3 +56,8 @@ This is a draft document that I will brain-dump into as I work on the meteor app
 ## Extend FB Access Token for tests
 * Generate a Test-User at https://developers.facebook.com/apps/<appId>/roles/test-users/
 * Go to https://developers.facebook.com/tools/debug/accesstoken and extend it, it should be good for 2 months
+
+## Backup data
+* Go to mongo-1 container and publish the 27017 port
+* Go to command line `mongodump --host mongo-1.boulderactive.4138de49.cont.dockerapp.io -d crimp --port 27017`
+* It will dump the data into the folder you are in
