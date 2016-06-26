@@ -8,21 +8,15 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +39,7 @@ import rocks.crimp.crimp.hello.score.ScoreFragment;
 import rocks.crimp.crimp.login.LoginActivity;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
+import rocks.crimp.crimp.network.model.ErrorJs;
 import rocks.crimp.crimp.network.model.RouteJs;
 import rocks.crimp.crimp.persistence.LocalModelImpl;
 import rocks.crimp.crimp.service.ServiceHelper;
@@ -56,6 +51,8 @@ public class HelloActivity extends AppCompatActivity implements
         ScanFragment.ScanFragmentInterface,
         ScoreFragment.ScoreFragmentInterface{
     public static final String SAVE_IMAGE = "save_image";
+    public static final String SAVE_HAS_SETACTIVE = "save_setactive";
+    public static final String SAVE_HAS_CLEARACTIVE = "save_clearactive";
     public static final String SAVE_PAGER_SELECTED = "save_pager_selected";
     private static final String SAVE_LOGOUT_TXID = "save_logout_txid";
     private static final String SAVE_HELPME_TXID = "save_helpme_txid";
@@ -68,6 +65,9 @@ public class HelloActivity extends AppCompatActivity implements
 
     // Scan fragment info
     private Bitmap mImage;
+
+    private boolean mHasAlreadySetActive = false;
+    private boolean mHasAlreadyClearActive = false;
 
     // Views
     private AppBarLayout mAppBar;
@@ -118,6 +118,8 @@ public class HelloActivity extends AppCompatActivity implements
         // Load/instantiate data we already have.
         if(savedInstanceState != null){
             mImage = savedInstanceState.getParcelable(SAVE_IMAGE);
+            mHasAlreadySetActive = savedInstanceState.getBoolean(SAVE_HAS_SETACTIVE);
+            mHasAlreadyClearActive = savedInstanceState.getBoolean(SAVE_HAS_CLEARACTIVE);
         }
         mCategories = CrimpApplication.getLocalModel()
                 .loadCategoriesAndCloseStream(LocalModelImpl.getInputStream(this));
@@ -189,6 +191,32 @@ public class HelloActivity extends AppCompatActivity implements
 
     @Override
     protected void onPause(){
+        /**
+         * Checking AppState for required info to make clearActive request. We assume that if
+         * xUserId is present then all the other required info is present too. This check is needed
+         * because we might be calling onStop due to logout and hence might not have the required
+         * info.
+         */
+        String xUserId = CrimpApplication.getAppState()
+                .getString(CrimpApplication.X_USER_ID, null);
+        String xAuthToken = CrimpApplication.getAppState()
+                .getString(CrimpApplication.X_AUTH_TOKEN, null);
+
+        int categoryPosition = CrimpApplication.getAppState()
+                .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
+        int routePosition = CrimpApplication.getAppState()
+                .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
+
+        if(xUserId != null && categoryPosition!=0 && routePosition!=0 && getCategoriesJs()!=null
+                && getCategoriesJs().getCategories()!=null
+                && getCategoriesJs().getCategories().size()!=0){
+            // find route id
+            CategoryJs chosenCategory = getCategoriesJs().getCategories().get(categoryPosition - 1);
+            String routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
+
+            clearActive(xUserId, xAuthToken, routeId);
+        }
+
         CrimpApplication.getBusInstance().unregister(this);
         super.onPause();
     }
@@ -242,6 +270,15 @@ public class HelloActivity extends AppCompatActivity implements
             mHelpMeTxId = null;
 
             //TODO handle received helpme response
+            // TODO handle fail
+            if(event.errorJs != null && event.errorJs.getMessage().equals(ErrorJs.NOT_LOGIN)){
+                String xUserId = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_USER_ID, null);
+                String xAuthToken = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_AUTH_TOKEN, null);
+                doLogout(xUserId, xAuthToken);
+                Toast.makeText(this, "Login expired. Please login again", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -250,6 +287,8 @@ public class HelloActivity extends AppCompatActivity implements
         super.onSaveInstanceState(outState);
         outState.putParcelable(SAVE_IMAGE, mImage);
         outState.putInt(SAVE_PAGER_SELECTED, mPager.getCurrentItem());
+        outState.putBoolean(SAVE_HAS_SETACTIVE, mHasAlreadySetActive);
+        outState.putBoolean(SAVE_HAS_CLEARACTIVE, mHasAlreadyClearActive);
         Timber.d("onSaveInstanceState %d", mPager.getCurrentItem());
     }
 
@@ -388,6 +427,9 @@ public class HelloActivity extends AppCompatActivity implements
                 return true;
 
             case R.id.action_logout:
+                final String markerId = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.MARKER_ID, null);
+
                 // We only need to show dialog if user has enter stuff on Score tab.
                 String currentScore = CrimpApplication.getAppState()
                         .getString(CrimpApplication.CURRENT_SCORE, null);
@@ -404,6 +446,17 @@ public class HelloActivity extends AppCompatActivity implements
                             if(xAuthToken == null){
                                 throw new NullPointerException("X-Auth-Token is null");
                             }
+                            if(markerId != null) {
+                                int categoryPosition = CrimpApplication.getAppState()
+                                        .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
+                                int routePosition = CrimpApplication.getAppState()
+                                        .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
+                                CategoryJs chosenCategory =
+                                        mCategories.getCategories().get(categoryPosition - 1);
+                                String routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
+
+                                clearActive(xUserId, xAuthToken, routeId);
+                            }
                             doLogout(xUserId, xAuthToken);
                         }
                     }, new Action() {
@@ -414,7 +467,6 @@ public class HelloActivity extends AppCompatActivity implements
                     }).show();
                 } else {
                     // Prepare stuff to use in LogoutDialog creation.
-                    String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
                     String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, "");
                     int categoryPosition = CrimpApplication.getAppState()
                             .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
@@ -436,6 +488,19 @@ public class HelloActivity extends AppCompatActivity implements
                             if(xAuthToken == null){
                                 throw new NullPointerException("X-Auth-Token is null");
                             }
+
+                            if(markerId != null) {
+                                int categoryPosition = CrimpApplication.getAppState()
+                                        .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
+                                int routePosition = CrimpApplication.getAppState()
+                                        .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
+                                CategoryJs chosenCategory =
+                                        mCategories.getCategories().get(categoryPosition - 1);
+                                String routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
+
+                                clearActive(xUserId, xAuthToken, routeId);
+                            }
+
                             doLogout(xUserId, xAuthToken);
                         }
                     }, new Action() {
@@ -465,8 +530,36 @@ public class HelloActivity extends AppCompatActivity implements
         }
     }
 
-    private void doLogout(@NonNull String xUserId, @NonNull String mXAuthToken){
+    public void doLogout(@NonNull String xUserId, @NonNull String mXAuthToken){
         mLogoutTxId = ServiceHelper.logout(this, mLogoutTxId, xUserId, mXAuthToken);
+    }
+
+    @Override
+    public void trySetActive(String xUserId, String xAuthToken, String routeId, String markerId) {
+        if(!mHasAlreadySetActive) {
+            Timber.d("Tried to setActive on for %s route: %s", markerId, routeId);
+            mHasAlreadySetActive = true;
+            mHasAlreadyClearActive = false;
+            // We don't care about response so we are not keeping track of txId.
+            ServiceHelper.setActive(this, null, xUserId, xAuthToken, routeId, markerId);
+        }
+        else{
+            Timber.d("Tried and fail to setActive for %s on route: %s", markerId, routeId);
+        }
+    }
+
+    @Override
+    public void clearActive(String xUserId, String xAuthToken, String routeId){
+        if(!mHasAlreadyClearActive) {
+            Timber.d("clearActive on route: %s", routeId);
+            mHasAlreadyClearActive = true;
+            mHasAlreadySetActive = false;
+            // We don't care about response so we are not keeping track of txId.
+            ServiceHelper.clearActive(this, null, xUserId, xAuthToken, routeId);
+        }
+        else{
+            Timber.d("Tried and fail to clearActive on route: %s", routeId);
+        }
     }
 
 }

@@ -3,6 +3,7 @@ package rocks.crimp.crimp.hello.route;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -15,6 +16,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -31,6 +33,7 @@ import rocks.crimp.crimp.common.event.RequestSucceed;
 import rocks.crimp.crimp.common.event.SwipeTo;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
+import rocks.crimp.crimp.network.model.ErrorJs;
 import rocks.crimp.crimp.network.model.ReportJs;
 import rocks.crimp.crimp.network.model.RouteJs;
 import rocks.crimp.crimp.service.ServiceHelper;
@@ -358,6 +361,14 @@ public class RouteFragment extends Fragment {
             mSwipeLayout.setRefreshing(false);
 
             // TODO handle fail
+            if(event.errorJs != null && event.errorJs.getMessage().equals(ErrorJs.NOT_LOGIN)){
+                String xUserId = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_USER_ID, null);
+                String xAuthToken = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_AUTH_TOKEN, null);
+                mParent.doLogout(xUserId, xAuthToken);
+                Toast.makeText(getActivity(), "Login expired. Please login again", Toast.LENGTH_LONG).show();
+            }
         }
         else if(event.txId.equals(mReportTxId)){
             Timber.e("Report request fail. TxId: %s", event.txId);
@@ -366,6 +377,14 @@ public class RouteFragment extends Fragment {
             showHasCategories();
 
             // TODO handle fail
+            if(event.errorJs != null && event.errorJs.getMessage().equals(ErrorJs.NOT_LOGIN)){
+                String xUserId = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_USER_ID, null);
+                String xAuthToken = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_AUTH_TOKEN, null);
+                mParent.doLogout(xUserId, xAuthToken);
+                Toast.makeText(getActivity(), "Login expired. Please login again", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -637,5 +656,6 @@ public class RouteFragment extends Fragment {
         void goToScanTab();
         void setCanDisplay(int canDisplay);
         void animateBadge();
+        void doLogout(@NonNull String xUserId, @NonNull String mXAuthToken);
     }
 }

@@ -2,6 +2,7 @@ package rocks.crimp.crimp.hello.score;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +33,7 @@ import rocks.crimp.crimp.hello.score.scoremodule.TopBonusModule;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
 import rocks.crimp.crimp.network.model.ClimberScoreJs;
+import rocks.crimp.crimp.network.model.ErrorJs;
 import rocks.crimp.crimp.network.model.GetScoreJs;
 import rocks.crimp.crimp.service.ServiceHelper;
 import timber.log.Timber;
@@ -144,6 +146,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onStart(){
         super.onStart();
+        Timber.d("onStart");
         CrimpApplication.getBusInstance().register(this);
 
         mScoreModule.notifyScore(mAccumulatedText.getText().toString()
@@ -197,6 +200,22 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     }
 
     private void doClose(){
+        String xUserId = CrimpApplication.getAppState()
+                .getString(CrimpApplication.X_USER_ID, null);
+        String xAuthToken = CrimpApplication.getAppState()
+                .getString(CrimpApplication.X_AUTH_TOKEN, null);
+
+        // find route id
+        int categoryPosition = CrimpApplication.getAppState()
+                .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
+        int routePosition = CrimpApplication.getAppState()
+                .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
+        CategoryJs chosenCategory =
+                mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
+        String routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
+
+        mParent.clearActive(xUserId, xAuthToken, routeId);
+
         // close score tab
         mGetScoreTxId = null;
         CrimpApplication.getAppState().edit()
@@ -253,7 +272,16 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
             Timber.e("Get score request fail. TxId: %s", event.txId);
             mGetScoreTxId = null;
             mInfoProgressBar.setVisibility(View.GONE);
-            //TODO handle fail
+
+            // TODO handle fail
+            if(event.errorJs != null && event.errorJs.getMessage().equals(ErrorJs.NOT_LOGIN)){
+                String xUserId = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_USER_ID, null);
+                String xAuthToken = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_AUTH_TOKEN, null);
+                mParent.doLogout(xUserId, xAuthToken);
+                Toast.makeText(getActivity(), "Login expired. Please login again", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -288,21 +316,22 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
             String xAuthToken = CrimpApplication.getAppState()
                     .getString(CrimpApplication.X_AUTH_TOKEN, null);
 
+            // find route id
+            int categoryPosition = CrimpApplication.getAppState()
+                    .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
+            int routePosition = CrimpApplication.getAppState()
+                    .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
+            CategoryJs chosenCategory =
+                    mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
+            String routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
+
             if(accumulatedScore == null){
                 mInfoProgressBar.setVisibility(View.VISIBLE);
-
-                // find route id
-                int categoryPosition = CrimpApplication.getAppState()
-                        .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
-                int routePosition = CrimpApplication.getAppState()
-                        .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
-                CategoryJs chosenCategory =
-                        mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
-                String routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
-
                 mGetScoreTxId = ServiceHelper.getScore(getActivity(), mGetScoreTxId, null, null,
                         routeId, markerId, xUserId, xAuthToken);
             }
+
+            mParent.trySetActive(xUserId, xAuthToken, routeId, markerId);
         }
     }
 
@@ -365,6 +394,7 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
 
                         ServiceHelper.postScore(getActivity(), null, routeId, markerId, xUserId, xAuthToken,
                                 currentScore, chosenCategoryName, chosenRouteName);
+                        mParent.clearActive(xUserId, xAuthToken,routeId);
 
                         mGetScoreTxId = null;
                         CrimpApplication.getAppState().edit()
@@ -422,5 +452,8 @@ public class ScoreFragment extends Fragment implements View.OnClickListener,
     public interface ScoreFragmentInterface{
         CategoriesJs getCategoriesJs();
         void goBackToScanTab();
+        void doLogout(@NonNull String xUserId, @NonNull String mXAuthToken);
+        void trySetActive(String xUserId, String xAuthToken, String routeId, String markerId);
+        void clearActive(String xUserId, String xAuthToken, String routeId);
     }
 }

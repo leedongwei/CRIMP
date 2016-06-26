@@ -108,6 +108,12 @@ public class CrimpApplication extends Application {
                     mShouldUpdateNotificationCount = true;
                 }
                 break;
+            case CurrentUploadTask.DROP_TASK:
+                mUploadTaskCount--;
+                if(mUploadTaskCount > 0){
+                    CrimpNotification.createAndShowUploading(this, mUploadTaskCount);
+                    mShouldUpdateNotificationCount = true;
+                }
         }
     }
 

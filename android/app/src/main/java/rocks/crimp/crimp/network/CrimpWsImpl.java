@@ -74,10 +74,6 @@ public class CrimpWsImpl implements CrimpWS {
         Call<CategoriesJs> call = webService.getCategories();
         Response<CategoriesJs> response = call.execute();
 
-        if(!response.isSuccessful()){
-            Timber.e("Get categories error response: %s", response.errorBody().string());
-        }
-
         return response;
     }
 
@@ -91,10 +87,6 @@ public class CrimpWsImpl implements CrimpWS {
                 header.getxAuthToken());
         Response<GetScoreJs> response = call.execute();
 
-        if(!response.isSuccessful()){
-            Timber.e("Get score error response: %s", response.errorBody().string());
-        }
-
         return response;
     }
 
@@ -106,10 +98,6 @@ public class CrimpWsImpl implements CrimpWS {
         Call<SetActiveJs> call = webService.setActive(header.getxUserId(),
                 header.getxAuthToken(), requestBodyJs.getRouteId(), requestBodyJs.getMarkerId());
         Response<SetActiveJs> response = call.execute();
-
-        if(!response.isSuccessful()){
-            Timber.e("Set active error response: %s", response.errorBody().string());
-        }
 
         return response;
     }
@@ -123,10 +111,6 @@ public class CrimpWsImpl implements CrimpWS {
                 header.getxAuthToken(), requestBodyJs.getRouteId());
         Response<ClearActiveJs> response = call.execute();
 
-        if(!response.isSuccessful()){
-            Timber.e("Clear active error response: %s", response.errorBody().string());
-        }
-
         return response;
     }
 
@@ -136,10 +120,6 @@ public class CrimpWsImpl implements CrimpWS {
 
         Call<LoginJs> call = webService.login(requestBodyJs.getFbAccessToken());
         Response<LoginJs> response = call.execute();
-
-        if(!response.isSuccessful()){
-            Timber.e("Login error response: %s", response.errorBody().string());
-        }
 
         return response;
     }
@@ -154,10 +134,6 @@ public class CrimpWsImpl implements CrimpWS {
                 requestBodyJs.isForceReport());
         Response<ReportJs> response = call.execute();
 
-        if(!response.isSuccessful()){
-            Timber.e("Report error response: %s", response.errorBody().string());
-        }
-
         return response;
     }
 
@@ -169,10 +145,6 @@ public class CrimpWsImpl implements CrimpWS {
         Call<HelpMeJs> call = webService.requestHelp(header.getxUserId(),
                 header.getxAuthToken(), requestBodyJs.getRouteId());
         Response<HelpMeJs> response = call.execute();
-
-        if(!response.isSuccessful()){
-            Timber.e("Help me error response: %s", response.errorBody().string());
-        }
 
         return response;
     }
@@ -201,10 +173,6 @@ public class CrimpWsImpl implements CrimpWS {
         Call<LogoutJs> call = webService.logout(header.getxUserId(),
                 header.getxAuthToken());
         Response<LogoutJs> response = call.execute();
-
-        if(!response.isSuccessful()){
-            Timber.e("Logout error response: %s", response.errorBody().string());
-        }
 
         return response;
     }

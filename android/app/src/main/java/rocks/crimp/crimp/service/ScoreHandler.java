@@ -29,6 +29,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
     public static final int DO_WORK = 2;
     public static final int NEW_UPLOAD = 3;
     public static final int RESUME_UPLOAD = 4;
+    public static final int DROP_TASK = 5;
 
     public static final int TOTAL_ATTEMPTS = 3;
     public static final int BASE_BACKOFF = 2000;
@@ -94,6 +95,28 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
 
                 attemptsLeft = TOTAL_ATTEMPTS;
                 currentBackoff = BASE_BACKOFF;
+                executeTask();
+                break;
+
+            case DROP_TASK:
+                Timber.d("DROP_TASK message");
+
+                // some assertion
+                if(attemptsLeft != 0){
+                    throw new IllegalStateException("attemptsLeft != 0");
+                }
+                if(isExecutingTask){
+                    throw new IllegalStateException("isExecutingTask is true");
+                }
+
+                mScoreUploadTaskQueue.remove();
+                attemptsLeft = TOTAL_ATTEMPTS;
+                currentBackoff = BASE_BACKOFF;
+
+                mCurrentTaskEvent = new CurrentUploadTask(null, CurrentUploadTask.DROP_TASK);
+                CrimpApplication.getBusInstance().post(mCurrentTaskEvent);
+                CrimpNotification.createAndShowUploading(mContext, mScoreUploadTaskQueue.size());
+
                 executeTask();
                 break;
 
@@ -192,7 +215,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         attemptsLeft--;
         Timber.d("Score upload fail. Attempts left: %d", attemptsLeft);
         isExecutingTask = false;
-        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+        CrimpApplication.getBusInstance().post(new RequestFailed(txId, null));
 
         if(attemptsLeft > 0) {
             try {
@@ -218,7 +241,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         attemptsLeft--;
         Timber.d("Score upload fail. Attempts left: %d", attemptsLeft);
         isExecutingTask = false;
-        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+        CrimpApplication.getBusInstance().post(new RequestFailed(txId, null));
 
         if(attemptsLeft > 0) {
             try {
@@ -245,7 +268,7 @@ public class ScoreHandler extends Handler implements ScoreUploadTask.Callback{
         attemptsLeft = 0;
         Timber.d("Score upload fail due to no network. Ignore attempts left");
         isExecutingTask = false;
-        CrimpApplication.getBusInstance().post(new RequestFailed(txId));
+        CrimpApplication.getBusInstance().post(new RequestFailed(txId, null));
 
         if(attemptsLeft > 0) {
             try {

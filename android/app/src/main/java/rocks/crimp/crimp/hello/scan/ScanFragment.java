@@ -382,19 +382,30 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                     throw new IllegalStateException("routeId is null");
                 }
 
-                // We don't care about response so we are not keeping track of txId.
-                ServiceHelper.clearActive(getActivity(), null, xUserId, xAuthToken, routeId);
-                ServiceHelper.setActive(getActivity(), null, xUserId, xAuthToken, routeId, markerId);
-
                 mParent.goToScoreTab();
                 break;
             }
 
             case R.id.scan_clear_button: {
+                final String xUserId = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_USER_ID, null);
+                final String xAuthToken = CrimpApplication.getAppState()
+                        .getString(CrimpApplication.X_AUTH_TOKEN, null);
+
+                // find route id
+                int categoryPosition = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
+                int routePosition = CrimpApplication.getAppState()
+                        .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
+                CategoryJs chosenCategory =
+                        mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
+                final String routeId = chosenCategory.getRoutes().get(routePosition - 1).getRouteId();
+
                 // We only need to show dialog if user has enter stuff on Score tab.
                 String currentScore = CrimpApplication.getAppState()
                         .getString(CrimpApplication.CURRENT_SCORE, null);
                 if (currentScore == null || currentScore.length() == 0) {
+                    mParent.clearActive(xUserId, xAuthToken, routeId);
                     rescan();
                     // We set SHOULD_SCAN to true. Check if we should start scanning.
                     onStateChangeCheckScanning();
@@ -402,12 +413,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                     // Prepare stuff to use in NextDialog creation.
                     String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
                     String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, null);
-                    int categoryPosition = CrimpApplication.getAppState()
-                            .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
-                    int routePosition = CrimpApplication.getAppState()
-                            .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
-                    CategoryJs chosenCategory =
-                            mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
                     String routeName = chosenCategory.getRoutes().get(routePosition - 1).getRouteName();
 
                     // some assertion
@@ -421,6 +426,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                     RemoveDialog.create(getActivity(), new Action() {
                         @Override
                         public void act() {
+                            mParent.clearActive(xUserId, xAuthToken, routeId);
                             rescan();
                             // We set SHOULD_SCAN to true. Check if we should start scanning.
                             onStateChangeCheckScanning();
@@ -653,5 +659,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         void goToScoreTab();
         void setCanDisplay(int canDisplay);
         void setAppBarExpanded(boolean expanded);
+        void clearActive(String xUserId, String xAuthToken, String routeId);
     }
 }
