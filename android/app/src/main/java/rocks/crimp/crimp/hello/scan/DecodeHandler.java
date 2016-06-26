@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
+import android.hardware.Camera;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -81,7 +82,9 @@ public class DecodeHandler extends Handler {
 
     /**
      * Decode the data within the viewfinder rectangle, and time how long it took. For efficiency,
-     * reuse the same reader objects from one decode to the next.
+     * reuse the same reader objects from one decode to the next. The width and height of the
+     * preview frame is based on how the camera is mounted and is not determined by
+     * {@link Camera#setDisplayOrientation(int)}.
      *
      * @param data   The YUV preview frame.
      * @param width  The width of the preview frame.
@@ -141,7 +144,10 @@ public class DecodeHandler extends Handler {
 
     /**
      * A factory method to build the appropriate LuminanceSource object based on the format
-     * of the preview buffers, as described by Camera.Parameters.
+     * of the preview buffers, as described by Camera.Parameters. This is where we determine which
+     * part of the preview frame to scan for QR code.
+     * The {@code width} and {@code height} of the image is not affected by
+     * {@link Camera#setDisplayOrientation(int)} and depend solely on how the camera is mounted.
      *
      * @param data A preview frame.
      * @param width The width of the image.
@@ -149,10 +155,18 @@ public class DecodeHandler extends Handler {
      * @return A PlanarYUVLuminanceSource instance.
      */
     private PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
-        /* rect is the bounding rectangle that we are planning to look for our QR code. This
-         * bounding rectangle is with respect to the data that is passed in.
+        /**
+         * rect is the bounding rectangle that we are planning to look for our QR code. We will
+         * look for QR code in a square with length equals to the floor of preview frame's width
+         * and height.
          */
-        Rect rect = new Rect(0, 0, width, height);
+        Rect rect;
+        if(width < height){
+            rect = new Rect(0, 0, width, width);
+        }
+        else{
+            rect = new Rect(0, 0, height, height);
+        }
 
         // Go ahead and assume it's YUV rather than die.
         return new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,

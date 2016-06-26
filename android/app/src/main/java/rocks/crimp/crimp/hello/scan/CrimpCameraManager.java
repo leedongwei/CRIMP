@@ -159,8 +159,11 @@ class CrimpCameraManager implements Camera.PreviewCallback{
     public void onPreviewFrame(byte[] data, Camera camera) {
         Timber.v("onPreviewFrame");
 
-        /* The byte array data passed in here is not affected by setDisplayOrientation(). The size
-         * of the byte array data depends on the size in Camera.Parameters.setPreviewSize().
+        /**
+         * The parameter {@code data} represent the image captured by {@code camera}. The image is
+         * not affected by {@link Camera#setDisplayOrientation(int)}. The size of the image depends
+         * on the size in {@link Camera.Parameters#getPreviewSize()}. The height and width of the
+         * image is dependent on how the camera is mounted on the device.
          */
         if(mDecodeThread != null && mDecodeThread.getHandler() != null){
             if(!mCameraHandler.cameraIsReleased()){
