@@ -1,29 +1,36 @@
-# Comprehensive Real-time Index of Monkey Points (CRIMP)
-### A real-time scoring and ranking system for climbing events
+# CRIMP
+### A real-time scoring app for climbing events
 
-<br><br><br>
+<!-- Badges -->
 
-*Development is currently on hold. We will continue in December 2015.*
+## Demo
+* Download the app from [Google Play]()
+* See live changes on [demo.crimp.rocks](https://demo.crimp.rocks)
+* Play around
 
-<br><br><br>
+## Components
+#### Judge App ([demo]())
+Android app for judges to submit scores. We're looking for an iOS developer to help us work on this!
 
-## System Components
-#### spectator scoreboard (web)
-Web app for spectators that displays scoring data in real-time.
+#### Spectator Scoreboard ([demo]())
+Mobile responsive website for spectators to see the scores.
 
-#### admin dashboard (web)
+#### Admin Dashboard ([demo]())
 Interface for admins to have a quick overview of the system and edit the data.
 
-#### judging app (android)
-App for judges to submit scores. We're looking for an iOS developer to help us work on this!
+#### Climber Scoresheet ([demo]())
+Generator for physical scoresheets with unique QR codes for every climber. Linked to the Admin Dashboard to generate and download a PDF file of the scoresheets for all the climbers in a category in just a click.
 
-#### climber scoresheets (paper)
-Generator for physical scoresheets with unique QR codes for every climber.
 
-<br><br>
-
-## Scoring systems
+## Supported Scoring Systems
 * IFSC Top/Bonus
+  * [Explanation of Rules]()
+* Points
+  * [Explanation of Rules]()
+* Top-Flash-Bonus2-Bonus-1
+  * [Explanation of Rules]()
+
+Contribution notes:
 
 <br><br>
 
@@ -33,16 +40,20 @@ Generator for physical scoresheets with unique QR codes for every climber.
 <br><br>
 
 ## Users
-#### v0.2
-* [NUS - Black Diamond Boulderactive 2014](http://boulderactive.nusclimb.com)
-* [Asian University Climbing Championship 2014](http://nus.edu.sg/osa/src/competitive/competitions/aucc)
+#### v2.0.0
+* NUS - Black Diamond Boulderactive 2016
 
 #### v1.0.0
 * NUS - Black Diamond Boulderactive 2015
 
+#### v0.2
+* [NUS - Black Diamond Boulderactive 2014](http://boulderactive.nusclimb.com)
+* [Asian University Climbing Championship 2014](http://nus.edu.sg/osa/src/competitive/competitions/aucc)
+
+
 
 ## License
-Copyright © 2014-2015, [DongWei](https://github.com/leedongwei) & [Weizhi](https://github.com/ecc-weizhi)
+Copyright © 2014-2016, [DongWei](https://github.com/leedongwei) & [Weizhi](https://github.com/ecc-weizhi)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

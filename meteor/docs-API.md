@@ -1,22 +1,22 @@
-# CRIMP-server
-* Communicates with spectator and admin web interface using DDP
-* Exposes a HTTP, REST API for the judges' mobile app
+# CRIMP-server REST API
+* Exposes a REST API primarily for the Judge App
+* Has been successfully used to get names for live streaming services
 * Endpoints expects `x-www-form-urlencoded`, or force all values to `String`
 * When there is an error processing the request, the server will reply with the appropriate HTTP response code (i.e. 4xx, 5xx).
 <br><br>
 
 
 ## API List
-* [POST '/api/judge/login'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgelogin)
-* [POST '/api/judge/logout'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgelogout)
-* [GET '/api/judge/categories'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#get-apijudgecategories)
-* [GET '/api/judge/score/{?climber_id}{?category_id}{?route_id}{?marker_id}'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#get-apijudgescoreclimber_idcategory_idroute_idmarker_id)
-* [POST '/api/judge/score/:route_id/:climber_id'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgescoreroute_idmarker_id)
-* [POST '/api/judge/helpme'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgehelpme)
-* [POST '/api/judge/report'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#post-apijudgereport)
-* [GET '/api/judge/active'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#get-apijudgeactive)
-* [PUT '/api/judge/setactive'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#put-apijudgesetactive)
-* [PUT '/api/judge/clearactive'](https://github.com/leedongwei/CRIMP/blob/develop/meteor/docs-API.md#put-apijudgeclearactive)
+* [POST '/api/judge/login'](#post-apijudgelogin)
+* [POST '/api/judge/logout'](#post-apijudgelogout)
+* [GET '/api/judge/categories'](#get-apijudgecategories)
+* [GET '/api/judge/score/{?climber_id}{?category_id}{?route_id}{?marker_id}'](#get-apijudgescoreclimber_idcategory_idroute_idmarker_id)
+* [POST '/api/judge/score/:route_id/:climber_id'](#post-apijudgescoreroute_idmarker_id)
+* [POST '/api/judge/helpme'](#post-apijudgehelpme)
+* [POST '/api/judge/report'](#post-apijudgereport)
+* [GET '/api/judge/active'](#get-apijudgeactive)
+* [PUT '/api/judge/setactive'](#put-apijudgesetactive)
+* [PUT '/api/judge/clearactive'](#put-apijudgeclearactive)
 <br><br><br>
 
 
@@ -75,6 +75,7 @@ header: {
 body: {}
 ```
 <br><br><br>
+
 
 
 ## GET '/api/judge/categories'
