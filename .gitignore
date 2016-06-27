@@ -49,4 +49,4 @@ jspm_packages
 **/.meteor/.gitignore
 meteor/**/settings.json
 meteor/**/bundle
-../kadira.js
+meteor/**/kadira.js
