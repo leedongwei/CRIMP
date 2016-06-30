@@ -3,14 +3,14 @@
 
 <!-- Badges -->
 
-## Demo
+## Demo (Available August 2016)
 * Download the app from [Google Play]()
 * See live changes on [demo.crimp.rocks](https://demo.crimp.rocks)
 * Play around
 
 ## Components
 #### Judge App ([demo]())
-Android app for judges to submit scores. We're looking for an iOS developer to help us work on this!
+Android app for judges to submit scores. We're looking for an iOS developer to help us work on an app for Apple devices!
 
 #### Spectator Scoreboard ([demo]())
 Mobile responsive website for spectators to see the scores.
@@ -23,14 +23,11 @@ Generator for physical scoresheets with unique QR codes for every climber. Linke
 
 
 ## Supported Scoring Systems
-* IFSC Top/Bonus
-  * [Explanation of Rules]()
-* Points
-  * [Explanation of Rules]()
-* Top-Flash-Bonus2-Bonus-1
-  * [Explanation of Rules]()
+The system is able to handle several scoring systems running simultaneously. We will add more scoring systems on a as-needed basis. Alternatively, you can write it and make a pull request to us. See CONTRIBUTING.md for more info on how you can contribute :)
 
-Contribution notes:
+* [IFSC Top/Bonus]()
+* [Points]()
+* [Top-Flash-Bonus2-Bonus-1]()
 
 <br><br>
 
