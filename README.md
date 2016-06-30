@@ -1,61 +1,59 @@
-# Comprehensive Real-time Index of Monkey Points (CRIMP)
-### A real-time scoring and ranking system for climbing events
+# CRIMP
+### A real-time scoring app for climbing events
 
+<!-- Badges -->
 
-<br><br><br>
+## Demo (Available August 2016)
+* Download the app from [Google Play]()
+* See live changes on [demo.crimp.rocks](https://demo.crimp.rocks)
+* Play around
 
+## Components
+#### Judge App ([demo]())
+Android app for judges to submit scores. We're looking for an iOS developer to help us work on an app for Apple devices!
 
-*Development is currently on hold. We will continue in December 2015.*
+#### Spectator Scoreboard ([demo]())
+Mobile responsive website for spectators to see the scores.
 
-
-<br><br><br>
-
-
-## System Components
-#### spectator scoreboard (web)
-Web app for spectators that displays scoring data in real-time.
-
-#### admin dashboard (web)
+#### Admin Dashboard ([demo]())
 Interface for admins to have a quick overview of the system and edit the data.
 
-#### judging app (android)
-App for judges to submit scores. We're looking for an iOS developer to help us work on this!
-
-#### climber scoresheets (paper)
-Generator for physical scoresheets with unique QR codes for every climber.
+#### Climber Scoresheet ([demo]())
+Generator for physical scoresheets with unique QR codes for every climber. Linked to the Admin Dashboard to generate and download a PDF file of the scoresheets for all the climbers in a category in just a click.
 
 
-<br><br>
+## Supported Scoring Systems
+The system is able to handle several scoring systems running simultaneously. We will add more scoring systems on a as-needed basis. Alternatively, you can write it and make a pull request to us. See CONTRIBUTING.md for more info on how you can contribute :)
 
-
-## Scoring systems
-* IFSC Top/Bonus
-
+* [IFSC Top/Bonus]()
+* [Points]()
+* [Top-Flash-Bonus2-Bonus-1]()
 
 <br><br>
-
 
 ## Technical Support & Development
 * Currently ongoing! Contact <a href="https://github.com/leedongwei">Dongwei</a> for more information!
 
-
 <br><br>
 
-
 ## Users
+#### v2.0.0
+* NUS - Black Diamond Boulderactive 2016
+
+#### v1.0.0
+* NUS - Black Diamond Boulderactive 2015
+
 #### v0.2
 * [NUS - Black Diamond Boulderactive 2014](http://boulderactive.nusclimb.com)
 * [Asian University Climbing Championship 2014](http://nus.edu.sg/osa/src/competitive/competitions/aucc)
 
-#### v1.0.0
-* NUS - Black Diamond Boulderactive 2015
 
 
 <br><br>
 
 
 ## License
-Copyright © 2014-2015, [DongWei](https://github.com/leedongwei) & [Weizhi](https://github.com/ecc-weizhi)
+Copyright © 2014-2016, [DongWei](https://github.com/leedongwei) & [Weizhi](https://github.com/ecc-weizhi)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

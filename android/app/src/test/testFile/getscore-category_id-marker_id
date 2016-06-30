@@ -1,0 +1,28 @@
+{
+  "climber_scores": [
+    {
+      "climber_id": "climberId1",
+      "climber_name": "Antonio Paul",
+      "scores": [
+        {
+          "marker_id": "NMQ004",
+          "category_id": "iaA4T76ihpvmAhEtc",
+          "route_id": "ZcakJrZnpuwg9fXoE",
+          "score": "1000"
+        },
+        {
+          "marker_id": "NMQ004",
+          "category_id": "iaA4T76ihpvmAhEtc",
+          "route_id": "2uALvGuYPxB9m8jAm",
+          "score": "800"
+        },
+		{
+		  "marker_id": "NMQ004",
+          "category_id": "iaA4T76ihpvmAhEtc",
+          "route_id": "juoFyiJSfnmTWvsXC",
+          "score": ""
+		}
+      ]
+    }
+  ]
+}

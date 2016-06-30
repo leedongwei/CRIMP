@@ -1,0 +1,31 @@
+# whitelist
+branches:
+  only:
+    - feature/cleanup
+
+language: android
+
+android:
+  components:
+    - platform-tools
+
+    # The BuildTools version used by your project
+    - build-tools-23.0.3
+
+    # The SDK version used to compile your project
+    - android-23
+
+    # Specify at least one system image,
+    # if you need to run emulator(s) during your tests
+    - sys-img-armeabi-v7a-android-23
+    
+    # Design support library
+    - extra-android-m2repository
+
+before_install:
+    - chmod +x ./android/gradlew
+
+script:
+- ./android/gradlew --stacktrace clean check
+
+after_failure: "ls ./android/app/build"

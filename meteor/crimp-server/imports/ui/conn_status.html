@@ -1,0 +1,8 @@
+<template name="conn_status">
+  <section class="status-meteor">
+    {{ #with state_check }}
+      <div class="status-text status-{{state_check.status}}"></div>
+      <div class="status-dot status-{{state_check.status}}"></div>
+    {{ /with }}
+  </section>
+</template>

@@ -1,0 +1,15 @@
+crimp:
+  autoredeploy: true
+  environment:
+    - 'MONGO_URL=mongodb://mongo:27017/crimp'
+    - PORT=3000
+    - 'ROOT_URL=http://localhost:3000'  // replace with your URL
+  image: 'leedongwei/crimp-stable:latest'
+  links:
+    - mongo
+  ports:
+    - '80:3000'
+  restart: on-failure
+mongo:
+  command: mongod --smallfiles --oplogSize 128
+  image: 'mongo:latest'

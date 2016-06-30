@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shareInterpolator="false">
+
+    <set android:interpolator="@android:anim/linear_interpolator"
+        android:duration="100"
+        android:startOffset="0">
+        <rotate
+            android:fromDegrees="0"
+            android:toDegrees="-45"
+            android:toYScale="0.0"
+            android:pivotX="50%"
+            android:pivotY="50%"/>
+
+        <translate
+            android:fromXDelta="0%"
+            android:toXDelta="0%"
+            android:fromYDelta="0%"
+            android:toYDelta="-2%"/>
+    </set>
+
+    <set android:interpolator="@android:anim/linear_interpolator"
+        android:duration="100"
+        android:startOffset="100">
+        <rotate
+            android:fromDegrees="-45"
+            android:toDegrees="0"
+            android:toYScale="0.0"
+            android:pivotX="50%"
+            android:pivotY="50%"/>
+
+        <translate
+            android:fromXDelta="0%"
+            android:toXDelta="0%"
+            android:fromYDelta="-2%"
+            android:toYDelta="-4%"/>
+    </set>
+
+    <set android:interpolator="@android:anim/linear_interpolator"
+        android:duration="100"
+        android:startOffset="200">
+        <rotate
+            android:fromDegrees="0"
+            android:toDegrees="45"
+            android:toYScale="0.0"
+            android:pivotX="50%"
+            android:pivotY="50%"/>
+
+        <translate
+            android:fromXDelta="0%"
+            android:toXDelta="0%"
+            android:fromYDelta="-4%"
+            android:toYDelta="-6%"/>
+    </set>
+
+    <set android:interpolator="@android:anim/linear_interpolator"
+        android:duration="100"
+        android:startOffset="300">
+        <rotate
+            android:fromDegrees="45"
+            android:toDegrees="0"
+            android:toYScale="0.0"
+            android:pivotX="50%"
+            android:pivotY="50%"/>
+
+        <translate
+            android:fromXDelta="0%"
+            android:toXDelta="0%"
+            android:fromYDelta="-6%"
+            android:toYDelta="0%"/>
+    </set>
+
+</set>

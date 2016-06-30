@@ -1,1 +1,459 @@
-# CRIMP-server* Communicates with spectator and admin web interface using DDP* Exposes a HTTPS only, REST API for the judges' mobile app  * `Content-Type` is always `application/json`  * When there is an error processing the request, the response body will have the key `error` with the explanation<br>## POST '/api/judge/login'* Used by judges to login or create an account* Authenticates with Facebook only#### Request```Body: {  accessToken: 'CAAE1913yZC2ABAAO6...',  expiresAt: '143961...',  isProductionApp: true     // ignored on staging}```#### Response```Body: {  x-user-id: 'A6kvTowyvNz...',  x-auth-token: 'RCDBy6X3zS8...',  roles: ['admin']}```* `roles` in increasing order of access: denied, pending, partner, judge, admin, hukkataival* Store `x-user-id` and `x-auth-token` for subsequent requests* `x-auth-token` will be hashed. To generate a new token, log out* `GET` 'api/logout' to destroy the session<br><br><br>## POST '/api/judge/report'* Used by judges to report in when they are judging a route, and to inform everyone if there is a clash* Used by admin to make sure that the judges are on the right route#### Request```header: {  x-user-id: 'A6kvTowyvNz...',  x-auth-token: 'RCDBy6X3zS8...'}body: {  route_id: 'NWQ1',  force: false}```* Server will track the judges currently active (on scoring duty)* If there is no activity from a judge for 10mins, he will be removed from the array* Removal can be enforced by setting `force` to true, which covers the case when judges are substituted from duty#### Response```Body: {  admin_id: 'A6kvTowyvNz...',  admin_name: 'Weizhi'  route_id: 'NWQ01'  state: 1}```* `admin_id` and `admin_name` refers to the active judge on that route* `state` 1 for you're successfully set as judge, 0 if you're not the judge* `admin_id` and `admin_name` be your's if successful, someone else's if failed.* Request will fail when there is already a judge on that route<br><br><br>## POST 'judge/helpme'* Used by judges to summon help from the admin to their station#### Request```header: {  x-user-id: 'A6kvTowyvNz...',  x-auth-token: 'RCDBy6X3zS8...'}body: {  admin_id: 'A6kvTowyvNz...',  route_id: 'NWQ1'}```#### Response```body: {  status: 'received'}```<br><br><br>## GET 'judge/categories'* Used by judges to get data on all the categories#### Request```header: {  x-user-id: 'A6kvTowyvNz...',  x-auth-token: 'RCDBy6X3zS8...'}```#### Response```Body: {  categories: [    {      category_name: 'Novice Men Qualifiers',      category_id: 'NMQ',      route_count: 6,      scores_finalized: false,      time_start: {format undecided},      time_end: {format undecided},    },    {      category_name: 'Novice Womens Qualifiers',      category_id: 'NWQ',      route_count: 6,      scores_finalized: false,      time_start: {format undecided},      time_end: {format undecided},    },    ...  ]}````<br><br><br>## GET 'judge/climbers/:category_id'* Used by judges to get identity of all the climbers in a specific category#### Request```header: {  x-user-id: 'A6kvTowyvNz...',  x-auth-token: 'RCDBy6X3zS8...'}```#### Response```Status: 200 OKBody: {  category_id: 'NMQ'  climbers: [    {      climber_id: 'NMQ001'      climber_name: 'DongWei'    },    {      climber_id: 'NMQ002',      climber_name: 'Weizhi'    },    ...  ]}````<br><br><br>## POST 'judge/activeclimbers'* Insert/remove a climber from ActiveClimbers#### Request```header: {  x-user-id: 'A6kvTowyvNz...',  x-auth-token: 'RCDBy6X3zS8...'}body: {  route_id: 'NMQ1',  climber_id: 'NMQ009',     // not needed for removal  insert: true              // true => insert, false => remove}```#### Response```Status: 200 OKBody: {}```<br><br><br>## GET 'judge/score/:route_id/:climber_id'* Used by judges to get the score of a climber on a specific route#### Request```header: {  x-user-id: 'A6kvTowyvNz...',  x-auth-token: 'RCDBy6X3zS8...'}```#### Response```Status: 200 OKBody: {  route_id: 'NMQ001'  climber_id: 'NMQ001',  climber_name: 'DongWei',  score_string: '11B11'}```<br><br><br>## POST 'judge/score/:route_id/:climber_id'* Used by judges to update the score of a climber on a specific route* If `scores_finalized` is `true` for a category, then the scores will not be updated any more.* Will remove climber from `ActiveClimber`#### Request```header: {  x-user-id: 'A6kvTowyvNz...',  x-auth-token: 'RCDBy6X3zS8...'}body: {  score_string: '11T'    // Important! See note below.}```#### Response```Status: 200 OK / 401 Unauthorizedbody: {  // if there is an error  error: 'Scores are finalized' / 'Unauthorized'}```* `score` should only cover climbs on that attempt  * e.g. sending in '11T' for DongWei makes his overall score for this route to be '11B1111T'
+# CRIMP-server REST API
+* Exposes a REST API primarily for the Judge App
+* Has been successfully used to get names for live streaming services
+* Endpoints expects `x-www-form-urlencoded`, or force all values to `String`
+* When there is an error processing the request, the server will reply with the appropriate HTTP response code (i.e. 4xx, 5xx).
+<br><br>
+
+
+## API List
+* [POST '/api/judge/login'](#post-apijudgelogin)
+* [POST '/api/judge/logout'](#post-apijudgelogout)
+* [GET '/api/judge/categories'](#get-apijudgecategories)
+* [GET '/api/judge/score/{?climber_id}{?category_id}{?route_id}{?marker_id}'](#get-apijudgescoreclimber_idcategory_idroute_idmarker_id)
+* [POST '/api/judge/score/:route_id/:climber_id'](#post-apijudgescoreroute_idmarker_id)
+* [POST '/api/judge/helpme'](#post-apijudgehelpme)
+* [POST '/api/judge/report'](#post-apijudgereport)
+* [GET '/api/judge/active'](#get-apijudgeactive)
+* [PUT '/api/judge/setactive'](#put-apijudgesetactive)
+* [PUT '/api/judge/clearactive'](#put-apijudgeclearactive)
+<br><br><br>
+
+
+
+## POST '/api/judge/login'
+* Login and authenticate user on the server.
+* Creates a user account, or updates existing account
+* Issues a authentication token for subsequent requests
+
+#### Request
+```json
+Body: {
+  "fb_access_token": "CAAE1913yZC2ABAAO6...",
+}
+```
+
+#### Response
+```json
+Body: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+  "remind_logout": true,
+  "roles": ["admin"],
+}
+```
+* `isProductionApp` prevents the situation of a judge using an old dev app
+* `X-User-Id` and `X-Auth-Token` is used in endpoints requiring authorization
+* `remind_logout` is `true` if there are existing sessions on other devices. The mobile app should display a reminder for user to log out on other devices.
+* `roles` is the privilege level of the user
+  * The mobile app should deny access to user if role is not higher than `judge`
+  * Tokens will not be issued for users with insufficient role permissions
+  * roles in increasing order of access: `denied`, `pending`, `partner`, `judge`, `admin`, `hukkataival`
+    * `denied` is a stranger and is denied access
+    * `pending` is a new user, and should be sorted by an admin
+    * `partner` has read-only access through REST API
+    * `judge` has read-write access through REST API
+    * `admin` has read-write access through web dashboard
+    * `hukkataival` is given all privileges
+<br><br><br>
+
+
+
+## POST '/api/judge/logout'
+* Used to logout.
+
+#### Request
+```json
+header: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+}
+```
+
+#### Response
+```json
+body: {}
+```
+<br><br><br>
+
+
+
+## GET '/api/judge/categories'
+* Get information of all categories and routes.
+
+#### Response
+```json
+Body: {
+  "categories": [
+    {
+      "category_id": "e4gMzdjR...",
+      "category_name": "Novice Men Qualifiers",
+      "acronym": "NMQ",
+      "is_score_finalized": false,
+      "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
+      "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
+      "routes": [
+        {
+          "_id": "rbjJ...",
+          "route_name": "Route 1",
+          "score_rules": "points__1000"
+        },
+        {
+          "_id": "TC3R...",
+          "route_name": "Route 2",
+          "score_rules": "points__800"
+        },
+        {
+          "_id": "EgN4g...",
+          "route_name": "Route 3",
+          "score_rules": "points__1800"
+        }
+      ],
+    },
+    {
+      "category_id": "e4gMzdjR...",
+      "category_name": "Novice Women Qualifiers",
+      "acronym": "NWQ",
+      "is_team_category": true,
+      "is_score_finalized": true,
+      "time_start": "Thu Jul 30 2015 12:00:00 GMT+0800",
+      "time_end": "Thu Jul 30 2015 12:00:00 GMT+0800",
+      "routes": [
+        {
+          "_id": "rbjJ...",
+          "route_name": "Route 1",
+          "score_rules": "ifsc-top-bonus",
+        },
+        {
+          "_id": "TC3R...",
+          "route_name": "Route 2",
+          "score_rules": "ifsc-top-bonus",
+        },
+        {
+          "_id": "EgN4g...",
+          "route_name": "Route 3",
+          "score_rules": "ifsc-top-bonus",
+        }
+      ],
+    },
+
+    ...
+
+  ]
+}
+```
+* `category_id` uniquely identify a Category globally. Cannot be negative.
+* `acronym` consist of three alphabet in uppercase and is unique.
+* `route_id` uniquely identify a Route globally (not just within a Category). Cannot be negative.
+* `score_type` inform the client which scoring system this route is supposed to use.
+  * Accepted values: `ifsc-top-Bonus`, `tfbb`, `points`, standardize to be all lowercase characters
+  * See `meteor/crimp-server/imports/score_systems/` folder for more documentation
+]
+<br><br><br>
+
+
+
+## GET '/api/judge/score{?climber_id}{?category_id}{?route_id}{?marker_id}'
+* Get score
+
+#### Request
+##### Query parameters
+* `event_id` get scores from a specific event
+* `category_id` get scores from a specific category
+* `route_id` get scores from a specfic route
+* `climber_id` get all the scores of a specific climber
+* `marker_id` get scores of climbers with that marker_id
+
+```json
+header: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+}
+```
+
+#### Response
+##### No query parameters
+```json
+Body: {
+  "climber_scores": [
+    {
+      "climber_id": "nJXAk...",
+      "climber_name": "Antonio Paul",
+      "scores": [
+        {
+          "marker_id": "NMQ004",
+          "category_id": "n5jkl...",
+          "route_id": "yGXAk...",
+          "score": "1800"
+        },
+        {
+          "marker_id": "NMQ004",
+          "category_id": "n5jkl...",
+          "route_id": "WryAk...",
+          "score": "800"
+        },
+        ...
+      ]
+    },
+    {
+    "climber_id":  "io9aAk...",
+    "climber_name": "Romani",
+    "scores": [
+      {
+        "marker_id": "OMQ007",
+        "category_id": "Q0afR...",
+        "route_id": "FTHew...",
+        "score": ""
+      },
+      {
+        "marker_id": "OMQ007",
+        "category_id": "Q0afR...",
+        "route_id": "AX5Y4...",
+        "score": "11BB1"
+      }
+    ]
+    }
+  ]
+}
+```
+
+##### Query parameter: category_id=dBrvuk
+```json
+Body: {
+  "climber_scores": [
+    {
+    "climber_id": "nJXAk...",
+    "climber_name": "Antonio Paul",
+    "scores": [
+      {
+        "marker_id": "NMQ004",
+        "category_id": "dBrvuk",
+        "route_id": "yGXAk...",
+        "score": "1800"
+      },
+      {
+        "marker_id": "NMQ004",
+        "category_id": "dBrvuk",
+        "route_id": "t0aTUD...",
+        "score": "800"
+      },
+    ...
+    ]
+  },
+  {
+    "climber_id": "io9aAk...",
+    "climber_name": "Romani",
+    "scores": [
+      {
+      "marker_id": "NMQ008",
+      "category_id": "dBrvuk",
+      "route_id": "yGXAk...",
+      "score": "0"
+    }
+    ]
+  }
+  ]
+}
+```
+
+##### Query parameter: climber_id=14&route_id=54
+```json
+Body: {
+  "climber_scores": [
+    {
+      "climber_id": "nJXAk...",
+      "climber_name": "Antonio Paul",
+      "scores": [
+        {
+          "marker_id": "NMQ004",
+          "category_id": "dBrvuk",
+          "route_id": "t0aTUD...",
+          "score": "800"
+        },
+      ]
+    }
+  ]
+}
+```
+* Response is always as much information as possible that satisfy the query parameter (e.g. if climber is in multiple route/category and the query parameter only restrict the climber_id, all routes score will be returned by server).
+* If a climber is in more than one route, all route score for that climber will be returned even if the climber did not attempt some of the route (i.e. ""score": "").
+<br><br><br>
+
+
+
+## POST '/api/judge/score/:route_id/:marker_id'
+* Used by judges to update the score of a climber on a specific route
+* If `scores_finalized` is `true` for a category, then the scores will not be updated any more.
+  * You'll receive error response code.
+
+#### Request
+```json
+header: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+}
+body: {
+  "score_string": "11T"
+}
+```
+
+#### Response
+```json
+body: {
+  "climber_id": "climberId1",
+  "category_id": "e4gMzdjR...",
+  "route_id": "rbjJ...",
+  "marker_id": "NMF002",
+  "score": "11B11T"
+}
+```
+* Response is the current state as seen by server.
+* `score_string` should only cover climb on that attempt and are appended to whatever score_string accumulated by previous attempt.
+  * e.g. sending in `11B` followed by `1T` will make the overall score_string to be `11B1T`.
+* `score_string` is a raw value with no semantics. Interpretation of this field should be done by the client.
+<br><br><br>
+
+
+
+## POST '/api/judge/helpme'
+* Used by judges to request help from the admin.
+
+#### Request
+```json
+header: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+}
+body: {
+  "route_id": "EgN4g...",
+}
+```
+
+#### Response
+```json
+body: {}
+```
+* Response is immediate to acknowledge that the server has received it. It does not mean that the admin has acknowledged it.
+<br><br><br>
+
+
+
+## POST '/api/judge/report'
+* Used to inform CRIMP server that this user will attempt to judge a route. Provides a way to resolve conflict when there are multiple user trying to judge the same route.
+* Used by admin to make sure that the judges are on the correct route.
+
+#### Request
+```json
+header: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+}
+
+body: {
+  "category_id": "e4gMzdjR...",
+  "route_id": "EgN4g...",
+  "force": false
+}
+```
+
+#### Response
+```json
+Body: {
+  "X-User-Id": "jfJnk4B...",
+  "user_name": "Weizhi",
+  "category_id": "e4gMzdjR...",
+  "route_id": "EgN4g...",
+}
+```
+* `fb_user_id` and `user_name` refers to the active judge as seen by server.
+<br><br><br>
+
+
+
+## GET '/api/judge/active'
+* Get the ActiveTracker collection
+
+#### Request
+```json
+header: {
+
+}
+body: {
+
+}
+```
+
+#### Response
+```json
+Body: [
+  {
+    "route_name": "TEAM R2",
+    "category_id": "n4FtQ4C5BSvdCJNiF",
+    "category_name": "Generic Cotton Hat",
+    "marker_id": "IWF001",
+    "climber_name": "Carolyn Farrell",
+
+
+    "_id": "zQQX6...",
+    "route_id": "5th9q...",
+    "category_id": "n4FtQ...",
+    "user_id": "5jwv...",
+    "user_name": "Will Alabakabdada Okelolasky",
+    "climber_id": "8RQeY...",
+    "user_expiry": "2016-06-14T11:12:24.247Z",
+    "climber_expiry": "2016-06-14T11:02:24.247Z"
+  },
+  {
+    ...
+  },
+  ...
+]
+```
+<br><br><br>
+
+
+
+## PUT '/api/judge/setactive'
+* Set a climber for a route
+
+#### Request
+```json
+header: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+}
+body: {
+  "route_id": "yGXAk...",
+  "marker_id": "NMF001",
+}
+```
+
+#### Response
+```json
+Body: {}
+```
+<br><br><br>
+
+
+
+## PUT '/api/judge/clearactive'
+* clear a climber for a route
+
+#### Request
+```json
+header: {
+  "X-User-Id": "jfJnk4B...",
+  "X-Auth-Token": "LNZoISu...",
+}
+body: {
+  "route_id": "yGXAk...",
+}
+```
+
+#### Response
+```json
+Body: {}
+```
+<br><br><br>
+
+

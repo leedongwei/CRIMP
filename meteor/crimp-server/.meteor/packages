@@ -4,20 +4,43 @@
 # 'meteor add' and 'meteor remove' will edit this file for you,
 # but you can also edit it by hand.
 
-meteor-platform
+meteor-base             # Packages every Meteor app needs to have
+mobile-experience       # Packages for a great mobile UX
+mongo                   # The database Meteor supports right now
+blaze-html-templates    # Compile .html files into Meteor Blaze views
+reactive-var            # Reactive variable for tracker
+jquery                  # Helpful client-side library
+tracker                 # Meteor's client-side reactive programming library
+
+standard-minifier-js    # JS minifier run for production mode
+es5-shim                # ECMAScript 5 compatibility for older browsers.
+ecmascript              # Enable ECMAScript2015+ syntax in app code
+
+aldeed:simple-schema
+nimble:restivus
 aldeed:collection2
-iron:router
+mdg:validated-method
+msavin:mongol
 accounts-ui
 accounts-facebook
+accounts-base
 alanning:roles
-nimble:restivus
-http
-meteorhacks:kadira
-meteorhacks:kadira-profiler
-meteorhacks:zones
-ewall:foundation
+random
+practicalmeteor:mocha
+practicalmeteor:faker
+dburles:factory
+xolvio:cleaner
+practicalmeteor:chai
+stevezhu:lodash
+kadira:flow-router
+kadira:blaze-layout
+seba:minifiers-autoprefixer
 fourseven:scss
-aldeed:autoform
+zurb:foundation-sites
+flyandi:reactive-countdown
 momentjs:moment
-reactive-dict
+juliancwirko:s-alert
+juliancwirko:s-alert-slide
 ongoworks:security
+meteorhacks:kadira
+aldeed:autoform

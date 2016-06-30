@@ -1,0 +1,30 @@
+<template name="crimp_spectator">
+
+  <div class="crimp_spectator">
+    <nav>
+      <div class="top-bar">
+        <div class="row column">
+          <div class="top-bar-title show-for-medium">
+            {{event.event_name_full}}
+          </div>
+          <div class="top-bar-title hide-for-medium">
+            {{event.event_name_short}}
+          </div>
+
+          <div class="top-bar-custom-right">
+            {{> conn_status}}
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="row">
+      <div class="small-12 medium-6 columns">
+        {{> activetracker}}
+      </div>
+      <div class="small-12 medium-6 columns">
+        {{> scoreboard}}
+      </div>
+    </div>
+  </div>
+</template>
