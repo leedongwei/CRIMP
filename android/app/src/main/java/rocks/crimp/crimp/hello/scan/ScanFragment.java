@@ -2,8 +2,6 @@ package rocks.crimp.crimp.hello.scan;
 
 import android.Manifest;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
@@ -19,11 +17,10 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -66,8 +63,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     private SurfaceView mPreviewFrame;
     private RelativeLayout mInputLayout;
     private EditText mCategoryIdText;
-    private ImageButton mFlashButton;
-    private Button mRescanButton;
+    //private ImageButton mFlashButton;
+    //private Button mRescanButton;
     private EditText mMarkerIdText;
     private EditText mClimberNameText;
     private Button mScanNextButton;
@@ -75,6 +72,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     private TextView mMarkerValid;
     private Button mClearButton;
     private NestedScrollView mNestedScrollView;
+    private ImageView mTickImage;
 
     private DecodeThread mDecodeThread;
     private CrimpCameraManager mCameraManager;
@@ -163,8 +161,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         mPreviewFrame = (SurfaceView) rootView.findViewById(R.id.scan_frame);
         mInputLayout = (RelativeLayout) rootView.findViewById(R.id.scan_form);
         mCategoryIdText = (EditText)rootView.findViewById(R.id.scan_category_id_edit);
-        mFlashButton = (ImageButton)rootView.findViewById(R.id.scan_flash_button);
-        mRescanButton = (Button)rootView.findViewById(R.id.scan_rescan_button);
+        //mFlashButton = (ImageButton)rootView.findViewById(R.id.scan_flash_button);
+        //mRescanButton = (Button)rootView.findViewById(R.id.scan_rescan_button);
         mMarkerIdText = (EditText)rootView.findViewById(R.id.scan_marker_id_edit);
         mClimberNameText = (EditText)rootView.findViewById(R.id.scan_climber_name_edit);
         mScanNextButton = (Button)rootView.findViewById(R.id.scan_next_button);
@@ -172,12 +170,13 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         mMarkerValid = (TextView) rootView.findViewById(R.id.scan_valid_marker_text);
         mClearButton = (Button) rootView.findViewById(R.id.scan_clear_button);
         mNestedScrollView = (NestedScrollView) rootView.findViewById(R.id.scan_nested_scroll_view);
+        mTickImage = (ImageView) rootView.findViewById(R.id.tick_image);
 
         mPreviewFrame.getHolder().addCallback(this);
         mScanNextButton.setOnClickListener(this);
-        mRescanButton.setOnClickListener(this);
+        //mRescanButton.setOnClickListener(this);
         mClearButton.setOnClickListener(this);
-        mFlashButton.setOnClickListener(this);
+        //mFlashButton.setOnClickListener(this);
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mPreviewFrame.getLayoutParams();
         params.height = CrimpApplication.getAppState().getInt(CrimpApplication.IMAGE_HEIGHT, 0);
         mPreviewFrame.setLayoutParams(params);
@@ -229,6 +228,10 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 mCategoryIdText.setVisibility(View.GONE);
                 mMarkerIdText.setVisibility(View.GONE);
                 mMarkerLayout.setVisibility(View.VISIBLE);
+
+                CrimpApplication.getAppState().edit()
+                        .putBoolean(CrimpApplication.SHOULD_SCAN, false).commit();
+                mTickImage.setVisibility(View.VISIBLE);
             }
         }, new Action() {
             @Override
@@ -292,6 +295,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     @Override
     public void onClick(View view){
         switch(view.getId()){
+            /*
             case R.id.scan_rescan_button: {
                 // We only need to show dialog if user has enter stuff on Score tab.
                 String currentScore = CrimpApplication.getAppState()
@@ -335,6 +339,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 }
                 break;
             }
+            */
 
             case R.id.scan_next_button: {
                 mScanNextButton.setEnabled(false);
@@ -369,6 +374,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                         .putString(CrimpApplication.CLIMBER_NAME, climberName)
                         .putBoolean(CrimpApplication.SHOULD_SCAN, false)
                         .commit();
+                mTickImage.setVisibility(View.VISIBLE);
 
                 int routePosition = CrimpApplication.getAppState()
                         .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
@@ -443,11 +449,13 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 break;
             }
 
+            /*
             case R.id.scan_flash_button:{
                 Toast toast = Toast.makeText(getActivity(), "STUB!", Toast.LENGTH_SHORT);
                 toast.show();
                 break;
             }
+            */
         }
     }
 
@@ -468,6 +476,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 .remove(CrimpApplication.CURRENT_SCORE)
                 .remove(CrimpApplication.ACCUMULATED_SCORE)
                 .commit();
+        mTickImage.setVisibility(View.INVISIBLE);
 
         // Set textbox on scan tab to null
         mMarkerIdText.setText(null);
@@ -511,6 +520,13 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         Timber.d("onReceivedSwipeTo: %d", event.position);
         boolean shouldScan = CrimpApplication.getAppState()
                 .getBoolean(CrimpApplication.SHOULD_SCAN, true);
+        if(shouldScan){
+            mTickImage.setVisibility(View.INVISIBLE);
+        }
+        else{
+            mTickImage.setVisibility(View.VISIBLE);
+        }
+
 
         if(event.position == 1 && shouldScan){
             mParent.setAppBarExpanded(false);
@@ -557,7 +573,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         if(isValid){
             CrimpApplication.getAppState().edit()
                     .putBoolean(CrimpApplication.SHOULD_SCAN, false).commit();
-            mRescanButton.setEnabled(true);
+            mTickImage.setVisibility(View.VISIBLE);
+            //mRescanButton.setEnabled(true);
 
             // vibrate 100ms
             Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
@@ -566,7 +583,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             String[] subStrings = event.result.split(categoryAcronym+"|;");
             mMarkerIdText.setText(subStrings[1]);
             mClimberNameText.setText(subStrings[2]);
-            mParent.setDecodedImage(event.image);
         }
 
         onStateChangeCheckScanning();
@@ -606,16 +622,11 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         boolean shouldScan = CrimpApplication.getAppState()
                 .getBoolean(CrimpApplication.SHOULD_SCAN, true);
         if(!shouldScan){
-            mRescanButton.setEnabled(true);
-            Bitmap image = mParent.getDecodedImage();
-            Timber.d("image: %s", image);
-            if(image != null) {
-                Canvas canvas = holder.lockCanvas();
-                if (canvas != null) {
-                    canvas.drawBitmap(image, 0, 0, null);
-                    mPreviewFrame.getHolder().unlockCanvasAndPost(canvas); //finalize
-                }
-            }
+            mTickImage.setVisibility(View.VISIBLE);
+            //mRescanButton.setEnabled(true);
+        }
+        else{
+            mTickImage.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -631,8 +642,14 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     private void onStateChangeCheckScanning(){
         boolean shouldScan = CrimpApplication.getAppState()
                 .getBoolean(CrimpApplication.SHOULD_SCAN, true);
+        if(shouldScan){
+            mTickImage.setVisibility(View.INVISIBLE);
+        }
+        else{
+            mTickImage.setVisibility(View.VISIBLE);
+        }
 
-        mRescanButton.setEnabled(!shouldScan);
+        //mRescanButton.setEnabled(!shouldScan);
 
         //Timber.d("mIsOnResume: %b, mIsShowing: %b, shouldScan: %b, mIsScanning: %b",
         //        mIsOnResume, mIsShowing, shouldScan, mIsScanning);
@@ -736,8 +753,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     }
 
     public interface ScanFragmentInterface{
-        void setDecodedImage(Bitmap image);
-        Bitmap getDecodedImage();
         CategoriesJs getCategoriesJs();
         void goToScoreTab();
         void setCanDisplay(int canDisplay);

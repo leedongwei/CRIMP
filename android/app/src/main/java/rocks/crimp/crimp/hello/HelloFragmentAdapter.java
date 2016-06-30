@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.hello.route.RouteFragment;
 import rocks.crimp.crimp.hello.scan.ScanFragment;
 import rocks.crimp.crimp.hello.score.ScoreFragment;

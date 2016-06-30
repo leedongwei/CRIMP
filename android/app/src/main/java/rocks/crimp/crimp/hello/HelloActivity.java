@@ -1,9 +1,7 @@
 package rocks.crimp.crimp.hello;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
@@ -26,15 +24,12 @@ import com.facebook.login.LoginManager;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.Action;
-import rocks.crimp.crimp.common.event.CameraAcquired;
 import rocks.crimp.crimp.common.event.CameraPermissionGranted;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
@@ -58,7 +53,6 @@ public class HelloActivity extends AppCompatActivity implements
         ScoreFragment.ScoreFragmentInterface{
     public static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
 
-    public static final String SAVE_IMAGE = "save_image";
     public static final String SAVE_HAS_SETACTIVE = "save_setactive";
     public static final String SAVE_HAS_CLEARACTIVE = "save_clearactive";
     public static final String SAVE_PAGER_SELECTED = "save_pager_selected";
@@ -73,7 +67,6 @@ public class HelloActivity extends AppCompatActivity implements
     private CategoriesJs mCategories;
 
     // Scan fragment info
-    private Bitmap mImage;
     private boolean mAlreadyAskPermission;
 
     private boolean mHasAlreadySetActive = false;
@@ -127,7 +120,6 @@ public class HelloActivity extends AppCompatActivity implements
 
         // Load/instantiate data we already have.
         if(savedInstanceState != null){
-            mImage = savedInstanceState.getParcelable(SAVE_IMAGE);
             mHasAlreadySetActive = savedInstanceState.getBoolean(SAVE_HAS_SETACTIVE);
             mHasAlreadyClearActive = savedInstanceState.getBoolean(SAVE_HAS_CLEARACTIVE);
             mAlreadyAskPermission = savedInstanceState.getBoolean(SAVE_ALREADY_ASKED_PERMISSION);
@@ -246,7 +238,6 @@ public class HelloActivity extends AppCompatActivity implements
             // Logout facebook and wipe data
             LoginManager.getInstance().logOut();
             mCategories = null;
-            mImage = null;
             CrimpApplication.getAppState().edit().clear().apply();
             Intent intent = new Intent(HelloActivity.this, LoginActivity.class);
             finish();
@@ -270,7 +261,6 @@ public class HelloActivity extends AppCompatActivity implements
             // Logout facebook and wipe data
             LoginManager.getInstance().logOut();
             mCategories = null;
-            mImage = null;
             CrimpApplication.getAppState().edit().clear().apply();
             Intent intent = new Intent(HelloActivity.this, LoginActivity.class);
             finish();
@@ -296,7 +286,6 @@ public class HelloActivity extends AppCompatActivity implements
     @Override
     protected void onSaveInstanceState (Bundle outState){
         super.onSaveInstanceState(outState);
-        outState.putParcelable(SAVE_IMAGE, mImage);
         outState.putInt(SAVE_PAGER_SELECTED, mPager.getCurrentItem());
         outState.putBoolean(SAVE_HAS_SETACTIVE, mHasAlreadySetActive);
         outState.putBoolean(SAVE_HAS_CLEARACTIVE, mHasAlreadyClearActive);
@@ -365,19 +354,6 @@ public class HelloActivity extends AppCompatActivity implements
         CrimpApplication.getAppState().edit()
                 .putInt(CrimpApplication.CAN_DISPLAY, canDisplay).commit();
         mFragmentAdapter.setCanDisplay(canDisplay);
-    }
-
-    @Override
-    public void setDecodedImage(Bitmap image) {
-        mImage = image;
-        CrimpApplication.getAppState().edit()
-                .putInt(CrimpApplication.IMAGE_HEIGHT, mImage.getHeight())
-                .commit();
-    }
-
-    @Override
-    public Bitmap getDecodedImage(){
-        return mImage;
     }
 
     @Override

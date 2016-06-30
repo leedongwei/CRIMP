@@ -2,13 +2,8 @@ package rocks.crimp.crimp.network;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 
-import okhttp3.MediaType;
-import okhttp3.ResponseBody;
-import okio.BufferedSource;
 import retrofit2.Response;
-import rocks.crimp.crimp.hello.scan.ScanFragment;
 import rocks.crimp.crimp.hello.score.ScoreFragment;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
