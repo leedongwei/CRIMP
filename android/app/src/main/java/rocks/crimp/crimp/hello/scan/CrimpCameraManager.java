@@ -48,11 +48,10 @@ class CrimpCameraManager implements Camera.PreviewCallback{
      * Method to acquire camera resource and initialize camera parameter.
      *
      * @param targetWidth ideal width for our SurfaceView
-     * @param aspectRatio aspect ratio of our ideal SurfaceView
      * @param displayRotation rotation of the screen from its "natural" orientation
      * @see Display#getRotation()
      */
-    public void acquireCamera(int targetWidth, float aspectRatio, int displayRotation){
+    public void acquireCamera(int targetWidth, int displayRotation){
         if(mCameraHandlerThread==null){
             createAndStartThread();
         }
@@ -63,7 +62,7 @@ class CrimpCameraManager implements Camera.PreviewCallback{
         }
 
         CameraHandler.Parameters params =
-                new CameraHandler.Parameters(targetWidth, aspectRatio, displayRotation);
+                new CameraHandler.Parameters(targetWidth, displayRotation);
         mCameraHandler.obtainMessage(CameraHandler.ACQUIRE_CAMERA).sendToTarget();
         mCameraHandler.obtainMessage(CameraHandler.INITIALIZE_CAMERA_PARAMS, params).sendToTarget();
     }
@@ -71,7 +70,7 @@ class CrimpCameraManager implements Camera.PreviewCallback{
     /**
      * Method to start previewing and display camera input onto surfaceView.
      *
-     * @param holder Holder of surfaceView
+     * @param surfaceView to display camera input
      */
     public void startPreview(@NonNull SurfaceView surfaceView){
         if(mCameraHandlerThread==null){
@@ -178,19 +177,4 @@ class CrimpCameraManager implements Camera.PreviewCallback{
             throw new NullPointerException("Got preview callback, but no handler available");
         }
     }
-
-    /*
-
-    public void setIsSurfaceReady(boolean isReady, SurfaceHolder holder){
-        Timber.d("setIsSurfaceReady: %b, startPreviewPending: %b", isReady, mStartPreviewPending);
-        mIsSurfaceReady = isReady;
-        if(mStartPreviewPending){
-            startPreview(holder);
-        }
-    }
-
-    public int getPxScreenHeight(){
-        return mPxScreenHeight;
-    }
-*/
 }

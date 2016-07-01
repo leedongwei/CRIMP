@@ -18,6 +18,8 @@ import rocks.crimp.crimp.common.event.CameraAcquired;
 import timber.log.Timber;
 
 /**
+ * This class deals directly with {@link Camera} object.
+ *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  */
 public class CameraHandler extends Handler {
@@ -89,7 +91,7 @@ public class CameraHandler extends Handler {
 
                 if(mCamera != null){
                     initializeCameraParams(mCamera, mCameraId, params.targetWidth,
-                            params.targetAspectRatio, params.displayRotation);
+                            params.displayRotation);
                 }
                 else{
                     throw new NullPointerException("Camera is null. Did you call acquireCamera()?");
@@ -208,25 +210,20 @@ public class CameraHandler extends Handler {
 
     /**
      * Perform rotation of camera by 90 degree, find ideal preview
-     * size base on target resolution and aspect ratio and set autofocus.
+     * size base on target resolution and set autofocus.
      *
      * @param camera camera to initialize
      * @param cameraId id of camera to initialize
      * @param targetWidth target width of our ideal SurfaceView
-     * @param targetAspectRatio aspect ratio of our ideal SurfaceView
      * @param displayRotation rotation of the screen from its "natural" orientation
      * @see Display#getRotation()
      */
     private void initializeCameraParams(@NonNull Camera camera, int cameraId,
-                                        int targetWidth, float targetAspectRatio,
-                                        int displayRotation){
-        // make targetAspectRatio slightly bigger in case floating point operation screw us up.
-        targetAspectRatio = targetAspectRatio + 0.0001f;
+                                        int targetWidth, int displayRotation){
 
-        /* We want to find how much we need to rotate the camera picture clockwise by in degree.
-         * This is done by adding CameraInfo.orientation with Display.getOrientation. We also
-         * further limit this degree to [0, 360);
-         */
+        // We want to find how much we need to rotate the camera picture clockwise by in degree.
+        // This is done by adding CameraInfo.orientation with Display.getOrientation. We also
+        // further limit this degree to [0, 360);
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         Camera.getCameraInfo(cameraId, cameraInfo);
         int angleToRotateClockwise = cameraInfo.orientation + displayRotation;
@@ -235,46 +232,39 @@ public class CameraHandler extends Handler {
         }
         camera.setDisplayOrientation(angleToRotateClockwise);
 
-        /* We want to find out which preview size to use. The ideal preview size is the largest
-         * resolution with aspect ratio less than the target aspect ratio.
-         */
+        // We want to find out which preview size to use. The ideal preview size is the largest
+        // resolution.
         Camera.Parameters param = camera.getParameters();
         List<Camera.Size> supportedSize = param.getSupportedPreviewSizes();
         mBestPreviewSize = supportedSize.get(0);
-        int longestHeight = 0;
         switch(angleToRotateClockwise){
             case 0:     // deliberate fall through
             case 180:
-                // The ideal preview size is the one with longest height and aspect ratio less
-                // than target aspect ratio.
+                // The ideal preview size is the one with longest min(height, width).
                 for (Camera.Size s : supportedSize) {
-                    final float aspectRatio = ((float)s.height)/(float)s.width;
-                    if(aspectRatio <= targetAspectRatio){
-                        if(s.height > longestHeight){
-                            longestHeight = s.height;
-                            // We will scale the s.width to screen width and therefore need to
-                            // calculate what is the scaled height.
-                            mPxSurfaceExpectedHeight = targetWidth * s.height / s.width;
-                            mBestPreviewSize = s;
-                        }
+                    if(Math.min(s.height, s.width)
+                            >= Math.min(mBestPreviewSize.height, mBestPreviewSize.width)){
+
+                        // We will scale the s.width to screen width and therefore need to
+                        // calculate what is the scaled height.
+                        mPxSurfaceExpectedHeight = targetWidth * s.height / s.width;
+                        mBestPreviewSize = s;
                     }
                 }
                 break;
             case 90:    // deliberate fall through
             case 270:
-                // The ideal preview size is the one with longest height and aspect ratio less
-                // than target aspect ratio. Since we rotated by 90/270 degrees, we will use the
-                // preview width as height and vice versa.
+                // The ideal preview size is the one with longest min(height, width).
+                // Since we rotated by 90/270 degrees, we will use the preview width as height
+                // and vice versa.
                 for (Camera.Size s : supportedSize) {
-                    final float aspectRatio = ((float)s.width)/(float)s.height;
-                    if(aspectRatio <= targetAspectRatio){
-                        if(s.width > longestHeight){
-                            longestHeight = s.width;
-                            // We will scale the s.height to screen width and therefore need to
-                            // calculate what is the scaled height.
-                            mPxSurfaceExpectedHeight = targetWidth * s.width / s.height;
-                            mBestPreviewSize = s;
-                        }
+                    if(Math.min(s.height, s.width)
+                            >= Math.min(mBestPreviewSize.height, mBestPreviewSize.width)){
+
+                        // We will scale the s.width to screen width and therefore need to
+                        // calculate what is the scaled height.
+                        mPxSurfaceExpectedHeight = targetWidth * s.width / s.height;
+                        mBestPreviewSize = s;
                     }
                 }
                 break;
@@ -304,22 +294,20 @@ public class CameraHandler extends Handler {
                     "Rotated camera clockwise: %ddegree\n" +
                     "Chosen resolution: H%dpx, W%dpx\n" +
                     "Chosen aspect ratio (H/W): %f\n" +
-                    "Target aspect ratio (H/W): %f\n" +
                     "Expected height of surface: %dpx",
                     angleToRotateClockwise, mBestPreviewSize.height, mBestPreviewSize.width,
                     ((float)mBestPreviewSize.height)/(float)mBestPreviewSize.width,
-                    targetAspectRatio, mPxSurfaceExpectedHeight);
+                    mPxSurfaceExpectedHeight);
         }
         else{
             Timber.v("---------- Camera information ----------\n" +
                             "Rotated camera clockwise: %ddegree\n" +
                             "Chosen resolution: H%dpx, W%dpx\n" +
                             "Chosen aspect ratio (W/H): %f\n" +
-                            "Target aspect ratio (H/W): %f\n" +
                             "Expected height of surface: %dpx",
                     angleToRotateClockwise, mBestPreviewSize.height, mBestPreviewSize.width,
                     ((float)mBestPreviewSize.width)/(float)mBestPreviewSize.height,
-                    targetAspectRatio, mPxSurfaceExpectedHeight);
+                    mPxSurfaceExpectedHeight);
         }
     }
 
@@ -348,12 +336,12 @@ public class CameraHandler extends Handler {
 
     public static class Parameters{
         public int targetWidth;
-        public float targetAspectRatio;
+        //public float targetAspectRatio;
         public int displayRotation;
 
-        public Parameters(int targetWidth, float targetAspectRatio, int displayRotation){
+        public Parameters(int targetWidth, int displayRotation){
             this.targetWidth = targetWidth;
-            this.targetAspectRatio = targetAspectRatio;
+            //this.targetAspectRatio = targetAspectRatio;
             this.displayRotation = displayRotation;
         }
     }

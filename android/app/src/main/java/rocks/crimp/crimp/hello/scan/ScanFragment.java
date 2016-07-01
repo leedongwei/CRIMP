@@ -50,12 +50,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     public static final String ARGS_TITLE = "STRING_TITLE";
     public static final String MARKER_ID_PATTERN = ".{3}[0-9]{3}";
     public static final String MARKER_ID_DIGIT_PATTERN = "[0-9]{3}";
-    public static final int MARKER_ID_DIGIT_START = 3;
-    public static final int MARKER_ID_DIGIT_END = 6;
-    public static final int MARKER_ID_DIGIT_LENGTH = 3;
 
-    private static final String SCREEN_WIDTH_PX = "screen_width_px";
-    private static final String ASPECT_RATIO = "aspect_ratio";
+    private static final String DEVICE_WIDTH_PX = "device_width_px";
     private static final String DISPLAY_ROTATION = "display rotation";
 
     private ScanFragmentInterface mParent;
@@ -63,8 +59,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     private SurfaceView mPreviewFrame;
     private RelativeLayout mInputLayout;
     private EditText mCategoryIdText;
-    //private ImageButton mFlashButton;
-    //private Button mRescanButton;
     private EditText mMarkerIdText;
     private EditText mClimberNameText;
     private Button mScanNextButton;
@@ -77,8 +71,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     private DecodeThread mDecodeThread;
     private CrimpCameraManager mCameraManager;
     private int mDisplayRotation;
-    private int mTargetWidth;
-    private float mAspectRatio;
+    private int mDeviceWidth;
     private int mPosition;  // Position of this fragment in view pager
 
     private boolean mIsShowing;
@@ -108,8 +101,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     @Override
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
-        outState.putInt(SCREEN_WIDTH_PX, mTargetWidth);
-        outState.putFloat(ASPECT_RATIO, mAspectRatio);
+        outState.putInt(DEVICE_WIDTH_PX, mDeviceWidth);
         outState.putInt(DISPLAY_ROTATION, mDisplayRotation);
     }
 
@@ -120,24 +112,21 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
 
         mCameraManager = CrimpCameraManager.getInstance();
 
-        // We need 3 things: 1) screen width(px), 2)ideal aspect ratio of SurfaceVIew,
-        // 3)display rotation
+        // We need 2 things: 1) device width(px), 2)display rotation
         if(savedInstanceState != null){
-            mTargetWidth = savedInstanceState.getInt(SCREEN_WIDTH_PX);
-            mAspectRatio = savedInstanceState.getFloat(ASPECT_RATIO);
+            mDeviceWidth = savedInstanceState.getInt(DEVICE_WIDTH_PX);
             mDisplayRotation = savedInstanceState.getInt(DISPLAY_ROTATION);
         }
         else{
             // Context.getResources().getDisplayMetrics() gives the resolution of the screen without
             // screen decorations (i.e. Navigation bar) in pixels.
             DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-            mTargetWidth = displayMetrics.widthPixels;
+            mDeviceWidth = displayMetrics.widthPixels;
             float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
             float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
             final int dpTabLayoutHeight = 48;
             // Remaining height is the height of the space available after subtract away TabLayout.
             final int dpRemainingHeight = (int) (dpHeight - dpTabLayoutHeight);
-            mAspectRatio = dpRemainingHeight / dpWidth;
 
             WindowManager windowManager = (WindowManager)getActivity()
                     .getSystemService(Context.WINDOW_SERVICE);
@@ -145,10 +134,10 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             Timber.d("---------- Display information ----------\n" +
                             "Without decoration(px): W%dpx, H%dpx\n" +
                             "Without decoration(dp): W%fdp, H%fdp\n" +
-                            "Logical density: %f, aspect ratio (after removing TabLayout): %f\n" +
+                            "Logical density: %f\n" +
                             "displayRotation: %d degree",
                     displayMetrics.widthPixels, displayMetrics.heightPixels, dpWidth, dpHeight,
-                    displayMetrics.density, mAspectRatio, mDisplayRotation);
+                    displayMetrics.density, mDisplayRotation);
         }
     }
 
@@ -161,8 +150,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         mPreviewFrame = (SurfaceView) rootView.findViewById(R.id.scan_frame);
         mInputLayout = (RelativeLayout) rootView.findViewById(R.id.scan_form);
         mCategoryIdText = (EditText)rootView.findViewById(R.id.scan_category_id_edit);
-        //mFlashButton = (ImageButton)rootView.findViewById(R.id.scan_flash_button);
-        //mRescanButton = (Button)rootView.findViewById(R.id.scan_rescan_button);
         mMarkerIdText = (EditText)rootView.findViewById(R.id.scan_marker_id_edit);
         mClimberNameText = (EditText)rootView.findViewById(R.id.scan_climber_name_edit);
         mScanNextButton = (Button)rootView.findViewById(R.id.scan_next_button);
@@ -174,9 +161,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
 
         mPreviewFrame.getHolder().addCallback(this);
         mScanNextButton.setOnClickListener(this);
-        //mRescanButton.setOnClickListener(this);
         mClearButton.setOnClickListener(this);
-        //mFlashButton.setOnClickListener(this);
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mPreviewFrame.getLayoutParams();
         params.height = CrimpApplication.getAppState().getInt(CrimpApplication.IMAGE_HEIGHT, 0);
         mPreviewFrame.setLayoutParams(params);
@@ -295,52 +280,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     @Override
     public void onClick(View view){
         switch(view.getId()){
-            /*
-            case R.id.scan_rescan_button: {
-                // We only need to show dialog if user has enter stuff on Score tab.
-                String currentScore = CrimpApplication.getAppState()
-                        .getString(CrimpApplication.CURRENT_SCORE, null);
-                if (currentScore == null || currentScore.length() == 0) {
-                    mParent.setAppBarExpanded(false);
-                    mNestedScrollView.smoothScrollTo(0, mNestedScrollView.getTop());
-                    rescan();
-                    // We set SHOULD_SCAN to true. Check if we should start scanning.
-                    onStateChangeCheckScanning();
-                } else {
-                    // Prepare stuff to use in RescanDialog creation.
-                    String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
-                    String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, null);
-                    int categoryPosition = CrimpApplication.getAppState()
-                            .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
-                    int routePosition = CrimpApplication.getAppState()
-                            .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
-                    CategoryJs chosenCategory =
-                            mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
-                    String routeName = chosenCategory.getRoutes().get(routePosition - 1).getRouteName();
-
-                    // some assertion
-                    if(!markerId.matches(MARKER_ID_PATTERN)){
-                        throw new IllegalStateException("Malformed marker id: "+markerId);
-                    }
-                    if(routeName == null){
-                        throw new IllegalStateException("route name is null");
-                    }
-
-                    RescanDialog.create(getActivity(), new Action() {
-                        @Override
-                        public void act() {
-                            mParent.setAppBarExpanded(false);
-                            mNestedScrollView.smoothScrollTo(0, mNestedScrollView.getTop());
-                            rescan();
-                            // We set SHOULD_SCAN to true. Check if we should start scanning.
-                            onStateChangeCheckScanning();
-                        }
-                    }, null, markerId, climberName, routeName).show();
-                }
-                break;
-            }
-            */
-
             case R.id.scan_next_button: {
                 mScanNextButton.setEnabled(false);
 
@@ -419,7 +358,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                         .getString(CrimpApplication.CURRENT_SCORE, null);
                 if (currentScore == null || currentScore.length() == 0) {
                     mParent.clearActive(xUserId, xAuthToken, routeId);
-                    rescan();
+                    prepareForRescan();
                     // We set SHOULD_SCAN to true. Check if we should start scanning.
                     onStateChangeCheckScanning();
                 } else {
@@ -440,7 +379,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                         @Override
                         public void act() {
                             mParent.clearActive(xUserId, xAuthToken, routeId);
-                            rescan();
+                            prepareForRescan();
                             // We set SHOULD_SCAN to true. Check if we should start scanning.
                             onStateChangeCheckScanning();
                         }
@@ -448,18 +387,10 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 }
                 break;
             }
-
-            /*
-            case R.id.scan_flash_button:{
-                Toast toast = Toast.makeText(getActivity(), "STUB!", Toast.LENGTH_SHORT);
-                toast.show();
-                break;
-            }
-            */
         }
     }
 
-    private void rescan(){
+    private void prepareForRescan(){
         // We want to disable access to score tab.
         int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
         canDisplay = canDisplay & 0b011;
@@ -481,8 +412,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         // Set textbox on scan tab to null
         mMarkerIdText.setText(null);
         mClimberNameText.setText(null);
-
-
     }
 
     private void showInfoPanel(){
@@ -623,7 +552,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 .getBoolean(CrimpApplication.SHOULD_SCAN, true);
         if(!shouldScan){
             mTickImage.setVisibility(View.VISIBLE);
-            //mRescanButton.setEnabled(true);
         }
         else{
             mTickImage.setVisibility(View.INVISIBLE);
@@ -649,11 +577,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             mTickImage.setVisibility(View.VISIBLE);
         }
 
-        //mRescanButton.setEnabled(!shouldScan);
-
-        //Timber.d("mIsOnResume: %b, mIsShowing: %b, shouldScan: %b, mIsScanning: %b",
-        //        mIsOnResume, mIsShowing, shouldScan, mIsScanning);
-
         if(mIsOnResume && mIsShowing && shouldScan){
             if(mPreviewFrame.getLayoutParams().height <= 0){
                 Timber.e("Going to scan. mPreviewFrame width: %d, mPreviewFrame height: %d",
@@ -665,7 +588,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             }
 
             if(hasCameraPermission()){
-                mCameraManager.acquireCamera(mTargetWidth, mAspectRatio, mDisplayRotation);
+                mCameraManager.acquireCamera(mDeviceWidth, mDisplayRotation);
                 mCameraManager.startPreview(mPreviewFrame);
                 mCameraManager.startScan(mDecodeThread);
             }
