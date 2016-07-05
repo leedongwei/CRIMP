@@ -3,8 +3,8 @@ crimp:
   environment:
     - 'MONGO_URL=mongodb://mongo:27017/crimp'
     - PORT=3000
-    - 'ROOT_URL=http://localhost:3000'  // replace with your URL
-  image: 'leedongwei/crimp-stable:latest'
+    - 'ROOT_URL=http://dev.crimp.rocks'
+  image: 'leedongwei/crimp:develop'
   links:
     - mongo
   ports:
