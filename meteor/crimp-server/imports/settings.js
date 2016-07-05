@@ -13,7 +13,7 @@ const CRIMP = {
     /**
      *  Demo mode will automatically set all new users as admins
      */
-    DEMO_MODE: false,
+    DEMO_MODE: true,
 
     /**
      *  Full name for desktop views

@@ -14,23 +14,6 @@ import HelpMe from './data/helpme';
 import ActiveTracker from './data/activetracker';
 
 
-Meteor.methods({
-  // TODO: Remove after mock comp
-  deleteAll: () => {
-    CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
-
-    Scores.remove({});
-    Climbers.remove({});
-    Teams.remove({});
-    Categories.remove({}, null, true);
-    Events.remove({}, null, true);
-    RecentScores.remove({});
-    ActiveTracker.remove({});
-    HelpMe.remove({});
-  },
-});
-
-
 function seedDatabase() {
   // Do not allow this to run on production!
   if (CRIMP.ENVIRONMENT.NODE_ENV === 'production'
@@ -92,11 +75,11 @@ function seedDatabase() {
       _id: Random.id(),
       route_name: 'R6',
       score_rules: {},
-    },{
+    }, {
       _id: Random.id(),
       route_name: 'R7',
       score_rules: {},
-    },{
+    }, {
       _id: Random.id(),
       route_name: 'R8',
       score_rules: {},
@@ -155,8 +138,7 @@ function seedDatabase() {
     climber_count: 0,
     time_start: new Date(),
     time_end: new Date(),
-    // score_system: 'Points',
-    score_system: 'IFSC-Top-Bonus',
+    score_system: 'Points',
     routes: [{
       _id: Random.id(),
       route_name: 'TEAM R1',
@@ -202,7 +184,7 @@ function seedDatabase() {
 
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-   *  Build 10 Climbers                                      *
+   *  Build Climbers                                      *
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
   function insertClimbers() {
     return Climbers.insert({
@@ -220,7 +202,7 @@ function seedDatabase() {
   }
 
   const climbers2 = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 50; i++) {
     climbers2.push(insertClimbers());
   }
 
@@ -228,7 +210,6 @@ function seedDatabase() {
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
    *  Add Climbers to cat1 and cat3                          *
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
   climbers1.forEach((cmb) => {
     Categories.methods.addClimber.call({
       climberId: cmb,
@@ -293,5 +274,26 @@ function seedDatabase() {
     });
   }
 }
+
+Meteor.methods({
+  seedDatabase: () => {
+    CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
+
+    seedDatabase();
+  },
+  deleteAll: () => {
+    CRIMP.checkRoles(CRIMP.roles.admins, this.userId);
+
+    Scores.remove({});
+    Climbers.remove({});
+    Teams.remove({});
+    Categories.remove({}, null, true);
+    Events.remove({}, null, true);
+    RecentScores.remove({});
+    ActiveTracker.remove({});
+    HelpMe.remove({});
+  },
+});
+
 
 export default seedDatabase;
