@@ -43,7 +43,7 @@ public class CrimpWsImpl implements CrimpWS {
     public static final String DEVELOPMENT_IP = "http://54.251.191.230/";
     public static final String DEVELOPMENT_NAME = "http://dev.crimp.rocks/";
 
-    public static final String BASE_URL = PRODUCTION_IP;
+    public static final String BASE_URL = DEVELOPMENT_NAME;
     private final RetrofitWs webService;
 
     public CrimpWsImpl(String baseUrl){

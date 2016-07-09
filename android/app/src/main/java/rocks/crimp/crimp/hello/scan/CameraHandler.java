@@ -227,7 +227,7 @@ public class CameraHandler extends Handler {
         Camera.getCameraInfo(cameraId, cameraInfo);
         int angleToRotateClockwise = (cameraInfo.orientation - displayRotation + 360) % 360;
         camera.setDisplayOrientation(angleToRotateClockwise);
-       
+
         // We want to find out which preview size to use. The ideal preview size is the largest
         // resolution.
         Camera.Parameters param = camera.getParameters();

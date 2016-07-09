@@ -42,7 +42,8 @@ public class DecodeHandler extends Handler {
     public static final int DECODE = 2;
     public static final int QUIT = 3;
     private static final String PREFIX = "<BA2016>";
-    private static final String REGEX = PREFIX+"[a-zA-Z]{3}\\d{3};.++";
+    //private static final String REGEX = PREFIX+"[a-zA-Z]{3}\\d{3};.++";
+    private static final String REGEX = PREFIX+".{3}\\d{3};.++";
 
     private boolean running = true;
 
