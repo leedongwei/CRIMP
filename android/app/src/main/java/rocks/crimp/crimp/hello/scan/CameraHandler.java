@@ -222,16 +222,12 @@ public class CameraHandler extends Handler {
                                         int targetWidth, int displayRotation){
 
         // We want to find how much we need to rotate the camera picture clockwise by in degree.
-        // This is done by adding CameraInfo.orientation with Display.getOrientation. We also
-        // further limit this degree to [0, 360);
+        // This is piece of code is provided by offical android api documentation.
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         Camera.getCameraInfo(cameraId, cameraInfo);
-        int angleToRotateClockwise = cameraInfo.orientation + displayRotation;
-        while(angleToRotateClockwise >= 360){
-            angleToRotateClockwise = angleToRotateClockwise - 360;
-        }
+        int angleToRotateClockwise = (cameraInfo.orientation - displayRotation + 360) % 360;
         camera.setDisplayOrientation(angleToRotateClockwise);
-
+       
         // We want to find out which preview size to use. The ideal preview size is the largest
         // resolution.
         Camera.Parameters param = camera.getParameters();
