@@ -130,7 +130,7 @@ public class DecodeHandler extends Handler {
                 }
                 YuvImage yuv = new YuvImage(data, ImageFormat.NV21, yuvWidth, yuvHeight, null);
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
-                yuv.compressToJpeg(new Rect(0, 0, yuvWidth, yuvHeight), 0, out);
+                yuv.compressToJpeg(new Rect(0, 0, yuvWidth, yuvHeight), 100, out);
                 byte[] bytes = out.toByteArray();
                 final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 

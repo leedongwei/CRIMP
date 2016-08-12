@@ -26,12 +26,18 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data
-            android:name="com.facebook.sdk.ApplicationId"
+
+        <meta-data android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
-        <meta-data
-            android:name="io.fabric.ApiKey"
+        <meta-data android:name="io.fabric.ApiKey"
             android:value="8d5b0260afe1ef1a83b015c9fe46c5a6bf97f3ec" />
+
+        <meta-data android:name="io.branch.sdk.TestMode"
+            android:value="true" />
+        <meta-data android:name="io.branch.sdk.BranchKey"
+            android:value="key_live_plf937559hOqCTe7JXP1XgmpytjDxsDe" />
+        <meta-data android:name="io.branch.sdk.BranchKey.test"
+            android:value="key_test_dpk0W3054oKvvNeWMZYl9hhcstcFwBrz" />
 
         <service
             android:name=".service.CrimpService"
@@ -44,8 +50,14 @@
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <data android:scheme="crimp" android:host="open" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
         <activity

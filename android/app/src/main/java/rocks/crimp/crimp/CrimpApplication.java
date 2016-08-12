@@ -10,6 +10,7 @@ import android.os.Looper;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import io.branch.referral.Branch;
 import rocks.crimp.crimp.common.MainThreadBus;
 import rocks.crimp.crimp.common.event.CurrentUploadTask;
 import rocks.crimp.crimp.network.CrimpWS;
@@ -65,7 +66,7 @@ public class CrimpApplication extends Application {
         if(BuildConfig.DEBUG){
             Timber.plant(new Timber.DebugTree());
         }
-
+        Branch.getAutoInstance(this);
         getBusInstance().register(this);
 
         Timber.d("mRestHandlerThread started");
