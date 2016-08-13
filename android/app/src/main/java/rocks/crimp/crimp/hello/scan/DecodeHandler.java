@@ -3,6 +3,7 @@ package rocks.crimp.crimp.hello.scan;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
@@ -69,7 +70,8 @@ public class DecodeHandler extends Handler {
 
         switch (message.what) {
             case DECODE:
-                decode((byte[]) message.obj, message.arg1, message.arg2);
+                PreviewFrameInfo info = (PreviewFrameInfo) message.obj;
+                decode(info.data, info.previewFrameWidth, info.previewFrameHeight, info.angleToRotatePreviewFrameClockwise);
                 break;
             case QUIT:
                 running = false;
@@ -91,7 +93,7 @@ public class DecodeHandler extends Handler {
      * @param width  The width of the preview frame.
      * @param height The height of the preview frame.
      */
-    private void decode(byte[] data, int width, int height) {
+    private void decode(byte[] data, int width, int height, int angleToRotatePreviewClockwise) {
         // Obtained a Result from decoding data.
         long start = System.currentTimeMillis();
         Result rawResult = null;
@@ -117,31 +119,85 @@ public class DecodeHandler extends Handler {
                 CrimpApplication.getBusInstance().post(new DecodeFail());
             }
             else{
-                int yuvWidth;
-                int yuvHeight;
-                // Our app is in portrait mode so the yuvWidth should be smaller than yuvHeight.
-                if(height < width){
-                    yuvWidth = height;
-                    yuvHeight = width;
-                }
-                else{
-                    yuvWidth = width;
-                    yuvHeight = height;
-                }
-                YuvImage yuv = new YuvImage(data, ImageFormat.NV21, yuvWidth, yuvHeight, null);
+                YuvImage yuv = new YuvImage(data, ImageFormat.NV21, width, height, null);
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
-                yuv.compressToJpeg(new Rect(0, 0, yuvWidth, yuvHeight), 100, out);
+                yuv.compressToJpeg(new Rect(0, 0, width, height), 100, out);
                 byte[] bytes = out.toByteArray();
-                final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                Bitmap rawBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                // Apply rotation and cropping to rawBitmap
+                int minSide = Math.min(rawBitmap.getWidth(), rawBitmap.getHeight());
+                Matrix matrix = new Matrix();
+                matrix.postRotate(angleToRotatePreviewClockwise);
+                Bitmap transformedBitmap = Bitmap.createBitmap(rawBitmap,
+                        0, 0, minSide, minSide, matrix, true);
 
                 Timber.d("Found barcode in %dms: %s", end-start, result);
-                CrimpApplication.getBusInstance().post(new DecodeSucceed(result, bitmap));
+                CrimpApplication.getBusInstance().post(new DecodeSucceed(result, transformedBitmap));
             }
         }
         else {
             CrimpApplication.getBusInstance().post(new DecodeFail());
         }
     }
+
+    /*
+    private void foo(){
+        // the bitmap we want to fill with the image
+        Bitmap bitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
+        int numPixels = imageWidth*imageHeight;
+
+        // the buffer we fill up which we then fill the bitmap with
+        IntBuffer intBuffer = IntBuffer.allocate(imageWidth*imageHeight);
+        // If you're reusing a buffer, next line imperative to refill from the start,
+        // if not good practice
+        intBuffer.position(0);
+
+        // Set the alpha for the image: 0 is transparent, 255 fully opaque
+        final byte alpha = (byte) 255;
+
+        // Get each pixel, one at a time
+        for (int y = 0; y < imageHeight; y++) {
+            for (int x = 0; x < imageWidth; x++) {
+                // Get the Y value, stored in the first block of data
+                // The logical "AND 0xff" is needed to deal with the signed issue
+                int Y = data[y*imageWidth + x] & 0xff;
+
+                // Get U and V values, stored after Y values, one per 2x2 block
+                // of pixels, interleaved. Prepare them as floats with correct range
+                // ready for calculation later.
+                int xby2 = x/2;
+                int yby2 = y/2;
+
+                // make this V for NV12/420SP
+                float U = (float)(data[numPixels + 2*xby2 + yby2*imageWidth] & 0xff) - 128.0f;
+
+                // make this U for NV12/420SP
+                float V = (float)(data[numPixels + 2*xby2 + 1 + yby2*imageWidth] & 0xff) - 128.0f;
+
+                // Do the YUV -> RGB conversion
+                float Yf = 1.164f*((float)Y) - 16.0f;
+                int R = (int)(Yf + 1.596f*V);
+                int G = (int)(Yf - 0.813f*V - 0.391f*U);
+                int B = (int)(Yf            + 2.018f*U);
+
+                // Clip rgb values to 0-255
+                R = R < 0 ? 0 : R > 255 ? 255 : R;
+                G = G < 0 ? 0 : G > 255 ? 255 : G;
+                B = B < 0 ? 0 : B > 255 ? 255 : B;
+
+                // Put that pixel in the buffer
+                intBuffer.put(alpha*16777216 + R*65536 + G*256 + B);
+            }
+        }
+
+        // Get buffer ready to be read
+        intBuffer.flip();
+
+        // Push the pixel information from the buffer onto the bitmap.
+        bitmap.copyPixelsFromBuffer(intBuffer);
+    }
+    */
 
     /**
      * A factory method to build the appropriate LuminanceSource object based on the format

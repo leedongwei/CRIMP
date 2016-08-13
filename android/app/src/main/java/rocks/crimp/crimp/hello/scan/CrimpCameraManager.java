@@ -167,8 +167,10 @@ class CrimpCameraManager implements Camera.PreviewCallback{
         if(mDecodeThread != null && mDecodeThread.getHandler() != null){
             if(!mCameraHandler.cameraIsReleased()){
                 mDecodeThread.getHandler().obtainMessage(DecodeHandler.DECODE,
-                        camera.getParameters().getPreviewSize().width,
-                        camera.getParameters().getPreviewSize().height, data).sendToTarget();
+                        new PreviewFrameInfo(camera.getParameters().getPreviewSize().width,
+                                camera.getParameters().getPreviewSize().height,
+                                mCameraHandler.getAngleToRotatePreviewClockwise(),
+                                data)).sendToTarget();
             }
 
             mCameraHandler.setIsScanning(false);

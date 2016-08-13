@@ -2,6 +2,8 @@ package rocks.crimp.crimp.hello.scan;
 
 import android.Manifest;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
@@ -24,6 +26,8 @@ import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +57,8 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
 
     private static final String DEVICE_WIDTH_PX = "device_width_px";
     private static final String DISPLAY_ROTATION = "display rotation";
+    private static final String CAPTURED_BITMAP = "captured_bitmap";
+    private static final String CAPTURED_BITMAP_FILE_NAME = "captured_bitmap_temp";
 
     private ScanFragmentInterface mParent;
 
@@ -73,6 +79,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     private int mDisplayRotation;
     private int mDeviceWidth;
     private int mPosition;  // Position of this fragment in view pager
+    private Bitmap mCapturedBitmap;
 
     private boolean mIsShowing;
     private boolean mIsOnResume;
@@ -103,6 +110,9 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         super.onSaveInstanceState(outState);
         outState.putInt(DEVICE_WIDTH_PX, mDeviceWidth);
         outState.putInt(DISPLAY_ROTATION, mDisplayRotation);
+        if(mCapturedBitmap != null){
+            outState.putParcelable(CAPTURED_BITMAP, mCapturedBitmap);
+        }
     }
 
     @Override
@@ -116,8 +126,11 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         if(savedInstanceState != null){
             mDeviceWidth = savedInstanceState.getInt(DEVICE_WIDTH_PX);
             mDisplayRotation = savedInstanceState.getInt(DISPLAY_ROTATION);
+            mCapturedBitmap = savedInstanceState.getParcelable(CAPTURED_BITMAP);
         }
         else{
+            mCapturedBitmap = readBitmapFromFile(getActivity(), CAPTURED_BITMAP_FILE_NAME);
+
             // Context.getResources().getDisplayMetrics() gives the resolution of the screen without
             // screen decorations (i.e. Navigation bar) in pixels.
             DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
@@ -248,6 +261,9 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         mDecodeThread = new DecodeThread();
         if(mDecodeThread.getState() == Thread.State.NEW) {
             mDecodeThread.start();
+        }
+        if(mCapturedBitmap != null){
+            mTickImage.setImageBitmap(mCapturedBitmap);
         }
     }
 
@@ -503,7 +519,9 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             CrimpApplication.getAppState().edit()
                     .putBoolean(CrimpApplication.SHOULD_SCAN, false).commit();
             mTickImage.setVisibility(View.VISIBLE);
-            //mRescanButton.setEnabled(true);
+            mCapturedBitmap = event.image;
+            writeBitmapToFile(getActivity(), mCapturedBitmap, CAPTURED_BITMAP_FILE_NAME);
+            mTickImage.setImageBitmap(event.image);
 
             // vibrate 100ms
             Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
@@ -593,6 +611,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 mCameraManager.startScan(mDecodeThread);
             }
             else{
+                Timber.d("No Camera permission");
                 if(!mParent.hasAlreadyAskedPermissions()){
                     mParent.setAlreadyAskedPermission(true);
                     tryToRequestCameraPermission(HelloActivity.CAMERA_PERMISSION_REQUEST_CODE);
@@ -673,6 +692,32 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             AlertDialog dialog = CameraPermissionDialog.create(getActivity());
             dialog.show();
         }
+    }
+
+    private void writeBitmapToFile(Context context, Bitmap bitmap, String fileName){
+        FileOutputStream out = null;
+        try {
+            out = context.openFileOutput(fileName, Context.MODE_PRIVATE);
+            // PNG is a lossless format, the compression factor (100) is ignored
+            mCapturedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private Bitmap readBitmapFromFile(Context context, String fileName){
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        String bitmapPath = context.getFileStreamPath(fileName).getPath();
+        return BitmapFactory.decodeFile(bitmapPath, options);
     }
 
     public interface ScanFragmentInterface{

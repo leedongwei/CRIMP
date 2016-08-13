@@ -35,6 +35,8 @@ public class CameraHandler extends Handler {
     private boolean mIsReleased;
     private boolean mIsScanning;
 
+    private int mAngleToRotatePreviewClockwise;
+
     /**
      * Camera instance that this CameraManager is managing.
      */
@@ -225,15 +227,15 @@ public class CameraHandler extends Handler {
         // This is piece of code is provided by offical android api documentation.
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         Camera.getCameraInfo(cameraId, cameraInfo);
-        int angleToRotateClockwise = (cameraInfo.orientation - displayRotation + 360) % 360;
-        camera.setDisplayOrientation(angleToRotateClockwise);
+        mAngleToRotatePreviewClockwise = (cameraInfo.orientation - displayRotation + 360) % 360;
+        camera.setDisplayOrientation(mAngleToRotatePreviewClockwise);
 
         // We want to find out which preview size to use. The ideal preview size is the largest
         // resolution.
         Camera.Parameters param = camera.getParameters();
         List<Camera.Size> supportedSize = param.getSupportedPreviewSizes();
         mBestPreviewSize = supportedSize.get(0);
-        switch(angleToRotateClockwise){
+        switch(mAngleToRotatePreviewClockwise){
             case 0:     // deliberate fall through
             case 180:
                 // The ideal preview size is the one with longest min(height, width).
@@ -285,13 +287,13 @@ public class CameraHandler extends Handler {
         CrimpApplication.getBusInstance()
                 .post(new CameraAcquired(targetWidth, mPxSurfaceExpectedHeight));
 
-        if(angleToRotateClockwise==0 || angleToRotateClockwise==180){
+        if(mAngleToRotatePreviewClockwise==0 || mAngleToRotatePreviewClockwise==180){
             Timber.v("---------- Camera information ----------\n" +
                     "Rotated camera clockwise: %ddegree\n" +
                     "Chosen resolution: H%dpx, W%dpx\n" +
                     "Chosen aspect ratio (H/W): %f\n" +
                     "Expected height of surface: %dpx",
-                    angleToRotateClockwise, mBestPreviewSize.height, mBestPreviewSize.width,
+                    mAngleToRotatePreviewClockwise, mBestPreviewSize.height, mBestPreviewSize.width,
                     ((float)mBestPreviewSize.height)/(float)mBestPreviewSize.width,
                     mPxSurfaceExpectedHeight);
         }
@@ -301,7 +303,7 @@ public class CameraHandler extends Handler {
                             "Chosen resolution: H%dpx, W%dpx\n" +
                             "Chosen aspect ratio (W/H): %f\n" +
                             "Expected height of surface: %dpx",
-                    angleToRotateClockwise, mBestPreviewSize.height, mBestPreviewSize.width,
+                    mAngleToRotatePreviewClockwise, mBestPreviewSize.height, mBestPreviewSize.width,
                     ((float)mBestPreviewSize.width)/(float)mBestPreviewSize.height,
                     mPxSurfaceExpectedHeight);
         }
@@ -340,5 +342,9 @@ public class CameraHandler extends Handler {
             //this.targetAspectRatio = targetAspectRatio;
             this.displayRotation = displayRotation;
         }
+    }
+
+    public int getAngleToRotatePreviewClockwise(){
+        return mAngleToRotatePreviewClockwise;
     }
 }

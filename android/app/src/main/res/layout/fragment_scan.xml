@@ -23,6 +23,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <ImageView android:id="@+id/tick_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:visibility="invisible"
+                android:layout_alignParentTop="true"
+                android:background="@color/white"
+                tools:visibility="visible"/>
+
             <ImageView android:id="@+id/overlay_padding"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -42,21 +52,6 @@
                 android:scaleType="centerCrop"
                 android:src="@color/transparent"
                 android:background="@drawable/scan_overlay_border"/>
-
-            <ImageView android:id="@+id/tick_image"
-                android:paddingLeft="32dp"
-                android:paddingRight="32dp"
-                android:paddingTop="32dp"
-                android:paddingBottom="32dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_check_circle_black_48dp"
-                android:visibility="invisible"
-                android:layout_alignParentTop="true"
-                android:background="@color/white"
-                tools:visibility="visible"/>
 
         </RelativeLayout>
 
