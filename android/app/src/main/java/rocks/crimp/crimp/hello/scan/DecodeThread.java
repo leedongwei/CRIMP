@@ -6,9 +6,7 @@ import timber.log.Timber;
 
 /**
  * Worker thread for handling decode operation. A DecodeHandler instance will
- * be created by this thread. Any changes to the user interface must always be
- * performed from within the main thread therefore DecodeThread will hold a reference
- * to the main thread handler for inter-thread communication.
+ * be created by this thread.
  *
  * @author Lin Weizhi (ecc.weizhi@gmail.com)
  *

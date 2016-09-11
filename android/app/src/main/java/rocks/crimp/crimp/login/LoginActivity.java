@@ -3,7 +3,6 @@ package rocks.crimp.crimp.login;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -24,10 +23,14 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.squareup.otto.Subscribe;
 
+import org.json.JSONObject;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import io.branch.referral.Branch;
+import io.branch.referral.BranchError;
 import io.fabric.sdk.android.Fabric;
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
@@ -36,7 +39,6 @@ import rocks.crimp.crimp.common.Helper;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
 import rocks.crimp.crimp.hello.HelloActivity;
-import rocks.crimp.crimp.network.model.HelpMeJs;
 import rocks.crimp.crimp.network.model.LoginJs;
 import rocks.crimp.crimp.service.ServiceHelper;
 import timber.log.Timber;
@@ -191,11 +193,6 @@ public class LoginActivity extends AppCompatActivity {
                 .getStringSet(CrimpApplication.ROLES, null);
 
         Crashlytics.setUserName(mFbUserName);
-
-        // Check if we already log in
-        if(mXUserId != null && mXAuthToken != null && Helper.isJudgeOrAbove(mRoles)){
-            launchHelloActivity();
-        }
     }
 
     @Override
@@ -203,28 +200,51 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
         CrimpApplication.getBusInstance().register(this);
 
-        if(mLoginTxId != null){
-            // some assertion
-            Helper.assertStuff(true, true, false, false, false);
+        Branch branch = Branch.getInstance();
+        branch.initSession(new Branch.BranchReferralInitListener(){
+            @Override
+            public void onInitFinished(JSONObject referringParams, BranchError error) {
+                if (error == null) {
+                    Timber.d("Received branch referringParams: %s", referringParams.toString());
+                } else {
+                    Timber.e("Branch error: %s", error.getMessage());
+                }
+            }
+        }, this.getIntent().getData(), this);
 
-            doLogin(mFbAccessToken);
-            showVerifyingUI("Logging in to CRIMP...");
-        }
-        else if(mLogoutTxId != null){
-            // some assertion
-            Helper.assertStuff(true, true, true, true, true);
-
-            doLogout(mXUserId, mXAuthToken);
-            showVerifyingUI("Logging out of CRIMP...");
+        // Check if we already log in
+        if(mXUserId != null && mXAuthToken != null && Helper.isJudgeOrAbove(mRoles)){
+            launchHelloActivity();
         }
         else{
-            // some assertion
-            // I am not sure if this line is correct. Disabling it for now since it has been crashing
-            // app.
-            Helper.assertStuff(false, false, false, false, false);
+            if(mLoginTxId != null){
+                // some assertion
+                Helper.assertStuff(true, true, false, false, false);
 
-            showDefaultUI();
+                doLogin(mFbAccessToken);
+                showVerifyingUI("Logging in to CRIMP...");
+            }
+            else if(mLogoutTxId != null){
+                // some assertion
+                Helper.assertStuff(true, true, true, true, true);
+
+                doLogout(mXUserId, mXAuthToken);
+                showVerifyingUI("Logging out of CRIMP...");
+            }
+            else{
+                // some assertion
+                // I am not sure if this line is correct. Disabling it for now since it has been crashing
+                // app.
+                Helper.assertStuff(false, false, false, false, false);
+
+                showDefaultUI();
+            }
         }
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        this.setIntent(intent);
     }
 
     @Override

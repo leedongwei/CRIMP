@@ -3,7 +3,6 @@ package rocks.crimp.crimp.network;
 import android.support.annotation.Nullable;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -11,7 +10,6 @@ import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
-import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -45,7 +43,7 @@ public class CrimpWsImpl implements CrimpWS {
     public static final String DEVELOPMENT_IP = "http://54.251.191.230/";
     public static final String DEVELOPMENT_NAME = "http://dev.crimp.rocks/";
 
-    public static final String BASE_URL = PRODUCTION_IP;
+    public static final String BASE_URL = DEVELOPMENT_NAME;
     private final RetrofitWs webService;
 
     public CrimpWsImpl(String baseUrl){
