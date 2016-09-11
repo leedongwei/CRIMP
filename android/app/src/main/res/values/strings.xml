@@ -5,6 +5,10 @@
 
     <string name="toast_no_network">No network connection</string>
 
+    <!-- Home Activity -->
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
     <!-- Hello Activity menu -->
     <string name="action_helpme">Help me</string>
     <string name="action_logout">Logout</string>
@@ -94,4 +98,18 @@
     <string name="permission_dialog_title">Permission required</string>
     <string name="permission_dialog_message">To use QR code scanning feature, allow CRIMP acces to your camera so you can scan QR codes.\n\nGo to App info &gt; permissions to allow access.</string>
     <string name="permission_dialog_positive">Go to App info</string>
+
+
+    <!-- Address Activity UI -->
+    <string name="address_activity_hint">competition-name</string>
+    <string name="address_activity_next">Next</string>
+
+    <!-- Login Activity 2 UI -->
+    <string name="login_activity_2_greeting">Login to begin</string>
+
+
+
+    <!-- Account authenticator UI -->
+    <string name="authenticator_label">CRIMP</string>
+    <string name="error_message_add_account_outside_app">Please add account by signing in through Crimp</string>
 </resources>
