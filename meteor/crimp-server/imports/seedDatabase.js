@@ -76,6 +76,14 @@ function seedDatabase() {
       _id: Random.id(),
       route_name: 'R6',
       score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'R7',
+      score_rules: {},
+    }, {
+      _id: Random.id(),
+      route_name: 'R8',
+      score_rules: {},
     }],
     event: {
       _id: eve1,

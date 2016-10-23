@@ -25,7 +25,6 @@ import rocks.crimp.crimp.common.Action;
 import rocks.crimp.crimp.common.event.RequestFailed;
 import rocks.crimp.crimp.common.event.RequestSucceed;
 import rocks.crimp.crimp.common.event.SwipeTo;
-import rocks.crimp.crimp.hello.score.scoremodule.BonusTwoModule;
 import rocks.crimp.crimp.hello.score.scoremodule.PointsModule;
 import rocks.crimp.crimp.hello.score.scoremodule.ScoreModule;
 import rocks.crimp.crimp.hello.score.scoremodule.TopB2B1Module;

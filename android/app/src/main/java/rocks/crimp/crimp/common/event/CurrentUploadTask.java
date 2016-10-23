@@ -1,6 +1,5 @@
 package rocks.crimp.crimp.common.event;
 
-import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.network.model.RequestBean;
 
 /**

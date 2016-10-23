@@ -1,12 +1,14 @@
 package rocks.crimp.crimp.hello.scan;
 
+import android.Manifest;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
@@ -17,24 +19,30 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import rocks.crimp.crimp.CrimpApplication;
 import rocks.crimp.crimp.R;
 import rocks.crimp.crimp.common.Action;
+import rocks.crimp.crimp.common.PermissionHelper;
 import rocks.crimp.crimp.common.event.CameraAcquired;
+import rocks.crimp.crimp.common.event.CameraPermissionGranted;
 import rocks.crimp.crimp.common.event.DecodeFail;
 import rocks.crimp.crimp.common.event.DecodeSucceed;
 import rocks.crimp.crimp.common.event.SwipeTo;
+import rocks.crimp.crimp.hello.HelloActivity;
 import rocks.crimp.crimp.network.model.CategoriesJs;
 import rocks.crimp.crimp.network.model.CategoryJs;
-import rocks.crimp.crimp.service.ServiceHelper;
 import timber.log.Timber;
 
 /**
@@ -46,21 +54,17 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     public static final String ARGS_TITLE = "STRING_TITLE";
     public static final String MARKER_ID_PATTERN = ".{3}[0-9]{3}";
     public static final String MARKER_ID_DIGIT_PATTERN = "[0-9]{3}";
-    public static final int MARKER_ID_DIGIT_START = 3;
-    public static final int MARKER_ID_DIGIT_END = 6;
-    public static final int MARKER_ID_DIGIT_LENGTH = 3;
 
-    private static final String SCREEN_WIDTH_PX = "screen_width_px";
-    private static final String ASPECT_RATIO = "aspect_ratio";
+    private static final String DEVICE_WIDTH_PX = "device_width_px";
     private static final String DISPLAY_ROTATION = "display rotation";
+    private static final String CAPTURED_BITMAP = "captured_bitmap";
+    private static final String CAPTURED_BITMAP_FILE_NAME = "captured_bitmap_temp";
 
     private ScanFragmentInterface mParent;
 
     private SurfaceView mPreviewFrame;
     private RelativeLayout mInputLayout;
     private EditText mCategoryIdText;
-    private ImageButton mFlashButton;
-    private Button mRescanButton;
     private EditText mMarkerIdText;
     private EditText mClimberNameText;
     private Button mScanNextButton;
@@ -68,13 +72,14 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     private TextView mMarkerValid;
     private Button mClearButton;
     private NestedScrollView mNestedScrollView;
+    private ImageView mTickImage;
 
     private DecodeThread mDecodeThread;
     private CrimpCameraManager mCameraManager;
     private int mDisplayRotation;
-    private int mTargetWidth;
-    private float mAspectRatio;
+    private int mDeviceWidth;
     private int mPosition;  // Position of this fragment in view pager
+    private Bitmap mCapturedBitmap;
 
     private boolean mIsShowing;
     private boolean mIsOnResume;
@@ -103,9 +108,11 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     @Override
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
-        outState.putInt(SCREEN_WIDTH_PX, mTargetWidth);
-        outState.putFloat(ASPECT_RATIO, mAspectRatio);
+        outState.putInt(DEVICE_WIDTH_PX, mDeviceWidth);
         outState.putInt(DISPLAY_ROTATION, mDisplayRotation);
+        if(mCapturedBitmap != null){
+            outState.putParcelable(CAPTURED_BITMAP, mCapturedBitmap);
+        }
     }
 
     @Override
@@ -115,24 +122,24 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
 
         mCameraManager = CrimpCameraManager.getInstance();
 
-        // We need 3 things: 1) screen width(px), 2)ideal aspect ratio of SurfaceVIew,
-        // 3)display rotation
+        // We need 2 things: 1) device width(px), 2)display rotation
         if(savedInstanceState != null){
-            mTargetWidth = savedInstanceState.getInt(SCREEN_WIDTH_PX);
-            mAspectRatio = savedInstanceState.getFloat(ASPECT_RATIO);
+            mDeviceWidth = savedInstanceState.getInt(DEVICE_WIDTH_PX);
             mDisplayRotation = savedInstanceState.getInt(DISPLAY_ROTATION);
+            mCapturedBitmap = savedInstanceState.getParcelable(CAPTURED_BITMAP);
         }
         else{
+            mCapturedBitmap = readBitmapFromFile(getActivity(), CAPTURED_BITMAP_FILE_NAME);
+
             // Context.getResources().getDisplayMetrics() gives the resolution of the screen without
             // screen decorations (i.e. Navigation bar) in pixels.
             DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-            mTargetWidth = displayMetrics.widthPixels;
+            mDeviceWidth = displayMetrics.widthPixels;
             float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
             float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
             final int dpTabLayoutHeight = 48;
             // Remaining height is the height of the space available after subtract away TabLayout.
             final int dpRemainingHeight = (int) (dpHeight - dpTabLayoutHeight);
-            mAspectRatio = dpRemainingHeight / dpWidth;
 
             WindowManager windowManager = (WindowManager)getActivity()
                     .getSystemService(Context.WINDOW_SERVICE);
@@ -140,10 +147,10 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             Timber.d("---------- Display information ----------\n" +
                             "Without decoration(px): W%dpx, H%dpx\n" +
                             "Without decoration(dp): W%fdp, H%fdp\n" +
-                            "Logical density: %f, aspect ratio (after removing TabLayout): %f\n" +
+                            "Logical density: %f\n" +
                             "displayRotation: %d degree",
                     displayMetrics.widthPixels, displayMetrics.heightPixels, dpWidth, dpHeight,
-                    displayMetrics.density, mAspectRatio, mDisplayRotation);
+                    displayMetrics.density, mDisplayRotation);
         }
     }
 
@@ -156,8 +163,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         mPreviewFrame = (SurfaceView) rootView.findViewById(R.id.scan_frame);
         mInputLayout = (RelativeLayout) rootView.findViewById(R.id.scan_form);
         mCategoryIdText = (EditText)rootView.findViewById(R.id.scan_category_id_edit);
-        mFlashButton = (ImageButton)rootView.findViewById(R.id.scan_flash_button);
-        mRescanButton = (Button)rootView.findViewById(R.id.scan_rescan_button);
         mMarkerIdText = (EditText)rootView.findViewById(R.id.scan_marker_id_edit);
         mClimberNameText = (EditText)rootView.findViewById(R.id.scan_climber_name_edit);
         mScanNextButton = (Button)rootView.findViewById(R.id.scan_next_button);
@@ -165,12 +170,11 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         mMarkerValid = (TextView) rootView.findViewById(R.id.scan_valid_marker_text);
         mClearButton = (Button) rootView.findViewById(R.id.scan_clear_button);
         mNestedScrollView = (NestedScrollView) rootView.findViewById(R.id.scan_nested_scroll_view);
+        mTickImage = (ImageView) rootView.findViewById(R.id.tick_image);
 
         mPreviewFrame.getHolder().addCallback(this);
         mScanNextButton.setOnClickListener(this);
-        mRescanButton.setOnClickListener(this);
         mClearButton.setOnClickListener(this);
-        mFlashButton.setOnClickListener(this);
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mPreviewFrame.getLayoutParams();
         params.height = CrimpApplication.getAppState().getInt(CrimpApplication.IMAGE_HEIGHT, 0);
         mPreviewFrame.setLayoutParams(params);
@@ -222,6 +226,10 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 mCategoryIdText.setVisibility(View.GONE);
                 mMarkerIdText.setVisibility(View.GONE);
                 mMarkerLayout.setVisibility(View.VISIBLE);
+
+                CrimpApplication.getAppState().edit()
+                        .putBoolean(CrimpApplication.SHOULD_SCAN, false).commit();
+                mTickImage.setVisibility(View.VISIBLE);
             }
         }, new Action() {
             @Override
@@ -254,6 +262,9 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         if(mDecodeThread.getState() == Thread.State.NEW) {
             mDecodeThread.start();
         }
+        if(mCapturedBitmap != null){
+            mTickImage.setImageBitmap(mCapturedBitmap);
+        }
     }
 
     @Override
@@ -285,50 +296,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     @Override
     public void onClick(View view){
         switch(view.getId()){
-            case R.id.scan_rescan_button: {
-                // We only need to show dialog if user has enter stuff on Score tab.
-                String currentScore = CrimpApplication.getAppState()
-                        .getString(CrimpApplication.CURRENT_SCORE, null);
-                if (currentScore == null || currentScore.length() == 0) {
-                    mParent.setAppBarExpanded(false);
-                    mNestedScrollView.smoothScrollTo(0, mNestedScrollView.getTop());
-                    rescan();
-                    // We set SHOULD_SCAN to true. Check if we should start scanning.
-                    onStateChangeCheckScanning();
-                } else {
-                    // Prepare stuff to use in RescanDialog creation.
-                    String markerId = CrimpApplication.getAppState().getString(CrimpApplication.MARKER_ID, null);
-                    String climberName = CrimpApplication.getAppState().getString(CrimpApplication.CLIMBER_NAME, null);
-                    int categoryPosition = CrimpApplication.getAppState()
-                            .getInt(CrimpApplication.COMMITTED_CATEGORY, 0);
-                    int routePosition = CrimpApplication.getAppState()
-                            .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
-                    CategoryJs chosenCategory =
-                            mParent.getCategoriesJs().getCategories().get(categoryPosition - 1);
-                    String routeName = chosenCategory.getRoutes().get(routePosition - 1).getRouteName();
-
-                    // some assertion
-                    if(!markerId.matches(MARKER_ID_PATTERN)){
-                        throw new IllegalStateException("Malformed marker id: "+markerId);
-                    }
-                    if(routeName == null){
-                        throw new IllegalStateException("route name is null");
-                    }
-
-                    RescanDialog.create(getActivity(), new Action() {
-                        @Override
-                        public void act() {
-                            mParent.setAppBarExpanded(false);
-                            mNestedScrollView.smoothScrollTo(0, mNestedScrollView.getTop());
-                            rescan();
-                            // We set SHOULD_SCAN to true. Check if we should start scanning.
-                            onStateChangeCheckScanning();
-                        }
-                    }, null, markerId, climberName, routeName).show();
-                }
-                break;
-            }
-
             case R.id.scan_next_button: {
                 mScanNextButton.setEnabled(false);
 
@@ -362,6 +329,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                         .putString(CrimpApplication.CLIMBER_NAME, climberName)
                         .putBoolean(CrimpApplication.SHOULD_SCAN, false)
                         .commit();
+                mTickImage.setVisibility(View.VISIBLE);
 
                 int routePosition = CrimpApplication.getAppState()
                         .getInt(CrimpApplication.COMMITTED_ROUTE, 0);
@@ -406,7 +374,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                         .getString(CrimpApplication.CURRENT_SCORE, null);
                 if (currentScore == null || currentScore.length() == 0) {
                     mParent.clearActive(xUserId, xAuthToken, routeId);
-                    rescan();
+                    prepareForRescan();
                     // We set SHOULD_SCAN to true. Check if we should start scanning.
                     onStateChangeCheckScanning();
                 } else {
@@ -427,7 +395,7 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                         @Override
                         public void act() {
                             mParent.clearActive(xUserId, xAuthToken, routeId);
-                            rescan();
+                            prepareForRescan();
                             // We set SHOULD_SCAN to true. Check if we should start scanning.
                             onStateChangeCheckScanning();
                         }
@@ -435,16 +403,10 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 }
                 break;
             }
-
-            case R.id.scan_flash_button:{
-                Toast toast = Toast.makeText(getActivity(), "STUB!", Toast.LENGTH_SHORT);
-                toast.show();
-                break;
-            }
         }
     }
 
-    private void rescan(){
+    private void prepareForRescan(){
         // We want to disable access to score tab.
         int canDisplay = CrimpApplication.getAppState().getInt(CrimpApplication.CAN_DISPLAY, 0b001);
         canDisplay = canDisplay & 0b011;
@@ -461,12 +423,11 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 .remove(CrimpApplication.CURRENT_SCORE)
                 .remove(CrimpApplication.ACCUMULATED_SCORE)
                 .commit();
+        mTickImage.setVisibility(View.INVISIBLE);
 
         // Set textbox on scan tab to null
         mMarkerIdText.setText(null);
         mClimberNameText.setText(null);
-
-
     }
 
     private void showInfoPanel(){
@@ -504,6 +465,13 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         Timber.d("onReceivedSwipeTo: %d", event.position);
         boolean shouldScan = CrimpApplication.getAppState()
                 .getBoolean(CrimpApplication.SHOULD_SCAN, true);
+        if(shouldScan){
+            mTickImage.setVisibility(View.INVISIBLE);
+        }
+        else{
+            mTickImage.setVisibility(View.VISIBLE);
+        }
+
 
         if(event.position == 1 && shouldScan){
             mParent.setAppBarExpanded(false);
@@ -550,7 +518,10 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         if(isValid){
             CrimpApplication.getAppState().edit()
                     .putBoolean(CrimpApplication.SHOULD_SCAN, false).commit();
-            mRescanButton.setEnabled(true);
+            mTickImage.setVisibility(View.VISIBLE);
+            mCapturedBitmap = event.image;
+            writeBitmapToFile(getActivity(), mCapturedBitmap, CAPTURED_BITMAP_FILE_NAME);
+            mTickImage.setImageBitmap(event.image);
 
             // vibrate 100ms
             Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
@@ -559,7 +530,6 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
             String[] subStrings = event.result.split(categoryAcronym+"|;");
             mMarkerIdText.setText(subStrings[1]);
             mClimberNameText.setText(subStrings[2]);
-            mParent.setDecodedImage(event.image);
         }
 
         onStateChangeCheckScanning();
@@ -575,6 +545,11 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mPreviewFrame.getLayoutParams();
         params.height = event.heightPx;
         mPreviewFrame.setLayoutParams(params);
+    }
+
+    @Subscribe
+    public void onReceivedCameraPermissionGranted(CameraPermissionGranted event){
+        onStateChangeCheckScanning();
     }
 
     @Override
@@ -594,16 +569,10 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         boolean shouldScan = CrimpApplication.getAppState()
                 .getBoolean(CrimpApplication.SHOULD_SCAN, true);
         if(!shouldScan){
-            mRescanButton.setEnabled(true);
-            Bitmap image = mParent.getDecodedImage();
-            Timber.d("image: %s", image);
-            if(image != null) {
-                Canvas canvas = holder.lockCanvas();
-                if (canvas != null) {
-                    canvas.drawBitmap(image, 0, 0, null);
-                    mPreviewFrame.getHolder().unlockCanvasAndPost(canvas); //finalize
-                }
-            }
+            mTickImage.setVisibility(View.VISIBLE);
+        }
+        else{
+            mTickImage.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -619,11 +588,12 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
     private void onStateChangeCheckScanning(){
         boolean shouldScan = CrimpApplication.getAppState()
                 .getBoolean(CrimpApplication.SHOULD_SCAN, true);
-
-        mRescanButton.setEnabled(!shouldScan);
-
-        //Timber.d("mIsOnResume: %b, mIsShowing: %b, shouldScan: %b, mIsScanning: %b",
-        //        mIsOnResume, mIsShowing, shouldScan, mIsScanning);
+        if(shouldScan){
+            mTickImage.setVisibility(View.INVISIBLE);
+        }
+        else{
+            mTickImage.setVisibility(View.VISIBLE);
+        }
 
         if(mIsOnResume && mIsShowing && shouldScan){
             if(mPreviewFrame.getLayoutParams().height <= 0){
@@ -634,9 +604,19 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
                 Timber.v("Going to scan. mPreviewFrame width: %d, mPreviewFrame height: %d",
                         mPreviewFrame.getLayoutParams().width, mPreviewFrame.getLayoutParams().height);
             }
-            mCameraManager.acquireCamera(mTargetWidth, mAspectRatio, mDisplayRotation);
-            mCameraManager.startPreview(mPreviewFrame);
-            mCameraManager.startScan(mDecodeThread);
+
+            if(hasCameraPermission()){
+                mCameraManager.acquireCamera(mDeviceWidth, mDisplayRotation);
+                mCameraManager.startPreview(mPreviewFrame);
+                mCameraManager.startScan(mDecodeThread);
+            }
+            else{
+                Timber.d("No Camera permission");
+                if(!mParent.hasAlreadyAskedPermissions()){
+                    mParent.setAlreadyAskedPermission(true);
+                    tryToRequestCameraPermission(HelloActivity.CAMERA_PERMISSION_REQUEST_CODE);
+                }
+            }
         }
         else{
             if(mPreviewFrame.getLayoutParams().height <= 0){
@@ -652,13 +632,101 @@ public class ScanFragment extends Fragment implements SurfaceHolder.Callback,
         }
     }
 
+
+    /**
+     * Check if camera permission is already granted.
+     * @return true if Camera permission already granted. False otherwise.
+     */
+    private boolean hasCameraPermission(){
+        String[] permissionsLack = PermissionHelper.checkPermissionsLack(getActivity(),
+                new String[]{Manifest.permission.CAMERA});
+        return permissionsLack.length == 0;
+    }
+
+    /**
+     * This method will find out if there is a need to request for camera permission and request it
+     * if necessary. Camera permission will not be requested if user has selected never ask again
+     * option.
+     * In the event that camera permission is not requested, show rationale UI instead.
+     *
+     * @param requestCode Application specific request code to match with a result
+     *    reported to {@link android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback#onRequestPermissionsResult(
+     *    int, String[], int[])}.
+     */
+    private void tryToRequestCameraPermission(int requestCode){
+        final String[] permissionsLack = {Manifest.permission.CAMERA};
+
+        // Find out info about permissions so we can determine whether to request permission or to
+        // show rationale UI.
+        boolean[] shouldShowRationaleArray = PermissionHelper.checkShouldShowRationaleList(
+                getActivity(), permissionsLack);
+        boolean[] askedBeforeArray = PermissionHelper
+                .checkPermissionAskedBefore(CrimpApplication.getPermissionPreferences(),
+                        permissionsLack);
+
+        // Base on information gathered, determine a list of permissions to request.
+        List<String> permissionToAsk = new ArrayList<>();
+        for(int i=0; i<permissionsLack.length; i++){
+            if(shouldShowRationaleArray[i] ||
+                    (!shouldShowRationaleArray[i] && !askedBeforeArray[i])){
+                permissionToAsk.add(permissionsLack[i]);
+            }
+        }
+
+        // Actual requesting of permissions
+        if(permissionToAsk.size() > 0) {
+            PermissionHelper.requestPermissions(CrimpApplication.getPermissionPreferences(),
+                    getActivity(), permissionToAsk.toArray(new String[permissionToAsk.size()]), requestCode);
+        }
+
+        // Base on information gathered, determine a list of permission to show rationale UI.
+        List<String> rationaleList = new ArrayList<>();
+        for(int i=0; i<askedBeforeArray.length; i++){
+            if(askedBeforeArray[i] && !shouldShowRationaleArray[i]){
+                rationaleList.add(permissionsLack[i]);
+            }
+        }
+
+        // Actual showing of rationale UI
+        if(rationaleList.size()>0){
+            AlertDialog dialog = CameraPermissionDialog.create(getActivity());
+            dialog.show();
+        }
+    }
+
+    private void writeBitmapToFile(Context context, Bitmap bitmap, String fileName){
+        FileOutputStream out = null;
+        try {
+            out = context.openFileOutput(fileName, Context.MODE_PRIVATE);
+            // PNG is a lossless format, the compression factor (100) is ignored
+            mCapturedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private Bitmap readBitmapFromFile(Context context, String fileName){
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        String bitmapPath = context.getFileStreamPath(fileName).getPath();
+        return BitmapFactory.decodeFile(bitmapPath, options);
+    }
+
     public interface ScanFragmentInterface{
-        void setDecodedImage(Bitmap image);
-        Bitmap getDecodedImage();
         CategoriesJs getCategoriesJs();
         void goToScoreTab();
         void setCanDisplay(int canDisplay);
         void setAppBarExpanded(boolean expanded);
         void clearActive(String xUserId, String xAuthToken, String routeId);
+        boolean hasAlreadyAskedPermissions();
+        void setAlreadyAskedPermission(boolean alreadyAsked);
     }
 }
