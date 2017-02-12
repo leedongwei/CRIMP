@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<lint>
-    <issue id="InvalidPackage">
-	    <ignore regexp="jackson-databind-2.7.2.jar" />
-	    <ignore regexp="retrofit-2.0.0.jar" />
-    </issue>
-</lint>

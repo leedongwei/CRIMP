@@ -1,58 +1,23 @@
 # CRIMP
 ### A real-time scoring app for climbing events
 
-<!-- Badges -->
+CRIMP is an open-source real-time scoring app first released in 2014. We are the first ever scoring app for climbing events, specially made to improve the experience at climbing events.
 
-<br>
+From 2014-2016, the app was used by climbing club in National University of Singapore to run their annual competition, the [NUS - Black Diamond Boulderactive](http://boulderactive.nusclimb.com/). We had 3 successful years, and learnt a great deal from running the app on events with 700+ climbers.
 
-## Demo (Available August 2016)
-* Download the app from [Google Play]()
-* Send scores and play around on the app
-* See live changes on [demo.crimp.rocks](https://demo.crimp.rocks)
+We wanted the app to be used by every climbing event out there, so we released *everything* for free. After 3 years with a few other events trying to use it, it became clear to us that it was difficult for a layman to deploy the entire tech-stack by themselves. The open-source model was not the best approach if we want folks to use CRIMP.
 
-<br>
+We want to try to run CRIMP as a paid service. The money would support development (paying for more developers/designers, better servers) and let us provide adequate support to events running the app.
 
-## Components
-#### Judge App ([demo]())
-Android app for judges to submit scores. We're looking for an iOS developer to help us work on an app for Apple devices!
+The source code for future iterations will not be published. We have made quite a bit of improvements and changes to CRIMP since, but the source code until June 2016 is still open-source for reference and you can find them [here](https://github.com/leedongwei/CRIMP/releases) and [here](https://github.com/leedongwei/CRIMP/commits/master).
 
-#### Spectator Scoreboard ([demo]())
-Mobile responsive website for spectators to see the scores.
+If you're a climber, we hope to bring CRIMP to a climbing event near you! If you're an event organizer and would like to use the app for your event, please take a look at [our website](http://crimp.rocks) or drop me an email at dw@crimp.rocks for more info.
 
-#### Admin Dashboard ([demo]())
-Interface for admins to have a quick overview of the system and edit the data.
+Cheers!
 
-#### Climber Scoresheet ([demo]())
-Generator for physical scoresheets with unique QR codes for every climber. Linked to the Admin Dashboard to generate and download a PDF file of the scoresheets for all the climbers in a category in just a click.
 
-<br>
+<br><br>
 
-## Supported Scoring Systems
-The system is able to handle several scoring systems running simultaneously. We will add more scoring systems on a as-needed basis. Alternatively, you can write it and make a pull request to us. See CONTRIBUTING.md for more info on how you can contribute :)
-
-* [IFSC Top/Bonus]()
-* [Points]()
-* [Top-Flash-Bonus2-Bonus-1]()
-
-<br>
-
-## Technical Support & Development
-* Currently ongoing! Contact <a href="https://github.com/leedongwei">DongWei</a> for more information!
-
-<br>
-
-## Users
-#### v2.0.0
-* [NUS - Black Diamond Boulderactive 2016](http://boulderactive.nusclimb.com)
-
-#### v1.0.0
-* NUS - Black Diamond Boulderactive 2015
-
-#### v0.2
-* NUS - Black Diamond Boulderactive 2014
-* [Asian University Climbing Championship 2014](http://nus.edu.sg/osa/src/competitive/competitions/aucc)
-
-<br>
 
 ## License
 Copyright © 2014-2016, [DongWei](https://github.com/leedongwei) & [Weizhi](https://github.com/ecc-weizhi)
